@@ -14,6 +14,7 @@ import vn.mobileid.id.FPS.component.document.module.DocumentUtils_itext7;
 import vn.mobileid.id.FPS.component.document.UploadDocument;
 import vn.mobileid.id.FPS.component.field.ConnectorField_Internal;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.enumration.ChildTextFieldTypeName;
 import vn.mobileid.id.FPS.enumration.ProcessStatus;
 import vn.mobileid.id.FPS.fieldAttribute.FieldType;
 import vn.mobileid.id.FPS.fieldAttribute.TextFieldAttribute;
@@ -84,7 +85,7 @@ class TextFieldProcessing implements DocumentProcessing, ModuleProcessing {
 
             //Append textField into file
             byte[] appendedFile = null;
-            if (field.getType().getTypeId() == Resources.getFieldTypes().get("TEXT_FIELD").getTypeId()) {
+            if (field.getType().getTypeId() == ChildTextFieldTypeName.TEXT_FIELD.getId()) {
                 appendedFile = DocumentUtils_itext7.createTextField_i7(file, field, transactionId);
             } else {
                 appendedFile = DocumentUtils_itext7.createTextFormField_i7(file, field, transactionId);
