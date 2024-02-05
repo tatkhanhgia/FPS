@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<License>
+  <Data>
+    <LicensedTo>Mobile Id</LicensedTo>
+    <EmailTo>giatk@mobile-id.vn</EmailTo>
+    <LicenseType>Developer Small Business</LicenseType>
+    <LicenseNote>1 Developer And 1 Deployment Location</LicenseNote>
+    <OrderID>230828035803</OrderID>
+    <UserID>967301</UserID>
+    <OEM>This is not a redistributable license</OEM>
+    <Products>
+      <Product>GroupDocs.Parser for Java</Product>
+    </Products>
+    <EditionType>Professional</EditionType>
+    <SerialNumber>0dfe86ac-a1cd-4234-9ad0-f130b181c615</SerialNumber>
+    <SubscriptionExpiry>20250130</SubscriptionExpiry>
+    <LicenseExpiry>20240229</LicenseExpiry>
+    <ExpiryNote>This is a temporary license for non-commercial use only and it will expire on 2024-02-29</ExpiryNote>
+    <LicenseVersion>3.0</LicenseVersion>
+    <LicenseInstructions>https://purchase.groupdocs.com/policies/use-license</LicenseInstructions>
+  </Data>
+  <Signature>TnRjYFQHwWzs7l7mRaBvRhYJrWId8FDwg7GvBTTASrL5z/R6vekrP0AdymAubGz81w5ehok28rG01ChnOMuaQDrkCSCN9gBP4GDGtESP8cyVFn91vMdehdglywdbz2Qi0/aS0fw5MpGsd70pMwQ9rtl0VXb6FXRdizKr4GZxanQ=</Signature>
+</License>

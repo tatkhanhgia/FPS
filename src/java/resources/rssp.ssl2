@@ -1,0 +1,7 @@
+mobileid.rssp.baseurl=https://rssp.mobile-id.vn/rssp/v2/
+mobileid.rssp.rp.name=RSSP
+mobileid.rssp.rp.user=rsspdemo
+mobileid.rssp.rp.password=12345678
+mobileid.rssp.rp.signature=f3eL/n2q5rLn3SdzGfvl1V4MzgPqM68M4TDVqF2fRHarKFQBVQnJU36DPtufu3ofyGVrsq9OgYh3Nujrx7/CUCiKd8I1Qms1y946jEo6wi55ietUQ6vW6/riMwG0blknbb7Wj5tP4SDe1upNydwetgwvaNEKEfv6kubvNqJVkYCo+bFr2rcWV/u1s+i3L1wv4hRIpLZx0Je5IGurGgf2XkGWVhD6x8/AXyy/qmrZ3IzHnFaiWOuy2Dv+NzVLSR0NPU+Zr3btTYMa/ZUa1YYJjrs6c1XLiiwLMJURac/C5j6i5VSRfTQDSHUkIOfTDtN6oRVLZ5ewQ0aQc6tW/FuM2w==
+mobileid.rssp.rp.keystore.file=file\\rssp.p12
+mobileid.rssp.rp.keystore.password=12345678

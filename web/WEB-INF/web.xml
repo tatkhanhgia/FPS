@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.1" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd">
+    <!--    <listener>
+        <listener-class>com.sun.xml.ws.transport.http.servlet.WSServletContextListener</listener-class>
+    </listener>-->
+    <!--REST-->
+    <!--    <context-param>
+        <param-name>resteasy.scan</param-name>
+        <param-value>false</param-value>
+    </context-param>
+    <context-param>
+        <param-name>resteasy.scan.providers</param-name>
+        <param-value>false</param-value>
+    </context-param>
+    <context-param>
+        <param-name>resteasy.scan.resources</param-name>
+        <param-value>false</param-value>
+    </context-param>-->
+    <!--END REST-->
+    <!--REST-->
+    <servlet>
+        <servlet-name>ManagementController</servlet-name>
+        <servlet-class>vn.mobileid.id.general.api.ManagementController</servlet-class>
+        <init-param>
+            <param-name>documentPattern</param-name>
+            <param-value>^/fps/v1/(documents|synchronize)[/]{0,1}(base64|pre){0,1}[0-9]*[/]{0,1}(sign|details|images|verification|base64|hash){0,1}[/]{0,1}[0-9]*[/]{0,1}(base64){0,1}$</param-value>
+        </init-param>
+        <init-param>
+            <param-name>fieldPattern</param-name>
+            <param-value>^/fps/v1/documents/[0-9]+/(fields|initial).*$</param-value>
+        </init-param>
+        <init-param>
+            <param-name>authorizePattern</param-name>
+            <param-value>^/fps/v1/(authenticate|tokens|info)$</param-value>
+        </init-param>
+        <init-param>
+            <param-name>FMSPattern</param-name>
+            <param-value>^/fps/(upload|delete|download)[/]{0,1}.*$</param-value>
+        </init-param>
+    </servlet>
+    <filter>
+        <filter-name>CorsFilter</filter-name>
+        <filter-class>vn.mobileid.id.general.api.CORSFilter</filter-class>
+    </filter>
+    <!--    <servlet>
+        <servlet-name>documentController</servlet-name>
+        <servlet-class>vn.mobileid.id.FPS.controller.DocumentController</servlet-class>
+    </servlet>-->
+    <servlet>
+        <servlet-name>resourcesLoad</servlet-name>
+        <servlet-class>vn.mobileid.id.general.Resources</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    
+    <filter-mapping>
+        <filter-name>CorsFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <servlet-mapping>
+        <servlet-name>ManagementController</servlet-name>
+        <url-pattern>/*</url-pattern>       
+    </servlet-mapping>
+    <!--END REST-->
+    <!--    <error-page>
+        <error-code>400</error-code>
+        <location>/WEB-INF/error/HTTP400.html</location>
+    </error-page>
+    <error-page>
+        <error-code>401</error-code>
+        <location>/WEB-INF/error/HTTP401.html</location>
+    </error-page>
+    <error-page>
+        <error-code>403</error-code>
+        <location>/WEB-INF/error/HTTP403.html</location>
+    </error-page>
+    <error-page>
+        <error-code>404</error-code>
+        <location>/WEB-INF/error/HTTP404.html</location>
+    </error-page>
+    <error-page>
+        <error-code>405</error-code>
+        <location>/WEB-INF/error/HTTP405.html</location>
+    </error-page>
+    <error-page>
+        <error-code>500</error-code>
+        <location>/WEB-INF/error/HTTP500.html</location>
+    </error-page>
+    <error-page>
+        <error-code>501</error-code>
+        <location>/WEB-INF/error/HTTP501.html</location>
+    </error-page>
+    <error-page>
+        <error-code>502</error-code>
+        <location>/WEB-INF/error/HTTP502.html</location>
+    </error-page>
+    <error-page>
+        <error-code>503</error-code>
+        <location>/WEB-INF/error/HTTP503.html</location>
+    </error-page>
+    <error-page>
+        <error-code>520</error-code>
+        <location>/WEB-INF/error/HTTP520.html</location>
+    </error-page>
+    <error-page>
+        <error-code>521</error-code>
+        <location>/WEB-INF/error/HTTP521.html</location>
+    </error-page>
+    <error-page>
+        <error-code>533</error-code>
+        <location>/WEB-INF/error/HTTP533.html</location>
+    </error-page>-->
+    <session-config>
+        <session-timeout>
+            30
+        </session-timeout>
+    </session-config>
+</web-app>
