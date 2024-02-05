@@ -10,6 +10,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import vn.mobileid.id.FPS.component.document.process.ProcessingFactory;
+import vn.mobileid.id.FPS.component.field.CheckFieldProcessedYet;
 import vn.mobileid.id.FPS.component.field.ConnectorField_Internal;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.enumration.FieldTypeName;
@@ -77,20 +78,11 @@ public class ProcessingInitialFormField {
         ExtendedFieldAttribute fieldData = (ExtendedFieldAttribute) response.getData();
 
         //</editor-fold>
-        
         //<editor-fold defaultstate="collapsed" desc="Check data in ExtendedField is sastified">
-        try {
-            BasicFieldAttribute basic = new ObjectMapper().readValue(fieldData.getFieldValue(), BasicFieldAttribute.class);
-            if (!Utils.isNullOrEmpty(basic.getProcessStatus())) {
-                if (basic.getProcessStatus().equals(ProcessStatus.PROCESSED.getName())) {
-                    return new InternalResponse(
-                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                            A_FPSConstant.CODE_FIELD,
-                            A_FPSConstant.SUBCODE_FIELD_ALREADY_PROCESS);
-                }
-            }
-        } catch (Exception ex) {
-        }
+        InternalResponse response_ = CheckFieldProcessedYet.checkProcessed(fieldData.getFieldValue());
+        if (response_.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+            return response;
+        }        
 
         if (!fieldData.getType().getParentType().equals(FieldTypeName.INITIAL.getParentName())) {
             return new InternalResponse(

@@ -21,6 +21,7 @@ import vn.mobileid.id.FPS.component.document.module.DocumentUtils_itext7;
 import vn.mobileid.id.FPS.component.document.process.ProcessingFactory;
 import vn.mobileid.id.FPS.component.enterprise.ProcessModuleForEnterprise;
 import vn.mobileid.id.FPS.component.field.AddField;
+import vn.mobileid.id.FPS.component.field.CheckFieldProcessedYet;
 import vn.mobileid.id.FPS.component.field.ConnectorField_Internal;
 import vn.mobileid.id.FPS.component.field.GetField;
 import vn.mobileid.id.FPS.component.field.UpdateField;
@@ -1037,17 +1038,11 @@ public class ConnectorDocument {
                     A_FPSConstant.SUBCODE_THIS_TYPE_OF_FIELD_IS_NOT_VALID_FOR_THIS_PROCESSION
             ).setUser(user);
         }
-        try {
-            SignatureFieldAttribute signatureField = new ObjectMapper().readValue(fieldData.getFieldValue(), SignatureFieldAttribute.class);
-            if (signatureField.getProcessStatus().equals(ProcessStatus.PROCESSED.getName())) {
-                return new InternalResponse(
-                        A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                        A_FPSConstant.CODE_FIELD,
-                        A_FPSConstant.SUBCODE_FIELD_ALREADY_PROCESS
-                ).setUser(user);
-            }
-        } catch (Exception ex) {
-        }
+        
+        InternalResponse response_1 = CheckFieldProcessedYet.checkProcessed(fieldData.getFieldValue());
+        if(response_1.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS){
+            return response_1.setUser(user);
+        }       
 
         //</editor-fold>
         

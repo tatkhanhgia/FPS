@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import vn.mobileid.id.FPS.component.document.process.ProcessingFactory;
+import vn.mobileid.id.FPS.component.field.CheckFieldProcessedYet;
 import vn.mobileid.id.FPS.component.field.ConnectorField_Internal;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.controller.ResponseMessageController;
@@ -104,7 +105,7 @@ public class ProcessingTextFormField {
             //</editor-fold>
 
             //<editor-fold defaultstate="collapsed" desc="Check data in ExtendedField is sastified">
-            if (!Utils.isNullOrEmpty(fieldData.getFieldValue())) {
+            if (CheckFieldProcessedYet.checkProcessed(fieldData.getFieldValue()).getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 errorField.setValue(
                         String.valueOf(A_FPSConstant.CODE_FIELD) +
                         String.valueOf(A_FPSConstant.SUBCODE_FIELD_ALREADY_PROCESS)
@@ -112,6 +113,7 @@ public class ProcessingTextFormField {
                 listOfErrorField.add(errorField);
                 continue;
             }
+            
             if (!fieldData.getType().getParentType().equals("TEXTBOX")) {
                 errorField.setValue(
                         String.valueOf(A_FPSConstant.CODE_FIELD) +
