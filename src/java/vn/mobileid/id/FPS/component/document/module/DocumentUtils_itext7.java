@@ -33,6 +33,7 @@ import com.itextpdf.kernel.pdf.StampingProperties;
 import com.itextpdf.kernel.pdf.annot.PdfAnnotation;
 import com.itextpdf.kernel.pdf.annot.PdfWidgetAnnotation;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
+import com.itextpdf.kernel.pdf.canvas.PdfCanvasConstants;
 import com.itextpdf.kernel.pdf.xobject.PdfFormXObject;
 import com.itextpdf.layout.Canvas;
 import com.itextpdf.layout.Document;
@@ -310,7 +311,7 @@ public class DocumentUtils_itext7 {
     }
     //</editor-fold>
 
-    //<editor-fold defaultstate="collapsed" desc="Create Text Field with Canvas">
+    //<editor-fold defaultstate="collapsed" desc="Create Text Field with PdfCanvas">
     /**
      * Using itext 7 to append Text into pdf
      *
@@ -356,31 +357,37 @@ public class DocumentUtils_itext7 {
                     pdfDoc.getPage(field.getPage()).getPageSize().getHeight(),
                     RotateDegree.getRotateDegree(field.getRotate()));
         }
-        System.out.println("DimensionX:"+dimension.getX());
-        System.out.println("DimensionY:"+dimension.getY());
-        System.out.println("DimensionW:"+dimension.getWidth());
-        System.out.println("DimensionH:"+dimension.getHeight());
+        System.out.println("DimensionX:" + dimension.getX());
+        System.out.println("DimensionY:" + dimension.getY());
+        System.out.println("DimensionW:" + dimension.getWidth());
+        System.out.println("DimensionH:" + dimension.getHeight());
         Rectangle rect = new Rectangle(dimension.getX(), dimension.getY(), dimension.getWidth(), dimension.getHeight());
 
         PdfPage page = pdfDoc.getPage(field.getPage());
 
-//        Paragraph paragraph = new Paragraph(
-//                field.getValue())
-//                .setMargin(0)
-//                .setMultipliedLeading(1)
-//                .setFont(font)
-//                .setFontSize(field.getFont().getSize());
+        Paragraph paragraph = new Paragraph(
+                field.getValue())
+                .setMargin(0)
+                .setMultipliedLeading(0.75f)
+                .setFont(font)
+                .setFontSize(field.getFont().getSize())
+                .setTextAlignment(TextAlignment.CENTER)                
+                .setHeight(dimension.getHeight())
+                .setWidth(dimension.getWidth());
+    
+//        String[] text = field.getValue().split("\n");
+//
+//        PdfCanvas pdfCanvas = new PdfCanvas(page);
+//        pdfCanvas.beginText()
+//                    .setFontAndSize(font, field.getFont().getSize())
+//                    .moveText(dimension.getX(), dimension.getY());
+//        pdfCanvas.showText(text[0]);
+//        for (int i = 1; i < text.length; i++) {
+//            pdfCanvas.newlineShowText(text[i]);
+//        }
+//        pdfCanvas.endText();
 
-//        float allowedWidth = 185;       
-
-        PdfCanvas pdfCanvas = new PdfCanvas(page)
-                .beginText()
-                .setFontAndSize(font, field.getFont().getSize())
-                .showText(field.getValue())
-                .moveText(dimension.getX(), dimension.getY())
-                .endText();
-        
-//        Canvas canvas = new Canvas(page, rect);
+        Canvas canvas = new Canvas(page, rect);
 //        RootRenderer canvasRenderer = canvas.getRenderer();
 //        while (paragraph
 //                .createRendererSubTree()
@@ -392,14 +399,9 @@ public class DocumentUtils_itext7 {
 //        }
 //        float xCoord = 151;
 //        float yCoord = 73;
-//
-//        paragraph.setWidth(dimension.getWidth());
-//        paragraph.setHeight(dimension.getHeight());
-//        canvas.showTextAligned(paragraph, 100, 0, TextAlignment.CENTER);
-//        canvas.showTextAligned(paragraph, 0, 0, TextAlignment.CENTER, VerticalAlignment.MIDDLE);
-//        canvas.setBackgroundColor(new DeviceRgb(0,0,0));
-//        canvas.close();
 
+        canvas.add(paragraph);
+        canvas.close();
         pdfDoc.close();
         return outputStream.toByteArray();
     }
@@ -1012,23 +1014,23 @@ public class DocumentUtils_itext7 {
 //        fos.write(pdfResult);
 //        fos.close();
 //          //Create TextFormField
-          byte[] pdf = Files.readAllBytes(Paths.get("C:\\Users\\Admin\\Downloads\\unsign.pdf"));
-          TextFieldAttribute textField = new TextFieldAttribute();
-          textField.setColor("Black");
-          textField.setDimension(new Dimension(100,100, 100, 100));
-          textField.setFieldName("gia");
-          textField.setAlign(TextFieldAttribute.Align.LEFT);
-          textField.setPage(1);
-          
-          TextFieldAttribute.Font font = new TextFieldAttribute.Font();
-          font.setSize(10);
-          
-          textField.setFont(font);
-          textField.setValue("TẤT KHÁNH GIA một hai ba bốn năm sáu bảy tám chín mười. Yêu Châu Trần Anh Thư");
-          byte[] result = createTextField_i7(pdf, textField, "");
-          FileOutputStream fos = new FileOutputStream("C:\\Users\\Admin\\Downloads\\response.pdf");
-          fos.write(result);
-          fos.close();
+        byte[] pdf = Files.readAllBytes(Paths.get("C:\\Users\\Admin\\Downloads\\unsign.pdf"));
+        TextFieldAttribute textField = new TextFieldAttribute();
+        textField.setColor("Black");
+        textField.setDimension(new Dimension(0, 0, 100, 100));
+        textField.setFieldName("gia");
+        textField.setAlign(TextFieldAttribute.Align.LEFT);
+        textField.setPage(1);
+
+        TextFieldAttribute.Font font = new TextFieldAttribute.Font();
+        font.setSize(10);
+
+        textField.setFont(font);
+        textField.setValue("TẤT KHÁNH GIA một hai ba bốn năm sáu bảy tám chín mười\n Yêu Châu Trần Anh Thư\nhehe");
+        byte[] result = createTextField_i7(pdf, textField, "");
+        FileOutputStream fos = new FileOutputStream("C:\\Users\\Admin\\Downloads\\response.pdf");
+        fos.write(result);
+        fos.close();
 //        InitialsFieldAttribute field = new InitialsFieldAttribute();
 //        field.setFieldName("init");
 //        field.setApplyToAll(true);

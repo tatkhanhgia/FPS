@@ -701,14 +701,15 @@ public class Utils {
     }
     //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="Check newLine">
+    public static int checkNewLine(String value){
+        String[] number = value.split("\n");
+        return number.length;
+    }
+    //</editor-fold>
+    
     public static void main(String[] args) {
-        try {
-            String a = "{\"value\":\"testne\",\"read_only\":false,\"multiline\":false,\"max_length\":0,\"color\":\"Red\",\"align\":\"LEFT\",\"format_type\":\"EMAIL\"}";
-            String b = "{\"value:\":\"agaa\"}";
-            JsonNode result = merge(a, b);
-            System.out.println("data:" + result.toPrettyString());
-        } catch (Exception ex) {
-            System.out.println(Utils.summaryException(ex));
-        }
+        String temp = "a\nb\nc\nd";
+        System.out.println(checkNewLine(temp));
     }
 }

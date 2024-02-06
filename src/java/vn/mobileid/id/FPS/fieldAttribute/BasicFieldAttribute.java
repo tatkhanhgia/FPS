@@ -37,7 +37,7 @@ public class BasicFieldAttribute{
     private String handSignatureImage;
     
     //For Gateway
-    private int suffix;
+    private String suffix;
     
     public BasicFieldAttribute() {
     }
@@ -163,11 +163,11 @@ public class BasicFieldAttribute{
     }
 
     @JsonProperty("suffix")
-    public int getSuffix() {
+    public String getSuffix() {
         return suffix;
     }
 
-    public void setSuffix(int suffix) {
+    public void setSuffix(String suffix) {
         this.suffix = suffix;
     }
 
