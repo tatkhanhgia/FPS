@@ -4,20 +4,20 @@
  */
 package vn.mobileid.id.FPS.component.enterprise;
 
+import fps_core.module.DocumentUtils_itext7;
+import fps_core.objects.Dimension;
+import fps_core.objects.FileManagement;
+import fps_core.objects.Signature;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
 import java.util.List;
 import vn.mobileid.id.FMS;
 import vn.mobileid.id.FPS.component.document.GetDocument;
-import vn.mobileid.id.FPS.component.document.module.DocumentUtils_itext7;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.controller.ResponseMessageController;
-import vn.mobileid.id.FPS.fieldAttribute.Dimension;
 import vn.mobileid.id.FPS.object.Document;
-import vn.mobileid.id.FPS.object.FileManagement;
 import vn.mobileid.id.FPS.object.InternalResponse;
-import vn.mobileid.id.FPS.object.Signature;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.utils.Broadcast;
 

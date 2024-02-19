@@ -5,6 +5,8 @@
 package vn.mobileid.id.FPS.component.document;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fps_core.objects.CheckBoxFieldAttribute;
+import fps_core.objects.ExtendedFieldAttribute;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -15,8 +17,6 @@ import vn.mobileid.id.FPS.component.field.CheckFieldProcessedYet;
 import vn.mobileid.id.FPS.component.field.ConnectorField_Internal;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.controller.ResponseMessageController;
-import vn.mobileid.id.FPS.fieldAttribute.CheckBoxFieldAttribute;
-import vn.mobileid.id.FPS.fieldAttribute.ExtendedFieldAttribute;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.InternalResponse.InternalData;

@@ -5,10 +5,10 @@
 package vn.mobileid.id.FPS.component.document;
 
 import com.groupdocs.conversion.filetypes.ImageFileType;
+import fps_core.module.DocumentUtils_itext7;
 import java.util.HashMap;
 import java.util.List;
 import vn.mobileid.id.FMS;
-import vn.mobileid.id.FPS.component.document.module.DocumentUtils_itext7;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;

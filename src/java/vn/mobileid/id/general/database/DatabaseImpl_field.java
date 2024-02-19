@@ -5,18 +5,17 @@
 package vn.mobileid.id.general.database;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import fps_core.objects.BasicFieldAttribute;
+import fps_core.objects.Dimension;
+import fps_core.objects.ExtendedFieldAttribute;
+import fps_core.objects.FieldType;
+import fps_core.objects.SignatureFieldAttribute;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.enumration.RotateDegree;
-import vn.mobileid.id.FPS.fieldAttribute.BasicFieldAttribute;
-import vn.mobileid.id.FPS.fieldAttribute.Dimension;
-import vn.mobileid.id.FPS.fieldAttribute.ExtendedFieldAttribute;
-import vn.mobileid.id.FPS.fieldAttribute.FieldType;
-import vn.mobileid.id.FPS.fieldAttribute.SignatureFieldAttribute;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.FPS.serializer.IgnoreIngeritedIntrospector;
 import vn.mobileid.id.general.Configuration;
@@ -399,6 +398,13 @@ class DatabaseImpl_field_ implements DatabaseImpl_field {
                 attribute.setLevelOfAssurance(temp.getLevelOfAssurance());
             }
 
+            try {
+                BasicFieldAttribute basic = new ObjectMapper().readValue((String) row.get("DOCUMENT_FIELD_VALUE"), BasicFieldAttribute.class);
+                attribute.setProcessStatus(basic.getProcessStatus());
+                attribute.setProcessBy(basic.getProcessBy());
+                attribute.setProcessOn(basic.getProcessOn());
+            } catch (Exception ex) {
+            }
         }
         response.setObject(attribute);
         return response;
@@ -618,6 +624,14 @@ class DatabaseImpl_field_ implements DatabaseImpl_field {
                     attribute.setType(type);
                     break;
                 }
+            }
+            
+            try {
+                BasicFieldAttribute basic = new ObjectMapper().readValue((String) row.get("DOCUMENT_FIELD_VALUE"), BasicFieldAttribute.class);
+                attribute.setProcessStatus(basic.getProcessStatus());
+                attribute.setProcessBy(basic.getProcessBy());
+                attribute.setProcessOn(basic.getProcessOn());
+            } catch (Exception ex) {
             }
         }
         response.setObject(attribute);

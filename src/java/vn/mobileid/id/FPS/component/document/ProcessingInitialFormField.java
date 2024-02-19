@@ -5,6 +5,8 @@
 package vn.mobileid.id.FPS.component.document;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fps_core.objects.ExtendedFieldAttribute;
+import fps_core.objects.InitialsFieldAttribute;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
@@ -14,11 +16,6 @@ import vn.mobileid.id.FPS.component.field.CheckFieldProcessedYet;
 import vn.mobileid.id.FPS.component.field.ConnectorField_Internal;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.enumration.FieldTypeName;
-import vn.mobileid.id.FPS.enumration.ProcessStatus;
-import vn.mobileid.id.FPS.fieldAttribute.BasicFieldAttribute;
-import vn.mobileid.id.FPS.fieldAttribute.ExtendedFieldAttribute;
-import vn.mobileid.id.FPS.fieldAttribute.FieldType;
-import vn.mobileid.id.FPS.fieldAttribute.InitialsFieldAttribute;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;

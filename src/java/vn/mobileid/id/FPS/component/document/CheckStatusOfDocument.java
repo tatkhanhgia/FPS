@@ -4,9 +4,9 @@
  */
 package vn.mobileid.id.FPS.component.document;
 
+import fps_core.enumration.DocumentStatus;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.Document;
-import vn.mobileid.id.FPS.object.DocumentStatus;
 import vn.mobileid.id.FPS.object.InternalResponse;
 
 /**

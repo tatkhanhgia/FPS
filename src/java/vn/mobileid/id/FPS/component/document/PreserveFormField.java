@@ -4,21 +4,18 @@
  */
 package vn.mobileid.id.FPS.component.document;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fps_core.module.DocumentUtils_itext7;
+import fps_core.objects.SignatureFieldAttribute;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
-import vn.mobileid.id.FPS.component.document.module.DocumentUtils_itext7;
 import vn.mobileid.id.FPS.component.field.AddField;
 import vn.mobileid.id.FPS.component.field.ConnectorField_Internal;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
-import vn.mobileid.id.FPS.controller.ResponseMessageController;
-import vn.mobileid.id.FPS.fieldAttribute.SignatureFieldAttribute;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
-import vn.mobileid.id.FPS.serializer.IgnoreIngeritedIntrospector;
 import vn.mobileid.id.general.Resources;
 import vn.mobileid.id.utils.Broadcast;
 

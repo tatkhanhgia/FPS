@@ -6,6 +6,17 @@ package vn.mobileid.id.FPS.component.document.process;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fps_core.enumration.DocumentStatus;
+import fps_core.enumration.ProcessStatus;
+import fps_core.module.DocumentUtils_itext5;
+import fps_core.module.DocumentUtils_itext7;
+import fps_core.module.DocumentUtils_rssp_i5;
+import fps_core.module.DocumentUtils_rssp_i7;
+import fps_core.objects.ExtendedFieldAttribute;
+import fps_core.objects.FileManagement;
+import fps_core.objects.QRFieldAttribute;
+import fps_core.objects.Signature;
+import fps_core.objects.SignatureFieldAttribute;
 import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -14,29 +25,18 @@ import java.util.concurrent.Future;
 import org.apache.commons.codec.binary.Hex;
 import vn.mobileid.id.FMS;
 import static vn.mobileid.id.FPS.component.document.CheckStatusOfDocument.checkStatusOfDocument;
-import vn.mobileid.id.FPS.component.document.module.DocumentUtils_itext5;
-import vn.mobileid.id.FPS.component.document.module.DocumentUtils_itext7;
-import vn.mobileid.id.FPS.component.document.module.DocumentUtils_rssp_i5;
 import vn.mobileid.id.FPS.component.document.UploadDocument;
-import vn.mobileid.id.FPS.component.document.module.DocumentUtils_rssp_i7;
 import vn.mobileid.id.FPS.component.field.ConnectorField_Internal;
 import vn.mobileid.id.FPS.component.field.GetField;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.enumration.FieldTypeName;
-import vn.mobileid.id.FPS.enumration.ProcessStatus;
-import vn.mobileid.id.FPS.fieldAttribute.ExtendedFieldAttribute;
-import vn.mobileid.id.FPS.fieldAttribute.FieldType;
-import vn.mobileid.id.FPS.fieldAttribute.QRFieldAttribute;
-import vn.mobileid.id.FPS.fieldAttribute.SignatureFieldAttribute;
 import vn.mobileid.id.FPS.object.Document;
-import vn.mobileid.id.FPS.object.DocumentStatus;
-import vn.mobileid.id.FPS.object.FileManagement;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.InternalResponse.InternalData;
-import vn.mobileid.id.FPS.object.Signature;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.FPS.serializer.IgnoreIngeritedIntrospector;
 import vn.mobileid.id.general.LogHandler;
+import vn.mobileid.id.general.PolicyConfiguration;
 import vn.mobileid.id.utils.Broadcast;
 import vn.mobileid.id.utils.Crypto;
 import vn.mobileid.id.utils.TaskV2;
@@ -325,16 +325,19 @@ class SignatureProcessing implements DocumentProcessing, ModuleProcessing {
             //Create form Signature
             Object[] objs = null;
             if (isEsealForm) {
+                
                 objs = DocumentUtils_rssp_i7.createEsealFormSignature(
                         field.getFieldName(),
                         file,
                         field,
+                        PolicyConfiguration.getInstant().getSystemConfig().getAttributes().get(0).getDateFormat(),
                         transactionId);
             } else {
                 objs = DocumentUtils_rssp_i7.createFormSignature(
                         field.getFieldName(),
                         file,
                         field,
+                        PolicyConfiguration.getInstant().getSystemConfig().getAttributes().get(0).getDateFormat(),
                         transactionId);
             }
 

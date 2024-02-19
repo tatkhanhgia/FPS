@@ -6,6 +6,16 @@ package vn.mobileid.id.FPS.component.document;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fps_core.enumration.DocumentStatus;
+import fps_core.enumration.DocumentType;
+import fps_core.enumration.ProcessStatus;
+import fps_core.module.DocumentUtils_itext7;
+import fps_core.objects.BasicFieldAttribute;
+import fps_core.objects.ExtendedFieldAttribute;
+import fps_core.objects.FileManagement;
+import fps_core.objects.QRFieldAttribute;
+import fps_core.objects.Signature;
+import fps_core.objects.SignatureFieldAttribute;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -17,7 +27,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import javax.servlet.http.HttpServletRequest;
 import vn.mobileid.id.FMS;
-import vn.mobileid.id.FPS.component.document.module.DocumentUtils_itext7;
 import vn.mobileid.id.FPS.component.document.process.ProcessingFactory;
 import vn.mobileid.id.FPS.component.enterprise.ProcessModuleForEnterprise;
 import vn.mobileid.id.FPS.component.field.AddField;
@@ -28,20 +37,9 @@ import vn.mobileid.id.FPS.component.field.UpdateField;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.controller.ResponseMessageController;
 import vn.mobileid.id.FPS.enumration.FieldTypeName;
-import vn.mobileid.id.FPS.enumration.ProcessStatus;
-import vn.mobileid.id.FPS.fieldAttribute.BasicFieldAttribute;
-import vn.mobileid.id.FPS.fieldAttribute.ExtendedFieldAttribute;
-import vn.mobileid.id.FPS.fieldAttribute.FieldType;
-import vn.mobileid.id.FPS.fieldAttribute.InitialsFieldAttribute;
-import vn.mobileid.id.FPS.fieldAttribute.QRFieldAttribute;
-import vn.mobileid.id.FPS.fieldAttribute.SignatureFieldAttribute;
 import vn.mobileid.id.FPS.object.Document;
-import vn.mobileid.id.FPS.object.DocumentStatus;
-import vn.mobileid.id.FPS.object.DocumentType;
-import vn.mobileid.id.FPS.object.FileManagement;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.ProcessingRequest;
-import vn.mobileid.id.FPS.object.Signature;
 import vn.mobileid.id.FPS.object.SyncForDokobit;
 import vn.mobileid.id.FPS.object.TemporalObject;
 import vn.mobileid.id.FPS.object.User;
@@ -55,6 +53,7 @@ import vn.mobileid.id.utils.Broadcast;
 import vn.mobileid.id.utils.ManagementTemporal;
 import vn.mobileid.id.utils.TaskV2;
 import vn.mobileid.id.utils.Utils;
+import fps_core.objects.InitialsFieldAttribute;
 
 /**
  *
@@ -583,7 +582,8 @@ public class ConnectorDocument {
         signatureField.setFieldName(fieldData.getFieldName());
         signatureField.setPage(fieldData.getPage());
         signatureField.setVisibleEnabled(fieldData.getVisibleEnabled());
-        signatureField.setVerification(new ObjectMapper().setAnnotationIntrospector(new IgnoreIngeritedIntrospector()).readValue(payload, Signature.class));
+        signatureField.setVerification(new ObjectMapper().setAnnotationIntrospector(
+                new IgnoreIngeritedIntrospector()).readValue(payload, Signature.class));
         signatureField.setLevelOfAssurance(fieldData.getLevelOfAssurance());
         //</editor-fold>
 
@@ -1517,6 +1517,107 @@ public class ConnectorDocument {
     }
     // </editor-fold>
 
+    // <editor-fold defaultstate="collapsed" desc="Create QR From Qrypto">
+    public static InternalResponse createQRQrypto(
+            HttpServletRequest request,
+            long packageId,
+            String payload,
+            String transactionId) throws Exception {
+        //<editor-fold defaultstate="collapsed" desc="Verify Token">
+        InternalResponse response = Utils.verifyAuthorizationToken(request, transactionId);
+        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+            return response;
+        }
+        User user = (User) response.getData();
+        //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="Check payload">
+        if (Utils.isNullOrEmpty(payload)) {
+            return new InternalResponse(
+                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                    A_FPSConstant.CODE_FAIL,
+                    A_FPSConstant.SUBCODE_NO_PAYLOAD_FOUND
+            ).setUser(user);
+        }
+        //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="Parse Payload">
+        InitialsFieldAttribute processRequest = null;
+        try {
+            processRequest = new ObjectMapper().readValue(payload, InitialsFieldAttribute.class);
+//            response = CheckPayloadRequest.checkAddInitialField(processRequest, transactionId);
+//            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+//                response.setUser(user);
+//                return response;
+//            }
+
+            response = CheckPayloadRequest.checkFillInitialField(processRequest, transactionId);
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                response.setUser(user);
+                return response;
+            }
+        } catch (JsonProcessingException ex) {
+            response = new InternalResponse(
+                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                    A_FPSConstant.CODE_FAIL,
+                    A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE
+            );
+            response.setException(ex).setUser(user);
+            return response;
+        }
+        //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="Get Documents">
+        response = GetDocument.getDocuments(
+                packageId,
+                transactionId);
+
+        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+            return response.setUser(user);
+        }
+
+        List<Document> documents = (List<Document>) response.getData();
+//        Document document_ = null;
+//        for (Document document : documents) {
+//            if (document.getRevision() == 1) {
+//                response = ConnectorField_Internal.getField(
+//                        document.getId(),
+//                        processRequest.getFieldName(),
+//                        transactionId);
+//            }
+//            if (document.getRevision() == documents.size()) {
+//                document_ = document;
+//            }
+//        }
+//        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+//            return response.setUser(user);
+//        }
+//        ExtendedFieldAttribute fieldData = (ExtendedFieldAttribute) response.getData();
+        //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="Process Initial Form Field">
+        response = ProcessingInitialFormField.processInitialField(
+                packageId,
+                user,
+                documents,
+                processRequest,
+                transactionId);
+
+        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+            response.setUser(user);
+            return response;
+        }
+        //</editor-fold>
+
+        response = new InternalResponse(
+                A_FPSConstant.HTTP_CODE_SUCCESS,
+                ""
+        );
+        response.setUser(user);
+        return response;
+    }
+    // </editor-fold>
+    
     //<editor-fold defaultstate="collapsed" desc="Recall Document">
     public static InternalResponse recallDocument(
             HttpServletRequest request,

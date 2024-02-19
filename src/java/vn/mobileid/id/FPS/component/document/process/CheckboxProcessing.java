@@ -4,25 +4,23 @@
  */
 package vn.mobileid.id.FPS.component.document.process;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fps_core.enumration.DocumentStatus;
+import fps_core.enumration.ProcessStatus;
+import fps_core.module.DocumentUtils_itext7;
+import fps_core.objects.CheckBoxFieldAttribute;
+import fps_core.objects.FileManagement;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.apache.commons.codec.binary.Hex;
 import vn.mobileid.id.FMS;
 import vn.mobileid.id.FPS.component.document.UploadDocument;
-import vn.mobileid.id.FPS.component.document.module.DocumentUtils_itext7;
 import vn.mobileid.id.FPS.component.field.ConnectorField_Internal;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
-import vn.mobileid.id.FPS.enumration.ProcessStatus;
-import vn.mobileid.id.FPS.fieldAttribute.CheckBoxFieldAttribute;
 import vn.mobileid.id.FPS.object.Document;
-import vn.mobileid.id.FPS.object.DocumentStatus;
-import vn.mobileid.id.FPS.object.FileManagement;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
-import vn.mobileid.id.FPS.serializer.IgnoreIngeritedIntrospector;
 import vn.mobileid.id.general.LogHandler;
 import vn.mobileid.id.utils.Broadcast;
 import vn.mobileid.id.utils.Crypto;

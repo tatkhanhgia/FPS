@@ -4,9 +4,8 @@
  */
 package vn.mobileid.id.FPS.component.field;
 
+import fps_core.objects.ExtendedFieldAttribute;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
-import vn.mobileid.id.FPS.controller.ResponseMessageController;
-import vn.mobileid.id.FPS.fieldAttribute.ExtendedFieldAttribute;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.general.Resources;
 import vn.mobileid.id.general.database.DatabaseFactory;

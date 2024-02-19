@@ -76,6 +76,10 @@ public class Configuration {
     private String urlFMS;        
     private boolean isGTK_Dev = false;
     
+    //Qrypto
+    private String hostQrypto;
+    private String qryptoAuthentication;
+    
     public static Configuration getInstance() {
         if (instance == null) {
             instance = new Configuration();
@@ -167,7 +171,34 @@ public class Configuration {
                 } else {
                     LOG.error("Cannot find any configuation file. This is a big problem");
                 }
-            }                        
+            }             
+            
+            //Load QRYPTO PROPERTIES====================================
+            InputStream qrypto = loader.getResourceAsStream("resources/config/qrypto.properties");
+            Properties propQrypto = new Properties();
+            if (qrypto != null) {
+                 propSMTP.load(qrypto);
+                if (propQrypto.keySet() == null) {
+                    String propertiesFile = Utils.getPropertiesFile("resources/config/qrypto.properties");
+                    if (propertiesFile != null) {
+                        LOG.info("Read the configuation file from " + propertiesFile);
+                        InputStream in = new FileInputStream(propertiesFile);
+                        propQrypto.load(in);
+                        in.close();
+                    } else {
+                        LOG.error("Cannot find any configuation file. This is a big problem");
+                    }
+                }
+                qrypto.close();
+            } else {
+                String propertiesFile = Utils.getPropertiesFile("resources/config/qrypto.properties");
+                if (propertiesFile != null) {
+                    LOG.info("Read the configuation file from " + propertiesFile);
+                    propQrypto.load(new FileInputStream(propertiesFile));
+                } else {
+                    LOG.error("Cannot find any configuation file. This is a big problem");
+                }
+            }      
             
             
             dbUrl = prop.getProperty("FPS.db.url") == null ? System.getenv("DTIS_DB_URL") : prop.getProperty("FPS.db.url");
@@ -207,6 +238,14 @@ public class Configuration {
             try{
                 isGTK_Dev = Boolean.parseBoolean(prop.getProperty("FMS.isGTK_Dev"));
             } catch(Exception ex){}
+            
+            hostQrypto = propQrypto.getProperty("gopaperless.workflow.qrypto.host") == null ? 
+                    System.getenv("DTIS_DB_LOGGING_PROCEDURES_ENABLED") :
+                    propQrypto.getProperty("gopaperless.workflow.qrypto.host");
+            qryptoAuthentication = propQrypto.getProperty("gopaperless.workflow.qrypto.authentication") == null ? 
+                    System.getenv("DTIS_DB_LOGGING_PROCEDURES_ENABLED") :
+                    propQrypto.getProperty("gopaperless.workflow.qrypto.authentication");
+            
 //            ssl_enable = Boolean.parseBoolean(propSMTP.getProperty("mail.smtp.ssl.enable") == null ? System.getenv("SERVER_TIME_TYPE") : propSMTP.getProperty("mail.smtp.ssl.enable"));
 //            tsl_enable = Boolean.parseBoolean(propSMTP.getProperty("mail.smtp.starttls.enable") == null ? System.getenv("SERVER_TIME_TYPE") : propSMTP.getProperty("mail.smtp.starttls.enable"));
 //            auth = Boolean.parseBoolean(propSMTP.getProperty("mail.smtp.auth") == null ? System.getenv("SERVER_TIME_TYPE") : propSMTP.getProperty("mail.smtp.auth"));
@@ -355,4 +394,14 @@ public class Configuration {
     public void setIsGTK_Dev() {
         this.isGTK_Dev = true;
     }
+
+    public String getHostQrypto() {
+        return hostQrypto;
+    }
+
+    public String getQryptoAuthentication() {
+        return qryptoAuthentication;
+    }
+    
+    
 }

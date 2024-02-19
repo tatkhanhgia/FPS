@@ -8,9 +8,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fps_core.objects.SignatureFieldAttribute;
 import java.util.List;
-import vn.mobileid.id.FPS.fieldAttribute.BasicFieldAttribute;
-import vn.mobileid.id.FPS.fieldAttribute.SignatureFieldAttribute;
 
 /**
  *

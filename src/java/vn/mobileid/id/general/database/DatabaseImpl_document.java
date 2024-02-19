@@ -5,6 +5,9 @@
 package vn.mobileid.id.general.database;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fps_core.enumration.DocumentStatus;
+import fps_core.enumration.DocumentType;
+import fps_core.objects.CustomPageSize;
 import java.sql.Types;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -13,10 +16,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
-import vn.mobileid.id.FPS.object.CustomPageSize;
 import vn.mobileid.id.FPS.object.Document;
-import vn.mobileid.id.FPS.object.DocumentStatus;
-import vn.mobileid.id.FPS.object.DocumentType;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.general.Configuration;
 import vn.mobileid.id.general.LogHandler;

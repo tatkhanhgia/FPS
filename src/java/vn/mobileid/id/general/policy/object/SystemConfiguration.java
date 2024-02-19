@@ -16,6 +16,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SystemConfiguration {
     private String dateFormat;
+    private String qrExpiredTime;
+    private String qrHost;
 
     public SystemConfiguration() {
     }
@@ -28,7 +30,22 @@ public class SystemConfiguration {
     public void setDateFormat(String dateFormat) {
         this.dateFormat = dateFormat;
     }
-    
-    
 
+    @JsonProperty("qr_expired_time")
+    public String getQrExpiredTime() {
+        return qrExpiredTime;
+    }
+
+    public void setQrExpiredTime(String qrExpiredTime) {
+        this.qrExpiredTime = qrExpiredTime;
+    }
+
+    @JsonProperty("qr_host")
+    public String getQrHost() {
+        return qrHost;
+    }
+
+    public void setQrHost(String qrHost) {
+        this.qrHost = qrHost;
+    }
 }

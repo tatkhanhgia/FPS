@@ -5,6 +5,7 @@
  */
 package vn.mobileid.id.general;
 
+import fps_core.objects.FieldType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,7 +13,6 @@ import javax.servlet.http.HttpServlet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
-import vn.mobileid.id.FPS.fieldAttribute.FieldType;
 import vn.mobileid.id.general.database.DatabaseImpl;
 import vn.mobileid.id.FPS.object.ResponseCode;
 import vn.mobileid.id.general.database.DatabaseFactory;

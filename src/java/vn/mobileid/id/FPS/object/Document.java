@@ -11,7 +11,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Date;
 import java.util.List;
-
+import fps_core.enumration.DocumentType;
+import fps_core.enumration.DocumentStatus;
+import fps_core.objects.CustomPageSize;
 /**
  *
  * @author GiaTK

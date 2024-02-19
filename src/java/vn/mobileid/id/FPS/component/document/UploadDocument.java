@@ -4,10 +4,9 @@
  */
 package vn.mobileid.id.FPS.component.document;
 
+import fps_core.enumration.DocumentStatus;
+import fps_core.objects.FileManagement;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
-import vn.mobileid.id.FPS.controller.ResponseMessageController;
-import vn.mobileid.id.FPS.object.DocumentStatus;
-import vn.mobileid.id.FPS.object.FileManagement;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.general.Configuration;
 import vn.mobileid.id.general.database.DatabaseFactory;

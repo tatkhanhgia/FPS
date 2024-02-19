@@ -6,7 +6,7 @@ package vn.mobileid.id.FPS.serializer;
 
 import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
-import vn.mobileid.id.FPS.fieldAttribute.BasicFieldAttribute;
+import fps_core.objects.BasicFieldAttribute;
 
 /**
  *

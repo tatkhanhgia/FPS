@@ -8,6 +8,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fps_core.enumration.DocumentStatus;
+import fps_core.enumration.ProcessStatus;
+import fps_core.objects.BasicFieldAttribute;
+import fps_core.objects.CheckBoxFieldAttribute;
+import fps_core.objects.Dimension;
+import fps_core.objects.ExtendedFieldAttribute;
+import fps_core.objects.FieldType;
+import fps_core.objects.InitialsFieldAttribute;
+import fps_core.objects.QRFieldAttribute;
+import fps_core.objects.SignatureFieldAttribute;
+import fps_core.objects.TextFieldAttribute;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -31,19 +42,8 @@ import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.controller.ResponseMessageController;
 import vn.mobileid.id.FPS.enumration.FieldTypeName;
 import vn.mobileid.id.FPS.enumration.RotateDegree;
-import vn.mobileid.id.FPS.fieldAttribute.BasicFieldAttribute;
-import vn.mobileid.id.FPS.fieldAttribute.CheckBoxFieldAttribute;
-import vn.mobileid.id.FPS.fieldAttribute.Dimension;
-import vn.mobileid.id.FPS.fieldAttribute.ExtendedFieldAttribute;
-import vn.mobileid.id.FPS.fieldAttribute.FieldType;
-import vn.mobileid.id.FPS.fieldAttribute.InitialsFieldAttribute;
-import vn.mobileid.id.FPS.fieldAttribute.QRFieldAttribute;
-import vn.mobileid.id.FPS.fieldAttribute.SignatureFieldAttribute;
-import vn.mobileid.id.FPS.fieldAttribute.TextFieldAttribute;
 import vn.mobileid.id.FPS.object.Document;
-import vn.mobileid.id.FPS.object.DocumentStatus;
 import vn.mobileid.id.FPS.object.InternalResponse;
-import vn.mobileid.id.FPS.object.Signature;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.FPS.serializer.FieldsSerializer;
 import vn.mobileid.id.FPS.serializer.IgnoreIngeritedIntrospector;
@@ -1023,6 +1023,14 @@ public class ConnectorField {
             ExtendedFieldAttribute field,
             String transactionId) throws Exception {
         InternalResponse response = new InternalResponse();
+        
+        //<editor-fold defaultstate="collapsed" desc="Check process status">
+        InternalResponse gate = CheckFieldProcessedYet.checkProcessed(field);
+        if(gate.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS){
+            return gate.setUser(user);
+        }
+        //</editor-fold>
+        
         switch (field.getType().getParentType()) {
             case "SIGNATURE": {
                 //<editor-fold defaultstate="collapsed" desc="Check if this signature have hash => already "Get Hash" => Delete temporal data in DB">
@@ -1117,12 +1125,12 @@ public class ConnectorField {
     //</editor-fold>   
 
     public static void main(String[] args) throws JsonProcessingException {
-        String url = "{\"verification\":{\"signature_name\":\"sig-1703489823513-NULL\",\"signing_location\":\"Quan 2\",\"signing_reason\":\"Ky hop dong\",\"image_enabled\":false,\"signature_status\":\"VALID\",\"signing_time\":1703489823000,\"ltv\":false,\"qualified\":true,\"certified\":false,\"subject_dn\":\"C=VN,ST=H? CHÍ MINH,O=Mobile-ID Technologies and Services Joint Stock Company,CN=Mobile-ID Technologies and Services Joint Stock Company,UID=MST:0313994173,E=info@mobile-id.vn,TelephoneNumber=0123456789\",\"issuer_dn\":\"CN=FPT Certification Authority,OU=FPT Information System,O=FPT Corporation,C=VN\",\"cert_valid_from\":1667805848000,\"cert_valid_to\":1730877848000,\"signature_type\":\"ETSI.CAdES.detached\",\"signature_algorithm\":\"RSA\",\"signed_hash\":\"SHA256\"}}";
-        Signature sig = new ObjectMapper()
-                .setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
-                .enable(DeserializationFeature.UNWRAP_ROOT_VALUE)
-                .readValue(url, Signature.class);
-        System.out.println("A:" + sig.getSignatureAlgorithm());
+//        String url = "{\"verification\":{\"signature_name\":\"sig-1703489823513-NULL\",\"signing_location\":\"Quan 2\",\"signing_reason\":\"Ky hop dong\",\"image_enabled\":false,\"signature_status\":\"VALID\",\"signing_time\":1703489823000,\"ltv\":false,\"qualified\":true,\"certified\":false,\"subject_dn\":\"C=VN,ST=H? CHÍ MINH,O=Mobile-ID Technologies and Services Joint Stock Company,CN=Mobile-ID Technologies and Services Joint Stock Company,UID=MST:0313994173,E=info@mobile-id.vn,TelephoneNumber=0123456789\",\"issuer_dn\":\"CN=FPT Certification Authority,OU=FPT Information System,O=FPT Corporation,C=VN\",\"cert_valid_from\":1667805848000,\"cert_valid_to\":1730877848000,\"signature_type\":\"ETSI.CAdES.detached\",\"signature_algorithm\":\"RSA\",\"signed_hash\":\"SHA256\"}}";
+//        Signature sig = new ObjectMapper()
+//                .setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
+//                .enable(DeserializationFeature.UNWRAP_ROOT_VALUE)
+//                .readValue(url, Signature.class);
+//        System.out.println("A:" + sig.getSignatureAlgorithm());
 
     }
 }
