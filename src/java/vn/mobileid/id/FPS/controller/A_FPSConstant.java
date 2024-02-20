@@ -93,6 +93,7 @@ public class A_FPSConstant {
     final public static int CODE_FIELD_CHECKBOX = 8;
     final public static int CODE_FIELD_INITIAL = 9;
     final public static int CODE_FIELD_QR = 10;
+    final public static int CODE_FIELD_QR_Qrypto = 11;
     
     
     //SubCode
@@ -167,4 +168,11 @@ public class A_FPSConstant {
     final public static int SUBCODE_INVALID_QR_TYTPE = 1;
     final public static int SUBCODE_MISSING_ENCODE_STRING_OF_QR = 2;
     final public static int SUBCODE_CANNOT_GENERATE_QR = 3;
+    
+    //CODE_FIELD_QR_Qrypto - 11
+    final public static int SUBCODE_INVALID_FORMAT_OF_ITEM = 1;
+    final public static int SUBCODE_CANNOT_CREATE_QR = 2;
+    final public static int SUBCODE_FILE_TOKEN_NOT_FOUND = 3;
+    final public static int SUBCODE_CANNOT_DOWNLOAD_FILE_FROM_QRYPTO = 4;
+    final public static int SUBCODE_MISSING_ITEMS = 5;
 }

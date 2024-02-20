@@ -1657,6 +1657,80 @@ public class ConnectorDocument {
     }
     //</editor-fold>
 
+    // <editor-fold defaultstate="collapsed" desc="Fill QR Qrypto Field">
+    public static InternalResponse fillQRQryptoield(
+            HttpServletRequest request,
+            String payload,
+            String transactionId) throws Exception {
+        //<editor-fold defaultstate="collapsed" desc="Verify Token">
+        InternalResponse response = Utils.verifyAuthorizationToken(request, transactionId);
+        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+            return response;
+        }
+        User user = (User) response.getData();
+        //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="Check payload">
+        if (Utils.isNullOrEmpty(payload)) {
+            return new InternalResponse(
+                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                    A_FPSConstant.CODE_FAIL,
+                    A_FPSConstant.SUBCODE_NO_PAYLOAD_FOUND
+            ).setUser(user);
+        }
+        //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="Parse Payload">
+        ProcessingRequest processRequest = null;
+        try {
+            processRequest = new ObjectMapper().readValue(payload, ProcessingRequest.class);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return new InternalResponse(
+                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                    A_FPSConstant.CODE_FAIL,
+                    A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE
+            ).setException(ex).setUser(user);
+        }
+        
+        if(Utils.isNullOrEmpty(processRequest.getFieldName())){
+            return new InternalResponse(
+                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                    A_FPSConstant.CODE_FIELD,
+                    A_FPSConstant.SUBCODE_MISSING_FIELD_NAME);
+        }
+        //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="Process QR Qrypto Field">
+        if (!Utils.isNullOrEmpty(processRequest.getItem())) {
+            response = ProcessingQRQryptoField.processQRQryptoField(
+                    Utils.getIdFromURL(request.getRequestURI()),
+                    processRequest.getFieldName(),
+                    user,
+                    processRequest.getItem(),
+                    transactionId);
+
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                return response;
+            }
+        } else {
+            return new InternalResponse(
+                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                    A_FPSConstant.CODE_FIELD_QR_Qrypto,
+                    A_FPSConstant.SUBCODE_MISSING_ITEMS
+            ).setUser(user);
+        }
+        //</editor-fold>
+
+        response = new InternalResponse(
+                A_FPSConstant.HTTP_CODE_SUCCESS,
+                ""
+        );
+        response.setUser(user);
+        return response;
+    }
+    // </editor-fold>
+    
     //==========================================================================
     //<editor-fold defaultstate="collapsed" desc="Child function Synchonized - create New Document Id ">
     private static InternalResponse child_CreateNew(

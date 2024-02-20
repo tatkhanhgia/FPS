@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package vn.mobileid.id.FPS.component.document.process;
+package vn.mobileid.id.FPS.QryptoService.process;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fps_core.objects.QRFieldAttribute;

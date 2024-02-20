@@ -21,7 +21,8 @@ public enum FieldTypeName {
     STAMP("STAMP"),
     COMBOBOX("COMBOBOX"),
     TOGGLE("TOGGLE"),
-    NUMERIC_STEP("NUMERIC_STEPPER");
+    NUMERIC_STEP("NUMERIC_STEPPER"),
+    QRYPTO("QRYPTO");
 
     private String parentName;
 

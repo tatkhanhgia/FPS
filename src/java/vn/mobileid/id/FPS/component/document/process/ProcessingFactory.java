@@ -23,6 +23,9 @@ public class ProcessingFactory {
             case INITIALS:{
                 return  new InitialsProcessing();
             }
+            case QRYPTO:{
+                return new QryptoProcessing();
+            }
         }
         throw new IllegalArgumentException();
     }
@@ -49,6 +52,7 @@ public class ProcessingFactory {
         SIGNATURE,
         TEXTFIELD,
         CHECKBOX,
-        INITIALS
+        INITIALS,
+        QRYPTO
     }
 }

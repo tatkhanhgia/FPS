@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
+import vn.mobileid.id.FPS.QryptoService.object.ItemDetails;
 
 /**
  *
@@ -32,10 +33,13 @@ public class ProcessingRequest {
 
     //Data for fillFormField
     private List<ProcessingFormFillRequest> text = new ArrayList<>();
-    private List<ProcessingFormFillRequest> radio=new ArrayList<>();;
-    private List<ProcessingFormFillRequest> checkbox=new ArrayList<>();;
-    private List<ProcessingFormFillRequest> dropdown=new ArrayList<>();;
-    private List<ProcessingFormFillRequest> listbox=new ArrayList<>();;
+    private List<ProcessingFormFillRequest> radio=new ArrayList<>();
+    private List<ProcessingFormFillRequest> checkbox=new ArrayList<>();
+    private List<ProcessingFormFillRequest> dropdown=new ArrayList<>();
+    private List<ProcessingFormFillRequest> listbox=new ArrayList<>();
+    
+    //Data for fill QR Qrypto Field
+    private List<ItemDetails> item;
     
     public ProcessingRequest() {
     }
@@ -94,6 +98,10 @@ public class ProcessingRequest {
 
     public void setHandSignatureImage(String handSignatureImage) {
         this.handSignatureImage = handSignatureImage;
+    }
+
+    public void setItem(List<ItemDetails> item) {
+        this.item = item;
     }
     
     @JsonProperty("field_name")
@@ -175,6 +183,11 @@ public class ProcessingRequest {
     @JsonProperty("hand_signature_image")
     public String getHandSignatureImage() {
         return handSignatureImage;
+    }
+    
+    @JsonProperty("items")
+    public List<ItemDetails> getItem() {
+        return item;
     }
     
     @JsonIgnoreProperties(ignoreUnknown = true)
