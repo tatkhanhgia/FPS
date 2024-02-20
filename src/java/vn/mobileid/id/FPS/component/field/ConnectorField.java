@@ -5,11 +5,9 @@
 package vn.mobileid.id.FPS.component.field;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fps_core.enumration.DocumentStatus;
-import fps_core.enumration.ProcessStatus;
 import fps_core.objects.BasicFieldAttribute;
 import fps_core.objects.CheckBoxFieldAttribute;
 import fps_core.objects.Dimension;
@@ -50,7 +48,6 @@ import vn.mobileid.id.FPS.serializer.IgnoreIngeritedIntrospector;
 import vn.mobileid.id.general.LogHandler;
 import vn.mobileid.id.general.PolicyConfiguration;
 import vn.mobileid.id.general.Resources;
-import vn.mobileid.id.utils.Broadcast;
 import vn.mobileid.id.utils.ManagementTemporal;
 import vn.mobileid.id.utils.TaskV2;
 import vn.mobileid.id.utils.Utils;
@@ -236,9 +233,7 @@ public class ConnectorField {
 
         //<editor-fold defaultstate="collapsed" desc="Get all documents that belong to packageId in URL">
         long packageId = Utils.getIdFromURL(request.getRequestURI());
-        Broadcast broadcast = new GetDocument();
-        response = broadcast.call(
-                broadcast.getMethod("getDocuments", GetDocument.class),
+        response = GetDocument.getDocuments(
                 packageId,
                 transactionId);
 
@@ -1000,6 +995,9 @@ public class ConnectorField {
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
                 //</editor-fold>
             }
+            case "qrcode-qrypto":{
+                
+            }
         }
         return new InternalResponse(A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                 new ResponseMessageController().writeStringField("error", "This type of Field not provide yet"));
@@ -1053,9 +1051,7 @@ public class ConnectorField {
                 //</editor-fold>
 
                 //<editor-fold defaultstate="collapsed" desc="Delete Field + Field Details in DB">
-                Broadcast broadcast = new DeleteField();
-                response = broadcast.call(
-                        broadcast.getMethod("deleteField", DeleteField.class),
+                response = DeleteField.deleteField(
                         document.getId(),
                         field.getFieldName(),
                         transactionId);
@@ -1064,8 +1060,7 @@ public class ConnectorField {
                 //<editor-fold defaultstate="collapsed" desc="Check is the last Signature Field => if true, change the status of Document to 'READY'">
                 response = ManagementTemporal.listTemporal(String.valueOf(document.getId()), transactionId);
                 if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                    broadcast = new UpdateDocument();
-                    response = broadcast.call(broadcast.getMethod("updateStatusOfDocument", UpdateDocument.class),
+                    response = UpdateDocument.updateStatusOfDocument(
                             document.getId(),
                             user,
                             DocumentStatus.READY,
@@ -1076,9 +1071,7 @@ public class ConnectorField {
             }
             default: {
                 //<editor-fold defaultstate="collapsed" desc="Delete Field + Field Details in DB">
-                Broadcast broadcast = new DeleteField();
-                response = broadcast.call(
-                        broadcast.getMethod("deleteField", DeleteField.class),
+                response = DeleteField.deleteField(
                         document.getId(),
                         field.getFieldName(),
                         transactionId);

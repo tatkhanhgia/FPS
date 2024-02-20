@@ -5,21 +5,19 @@
 package vn.mobileid.id.FPS.component.authorize;
 
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
-import vn.mobileid.id.FPS.controller.ResponseMessageController;
 import vn.mobileid.id.FPS.object.Enterprise;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.general.database.DatabaseFactory;
 import vn.mobileid.id.general.database.DatabaseImpl_authorize;
 import vn.mobileid.id.helper.database.objects.DatabaseResponse;
-import vn.mobileid.id.utils.Broadcast;
 
 /**
  *
  * @author GiaTK
  */
-public class GetKEYAPI extends Broadcast{
+public class GetKEYAPI{
 
-    protected static InternalResponse getKEYAPI(            
+    public static InternalResponse getKEYAPI(            
             String clientID,
             String transactionID) throws Exception {
         DatabaseImpl_authorize db = DatabaseFactory.getDatabaseImpl_authorize();

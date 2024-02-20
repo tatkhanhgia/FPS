@@ -19,7 +19,6 @@ import vn.mobileid.id.FPS.controller.ResponseMessageController;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
-import vn.mobileid.id.utils.Broadcast;
 
 /**
  *
@@ -118,10 +117,7 @@ public class ProcessModuleForEnterprise {
             String transactionId
     ) throws Exception {
         //Get Documents in DB
-        Broadcast broadcast = new GetDocument();
-
-        InternalResponse response = broadcast.call(
-                broadcast.getMethod("getDocuments", GetDocument.class),
+        InternalResponse response = GetDocument.getDocuments(
                 packageId,
                 transactionId);
 

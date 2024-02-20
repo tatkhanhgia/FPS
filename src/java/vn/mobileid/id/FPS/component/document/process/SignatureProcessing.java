@@ -37,7 +37,6 @@ import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.FPS.serializer.IgnoreIngeritedIntrospector;
 import vn.mobileid.id.general.LogHandler;
 import vn.mobileid.id.general.PolicyConfiguration;
-import vn.mobileid.id.utils.Broadcast;
 import vn.mobileid.id.utils.Crypto;
 import vn.mobileid.id.utils.TaskV2;
 import vn.mobileid.id.utils.Utils;
@@ -154,9 +153,7 @@ class SignatureProcessing implements DocumentProcessing, ModuleProcessing {
             String uuid = (String) response.getData();
 
             //Update new Document to DB  
-            Broadcast broadcast = new UploadDocument();
-            response = broadcast.call(
-                    broadcast.getMethod("uploadDocument", UploadDocument.class),
+            response = UploadDocument.uploadDocument(
                     document.getPackageId(),
                     revision + 1,
                     fileManagement,
@@ -282,8 +279,7 @@ class SignatureProcessing implements DocumentProcessing, ModuleProcessing {
         try {
             InternalData internalData = null;
             //<editor-fold defaultstate="collapsed" desc="Create QR and Append into file first">
-            Broadcast broadcast = new GetField();
-            response = broadcast.call(broadcast.getMethod("getFieldsData", GetField.class),
+            response = GetField.getFieldsData(
                     documentIdOriginal,
                     transactionId);
 
@@ -473,9 +469,7 @@ class SignatureProcessing implements DocumentProcessing, ModuleProcessing {
             String uuid = (String) response.getData();
 
             //Update new Document to DB  
-            Broadcast broadcast = new UploadDocument();
-            response = broadcast.call(
-                    broadcast.getMethod("uploadDocument_v2", UploadDocument.class),
+            response = UploadDocument.uploadDocument_v2(
                     document.getPackageId(),
                     0,
                     revision + 1,
@@ -511,8 +505,7 @@ class SignatureProcessing implements DocumentProcessing, ModuleProcessing {
             //<editor-fold defaultstate="collapsed" desc="Get All fields and get signature + qr from that array">
             InternalData internalData = null;
             ExtendedFieldAttribute signatureField = null;
-            broadcast = new GetField();
-            response = broadcast.call(broadcast.getMethod("getFieldsData", GetField.class),
+            response = GetField.getFieldsData(
                     document.getId(),
                     transactionId);
 

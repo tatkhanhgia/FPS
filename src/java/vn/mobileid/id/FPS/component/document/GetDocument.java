@@ -16,13 +16,12 @@ import vn.mobileid.id.general.database.DatabaseFactory;
 import vn.mobileid.id.FPS.groupdoc.Conversion_22_8_1;
 import vn.mobileid.id.general.database.DatabaseImpl_document;
 import vn.mobileid.id.helper.database.objects.DatabaseResponse;
-import vn.mobileid.id.utils.Broadcast;
 
 /**
  *
  * @author GiaTK
  */
-public class GetDocument extends Broadcast {
+public class GetDocument  {
 
     //<editor-fold defaultstate="collapsed" desc="Get Package">
     /**
@@ -33,7 +32,7 @@ public class GetDocument extends Broadcast {
      * @return
      * @throws Exception
      */
-    protected static InternalResponse getPackage(
+    public  static InternalResponse getPackage(
             long packageId,
             String transactionId
     ) throws Exception {
@@ -67,7 +66,7 @@ public class GetDocument extends Broadcast {
      * @return
      * @throws Exception
      */
-    protected static InternalResponse getDocuments(
+    public  static InternalResponse getDocuments(
             long packageId,
             String transactionId
     ) throws Exception {
@@ -99,7 +98,7 @@ public class GetDocument extends Broadcast {
      * @return
      * @throws Exception
      */
-    protected static InternalResponse getDocumentImage(
+    public  static InternalResponse getDocumentImage(
             long packageId,
             int page,
             boolean itextEnabled,

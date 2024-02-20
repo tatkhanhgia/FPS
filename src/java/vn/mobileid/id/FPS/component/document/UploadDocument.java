@@ -11,13 +11,12 @@ import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.general.Configuration;
 import vn.mobileid.id.general.database.DatabaseFactory;
 import vn.mobileid.id.helper.database.objects.DatabaseResponse;
-import vn.mobileid.id.utils.Broadcast;
 
 /**
  *
  * @author GiaTK
  */
-public class UploadDocument extends Broadcast {
+public class UploadDocument {
 
     /**
      * Tạo một package mới - Create a new package
@@ -30,7 +29,7 @@ public class UploadDocument extends Broadcast {
      * @return
      * @throws Exception
      */
-    protected static InternalResponse createPackage(
+    public  static InternalResponse createPackage(
             String name,
             int enterpriseId,
             String enterpriseName,
@@ -75,7 +74,7 @@ public class UploadDocument extends Broadcast {
      * @return
      * @throws Exception
      */
-    protected static InternalResponse uploadDocument(
+    public  static InternalResponse uploadDocument(
             long documentPackage,
             int revision,
             FileManagement file,
@@ -144,7 +143,7 @@ public class UploadDocument extends Broadcast {
      * @return long DocumentId
      * @throws Exception
      */
-    protected static InternalResponse uploadDocument_v2(
+    public  static InternalResponse uploadDocument_v2(
             long documentPackage,
             long identityOfClientId,
             int revision,

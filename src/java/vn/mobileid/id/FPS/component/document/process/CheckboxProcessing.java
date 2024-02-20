@@ -22,7 +22,6 @@ import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.general.LogHandler;
-import vn.mobileid.id.utils.Broadcast;
 import vn.mobileid.id.utils.Crypto;
 import vn.mobileid.id.utils.TaskV2;
 
@@ -41,7 +40,6 @@ public class CheckboxProcessing implements ModuleProcessing,DocumentProcessing {
         CheckBoxFieldAttribute field = (CheckBoxFieldAttribute) objects[3];
         String transactionId = (String) objects[4];
         byte[] file;
-        Broadcast broadcast;
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Check status of Document">
@@ -130,9 +128,7 @@ public class CheckboxProcessing implements ModuleProcessing,DocumentProcessing {
             String uuid = (String) response.getData();
 
             //Update new Document in DB    
-            broadcast = new UploadDocument();
-            response = broadcast.call(
-                    broadcast.getMethod("uploadDocument", UploadDocument.class),
+            response = UploadDocument.uploadDocument(
                     document.getPackageId(),
                     revision + 1,
                     fileManagement,
@@ -166,7 +162,6 @@ public class CheckboxProcessing implements ModuleProcessing,DocumentProcessing {
         CheckBoxFieldAttribute field = (CheckBoxFieldAttribute) objects[3];
         String transactionId = (String) objects[4];
         byte[] file;
-        Broadcast broadcast;
 
         //Check status document
         if (document.isEnabled()) {
@@ -251,9 +246,7 @@ public class CheckboxProcessing implements ModuleProcessing,DocumentProcessing {
             String uuid = (String) response.getData();
 
             //Update new Document in DB    
-            broadcast = new UploadDocument();
-            response = broadcast.call(
-                    broadcast.getMethod("uploadDocument", UploadDocument.class),
+            response = UploadDocument.uploadDocument(
                     document.getPackageId(),
                     revision + 1,
                     fileManagement,
@@ -298,7 +291,6 @@ public class CheckboxProcessing implements ModuleProcessing,DocumentProcessing {
         CheckBoxFieldAttribute field = (CheckBoxFieldAttribute)objects[4];
         String transactionId = (String)objects[5];
         byte[] file;
-        Broadcast broadcast;
         
         //Check status document
         if (document.isEnabled()) {
@@ -376,9 +368,7 @@ public class CheckboxProcessing implements ModuleProcessing,DocumentProcessing {
             String uuid = (String) response.getData();
 
             //Update new Document in DB    
-            broadcast = new UploadDocument();
-            response = broadcast.call(
-                    broadcast.getMethod("uploadDocument",UploadDocument.class),
+            response = UploadDocument.uploadDocument(
                     document.getPackageId(),
                     revision + 1,
                     fileManagement,

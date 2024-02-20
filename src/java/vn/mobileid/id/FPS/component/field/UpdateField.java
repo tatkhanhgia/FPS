@@ -6,20 +6,18 @@ package vn.mobileid.id.FPS.component.field;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
-import vn.mobileid.id.FPS.controller.ResponseMessageController;
 import vn.mobileid.id.FPS.enumration.RotateDegree;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.FPS.serializer.IgnoreIngeritedIntrospector;
 import vn.mobileid.id.general.database.DatabaseFactory;
 import vn.mobileid.id.helper.database.objects.DatabaseResponse;
-import vn.mobileid.id.utils.Broadcast;
 
 /**
  *
  * @author GiaTK
  */
-public class UpdateField extends Broadcast{
+public class UpdateField {
 
     //<editor-fold defaultstate="collapsed" desc="updateValueOfField">
     /**

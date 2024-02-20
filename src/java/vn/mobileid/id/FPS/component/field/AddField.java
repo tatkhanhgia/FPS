@@ -13,13 +13,13 @@ import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.general.database.DatabaseFactory;
 import vn.mobileid.id.helper.database.objects.DatabaseResponse;
-import vn.mobileid.id.utils.Broadcast;
+//import vn.mobileid.id.utils.Broadcast;
 
 /**
  *
  * @author GiaTK
  */
-public class AddField extends Broadcast{
+public class AddField{
     //<editor-fold defaultstate="collapsed" desc="Add Field">
     /**
      * Thêm field vào documentId - Add the field into the documentId.
@@ -34,7 +34,7 @@ public class AddField extends Broadcast{
      * @return int FieldId
      * @throws Exception 
      */
-    protected static InternalResponse addField(
+    public static InternalResponse addField(
             long documentId,
             Object field,
             String hmac,
@@ -75,7 +75,7 @@ public class AddField extends Broadcast{
      * @return none
      * @throws Exception 
      */
-    protected static InternalResponse addDetailField(
+    public  static InternalResponse addDetailField(
             long documentFieldId,
             long fieldTypeId,
             Object field,

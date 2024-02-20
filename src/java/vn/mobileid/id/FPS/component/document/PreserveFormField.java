@@ -17,7 +17,7 @@ import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.general.Resources;
-import vn.mobileid.id.utils.Broadcast;
+//import vn.mobileid.id.utils.Broadcast;
 
 /**
  *
@@ -38,9 +38,7 @@ public class PreserveFormField {
             );
         }
         for (SignatureFieldAttribute signature : lists) {
-            Broadcast broadcast = new AddField();
-            InternalResponse response = broadcast.call(
-                    broadcast.getMethod("addField", AddField.class),
+            InternalResponse response = AddField.addField(
                     documentId,
                     signature,
                     "hmac",
@@ -50,8 +48,7 @@ public class PreserveFormField {
                 continue;
             }
             int fieldId = (int) response.getData();
-            response = broadcast.call(
-                    broadcast.getMethod("addDetailField", AddField.class),
+            response = AddField.addDetailField(
                     fieldId,
                     Resources.getFieldTypes().get("SIGNATURE").getTypeId(),
                     signature,

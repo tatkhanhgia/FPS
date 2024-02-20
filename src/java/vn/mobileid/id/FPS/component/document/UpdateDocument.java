@@ -11,25 +11,24 @@ import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.general.database.DatabaseFactory;
 import vn.mobileid.id.helper.database.objects.DatabaseResponse;
-import vn.mobileid.id.utils.Broadcast;
 
 /**
  *
  * @author GiaTK
  */
-public class UpdateDocument extends Broadcast{
+public class UpdateDocument{
 
     //<editor-fold defaultstate="collapsed" desc="Update status of the Document">
     /**
-     * Cập nhật status của Document Update Status of Document
-     *
+     * Cập nhật status của Document 
+     * Update Status of Document    
      * @param documentId
      * @param status
      * @param transactionId
      * @return
      * @throws java.lang.Exception
      */
-    protected static InternalResponse updateStatusOfDocument(
+    public  static InternalResponse updateStatusOfDocument(
             long documentId,
             User user,
             DocumentStatus status,

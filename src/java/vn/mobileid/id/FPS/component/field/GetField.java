@@ -10,20 +10,19 @@ import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.general.Resources;
 import vn.mobileid.id.general.database.DatabaseFactory;
 import vn.mobileid.id.helper.database.objects.DatabaseResponse;
-import vn.mobileid.id.utils.Broadcast;
 
 /**
  *
  * @author GiaTK
  */ 
-public class GetField extends Broadcast{
+public class GetField{
     /**
      * Get về toàn bộ giá trị của field + field detail dựa trên documentId và fieldName. Get all information both field and field detail in DB
      * @param documentId
      * @param transactionId
      * @return fieldData ở định dạng ExtendedFieldAttribute
      */
-    protected static InternalResponse getFieldData(
+    public  static InternalResponse getFieldData(
             long documentId,
             String fieldName,
             String transactionId
@@ -51,7 +50,7 @@ public class GetField extends Broadcast{
      * @param transactionId
      * @return fieldData ở định dạng ExtendedFieldAttribute
      */
-    protected static InternalResponse getFieldData2(
+    public  static InternalResponse getFieldData2(
             long documentFieldId,
             String transactionId
     ) throws Exception{
@@ -77,7 +76,7 @@ public class GetField extends Broadcast{
      * @param transactionId
      * @return fieldData ở định dạng ExtendedFieldAttribute
      */
-    protected static InternalResponse getFieldsData(
+    public  static InternalResponse getFieldsData(
             long documentId,            
             String transactionId
     ) throws Exception{

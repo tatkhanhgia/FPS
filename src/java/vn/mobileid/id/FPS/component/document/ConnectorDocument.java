@@ -49,7 +49,6 @@ import vn.mobileid.id.general.Configuration;
 import vn.mobileid.id.general.LogHandler;
 import vn.mobileid.id.general.PolicyConfiguration;
 import vn.mobileid.id.general.Resources;
-import vn.mobileid.id.utils.Broadcast;
 import vn.mobileid.id.utils.ManagementTemporal;
 import vn.mobileid.id.utils.TaskV2;
 import vn.mobileid.id.utils.Utils;
@@ -613,13 +612,12 @@ public class ConnectorDocument {
                 @Override
                 public Object call() {
                     InternalResponse response = new InternalResponse();
-                    Broadcast broadcast = new UpdateField();
                     try {
                         ExtendedFieldAttribute qrField_ex = (ExtendedFieldAttribute) this.get()[0];
                         QRFieldAttribute qr = new ObjectMapper().readValue(qrField_ex.getDetailValue(), QRFieldAttribute.class);
                         qr = (QRFieldAttribute) qrField_ex.clone(qr, qrField_ex.getDimension());
                         qr.setProcessStatus(ProcessStatus.PROCESSED.getName());
-                        response = broadcast.call(broadcast.getMethod("updateValueOfField", UpdateField.class),
+                        response = UpdateField.updateValueOfField(
                                 qrField_ex.getDocumentFieldId(),
                                 user,
                                 new ObjectMapper().writeValueAsString(qr),
@@ -917,9 +915,7 @@ public class ConnectorDocument {
         //<editor-fold defaultstate="collapsed" desc="Get SignatureField with the name is in payload of request">
         List<ExtendedFieldAttribute> fields = new ArrayList<>();
         for (Document temp : documents) {
-            Broadcast broadcast = new GetField();
-            response = broadcast.call(
-                    broadcast.getMethod("getFieldsData", GetField.class),
+            response = GetField.getFieldsData(
                     temp.getId(),
                     transactionId);
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
@@ -1103,9 +1099,9 @@ public class ConnectorDocument {
 
         //<editor-fold defaultstate="collapsed" desc="Update hash of the Field">
         String hash = (String) ((Object[]) response.getData())[1];
-        Broadcast broadcast = new UpdateField();
 
-        InternalResponse response2 = broadcast.call(broadcast.getMethod("updateHashOfField", UpdateField.class),
+        InternalResponse response2 = 
+                UpdateField.updateHashOfField(
                 fieldData.getDocumentFieldId(),
                 user,
                 hash,
@@ -1121,8 +1117,8 @@ public class ConnectorDocument {
 
         //<editor-fold defaultstate="collapsed" desc="Update field details (Value in DB will relative to the input of client)">
         signatureField.setProcessStatus(ProcessStatus.IN_PROCESS.getName());
-        broadcast = new UpdateField();
-        response2 = broadcast.call(broadcast.getMethod("updateValueOfField", UpdateField.class),
+        response2 = 
+                UpdateField.updateValueOfField(
                 fieldData.getDocumentFieldId(),
                 user,
                 new ObjectMapper().writeValueAsString(signatureField),
@@ -1132,7 +1128,8 @@ public class ConnectorDocument {
             return response2;
         }
 
-        response2 = broadcast.call(broadcast.getMethod("updateFieldDetails", UpdateField.class),
+        response2 = 
+                UpdateField.updateFieldDetails(
                 fieldData.getDocumentFieldId(),
                 user,
                 signatureField,
@@ -1216,9 +1213,9 @@ public class ConnectorDocument {
                     ExtendedFieldAttribute qrField_ex = (ExtendedFieldAttribute) this.get()[0];
                     QRFieldAttribute qrField = (QRFieldAttribute) this.get()[1];
                     InternalResponse response = new InternalResponse();
-                    Broadcast broadcast = new UpdateField();
                     try {
-                        response = broadcast.call(broadcast.getMethod("updateValueOfField", UpdateField.class),
+                        response = 
+                                UpdateField.updateValueOfField(
                                 qrField_ex.getDocumentFieldId(),
                                 user,
                                 new ObjectMapper().writeValueAsString(qrField),
@@ -1789,10 +1786,9 @@ public class ConnectorDocument {
         if (objects.getFields() != null) {
             for (BasicFieldAttribute field : objects.getFields()) {
                 try {
-                    Broadcast broadcast = new AddField();
                     field.setType(Resources.getFieldTypes().get(FieldTypeName.SIGNATURE.getParentName()));
-                    InternalResponse test = broadcast.call(
-                            broadcast.getMethod("addField", AddField.class),
+                    InternalResponse test = 
+                            AddField.addField(
                             documentId,
                             field,
                             "hmac",
@@ -1806,8 +1802,7 @@ public class ConnectorDocument {
 
                     int fieldId = (int) test.getData();
 
-                    test = broadcast.call(
-                            broadcast.getMethod("addDetailField", AddField.class),
+                    test = AddField.addDetailField(
                             fieldId,
                             Resources.getFieldTypes()
                                     .get(FieldTypeName.SIGNATURE.getParentName()).getTypeId(),
@@ -1892,10 +1887,8 @@ public class ConnectorDocument {
         if (objects.getFields() != null) {
             for (SignatureFieldAttribute field : objects.getFields()) {
                 try {
-                    Broadcast broadcast = new AddField();
                     field.setType(Resources.getFieldTypes().get(FieldTypeName.SIGNATURE.getParentName()));
-                    InternalResponse test = broadcast.call(
-                            broadcast.getMethod("addField", AddField.class),
+                    InternalResponse test = AddField.addField(
                             documentId,
                             field,
                             "hmac",
@@ -1908,8 +1901,7 @@ public class ConnectorDocument {
 
                     int fieldId = (int) test.getData();
 
-                    test = broadcast.call(
-                            broadcast.getMethod("addDetailField", AddField.class),
+                    test = AddField.addDetailField(
                             fieldId,
                             Resources.getFieldTypes()
                                     .get(FieldTypeName.SIGNATURE.getParentName()).getTypeId(),
