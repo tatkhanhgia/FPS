@@ -5,6 +5,7 @@
 package vn.mobileid.id.general.database;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fps_core.enumration.RotateDegree;
 import fps_core.objects.BasicFieldAttribute;
 import fps_core.objects.Dimension;
 import fps_core.objects.ExtendedFieldAttribute;
@@ -15,7 +16,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
-import vn.mobileid.id.FPS.enumration.RotateDegree;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.FPS.serializer.IgnoreIngeritedIntrospector;
 import vn.mobileid.id.general.Configuration;

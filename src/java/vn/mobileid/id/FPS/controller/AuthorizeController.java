@@ -5,6 +5,7 @@
 package vn.mobileid.id.FPS.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fps_core.enumration.Language;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -14,7 +15,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import vn.mobileid.id.FPS.component.authorize.ConnectorAuthorize;
-import vn.mobileid.id.FPS.enumration.Language;
 import vn.mobileid.id.FPS.object.Enterprise;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.Token;

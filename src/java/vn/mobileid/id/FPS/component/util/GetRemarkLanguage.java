@@ -4,10 +4,8 @@
  */
 package vn.mobileid.id.FPS.component.util;
 
-import java.util.HashMap;
-import java.util.List;
+import fps_core.enumration.Language;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
-import vn.mobileid.id.FPS.enumration.Language;
 import vn.mobileid.id.FPS.object.RemarkLanguage;
 import vn.mobileid.id.general.database.DatabaseFactory;
 import vn.mobileid.id.helper.database.objects.DatabaseResponse;

@@ -5,6 +5,7 @@
 package vn.mobileid.id.FPS.component.document.process;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fps_core.enumration.ChildTextFieldTypeName;
 import fps_core.enumration.DocumentStatus;
 import fps_core.enumration.ProcessStatus;
 import fps_core.module.DocumentUtils_itext7;
@@ -18,7 +19,6 @@ import vn.mobileid.id.FMS;
 import vn.mobileid.id.FPS.component.document.UploadDocument;
 import vn.mobileid.id.FPS.component.field.ConnectorField_Internal;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
-import vn.mobileid.id.FPS.enumration.ChildTextFieldTypeName;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;

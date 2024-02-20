@@ -4,15 +4,14 @@
  */
 package vn.mobileid.id.FPS.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import fps_core.enumration.Language;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import vn.mobileid.id.FPS.component.util.GetRemarkLanguage;
-import vn.mobileid.id.FPS.enumration.Language;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.RemarkLanguage;
 import vn.mobileid.id.FPS.object.ResponseCode;

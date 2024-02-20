@@ -36,7 +36,7 @@ import vn.mobileid.id.FPS.component.field.GetField;
 import vn.mobileid.id.FPS.component.field.UpdateField;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.controller.ResponseMessageController;
-import vn.mobileid.id.FPS.enumration.FieldTypeName;
+import fps_core.enumration.FieldTypeName;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.ProcessingRequest;

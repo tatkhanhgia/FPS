@@ -5,8 +5,8 @@
 package vn.mobileid.id.FPS.component.field;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fps_core.enumration.RotateDegree;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
-import vn.mobileid.id.FPS.enumration.RotateDegree;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.FPS.serializer.IgnoreIngeritedIntrospector;

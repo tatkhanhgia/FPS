@@ -9,7 +9,7 @@ import fps_core.objects.BasicFieldAttribute;
 import fps_core.objects.InitialsFieldAttribute;
 import java.util.Base64;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
-import vn.mobileid.id.FPS.enumration.FieldTypeName;
+import fps_core.enumration.FieldTypeName;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.ProcessingRequest;
 import vn.mobileid.id.general.Resources;
