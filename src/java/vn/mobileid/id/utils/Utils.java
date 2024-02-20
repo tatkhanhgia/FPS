@@ -438,6 +438,9 @@ public class Utils {
                     if (object.getValue().isContainerNode()) {
                         return getFromJson_(name, object.getValue().toPrettyString());
                     }
+                    if(object.getValue().isDouble()){
+                        return object.getValue().asDouble();
+                    }
                 }
                 if (object.getValue().isContainerNode()) {
                     return getFromJson_(name, object.getValue().toPrettyString());
@@ -699,7 +702,12 @@ public class Utils {
     //</editor-fold>
     
     public static void main(String[] args) {
-        String temp = "a\nb\nc\nd";
-        System.out.println(checkNewLine(temp));
+        String payload = "{\n" +
+"    \"field_name\": \"1\",\n" +
+"    \"required\": true,\n" +
+"    \"dimension\": {\n" +
+"        \"y\":10.0\n" +
+"    }}";
+        System.out.println(Utils.getFromJson_("y", payload));
     }
 }

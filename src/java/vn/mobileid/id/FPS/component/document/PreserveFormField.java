@@ -5,6 +5,7 @@
 package vn.mobileid.id.FPS.component.document;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fps_core.enumration.FieldTypeName;
 import fps_core.module.DocumentUtils_itext7;
 import fps_core.objects.SignatureFieldAttribute;
 import java.io.IOException;
@@ -38,6 +39,7 @@ public class PreserveFormField {
             );
         }
         for (SignatureFieldAttribute signature : lists) {
+            signature.setType(Resources.getFieldTypes().get(FieldTypeName.SIGNATURE.getParentName()));
             InternalResponse response = AddField.addField(
                     documentId,
                     signature,

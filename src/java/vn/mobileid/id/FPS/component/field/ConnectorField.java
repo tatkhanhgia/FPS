@@ -398,7 +398,7 @@ public class ConnectorField {
         }
         BasicFieldAttribute field = (BasicFieldAttribute) response.getData();
 
-        //Add more data to textField        
+        //Add more data to Field
         field.setProcessBy(user.getAzp());
         SimpleDateFormat dateFormat = new SimpleDateFormat(PolicyConfiguration.getInstant().getSystemConfig().getAttributes().get(0).getDateFormat());
         field.setProcessOn(dateFormat.format(Date.from(Instant.now())));
@@ -426,6 +426,12 @@ public class ConnectorField {
 
         //Get field old
         ExtendedFieldAttribute fieldOld = (ExtendedFieldAttribute) response.getData();
+        
+        //<editor-fold defaultstate="collapsed" desc="Check Process Status of Field">
+        InternalResponse checking = CheckFieldProcessedYet.checkProcessed(fieldOld);
+        if(checking.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS){return checking.setUser(user);}
+        //</editor-fold>
+        
         if (field.getDimension() == null) {
             field.setDimension(new Dimension(
                     fieldOld.getDimension().getX(),
@@ -518,7 +524,7 @@ public class ConnectorField {
         System.out.println("FinalJSON:"+temp);
         //</editor-fold>
 
-        //Update field
+        //<editor-fold defaultstate="collapsed" desc="Update Field">
         response = UpdateField.updateField(
                 fieldOld.getDocumentFieldId(),
                 0,
@@ -540,8 +546,9 @@ public class ConnectorField {
         if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
             return response.setUser(user);
         }
-
-        //Update Field Details
+        //</editor-fold>
+        
+        //<editor-fold defaultstate="collapsed" desc="Update Field Details">
         UpdateField.updateFieldDetails(
                 fieldOld.getDocumentFieldId(),
                 user,
@@ -551,6 +558,7 @@ public class ConnectorField {
         if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
             return response.setUser(user);
         }
+        //</editor-fold>
 
         return new InternalResponse(
                 A_FPSConstant.HTTP_CODE_SUCCESS,
@@ -996,7 +1004,41 @@ public class ConnectorField {
                 //</editor-fold>
             }
             case "qrcode-qrypto":{
-                
+                //<editor-fold defaultstate="collapsed" desc="Generate QRFieldAttribute from Payload">
+                QRFieldAttribute field = null;
+                try {
+                    field = new ObjectMapper().readValue(payload, QRFieldAttribute.class);
+                } catch (JsonProcessingException ex) {
+                    return new InternalResponse(
+                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                            A_FPSConstant.CODE_FAIL,
+                            A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE
+                    );
+                }
+                if (isCheckBasicField) {
+                    InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
+                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                        return response;
+                    }
+                }
+
+                if (!Utils.isNullOrEmpty(field.getTypeName())) {
+                    boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.QR);
+
+                    if (!check) {
+                        return new InternalResponse(
+                                A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                                A_FPSConstant.CODE_FIELD_QR,
+                                A_FPSConstant.SUBCODE_INVALID_QR_TYTPE
+                        );
+                    }
+                    field.setType(Resources.getFieldTypes().get(field.getTypeName()));
+                } else {
+                    field.setType(Resources.getFieldTypes().get(FieldTypeName.QR.getParentName()));
+                }
+
+                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
+                //</editor-fold>
             }
         }
         return new InternalResponse(A_FPSConstant.HTTP_CODE_BAD_REQUEST,
