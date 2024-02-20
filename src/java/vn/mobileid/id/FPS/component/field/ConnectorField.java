@@ -451,28 +451,28 @@ public class ConnectorField {
             if (temp_ != null && temp_.equals("percentage")) {
                 if (document_.getDocumentWidth() != 0 && document_.getDocumentHeight() != 0) {
                     if (x == null
-                            || x instanceof Integer
+                            || (x instanceof Integer
                                     ? (Integer) x == -1
-                                    : false) {
+                                    : false)) {
                         field.getDimension().setX(fieldOld.getDimension().getX() / document_.getDocumentWidth() * 100);
                     }
                     if (y == null
-                            || y instanceof Integer
+                            || (y instanceof Integer
                                     ? (Integer) y == -1
-                                    : false) {
+                                    : false)) {
                         float Y = (fieldOld.getDimension().getY() + fieldOld.getDimension().getHeight()) / document_.getDocumentHeight();
                         field.getDimension().setY((1 - Y) * 100);
                     }
                     if (w == null
-                            || w instanceof Integer
+                            || (w instanceof Integer
                                     ? (Integer) w == -1
-                                    : false) {
+                                    : false)) {
                         field.getDimension().setWidth(fieldOld.getDimension().getWidth() / document_.getDocumentWidth() * 100);
                     }
                     if (h == null
-                            || h instanceof Integer
+                            || (h instanceof Integer
                                     ? (Integer) h == -1
-                                    : false) {
+                                    : false)) {
                         field.getDimension().setHeight(fieldOld.getDimension().getHeight() / document_.getDocumentHeight() * 100);
                     }
                     System.out.println("FinalX:" + field.getDimension().getX());
@@ -483,27 +483,27 @@ public class ConnectorField {
                 }
             } else {
                 if (x == null
-                        || x instanceof Integer
+                        || (x instanceof Integer
                                 ? (Integer) x == -1
-                                : false) {
+                                : false)) {
                     field.getDimension().setX(fieldOld.getDimension().getX());
                 }
                 if (y == null
-                        || y instanceof Integer
+                        || (y instanceof Integer
                                 ? (Integer) y == -1
-                                : false) {
+                                : false)) {
                     field.getDimension().setY(fieldOld.getDimension().getY());
                 }
                 if (w == null
-                        || w instanceof Integer
+                        || (w instanceof Integer
                                 ? (Integer) w == -1
-                                : false) {
+                                : false)) {
                     field.getDimension().setWidth(fieldOld.getDimension().getWidth());
                 }
                 if (h == null
-                        || h instanceof Integer
+                        || (h instanceof Integer
                                 ? (Integer) h == -1
-                                : false) {
+                                : false)) {
                     field.getDimension().setHeight(fieldOld.getDimension().getHeight());
                 }
             }
@@ -552,12 +552,16 @@ public class ConnectorField {
         System.out.println("FinalJSON:" + temp);
         //</editor-fold>
 
+        //<editor-fold defaultstate="collapsed" desc="Merge Payload vs Field Value Old">
+        JsonNode merge2 = Utils.merge(fieldOld.getFieldValue(), payload);
+        //</editor-fold>
+        
         //<editor-fold defaultstate="collapsed" desc="Update Field">
         response = UpdateField.updateField(
                 fieldOld.getDocumentFieldId(),
                 0,
                 field.getRenamedAs(),
-                null,
+                merge2.toPrettyString(),
                 null,
                 field.getPage() <= 0 ? fieldOld.getPage() : field.getPage(),
                 field.getDimension().getWidth(),
