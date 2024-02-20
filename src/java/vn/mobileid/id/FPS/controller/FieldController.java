@@ -244,10 +244,10 @@ public class FieldController extends HttpServlet {
                                 "application/json",
                                 null);
                     }
-                    return;
                 } catch (Exception ex) {
                     catchException(ex, req, res, payload, 0, transactionId);
                 }
+                return;
             }
             //</editor-fold>
 

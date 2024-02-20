@@ -426,12 +426,14 @@ public class ConnectorField {
 
         //Get field old
         ExtendedFieldAttribute fieldOld = (ExtendedFieldAttribute) response.getData();
-        
+
         //<editor-fold defaultstate="collapsed" desc="Check Process Status of Field">
         InternalResponse checking = CheckFieldProcessedYet.checkProcessed(fieldOld);
-        if(checking.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS){return checking.setUser(user);}
+        if (checking.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+            return checking.setUser(user);
+        }
         //</editor-fold>
-        
+
         if (field.getDimension() == null) {
             field.setDimension(new Dimension(
                     fieldOld.getDimension().getX(),
@@ -442,51 +444,77 @@ public class ConnectorField {
         } else {
             //<editor-fold defaultstate="collapsed" desc="Parse from percentage unit to point unit">
             String temp_ = request.getHeader("x-dimension-unit");
+            Object x = Utils.getFromJson_("x", payload);
+            Object y = Utils.getFromJson_("y", payload);
+            Object w = Utils.getFromJson_("width", payload);
+            Object h = Utils.getFromJson_("height", payload);
             if (temp_ != null && temp_.equals("percentage")) {
                 if (document_.getDocumentWidth() != 0 && document_.getDocumentHeight() != 0) {
-                    if (Utils.getFromJson_("x", payload) == null || (Integer) Utils.getFromJson_("x", payload) == -1) {
+                    if (x == null
+                            || x instanceof Integer
+                                    ? (Integer) x == -1
+                                    : false) {
                         field.getDimension().setX(fieldOld.getDimension().getX() / document_.getDocumentWidth() * 100);
                     }
-                    if (Utils.getFromJson_("y", payload) == null || (Integer) Utils.getFromJson_("y", payload) == -1) {
+                    if (y == null
+                            || y instanceof Integer
+                                    ? (Integer) y == -1
+                                    : false) {
                         float Y = (fieldOld.getDimension().getY() + fieldOld.getDimension().getHeight()) / document_.getDocumentHeight();
                         field.getDimension().setY((1 - Y) * 100);
                     }
-                    if (Utils.getFromJson_("width", payload) == null || (Integer) Utils.getFromJson_("width", payload) == -1) {
-                        System.out.println("Cannot Find Width in payload");
+                    if (w == null
+                            || w instanceof Integer
+                                    ? (Integer) w == -1
+                                    : false) {
                         field.getDimension().setWidth(fieldOld.getDimension().getWidth() / document_.getDocumentWidth() * 100);
                     }
-                    if (Utils.getFromJson_("height", payload) == null || (Integer) Utils.getFromJson_("height", payload) == -1) {
-                        System.out.println("Cannot find height in payload");
+                    if (h == null
+                            || h instanceof Integer
+                                    ? (Integer) h == -1
+                                    : false) {
                         field.getDimension().setHeight(fieldOld.getDimension().getHeight() / document_.getDocumentHeight() * 100);
                     }
-                    System.out.println("FinalX:"+field.getDimension().getX());
-                    System.out.println("FinalX:"+field.getDimension().getY());
-                    System.out.println("FinalX:"+field.getDimension().getWidth());
-                    System.out.println("FinalX:"+field.getDimension().getHeight());
+                    System.out.println("FinalX:" + field.getDimension().getX());
+                    System.out.println("FinalX:" + field.getDimension().getY());
+                    System.out.println("FinalX:" + field.getDimension().getWidth());
+                    System.out.println("FinalX:" + field.getDimension().getHeight());
                     field.setDimension(ProcessModuleForEnterprise.getInstance(user).parse(document_, field.getDimension()));
                 }
             } else {
-                if ((Integer) Utils.getFromJson_("x", payload) == -1 || Utils.getFromJson_("x", payload) == null) {
+                if (x == null
+                        || x instanceof Integer
+                                ? (Integer) x == -1
+                                : false) {
                     field.getDimension().setX(fieldOld.getDimension().getX());
                 }
-                if ((Integer) Utils.getFromJson_("y", payload) == -1 || Utils.getFromJson_("y", payload) == null) {
+                if (y == null
+                        || y instanceof Integer
+                                ? (Integer) y == -1
+                                : false) {
                     field.getDimension().setY(fieldOld.getDimension().getY());
                 }
-                if ((Integer) Utils.getFromJson_("width", payload) == -1 || Utils.getFromJson_("width", payload) == null) {
+                if (w == null
+                        || w instanceof Integer
+                                ? (Integer) w == -1
+                                : false) {
                     field.getDimension().setWidth(fieldOld.getDimension().getWidth());
                 }
-                if ((Integer) Utils.getFromJson_("height", payload) == -1 || Utils.getFromJson_("height", payload) == null) {
+                if (h == null
+                        || h instanceof Integer
+                                ? (Integer) h == -1
+                                : false) {
                     field.getDimension().setHeight(fieldOld.getDimension().getHeight());
                 }
             }
             //</editor-fold>
         }
-        
+
         System.out.println("==================parse into point");
-        System.out.println("FinalX:"+field.getDimension().getX());
-                    System.out.println("FinalX:"+field.getDimension().getY());
-                    System.out.println("FinalX:"+field.getDimension().getWidth());
-                    System.out.println("FinalX:"+field.getDimension().getHeight());
+        System.out.println("FinalX:" + field.getDimension().getX());
+        System.out.println("FinalX:" + field.getDimension().getY());
+        System.out.println("FinalX:" + field.getDimension().getWidth());
+        System.out.println("FinalX:" + field.getDimension().getHeight());
 
         //<editor-fold defaultstate="collapsed" desc="Create new QR Image if that type is QR Code">
         if (field instanceof QRFieldAttribute) {
@@ -517,11 +545,11 @@ public class ConnectorField {
                         .setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
                         .writeValueAsString(field));
         String temp = merge.toPrettyString();
-        System.out.println("Json Original:"+fieldOld.getDetailValue());
-        System.out.println("Json Update:"+new ObjectMapper()
-                        .setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
-                        .writeValueAsString(field));
-        System.out.println("FinalJSON:"+temp);
+        System.out.println("Json Original:" + fieldOld.getDetailValue());
+        System.out.println("Json Update:" + new ObjectMapper()
+                .setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
+                .writeValueAsString(field));
+        System.out.println("FinalJSON:" + temp);
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Update Field">
@@ -536,9 +564,9 @@ public class ConnectorField {
                 field.getDimension().getHeight(),
                 field.getDimension().getY() + field.getDimension().getHeight(),
                 field.getDimension().getX(),
-                Utils.getFromJson("rotate", payload) == null ? 
-                        null :
-                        RotateDegree.getRotateDegree(field.getRotate()),
+                Utils.getFromJson("rotate", payload) == null
+                ? null
+                : RotateDegree.getRotateDegree(field.getRotate()),
                 field.getVisibleEnabled() == null ? fieldOld.getVisibleEnabled() : field.getVisibleEnabled(),
                 "hmac",
                 user.getEmail(),
@@ -547,7 +575,7 @@ public class ConnectorField {
             return response.setUser(user);
         }
         //</editor-fold>
-        
+
         //<editor-fold defaultstate="collapsed" desc="Update Field Details">
         UpdateField.updateFieldDetails(
                 fieldOld.getDocumentFieldId(),
@@ -1003,7 +1031,7 @@ public class ConnectorField {
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
                 //</editor-fold>
             }
-            case "qrcode-qrypto":{
+            case "qrcode-qrypto": {
                 //<editor-fold defaultstate="collapsed" desc="Generate QRFieldAttribute from Payload">
                 QRFieldAttribute field = null;
                 try {
@@ -1063,14 +1091,14 @@ public class ConnectorField {
             ExtendedFieldAttribute field,
             String transactionId) throws Exception {
         InternalResponse response = new InternalResponse();
-        
+
         //<editor-fold defaultstate="collapsed" desc="Check process status">
         InternalResponse gate = CheckFieldProcessedYet.checkProcessed(field);
-        if(gate.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS){
+        if (gate.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
             return gate.setUser(user);
         }
         //</editor-fold>
-        
+
         switch (field.getType().getParentType()) {
             case "SIGNATURE": {
                 //<editor-fold defaultstate="collapsed" desc="Check if this signature have hash => already "Get Hash" => Delete temporal data in DB">
