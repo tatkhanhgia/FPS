@@ -129,11 +129,11 @@ public class QryptoSession implements ISession {
         bodypart.put("payload", temp);
 
         bodypart.put("configuration", new ObjectMapper().writeValueAsString(configuration));
-//        System.out.println("Config:" + new ObjectMapper().writeValueAsString(configuration));
+        System.out.println("Config:" + new ObjectMapper().writeValueAsString(configuration));
 
         HashMap<String,String> names = new HashMap<>();
         for (String key : QR.getHeader().keySet()) {
-//            System.out.println("Put bodypart:" + key);
+            System.out.println("Put bodypart:" + key);
             bodypart.put(key, QR.getHeader().get(key));
             for (field field : QR.getFormat().getFields()) {
                 if (field.getType().equals(QRSchema.fieldType.f1) && field.getFile_field().equals(key)) {
@@ -147,7 +147,7 @@ public class QryptoSession implements ISession {
             }
         }
 
-//        System.out.println("Payload:" + temp);
+        System.out.println("Payload:" + temp);
 
         org.apache.http.HttpResponse response = a.sendPost(prop.getBaseUrl() + "/issuance/qrci/issueQryptoWithAttachment", headers, bodypart, names);
         StringBuilder sb = new StringBuilder();

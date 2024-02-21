@@ -177,7 +177,7 @@ public class Configuration {
             InputStream qrypto = loader.getResourceAsStream("resources/config/qrypto.properties");
             Properties propQrypto = new Properties();
             if (qrypto != null) {
-                 propSMTP.load(qrypto);
+                 propQrypto.load(qrypto);
                 if (propQrypto.keySet() == null) {
                     String propertiesFile = Utils.getPropertiesFile("resources/config/qrypto.properties");
                     if (propertiesFile != null) {
@@ -239,12 +239,12 @@ public class Configuration {
                 isGTK_Dev = Boolean.parseBoolean(prop.getProperty("FMS.isGTK_Dev"));
             } catch(Exception ex){}
             
-            hostQrypto = propQrypto.getProperty("gopaperless.workflow.qrypto.host") == null ? 
+            hostQrypto = propQrypto.getProperty("qrypto.host") == null ? 
                     System.getenv("DTIS_DB_LOGGING_PROCEDURES_ENABLED") :
-                    propQrypto.getProperty("gopaperless.workflow.qrypto.host");
-            qryptoAuthentication = propQrypto.getProperty("gopaperless.workflow.qrypto.authentication") == null ? 
+                    propQrypto.getProperty("qrypto.host");
+            qryptoAuthentication = propQrypto.getProperty("qrypto.authorization") == null ? 
                     System.getenv("DTIS_DB_LOGGING_PROCEDURES_ENABLED") :
-                    propQrypto.getProperty("gopaperless.workflow.qrypto.authentication");
+                    propQrypto.getProperty("qrypto.authorization");
             
 //            ssl_enable = Boolean.parseBoolean(propSMTP.getProperty("mail.smtp.ssl.enable") == null ? System.getenv("SERVER_TIME_TYPE") : propSMTP.getProperty("mail.smtp.ssl.enable"));
 //            tsl_enable = Boolean.parseBoolean(propSMTP.getProperty("mail.smtp.starttls.enable") == null ? System.getenv("SERVER_TIME_TYPE") : propSMTP.getProperty("mail.smtp.starttls.enable"));

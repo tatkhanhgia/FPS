@@ -97,11 +97,11 @@ public class ConnectorField {
                 true,
                 false,
                 transactionId);
-
+        
         if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
             return response.setUser(user);
         }
-
+        
         BasicFieldAttribute field = (BasicFieldAttribute) response.getData();
         //</editor-fold>
 
@@ -137,6 +137,9 @@ public class ConnectorField {
         if (field instanceof QRFieldAttribute) {
             try {
                 QRFieldAttribute qr = (QRFieldAttribute) field;
+                if (Utils.isNullOrEmpty(qr.getImageQR())) {
+                    qr.setValue("Waiting for process Qrypto");
+                }
                 byte[] imageQR = QRGenerator.generateQR(
                         qr.getValue(),
                         Math.round(qr.getDimension().getWidth()),
@@ -162,7 +165,7 @@ public class ConnectorField {
                 "hmac",
                 user.getAzp(),
                 transactionId);
-
+        
         if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
             return response.setUser(user);
         }
@@ -236,11 +239,11 @@ public class ConnectorField {
         response = GetDocument.getDocuments(
                 packageId,
                 transactionId);
-
+        
         if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
             return response.setUser(user);
         }
-
+        
         List<Document> documents = (List<Document>) response.getData();
         //</editor-fold>
 
@@ -325,24 +328,24 @@ public class ConnectorField {
             }
         }
         );
-
+        
         executor.shutdown();
-
+        
         InternalResponse response_addField = (InternalResponse) addField.get();
         if (response_addField.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
             return response_addField.setUser(user);
         }
-
+        
         InternalResponse response_appended = (InternalResponse) appended.get();
-
+        
         if (response_appended != null) {
             if (response_appended.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 return response_appended.setUser(user);
             }
         }
-
+        
         int documentFieldId = (int) response_addField.getData();
-
+        
         response = AddField.addDetailField(
                 documentFieldId,
                 field.getType().getTypeId(),
@@ -353,7 +356,7 @@ public class ConnectorField {
         if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
             return response.setUser(user);
         }
-
+        
         return new InternalResponse(
                 A_FPSConstant.HTTP_CODE_SUCCESS,
                 new ResponseMessageController()
@@ -413,7 +416,7 @@ public class ConnectorField {
                 if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                     return response.setUser(user);
                 }
-
+                
                 response = GetField.getFieldData(
                         document.getId(),
                         field.getFieldName(),
@@ -509,7 +512,7 @@ public class ConnectorField {
             }
             //</editor-fold>
         }
-
+        
         System.out.println("==================parse into point");
         System.out.println("FinalX:" + field.getDimension().getX());
         System.out.println("FinalX:" + field.getDimension().getY());
@@ -555,7 +558,7 @@ public class ConnectorField {
         //<editor-fold defaultstate="collapsed" desc="Merge Payload vs Field Value Old">
         JsonNode merge2 = Utils.merge(fieldOld.getFieldValue(), payload);
         //</editor-fold>
-        
+
         //<editor-fold defaultstate="collapsed" desc="Update Field">
         response = UpdateField.updateField(
                 fieldOld.getDocumentFieldId(),
@@ -610,7 +613,7 @@ public class ConnectorField {
             return response;
         }
         User user = (User) response.getData();
-
+        
         HashMap<String, FieldType> hashMap = Resources.getFieldTypes();
         List<FieldType> temp = new ArrayList<>();
         for (FieldType t : hashMap.values()) {
@@ -688,7 +691,7 @@ public class ConnectorField {
         if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
             return response;
         }
-
+        
         User user = response.getUser();
         List<Document> documents = (List<Document>) response.getData();
 
@@ -724,7 +727,7 @@ public class ConnectorField {
             return response;
         }
         ExtendedFieldAttribute fieldData = (ExtendedFieldAttribute) response.getData();
-
+        
         return distributeFlowDelete(document_, user, fieldData, transactionId);
     }
     // </editor-fold>
@@ -746,7 +749,7 @@ public class ConnectorField {
         List<TextFieldAttribute> textboxs = new ArrayList<>();
         List<InitialsFieldAttribute> initials = new ArrayList<>();
         List<QRFieldAttribute> qrs = new ArrayList<>();
-
+        
         for (ExtendedFieldAttribute field : fields) {
             try {
                 switch (field.getType().getTypeId()) {
@@ -785,7 +788,7 @@ public class ConnectorField {
                     case 5: {
                         InitialsFieldAttribute initialField = new ObjectMapper().readValue(field.getDetailValue(), InitialsFieldAttribute.class);
                         initialField = (InitialsFieldAttribute) field.clone(initialField, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
-
+                        
                         initials.add(initialField);
                         break;
                     }
@@ -880,9 +883,9 @@ public class ConnectorField {
                         return response;
                     }
                 }
-
+                
                 field.setType(Resources.getFieldTypes().get(FieldTypeName.SIGNATURE.getParentName()));
-
+                
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
                 //</editor-fold>
             }
@@ -904,10 +907,10 @@ public class ConnectorField {
                         return response;
                     }
                 }
-
+                
                 if (!Utils.isNullOrEmpty(field.getTypeName())) {
                     boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.TEXTBOX);
-
+                    
                     if (!check) {
                         return new InternalResponse(
                                 A_FPSConstant.HTTP_CODE_BAD_REQUEST,
@@ -951,9 +954,9 @@ public class ConnectorField {
                         return response;
                     }
                 }
-
+                
                 boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.CHECKBOX);
-
+                
                 if (!check) {
                     return new InternalResponse(
                             A_FPSConstant.HTTP_CODE_BAD_REQUEST,
@@ -962,7 +965,7 @@ public class ConnectorField {
                     );
                 }
                 field.setType(Resources.getFieldTypes().get(field.getTypeName()));
-
+                
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
                 //</editor-fold>
             }
@@ -985,7 +988,7 @@ public class ConnectorField {
                         return response;
                     }
                 }
-
+                
                 field.setType(Resources.getFieldTypes().get(FieldTypeName.INITIAL.getParentName()));
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
                 //</editor-fold>
@@ -1008,7 +1011,7 @@ public class ConnectorField {
                         return response;
                     }
                 }
-
+                
                 if (Utils.isNullOrEmpty(field.getValue())) {
                     return new InternalResponse(
                             A_FPSConstant.HTTP_CODE_BAD_REQUEST,
@@ -1016,10 +1019,10 @@ public class ConnectorField {
                             A_FPSConstant.SUBCODE_MISSING_ENCODE_STRING_OF_QR
                     );
                 }
-
+                
                 if (!Utils.isNullOrEmpty(field.getTypeName())) {
                     boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.QR);
-
+                    
                     if (!check) {
                         return new InternalResponse(
                                 A_FPSConstant.HTTP_CODE_BAD_REQUEST,
@@ -1031,7 +1034,7 @@ public class ConnectorField {
                 } else {
                     field.setType(Resources.getFieldTypes().get(FieldTypeName.QR.getParentName()));
                 }
-
+                
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
                 //</editor-fold>
             }
@@ -1053,10 +1056,10 @@ public class ConnectorField {
                         return response;
                     }
                 }
-
+                
                 if (!Utils.isNullOrEmpty(field.getTypeName())) {
-                    boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.QR);
-
+                    boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.QRYPTO);
+                    
                     if (!check) {
                         return new InternalResponse(
                                 A_FPSConstant.HTTP_CODE_BAD_REQUEST,
@@ -1066,9 +1069,9 @@ public class ConnectorField {
                     }
                     field.setType(Resources.getFieldTypes().get(field.getTypeName()));
                 } else {
-                    field.setType(Resources.getFieldTypes().get(FieldTypeName.QR.getParentName()));
+                    field.setType(Resources.getFieldTypes().get(FieldTypeName.QRYPTO.getParentName()));
                 }
-
+                
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
                 //</editor-fold>
             }
@@ -1114,7 +1117,7 @@ public class ConnectorField {
                     if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                         return response;
                     }
-
+                    
                     response = ManagementTemporal.removeTemporal(
                             String.valueOf(document.getId()),
                             transactionId);

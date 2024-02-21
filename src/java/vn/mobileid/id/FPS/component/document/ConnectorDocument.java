@@ -451,7 +451,7 @@ public class ConnectorDocument {
         User user = (User) response.getData();
 
         response = GetDocument.getDocuments(packageId, transactionId);
-        if(response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS){
+        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
             return response.setUser(user);
         }
         response.setUser(user);
@@ -1034,14 +1034,13 @@ public class ConnectorDocument {
                     A_FPSConstant.SUBCODE_THIS_TYPE_OF_FIELD_IS_NOT_VALID_FOR_THIS_PROCESSION
             ).setUser(user);
         }
-        
+
         InternalResponse response_1 = CheckFieldProcessedYet.checkProcessed(fieldData.getFieldValue());
-        if(response_1.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS){
+        if (response_1.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
             return response_1.setUser(user);
-        }       
+        }
 
         //</editor-fold>
-        
         //<editor-fold defaultstate="collapsed" desc="Check Hash of Signature field is existed in Temporal Table?">
         if (!Utils.isNullOrEmpty(fieldData.getHash())) {
             InternalResponse response2 = ManagementTemporal.getTemporal(
@@ -1100,12 +1099,12 @@ public class ConnectorDocument {
         //<editor-fold defaultstate="collapsed" desc="Update hash of the Field">
         String hash = (String) ((Object[]) response.getData())[1];
 
-        InternalResponse response2 = 
-                UpdateField.updateHashOfField(
-                fieldData.getDocumentFieldId(),
-                user,
-                hash,
-                transactionId);
+        InternalResponse response2
+                = UpdateField.updateHashOfField(
+                        fieldData.getDocumentFieldId(),
+                        user,
+                        hash,
+                        transactionId);
         if (response2.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
             return response2.setUser(user);
         }
@@ -1117,24 +1116,24 @@ public class ConnectorDocument {
 
         //<editor-fold defaultstate="collapsed" desc="Update field details (Value in DB will relative to the input of client)">
         signatureField.setProcessStatus(ProcessStatus.IN_PROCESS.getName());
-        response2 = 
-                UpdateField.updateValueOfField(
-                fieldData.getDocumentFieldId(),
-                user,
-                new ObjectMapper().writeValueAsString(signatureField),
-                transactionId);
+        response2
+                = UpdateField.updateValueOfField(
+                        fieldData.getDocumentFieldId(),
+                        user,
+                        new ObjectMapper().writeValueAsString(signatureField),
+                        transactionId);
         if (response2.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
             response2.setUser(user);
             return response2;
         }
 
-        response2 = 
-                UpdateField.updateFieldDetails(
-                fieldData.getDocumentFieldId(),
-                user,
-                signatureField,
-                "hmac",
-                transactionId);
+        response2
+                = UpdateField.updateFieldDetails(
+                        fieldData.getDocumentFieldId(),
+                        user,
+                        signatureField,
+                        "hmac",
+                        transactionId);
         if (response2.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
             response2.setUser(user);
             return response2;
@@ -1214,12 +1213,12 @@ public class ConnectorDocument {
                     QRFieldAttribute qrField = (QRFieldAttribute) this.get()[1];
                     InternalResponse response = new InternalResponse();
                     try {
-                        response = 
-                                UpdateField.updateValueOfField(
-                                qrField_ex.getDocumentFieldId(),
-                                user,
-                                new ObjectMapper().writeValueAsString(qrField),
-                                transactionId);
+                        response
+                                = UpdateField.updateValueOfField(
+                                        qrField_ex.getDocumentFieldId(),
+                                        user,
+                                        new ObjectMapper().writeValueAsString(qrField),
+                                        transactionId);
                         if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                             response.setUser(user);
                             return response;
@@ -1328,7 +1327,6 @@ public class ConnectorDocument {
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Child function => Create new Package to hover all data">
-        System.out.println("Document Id:" + object.getDocument_id());
         if (object.getDocument_id() == 0) {
             response = child_CreateNew(user, fileName, file, preserve, data, object, transactionId);
             response.setUser(user);
@@ -1514,107 +1512,6 @@ public class ConnectorDocument {
     }
     // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="Create QR From Qrypto">
-    public static InternalResponse createQRQrypto(
-            HttpServletRequest request,
-            long packageId,
-            String payload,
-            String transactionId) throws Exception {
-        //<editor-fold defaultstate="collapsed" desc="Verify Token">
-        InternalResponse response = Utils.verifyAuthorizationToken(request, transactionId);
-        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-            return response;
-        }
-        User user = (User) response.getData();
-        //</editor-fold>
-
-        //<editor-fold defaultstate="collapsed" desc="Check payload">
-        if (Utils.isNullOrEmpty(payload)) {
-            return new InternalResponse(
-                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                    A_FPSConstant.CODE_FAIL,
-                    A_FPSConstant.SUBCODE_NO_PAYLOAD_FOUND
-            ).setUser(user);
-        }
-        //</editor-fold>
-
-        //<editor-fold defaultstate="collapsed" desc="Parse Payload">
-        InitialsFieldAttribute processRequest = null;
-        try {
-            processRequest = new ObjectMapper().readValue(payload, InitialsFieldAttribute.class);
-//            response = CheckPayloadRequest.checkAddInitialField(processRequest, transactionId);
-//            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-//                response.setUser(user);
-//                return response;
-//            }
-
-            response = CheckPayloadRequest.checkFillInitialField(processRequest, transactionId);
-            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                response.setUser(user);
-                return response;
-            }
-        } catch (JsonProcessingException ex) {
-            response = new InternalResponse(
-                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                    A_FPSConstant.CODE_FAIL,
-                    A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE
-            );
-            response.setException(ex).setUser(user);
-            return response;
-        }
-        //</editor-fold>
-
-        //<editor-fold defaultstate="collapsed" desc="Get Documents">
-        response = GetDocument.getDocuments(
-                packageId,
-                transactionId);
-
-        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-            return response.setUser(user);
-        }
-
-        List<Document> documents = (List<Document>) response.getData();
-//        Document document_ = null;
-//        for (Document document : documents) {
-//            if (document.getRevision() == 1) {
-//                response = ConnectorField_Internal.getField(
-//                        document.getId(),
-//                        processRequest.getFieldName(),
-//                        transactionId);
-//            }
-//            if (document.getRevision() == documents.size()) {
-//                document_ = document;
-//            }
-//        }
-//        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-//            return response.setUser(user);
-//        }
-//        ExtendedFieldAttribute fieldData = (ExtendedFieldAttribute) response.getData();
-        //</editor-fold>
-
-        //<editor-fold defaultstate="collapsed" desc="Process Initial Form Field">
-        response = ProcessingInitialFormField.processInitialField(
-                packageId,
-                user,
-                documents,
-                processRequest,
-                transactionId);
-
-        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-            response.setUser(user);
-            return response;
-        }
-        //</editor-fold>
-
-        response = new InternalResponse(
-                A_FPSConstant.HTTP_CODE_SUCCESS,
-                ""
-        );
-        response.setUser(user);
-        return response;
-    }
-    // </editor-fold>
-    
     //<editor-fold defaultstate="collapsed" desc="Recall Document">
     public static InternalResponse recallDocument(
             HttpServletRequest request,
@@ -1655,8 +1552,9 @@ public class ConnectorDocument {
     //</editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Fill QR Qrypto Field">
-    public static InternalResponse fillQRQryptoield(
+    public static InternalResponse createQRQrypto(
             HttpServletRequest request,
+            long packageId,
             String payload,
             String transactionId) throws Exception {
         //<editor-fold defaultstate="collapsed" desc="Verify Token">
@@ -1689,8 +1587,8 @@ public class ConnectorDocument {
                     A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE
             ).setException(ex).setUser(user);
         }
-        
-        if(Utils.isNullOrEmpty(processRequest.getFieldName())){
+
+        if (Utils.isNullOrEmpty(processRequest.getFieldName())) {
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                     A_FPSConstant.CODE_FIELD,
@@ -1701,7 +1599,7 @@ public class ConnectorDocument {
         //<editor-fold defaultstate="collapsed" desc="Process QR Qrypto Field">
         if (!Utils.isNullOrEmpty(processRequest.getItem())) {
             response = ProcessingQRQryptoField.processQRQryptoField(
-                    Utils.getIdFromURL(request.getRequestURI()),
+                    packageId,
                     processRequest.getFieldName(),
                     user,
                     processRequest.getItem(),
@@ -1727,7 +1625,7 @@ public class ConnectorDocument {
         return response;
     }
     // </editor-fold>
-    
+
     //==========================================================================
     //<editor-fold defaultstate="collapsed" desc="Child function Synchonized - create New Document Id ">
     private static InternalResponse child_CreateNew(
@@ -1787,13 +1685,13 @@ public class ConnectorDocument {
             for (BasicFieldAttribute field : objects.getFields()) {
                 try {
                     field.setType(Resources.getFieldTypes().get(FieldTypeName.SIGNATURE.getParentName()));
-                    InternalResponse test = 
-                            AddField.addField(
-                            documentId,
-                            field,
-                            "hmac",
-                            user.getAzp(),
-                            transactionId);
+                    InternalResponse test
+                            = AddField.addField(
+                                    documentId,
+                                    field,
+                                    "hmac",
+                                    user.getAzp(),
+                                    transactionId);
 
                     if (test.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                         test.setUser(user);
@@ -1934,5 +1832,4 @@ public class ConnectorDocument {
     }
     //</editor-fold>
 
-    
 }

@@ -52,6 +52,7 @@ public class QryptoService {
                 vn.mobileid.id.general.Configuration.
                         getInstance()
                         .getQryptoAuthentication());
+        System.out.println("Base URL:"+prop.getBaseUrl());
         if (!QryptoService.listQryptoSession.containsKey(i)) {
             this.sessionFactory = SessionFactory.getInstance(prop);
             this.session = this.sessionFactory.getSession();

@@ -18,7 +18,6 @@ import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.general.Resources;
-//import vn.mobileid.id.utils.Broadcast;
 
 /**
  *
@@ -38,6 +37,10 @@ public class PreserveFormField {
                     A_FPSConstant.HTTP_CODE_SUCCESS, ""
             );
         }
+        
+        //Get All Field
+        
+        
         for (SignatureFieldAttribute signature : lists) {
             signature.setType(Resources.getFieldTypes().get(FieldTypeName.SIGNATURE.getParentName()));
             InternalResponse response = AddField.addField(
@@ -52,7 +55,7 @@ public class PreserveFormField {
             int fieldId = (int) response.getData();
             response = AddField.addDetailField(
                     fieldId,
-                    Resources.getFieldTypes().get("SIGNATURE").getTypeId(),
+                    Resources.getFieldTypes().get(FieldTypeName.SIGNATURE.getParentName()).getTypeId(),
                     signature,
                     "hmac",
                     user.getEmail(),

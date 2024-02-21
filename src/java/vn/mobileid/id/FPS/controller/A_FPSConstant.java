@@ -143,6 +143,7 @@ public class A_FPSConstant {
     final public static int SUBCODE_THE_DOCUMENT_STATUS_IS_PROCESSING = 7;
     final public static int SUBCODE_CANNOT_ANNALYSIS_THE_DOCUMENT = 8;
     final public static int SUBCODE_THIS_DOCUMENT_DOES_NOT_HAVE_ANY_FIELD = 9;
+    final public static int SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_CREATE_NEW_REVISION_OF_DOCUMENT = 10;
     
     //Subcode Field text - 6
     final public static int SUBCODE_INVALID_TEXT_FIELD_TYPE = 1;
@@ -162,7 +163,9 @@ public class A_FPSConstant {
     final public static int SUBCODE_INVALID_CHECKBOX_FIELD_TYPE = 1;
     
     //Subcode Field Initial - 9 
-    final public static  int SUBCODE_MISSING_OR_EMPTY_IMAGE_OF_INITIAL = 1;
+    final public static int SUBCODE_MISSING_OR_EMPTY_IMAGE_OF_INITIAL = 1;
+    final public static int SUBCODE_CANNOT_FILL_INITIALS = 2;
+    final public static int SUBCODE_ERROR_WHILE_PROCESSING_MULTI_THREAD = 3;
     
     //Subcode Field QR - 10
     final public static int SUBCODE_INVALID_QR_TYTPE = 1;

@@ -87,7 +87,7 @@ public class CreateQRSchema {
                     case Non_Editable: {
                     }
                     case String: { //Type String _ text
-                        String random = Utils.generateOneTimePassword(6);
+                        String random = Utils.generateRandomString(6);
                         data.setName(random);
                         data.setValue((String) item.getValue());
                         field.setName(item.getField());
@@ -101,7 +101,7 @@ public class CreateQRSchema {
                         String temp = "{\"value\":" + new ObjectMapper().writeValueAsString(item.getValue()) + "}";
                         Item_URL url = new ObjectMapper().readValue(temp, Item_URL.class);
 
-                        String random = Utils.generateOneTimePassword(6);
+                        String random = Utils.generateRandomString(6);
                         data.setName(random);
                         String urlValidator = vn.mobileid.id.general.PolicyConfiguration
                                 .getInstant()
@@ -118,7 +118,7 @@ public class CreateQRSchema {
                         break;
                     }
                     case TextBold: { //Type String _ text
-                        String random = Utils.generateOneTimePassword(6);
+                        String random = Utils.generateRandomString(6);
                         data.setName(random);
                         data.setValue((String) item.getValue());
                         field.setName(item.getField());
@@ -130,7 +130,7 @@ public class CreateQRSchema {
                         break;
                     }
                     case Boolean: { //Type Boolean
-                        String random = Utils.generateOneTimePassword(6);
+                        String random = Utils.generateRandomString(6);
                         data.setName(random);
                         data.setValue(((Boolean) item.getValue()) == true ? "true" : "false");
                         field.setName(item.getField());
@@ -141,7 +141,7 @@ public class CreateQRSchema {
                         break;
                     }
                     case Integer: { //Type INT
-                        String random = Utils.generateOneTimePassword(6);
+                        String random = Utils.generateRandomString(6);
                         data.setName(random);
                         data.setValue(String.valueOf((Integer) item.getValue()));
                         field.setName(item.getField());
@@ -152,7 +152,7 @@ public class CreateQRSchema {
                         break;
                     }
                     case Date: { //Type DATE
-                        String random = Utils.generateOneTimePassword(6);
+                        String random = Utils.generateRandomString(6);
                         data.setName(random);
                         data.setValue((String) item.getValue());
                         field.setName(item.getField());
@@ -202,7 +202,7 @@ public class CreateQRSchema {
 
                         for (Element element : choices.getElements()) {
                             if (element.isChoice()) {
-                                String random = Utils.generateOneTimePassword(6);
+                                String random = Utils.generateRandomString(6);
                                 data.setName(random);
                                 data.setValue(element.getElementName());
                                 field.setName(item.getField());
@@ -218,7 +218,7 @@ public class CreateQRSchema {
                         String temp = "{\"value\":" + new ObjectMapper().writeValueAsString(item.getValue()) + "}";
                         Item_Table itemTable = new ObjectMapper().readValue(temp, Item_Table.class);
 
-                        String random = Utils.generateOneTimePassword(6);
+                        String random = Utils.generateRandomString(6);
                         data.setName(random);
 
                         //Create Table                    
@@ -236,7 +236,7 @@ public class CreateQRSchema {
                         String temp = new ObjectMapper().writeValueAsString(item.getValue());
                         IDPicture4Label idPicture = new ObjectMapper().readValue(temp, IDPicture4Label.class);
 
-                        String random = Utils.generateOneTimePassword(6);
+                        String random = Utils.generateRandomString(6);
                         //Prepare field
                         field.setType(QRSchema.fieldType._4T1P);
                         field.setName(item.getField());
@@ -295,6 +295,7 @@ public class CreateQRSchema {
     public static Configuration createConfiguration(
             QRFieldAttribute field,
             User user,
+            int pixel,
             String transactionID) throws Exception {
         Configuration config = new Configuration();
         config.setContextIdentifier("QC1:");
@@ -319,7 +320,8 @@ public class CreateQRSchema {
 
         config.setQryptoEffectiveDate(effectiveDate);
 
-        config.setQryptoDimension(Math.round(field.getDimension().getWidth()));
+        config.setQryptoDimension(pixel == 0 ? 300 : pixel);
+        config.setGetFileTokenList(true);
 
         return config;
     }

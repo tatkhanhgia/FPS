@@ -114,10 +114,11 @@ public class ProcessingQRQryptoField {
         //Processing
         response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.QRYPTO).process(
                 user,
-                document_,                
-                fieldData.getDocumentFieldId(),
+                document_,           
+                documents.size(),
                 QRField,
                 processRequest,
+                fieldData.getDocumentFieldId(),
                 transactionId);
 
         if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {

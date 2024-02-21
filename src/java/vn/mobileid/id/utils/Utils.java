@@ -53,6 +53,8 @@ import vn.mobileid.id.FPS.component.util.CreateAPILog;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
+import vn.mobileid.id.general.PolicyConfiguration;
+import vn.mobileid.id.general.Resources;
 
 /**
  *
@@ -220,6 +222,22 @@ public class Utils {
         }
         return new String(otp);
     }
+    
+    //<editor-fold defaultstate="collapsed" desc="Generate Random String">
+    public static String generateRandomString(int lenght) {
+        int leftLimit = 48; // numeral '0'
+        int rightLimit = 122; // letter 'z'
+        int targetStringLength = lenght;
+        Random random = new Random();
+
+        String generatedString = random.ints(leftLimit, rightLimit + 1)
+                .filter(i -> (i <= 57 || i >= 65) && (i <= 90 || i >= 97))
+                .limit(targetStringLength)
+                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+                .toString();
+        return generatedString;
+    }
+    //</editor-fold>
 
     public static boolean isNullOrEmpty(String value) {
         if (value == null) {
@@ -698,6 +716,24 @@ public class Utils {
     public static int checkNewLine(String value){
         String[] number = value.split("\n");
         return number.length;
+    }
+    //</editor-fold>
+    
+    //<editor-fold defaultstate="collapsed" desc="Get timestamp">
+    public static String getTimestamp(){
+        try{
+            SimpleDateFormat dateFormat = new SimpleDateFormat(
+                    PolicyConfiguration
+                            .getInstant()
+                            .getSystemConfig()
+                            .getAttributes()
+                            .get(0)
+                            .getDateFormat());
+            return dateFormat.format(new Date(System.currentTimeMillis()));
+        }catch(Exception ex){
+            SimpleDateFormat dateFormat = new SimpleDateFormat();
+            return dateFormat.format(System.currentTimeMillis());
+        }
     }
     //</editor-fold>
     
