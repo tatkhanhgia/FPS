@@ -161,16 +161,18 @@ public class InternalResponse {
             return name;
         }
 
-        public void setName(String name) {
+        public InternalData setName(String name) {
             this.name = name;
+            return this;
         }
 
         public Object getValue() {
             return value;
         }
 
-        public void setValue(Object value) {
+        public InternalData setValue(Object value) {
             this.value = value;
+            return this;
         }
     }
 }

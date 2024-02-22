@@ -56,43 +56,43 @@ public class PreserveFormField {
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
-            } else {
-                response = AddField.addField(
-                        documentId,
-                        signature,
-                        "hmac",
-                        user.getEmail(),
-                        transactionId);
-                if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                    continue;
-                }
-                int fieldId = (int) response.getData();
-                response = AddField.addDetailField(
-                        fieldId,
-                        Resources.getFieldTypes().get(FieldTypeName.SIGNATURE.getParentName()).getTypeId(),
-                        signature,
-                        "hmac",
-                        user.getEmail(),
-                        transactionId);
-                if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                    return response;
-                }
+            }
+            response = AddField.addField(
+                    documentId,
+                    signature,
+                    "hmac",
+                    user.getEmail(),
+                    transactionId);
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                continue;
+            }
+            int fieldId = (int) response.getData();
+            response = AddField.addDetailField(
+                    fieldId,
+                    Resources.getFieldTypes().get(FieldTypeName.SIGNATURE.getParentName()).getTypeId(),
+                    signature,
+                    "hmac",
+                    user.getEmail(),
+                    transactionId);
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                return response;
+            }
 
-                ObjectMapper ob = new ObjectMapper();
-                response = ConnectorField_Internal.updateValueOfField(
-                        fieldId,
-                        user,
-                        ob.writeValueAsString(signature),
-                        transactionId);
-                if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                    return new InternalResponse(
-                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                            A_FPSConstant.CODE_DOCUMENT,
-                            A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD
-                    );
-                }
+            ObjectMapper ob = new ObjectMapper();
+            response = ConnectorField_Internal.updateValueOfField(
+                    fieldId,
+                    user,
+                    ob.writeValueAsString(signature),
+                    transactionId);
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                return new InternalResponse(
+                        A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                        A_FPSConstant.CODE_DOCUMENT,
+                        A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD
+                );
             }
         }
+
         return new InternalResponse(
                 A_FPSConstant.HTTP_CODE_SUCCESS, ""
         );

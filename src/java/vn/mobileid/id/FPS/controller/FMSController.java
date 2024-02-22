@@ -68,6 +68,7 @@ public class FMSController extends HttpServlet {
                     String message = ResponseMessageController.getErrorMessageAdvanced(
                             response.getCode(),
                             response.getCodeDescription(),
+                            response.getMessage(),
                             language,
                             transactionId);
                     response.setMessage(message);
@@ -110,6 +111,7 @@ public class FMSController extends HttpServlet {
                     String message = ResponseMessageController.getErrorMessageAdvanced(
                             response.getCode(),
                             response.getCodeDescription(),
+                            response.getMessage(),
                             language,
                             transactionId);
                     response.setMessage(message);
@@ -152,6 +154,7 @@ public class FMSController extends HttpServlet {
                     String message = ResponseMessageController.getErrorMessageAdvanced(
                             response.getCode(),
                             response.getCodeDescription(),
+                            response.getMessage(),
                             language,
                             transactionId);
                     response.setMessage(message);

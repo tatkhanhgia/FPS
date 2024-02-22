@@ -98,6 +98,7 @@ public class ProcessingCheckboxFormField {
                 errorField.setValue(ResponseMessageController.getErrorMessageAdvanced(
                         A_FPSConstant.CODE_FIELD,
                         A_FPSConstant.SUBCODE_FIELD_ALREADY_PROCESS,
+                        "",
                         "en",
                         transactionId));
                 listOfErrorField.add(errorField);
@@ -119,6 +120,7 @@ public class ProcessingCheckboxFormField {
                 errorField.setValue(ResponseMessageController.getErrorMessageAdvanced(
                         A_FPSConstant.CODE_FIELD,
                         A_FPSConstant.SUBCODE_THIS_TYPE_OF_FIELD_IS_NOT_VALID_FOR_THIS_PROCESSION,
+                        "",
                         "en",
                         transactionId));
                 listOfErrorField.add(errorField);

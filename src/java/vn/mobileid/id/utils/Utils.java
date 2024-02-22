@@ -737,13 +737,28 @@ public class Utils {
     }
     //</editor-fold>
     
-    public static void main(String[] args) {
-        String payload = "{\n" +
-"    \"field_name\": \"1\",\n" +
-"    \"required\": true,\n" +
-"    \"dimension\": {\n" +
-"        \"y\":10.0\n" +
-"    }}";
-        System.out.println(Utils.getFromJson_("y", payload));
+    //<editor-fold defaultstate="collapsed" desc="Hash field in Dokobit rule">
+    public static String hashAndExtractMiddleSixChars(String input) throws NoSuchAlgorithmException {
+        // Sử dụng thuật toán SHA-256 để hash
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        byte[] hashBytes = md.digest(input.getBytes());
+
+        // Chuyển đổi byte array thành chuỗi hex
+        StringBuilder hexString = new StringBuilder();
+        for (byte b : hashBytes) {
+            String hex = Integer.toHexString(0xff & b);
+            if (hex.length() == 1) hexString.append('0');
+            hexString.append(hex);
+        }
+
+        // Lấy 6 ký tự ở giữa của chuỗi hex
+        int middleIndex = hexString.length() / 2 - 3; // Chọn giữa và lấy 6 ký tự
+        return hexString.substring(middleIndex, middleIndex + 6);
+    }
+    //</editor-fold>
+    
+    public static void main(String[] args) throws NoSuchAlgorithmException {
+        String payload = "onetwo";
+        System.out.println(Utils.hashAndExtractMiddleSixChars(payload));
     }
 }

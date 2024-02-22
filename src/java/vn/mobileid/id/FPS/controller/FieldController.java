@@ -71,6 +71,7 @@ public class FieldController extends HttpServlet {
                     String message = ResponseMessageController.getErrorMessageAdvanced(
                             response.getCode(),
                             response.getCodeDescription(),
+                            response.getMessage(),
                             language,
                             transactionId);
                     response.setMessage(message);
@@ -114,6 +115,7 @@ public class FieldController extends HttpServlet {
                             String message = ResponseMessageController.getErrorMessageAdvanced(
                                     response.getCode(),
                                     response.getCodeDescription(),
+                                    response.getMessage(),
                                     language,
                                     transactionId);
                             response.setMessage(message);
@@ -157,6 +159,7 @@ public class FieldController extends HttpServlet {
                         String message = ResponseMessageController.getErrorMessageAdvanced(
                                 response.getCode(),
                                 response.getCodeDescription(),
+                                response.getMessage(),
                                 language,
                                 transactionId);
                         response.setMessage(message);
@@ -201,6 +204,7 @@ public class FieldController extends HttpServlet {
                         String message = ResponseMessageController.getErrorMessageAdvanced(
                                 response.getCode(),
                                 response.getCodeDescription(),
+                                response.getMessage(),
                                 language,
                                 transactionId);
                         response.setMessage(message);
@@ -266,6 +270,7 @@ public class FieldController extends HttpServlet {
                             String message = ResponseMessageController.getErrorMessageAdvanced(
                                     response.getCode(),
                                     response.getCodeDescription(),
+                                    response.getMessage(),
                                     language,
                                     transactionId);
                             response.setMessage(message);
@@ -315,6 +320,7 @@ public class FieldController extends HttpServlet {
                             message = ResponseMessageController.getErrorMessageAdvanced(
                                     response.getCode(),
                                     response.getCodeDescription(),
+                                    response.getMessage(),
                                     language,
                                     transactionId);
                         }
@@ -378,6 +384,7 @@ public class FieldController extends HttpServlet {
                         String message = ResponseMessageController.getErrorMessageAdvanced(
                                 response.getCode(),
                                 response.getCodeDescription(),
+                                response.getMessage(),
                                 language,
                                 transactionId);
                         response.setMessage(message);

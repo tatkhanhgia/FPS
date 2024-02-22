@@ -200,6 +200,7 @@ public class ResponseMessageController implements ResponseMessageBuilder {
      *
      * @param code
      * @param subCode
+     * @param responseMessage
      * @param lang
      * @param transactionID
      * @return
@@ -207,9 +208,13 @@ public class ResponseMessageController implements ResponseMessageBuilder {
     public static String getErrorMessageAdvanced(
             int code,
             int subCode,
+            String responseMessage,
             String lang,
             String transactionID) {
         try {
+            if(code == 0 && subCode ==0){
+                return responseMessage;
+            }
             String strCode = String.valueOf(code) + String.valueOf(subCode);
             ResponseCode responseCode = Resources.getResponseCodes().get(strCode);
             if (responseCode == null) {

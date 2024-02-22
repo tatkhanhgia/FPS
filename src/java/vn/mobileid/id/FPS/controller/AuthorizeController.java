@@ -87,6 +87,7 @@ public class AuthorizeController extends HttpServlet {
                 String message = ResponseMessageController.getErrorMessageAdvanced(
                         A_FPSConstant.CODE_FAIL,
                         A_FPSConstant.SUBCODE_NO_PAYLOAD_FOUND,
+                        "",
                         language == null ? 
                                 Language.ENGLISH.getId():
                                 language,
@@ -126,6 +127,7 @@ public class AuthorizeController extends HttpServlet {
                     String message = ResponseMessageController.getErrorMessageAdvanced(
                             response.getCode(),
                             response.getCodeDescription(),
+                            response.getMessage(),
                             language,
                             transactionId);
                     response.setMessage(message);
