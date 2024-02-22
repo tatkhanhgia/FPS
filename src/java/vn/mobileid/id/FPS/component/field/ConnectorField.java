@@ -599,7 +599,7 @@ public class ConnectorField {
         //<editor-fold defaultstate="collapsed" desc="Create Replicate Field if that field is Initial">
         if (field instanceof InitialsFieldAttribute) {
             return ReplicateInitialField.replicateField(
-                    (InitialsFieldAttribute)field, 
+                    (InitialsFieldAttribute) field,
                     document_,
                     user, transactionId).setUser(user);
         }
@@ -759,6 +759,7 @@ public class ConnectorField {
         List<TextFieldAttribute> textboxs = new ArrayList<>();
         List<InitialsFieldAttribute> initials = new ArrayList<>();
         List<QRFieldAttribute> qrs = new ArrayList<>();
+        List<QRFieldAttribute> qryptos = new ArrayList<>();
 
         for (ExtendedFieldAttribute field : fields) {
             try {
@@ -786,6 +787,13 @@ public class ConnectorField {
                         break;
                     }
                     case 3: {
+                        break;
+                    }
+                    case 37: {
+                        QRFieldAttribute qr = new ObjectMapper().readValue(field.getDetailValue(), QRFieldAttribute.class);
+                        qr.setDimension(ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
+                        qr = (QRFieldAttribute) field.clone(qr, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
+                        qryptos.add(qr);
                         break;
                     }
                     case 4: {
@@ -845,7 +853,7 @@ public class ConnectorField {
                 return null;
             }
         }
-        Object[] array = new Object[7];
+        Object[] array = new Object[10];
         array[0] = textboxs;
         array[1] = null;
         array[2] = null;
@@ -853,6 +861,9 @@ public class ConnectorField {
         array[4] = initials;
         array[5] = null;
         array[6] = signatures;
+        array[7] = null;
+        array[8] = null;
+        array[9] = qryptos;
         return array;
     }
     //</editor-fold>

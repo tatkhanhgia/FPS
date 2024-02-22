@@ -131,17 +131,17 @@ public class QryptoSession implements ISession {
         bodypart.put("configuration", new ObjectMapper().writeValueAsString(configuration));
         System.out.println("Config:" + new ObjectMapper().writeValueAsString(configuration));
 
-        HashMap<String,String> names = new HashMap<>();
+        HashMap<String, String> names = new HashMap<>();
         for (String key : QR.getHeader().keySet()) {
             System.out.println("Put bodypart:" + key);
             bodypart.put(key, QR.getHeader().get(key));
             for (field field : QR.getFormat().getFields()) {
                 if (field.getType().equals(QRSchema.fieldType.f1) && field.getFile_field().equals(key)) {
-                    names.put(key,field.getFile_name() != null ? !"".equals(field.getFile_name()) ? field.getFile_name() : key : key);
+                    names.put(key, field.getFile_name() != null ? !"".equals(field.getFile_name()) ? field.getFile_name() : key : key);
 //                    System.out.println("Putname:"+names.get(key));
                 }
                 if (field.getType().equals(QRSchema.fieldType._4T1P) && field.getFile_field().equals(key)) {
-                    names.put(key,field.getFile_name() != null ? !"".equals(field.getFile_name()) ? field.getFile_name() : key : key);
+                    names.put(key, field.getFile_name() != null ? !"".equals(field.getFile_name()) ? field.getFile_name() : key : key);
 //                    System.out.println("Putname:"+names.get(key));
                 }
             }
@@ -158,10 +158,20 @@ public class QryptoSession implements ISession {
         IssueQryptoWithFileAttachResponse responses = new IssueQryptoWithFileAttachResponse();
         responses = new ObjectMapper().readValue(message, IssueQryptoWithFileAttachResponse.class);
         if (responses.getStatus() == 1009 && response.getStatusLine().getStatusCode() == 401) {
-            throw new LoginException(responses.getStatus() + "\n" + responses.getData() + "\n" + responses.getMessage());
+            StringBuilder builder = new StringBuilder();
+            builder.append("======CALL QRYPTO ERROR=====")
+                    .append("\n\tStatus:").append(response.getStatusLine().getStatusCode())
+                    .append("\n\tMessage:").append(responses.getMessage());
+            System.err.println(builder);
+            throw new LoginException(responses.getMessage());
         }
         if (response.getStatusLine().getStatusCode() != 200) {
-            throw new QryptoException(responses.getStatus() + "\n" + responses.getData() + "\n" + responses.getMessage());
+            StringBuilder builder = new StringBuilder();
+            builder.append("======CALL QRYPTO ERROR=====")
+                    .append("\n\tStatus:").append(response.getStatusLine().getStatusCode())
+                    .append("\n\tMessage:").append(responses.getMessage());
+            System.err.println(builder);
+            throw new QryptoException(responses.getMessage());
         }
         return responses;
     }
@@ -232,6 +242,12 @@ public class QryptoSession implements ISession {
                         "Err code: " + qryptoResp.getCode()
                         + "\nProblem: " + qryptoResp.getProblem()
                         + "\nDetails:" + qryptoResp.getDetails());
+                StringBuilder builder = new StringBuilder();
+                builder.append("======CALL QRYPTO ERROR=====")
+                        .append("\n\tStatus:").append(qryptoResp.getStatus())
+                        .append("\n\tMessage:").append(qryptoResp.getMessage())
+                        .append("\n\tProblem:").append(qryptoResp.getProblem());
+                System.err.println(builder);
                 throw new Exception(qryptoResp.getProblem() + " - " + qryptoResp.getDetails());
             }
             login();
@@ -241,6 +257,12 @@ public class QryptoSession implements ISession {
                     "Err code: " + qryptoResp.getCode()
                     + "\nProblem: " + qryptoResp.getProblem()
                     + "\nDetails:" + qryptoResp.getDetails());
+            StringBuilder builder = new StringBuilder();
+            builder.append("======CALL QRYPTO ERROR=====")
+                    .append("\n\tStatus:").append(qryptoResp.getStatus())
+                    .append("\n\tMessage:").append(qryptoResp.getMessage())
+                    .append("\n\tProblem:").append(qryptoResp.getProblem());
+            System.err.println(builder);
             throw new QryptoException(qryptoResp.getProblem() + " - " + qryptoResp.getDetails());
         } else {
             return qryptoResp;
