@@ -476,7 +476,6 @@ public class ConnectorField {
 //        });
 //        executors.shutdown();
 //        //</editor-fold>
-
         //<editor-fold defaultstate="collapsed" desc="Check Process Status of Field">
         InternalResponse checking = CheckFieldProcessedYet.checkProcessed(fieldOld);
         if (checking.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
@@ -566,28 +565,6 @@ public class ConnectorField {
         System.out.println("FinalX:" + field.getDimension().getWidth());
         System.out.println("FinalX:" + field.getDimension().getHeight());
 
-        //<editor-fold defaultstate="collapsed" desc="Create new QR Image if that type is QR Code">
-        if (field instanceof QRFieldAttribute) {
-            try {
-                QRFieldAttribute qr = (QRFieldAttribute) field;
-                byte[] imageQR = QRGenerator.generateQR(
-                        qr.getValue(),
-                        Math.round(qr.getDimension().getWidth()),
-                        Math.round(qr.getDimension().getWidth()),
-                        qr.IsTransparent());
-                qr.setImageQR(Base64.toBase64String(imageQR));
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                response = new InternalResponse(
-                        A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                        A_FPSConstant.CODE_FIELD_QR,
-                        A_FPSConstant.SUBCODE_CANNOT_GENERATE_QR
-                ).setException(ex).setUser(user);
-                return response;
-            }
-        }
-        //</editor-fold>
-
         //<editor-fold defaultstate="collapsed" desc="Merge 2 JSON - 1 in DB as ExternalFieldAtrtibute.getDetailValue - 1 in Payload">
         JsonNode merge = Utils.merge(
                 fieldOld.getDetailValue(),
@@ -604,6 +581,30 @@ public class ConnectorField {
 
         //<editor-fold defaultstate="collapsed" desc="Merge Payload vs Field Value Old">
         JsonNode merge2 = Utils.merge(fieldOld.getFieldValue(), payload);
+        //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="Create new QR Image if that type is QR Code">
+        if (field instanceof QRFieldAttribute) {
+            try {
+                QRFieldAttribute qr = (QRFieldAttribute) field;
+                if (!Utils.isNullOrEmpty(qr.getValue())) {
+                    byte[] imageQR = QRGenerator.generateQR(
+                            (String) Utils.getFromJson_("value", merge2.toPrettyString()),
+                            Math.round(qr.getDimension().getWidth()),
+                            Math.round(qr.getDimension().getWidth()),
+                            qr.IsTransparent());
+                    qr.setImageQR(Base64.toBase64String(imageQR));
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                response = new InternalResponse(
+                        A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                        A_FPSConstant.CODE_FIELD_QR,
+                        A_FPSConstant.SUBCODE_CANNOT_GENERATE_QR
+                ).setException(ex).setUser(user);
+                return response;
+            }
+        }
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Update Field">
@@ -648,7 +649,7 @@ public class ConnectorField {
 //            if(resultThread.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS){
 //                return resultThread.setUser(user);
 //            }
-            
+
             return ReplicateInitialField.replicateField(
                     (InitialsFieldAttribute) field,
                     document_,
@@ -1085,7 +1086,7 @@ public class ConnectorField {
                     }
                 }
 
-                if (Utils.isNullOrEmpty(field.getValue())) {
+                if (Utils.isNullOrEmpty(field.getValue()) && !isUpdate) {
                     return new InternalResponse(
                             A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                             A_FPSConstant.CODE_FIELD_QR,
