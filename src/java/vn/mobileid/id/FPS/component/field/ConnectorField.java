@@ -22,13 +22,15 @@ import fps_core.objects.TextFieldAttribute;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import org.bouncycastle.util.encoders.Base64;
 import vn.mobileid.id.FPS.component.document.CheckPayloadRequest;
@@ -373,7 +375,9 @@ public class ConnectorField {
             String payload,
             String transactionId
     ) throws Exception {
-        //Check payload
+//        final List<InitialsFieldAttribute> fieldsInit = new ArrayList<>();
+
+        //<editor-fold defaultstate="collapsed" desc="Check payload">
         if (payload == null) {
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
@@ -381,16 +385,18 @@ public class ConnectorField {
                     A_FPSConstant.SUBCODE_NO_PAYLOAD_FOUND
             );
         }
+        //</editor-fold>
 
-        //Call throught connectorDocument to verify and get Documents of packageId
+        //<editor-fold defaultstate="collapsed" desc="Call throught connectorDocument to verify and get Documents of packageId">
         InternalResponse response = ConnectorDocument_Internal.getDocuments(request, transactionId);
         if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
             return response;
         }
         User user = response.getUser();
         List<Document> documents = (List<Document>) response.getData();
+        //</editor-fold>
 
-        //Parse to field + check type of field
+        //<editor-fold defaultstate="collapsed" desc="Parse to field + check type of field">
         response = parseToField(
                 request.getRequestURI(),
                 payload,
@@ -401,13 +407,15 @@ public class ConnectorField {
             return response.setUser(user);
         }
         BasicFieldAttribute field = (BasicFieldAttribute) response.getData();
+        //</editor-fold>
 
-        //Add more data to Field
+        //<editor-fold defaultstate="collapsed" desc="Add more data to Field">
         field.setProcessBy(user.getAzp());
         SimpleDateFormat dateFormat = new SimpleDateFormat(PolicyConfiguration.getInstant().getSystemConfig().getAttributes().get(0).getDateFormat());
         field.setProcessOn(dateFormat.format(Date.from(Instant.now())));
+        //</editor-fold>
 
-        //Get Field
+        //<editor-fold defaultstate="collapsed" desc="Get Field old from DB">
         Document document_ = null;
         for (Document document : documents) {
             if (document.getRevision() == 1) {
@@ -427,9 +435,47 @@ public class ConnectorField {
         if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
             return response.setUser(user);
         }
-
-        //Get field old
         ExtendedFieldAttribute fieldOld = (ExtendedFieldAttribute) response.getData();
+        //</editor-fold>
+
+//        //<editor-fold defaultstate="collapsed" desc="If the field is Initials => Create Thread to get all Field in DB and store in "fieldsInit"">
+//        ExecutorService executors = Executors.newFixedThreadPool(1);
+//        Future<Object> thread = executors.submit(new TaskV2(
+//                new Object[] {document_},
+//                transactionId) {
+//            @Override
+//            public Object call() {
+//                try {
+//                    InternalResponse response = GetField.getFieldsData(
+//                            (long)this.get()[0],
+//                            transactionId);
+//                    if(response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS){
+//                        return response;
+//                    }
+//                    List<ExtendedFieldAttribute> fields = (List<ExtendedFieldAttribute>)response.getData();
+//                    for (ExtendedFieldAttribute value : fields) {
+//                        if(value.getType().getParentType().equals(FieldTypeName.INITIAL.getParentName())){
+//                            try {
+//                                InitialsFieldAttribute init = new ObjectMapper().readValue(value.getFieldValue(), InitialsFieldAttribute.class);
+//                                init = (InitialsFieldAttribute) value.clone(init, value.getDimension());
+//                                fieldsInit.add(init);
+//                            } catch (JsonProcessingException ex) {
+//                                Logger.getLogger(ConnectorField.class.getName()).log(Level.SEVERE, null, ex);
+//                            }
+//                        }
+//                    }                    
+//                    return response;
+//                } catch (Exception ex) {
+//                    return new InternalResponse(
+//                            A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
+//                            A_FPSConstant.CODE_ERROR_WHILE_CALLING_THREAD,
+//                            A_FPSConstant.SUBCODE_THREAD_GET_FIELDS_IN_UPDATE_INITIALFIELD
+//                    ).setException(ex);
+//                }
+//            }
+//        });
+//        executors.shutdown();
+//        //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Check Process Status of Field">
         InternalResponse checking = CheckFieldProcessedYet.checkProcessed(fieldOld);
@@ -598,10 +644,16 @@ public class ConnectorField {
 
         //<editor-fold defaultstate="collapsed" desc="Create Replicate Field if that field is Initial">
         if (field instanceof InitialsFieldAttribute) {
+//            InternalResponse resultThread = (InternalResponse) thread.get();
+//            if(resultThread.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS){
+//                return resultThread.setUser(user);
+//            }
+            
             return ReplicateInitialField.replicateField(
                     (InitialsFieldAttribute) field,
                     document_,
-                    user, transactionId).setUser(user);
+                    user,
+                    transactionId).setUser(user);
         }
         //</editor-fold>
 

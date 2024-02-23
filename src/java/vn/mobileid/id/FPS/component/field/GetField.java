@@ -17,8 +17,10 @@ import vn.mobileid.id.helper.database.objects.DatabaseResponse;
  */ 
 public class GetField{
     /**
-     * Get về toàn bộ giá trị của field + field detail dựa trên documentId và fieldName. Get all information both field and field detail in DB
+     * Get về toàn bộ giá trị của field + field detail dựa trên documentId và fieldName.
+     * Get all information both field and field detail that belongs to documentId and FieldName in DB
      * @param documentId
+     * @param fieldName
      * @param transactionId
      * @return fieldData ở định dạng ExtendedFieldAttribute
      */
@@ -45,12 +47,12 @@ public class GetField{
     }
     
     /**
-     * Get về toàn bộ giá trị của field + field detail dựa trên documentId và documentFieldId. Get all information both field and field detail in DB
-     * @param documentId
+     * Get về toàn bộ giá trị của field + field detail dựa trên documentFieldId.Get all information both field and field detail that belongs to DocumentFieldId in DB
+     * @param documentFieldId
      * @param transactionId
      * @return fieldData ở định dạng ExtendedFieldAttribute
      */
-    public  static InternalResponse getFieldData2(
+    public  static InternalResponse getFieldData(
             long documentFieldId,
             String transactionId
     ) throws Exception{
@@ -71,7 +73,8 @@ public class GetField{
     }
     
     /**
-     * Get về toàn bộ giá trị của field + field detail không dựa trên gì hết
+     * Get về toàn bộ giá trị của field + field detail thuộc về DocumentId không dựa trên gì hết
+     * Get all data of field (ExtendedField) of the Document Id
      * @param documentId
      * @param transactionId
      * @return fieldData ở định dạng ExtendedFieldAttribute

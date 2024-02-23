@@ -9,8 +9,10 @@ import fps_core.enumration.DocumentStatus;
 import fps_core.enumration.ProcessStatus;
 import fps_core.module.DocumentUtils_itext7;
 import fps_core.objects.CheckBoxFieldAttribute;
+import fps_core.objects.ExtendedFieldAttribute;
 import fps_core.objects.FileManagement;
 import fps_core.objects.InitialsFieldAttribute;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -18,6 +20,7 @@ import org.apache.commons.codec.binary.Hex;
 import vn.mobileid.id.FMS;
 import vn.mobileid.id.FPS.component.document.UploadDocument;
 import vn.mobileid.id.FPS.component.field.ConnectorField_Internal;
+import vn.mobileid.id.FPS.component.field.GetField;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
@@ -30,7 +33,7 @@ import vn.mobileid.id.utils.TaskV2;
  *
  * @author GiaTK
  */
-public class InitialsProcessing implements ModuleProcessing,DocumentProcessing {
+public class InitialsProcessing implements ModuleProcessing, DocumentProcessing {
 
     @Override
     public InternalResponse createFormField(Object... objects) throws Exception {
@@ -47,8 +50,8 @@ public class InitialsProcessing implements ModuleProcessing,DocumentProcessing {
         if (document.isEnabled()) {
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                            A_FPSConstant.CODE_DOCUMENT,
-                            A_FPSConstant.SUBCODE_DOCUMENT_STATSUS_IS_DISABLE
+                    A_FPSConstant.CODE_DOCUMENT,
+                    A_FPSConstant.SUBCODE_DOCUMENT_STATSUS_IS_DISABLE
             );
         }
         //</editor-fold>
@@ -168,8 +171,8 @@ public class InitialsProcessing implements ModuleProcessing,DocumentProcessing {
         if (document.isEnabled()) {
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                            A_FPSConstant.CODE_DOCUMENT,
-                            A_FPSConstant.SUBCODE_DOCUMENT_STATSUS_IS_DISABLE
+                    A_FPSConstant.CODE_DOCUMENT,
+                    A_FPSConstant.SUBCODE_DOCUMENT_STATSUS_IS_DISABLE
             );
         }
 
@@ -283,29 +286,36 @@ public class InitialsProcessing implements ModuleProcessing,DocumentProcessing {
     }
 
     @Override
-    public InternalResponse process(Object... objects) throws Exception {
+    public InternalResponse process(Object... objects) throws Exception {        
+        return flow2(objects);
+    }
+
+    //==========================================================================
+    //<editor-fold defaultstate="collapsed" desc="Flow create Intial 1">
+    private static InternalResponse flow1(
+            Object...objects) throws Exception {
         //Variable
-        User user = (User)objects[0];
-        Document document = (Document)objects[1];
-        int revision = (int)objects[2];
-        long documentFieldId = (long)objects[3];
-        InitialsFieldAttribute field = (InitialsFieldAttribute)objects[4];
-        String transactionId = (String)objects[5];
+        User user = (User) objects[0];
+        Document document = (Document) objects[1];
+        int revision = (int) objects[2];
+        long documentFieldId = (long) objects[3];
+        InitialsFieldAttribute field = (InitialsFieldAttribute) objects[4];
+        String transactionId = (String) objects[5];
         byte[] file;
-        
+
         //Check status document
         if (document.isEnabled()) {
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                            A_FPSConstant.CODE_DOCUMENT,
-                            A_FPSConstant.SUBCODE_DOCUMENT_STATSUS_IS_DISABLE
+                    A_FPSConstant.CODE_DOCUMENT,
+                    A_FPSConstant.SUBCODE_DOCUMENT_STATSUS_IS_DISABLE
             );
         }
 
         //Download document from FMS
-        InternalResponse response = FMS.downloadDocumentFromFMS(document.getUuid(), 
+        InternalResponse response = FMS.downloadDocumentFromFMS(document.getUuid(),
                 transactionId);
-                
+
         if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
             return response;
         }
@@ -328,7 +338,7 @@ public class InitialsProcessing implements ModuleProcessing,DocumentProcessing {
 
             //Append InitialField into file
             byte[] appendedFile = DocumentUtils_itext7.createInitialsForm(file, field, transactionId);
-           
+
             //Upload to FMS
             Future<?> uploadFMS = executor.submit(new TaskV2(new Object[]{appendedFile}, transactionId) {
                 @Override
@@ -336,7 +346,7 @@ public class InitialsProcessing implements ModuleProcessing,DocumentProcessing {
                     InternalResponse response = new InternalResponse();
                     try {
                         //Upload new Document into FMS
-                          response = FMS.uploadToFMS(appendedFile, "pdf", transactionId);
+                        response = FMS.uploadToFMS(appendedFile, "pdf", transactionId);
                         return response;
                     } catch (Exception ex) {
                         response.setStatus(A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR);
@@ -396,8 +406,8 @@ public class InitialsProcessing implements ModuleProcessing,DocumentProcessing {
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 return new InternalResponse(
                         A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                                A_FPSConstant.CODE_DOCUMENT,
-                                A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD
+                        A_FPSConstant.CODE_DOCUMENT,
+                        A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD
                 );
             }
 
@@ -411,8 +421,8 @@ public class InitialsProcessing implements ModuleProcessing,DocumentProcessing {
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 return new InternalResponse(
                         A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                                A_FPSConstant.CODE_DOCUMENT,
-                                A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD_DETAILS
+                        A_FPSConstant.CODE_DOCUMENT,
+                        A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD_DETAILS
                 );
             }
 
@@ -434,4 +444,180 @@ public class InitialsProcessing implements ModuleProcessing,DocumentProcessing {
             return res;
         }
     }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="Flow create Intial 2">
+    private static InternalResponse flow2(Object... objects) throws Exception {
+        //Variable
+        User user = (User) objects[0];
+        Document document = (Document) objects[1];
+        int revision = (int) objects[2];
+        long documentFieldId = (long) objects[3];
+        InitialsFieldAttribute field = (InitialsFieldAttribute) objects[4];
+        String transactionId = (String) objects[5];
+        byte[] file;
+
+        //<editor-fold defaultstate="collapsed" desc="Check status of document">
+        if (document.isEnabled()) {
+            return new InternalResponse(
+                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                    A_FPSConstant.CODE_DOCUMENT,
+                    A_FPSConstant.SUBCODE_DOCUMENT_STATSUS_IS_DISABLE
+            );
+        }
+        //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="Download Document from FMS">
+        InternalResponse response = FMS.downloadDocumentFromFMS(document.getUuid(),
+                transactionId);
+
+        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+            return response;
+        }
+        file = (byte[]) response.getData();
+        //</editor-fold>
+
+        //Append data into field 
+        try {
+            //<editor-fold defaultstate="collapsed" desc="Analysis File">
+            ExecutorService executor = Executors.newFixedThreadPool(2);
+            Future<?> analysis = executor.submit(new TaskV2(new Object[]{file}, transactionId) {
+                @Override
+                public Object call() {
+                    try {
+                        return DocumentUtils_itext7.analysisPDF_i7((byte[]) this.get()[0]);
+                    } catch (Exception ex) {
+                        return null;
+                    }
+                }
+            });
+            //</editor-fold>
+
+            byte[] appendedFile = null;
+
+            //<editor-fold defaultstate="collapsed" desc="Check if Field is apply to all => create Multiple Initial">
+            if (field.isApplyToAll()) {
+                InternalResponse temp = GetField.getFieldsData(documentFieldId, transactionId);
+                if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                    return response;
+                }
+                List<ExtendedFieldAttribute> fields = (List<ExtendedFieldAttribute>) response.getData();
+                appendedFile = DocumentUtils_itext7.createMultipleInitialsForm(
+                        file,
+                        fields,
+                        transactionId);
+            } else {
+                appendedFile = DocumentUtils_itext7.createInitialsForm(
+                        file,
+                        field,
+                        transactionId);
+            }
+            //</editor-fold>
+
+            //Upload to FMS
+            Future<?> uploadFMS = executor.submit(new TaskV2(new Object[]{appendedFile}, transactionId) {
+                @Override
+                public Object call() {
+                    InternalResponse response = new InternalResponse();
+                    try {
+                        //Upload new Document into FMS
+                        response = FMS.uploadToFMS((byte[])this.get()[0], "pdf", transactionId);
+                        return response;
+                    } catch (Exception ex) {
+                        response.setStatus(A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR);
+                        response.setException(ex);
+                        response.setCode(A_FPSConstant.CODE_FMS);
+                        response.setCodeDescription(A_FPSConstant.SUBCODE_ERROR_WHILE_UPLOAD_FMS);
+                    }
+                    return response;
+                }
+            });
+
+            executor.shutdown();
+
+            FileManagement fileManagement = (FileManagement) analysis.get();
+            if (fileManagement == null) {
+                return new InternalResponse(
+                        A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                        A_FPSConstant.CODE_DOCUMENT,
+                        A_FPSConstant.SUBCODE_CANNOT_ANNALYSIS_THE_DOCUMENT
+                );
+            }
+            fileManagement.setSize(appendedFile.length);
+            fileManagement.setDigest(Hex.encodeHexString(Crypto.hashData(appendedFile, fileManagement.getAlgorithm().getName())));
+            response = (InternalResponse) uploadFMS.get();
+
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                return response;
+            }
+
+            String uuid = (String) response.getData();
+
+            //Update new Document in DB    
+            response = UploadDocument.uploadDocument(
+                    document.getPackageId(),
+                    revision + 1,
+                    fileManagement,
+                    DocumentStatus.READY,
+                    "url",
+                    "contents",
+                    uuid,
+                    "Appended Initials Field - " + field.getFieldName(),
+                    "hmac",
+                    user.getAzp(),
+                    transactionId);
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                return response;
+            }
+
+            //Update field after processing
+            field.setProcessStatus(ProcessStatus.PROCESSED.getName());
+            ObjectMapper ob = new ObjectMapper();
+            response = ConnectorField_Internal.updateValueOfField(
+                    documentFieldId,
+                    user,
+                    ob.writeValueAsString(field),
+                    transactionId);
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                return new InternalResponse(
+                        A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                        A_FPSConstant.CODE_DOCUMENT,
+                        A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD
+                );
+            }
+
+            //Update new data of CheckboxField
+            response = ConnectorField_Internal.updateFieldDetail(
+                    documentFieldId,
+                    user,
+                    ob.writeValueAsString(field),
+                    uuid,
+                    transactionId);
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                return new InternalResponse(
+                        A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                        A_FPSConstant.CODE_DOCUMENT,
+                        A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD_DETAILS
+                );
+            }
+
+            return new InternalResponse(
+                    A_FPSConstant.HTTP_CODE_SUCCESS,
+                    ""
+            );
+        } catch (Exception ex) {
+            LogHandler.error(
+                    InitialsProcessing.class,
+                    transactionId,
+                    ex);
+            InternalResponse res = new InternalResponse(
+                    A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
+                    A_FPSConstant.CODE_FIELD_INITIAL,
+                    A_FPSConstant.SUBCODE_CANNOT_FILL_INITIALS
+            );
+            res.setException(ex);
+            return res;
+        }
+    }
+    //</editor-fold>
 }

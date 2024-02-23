@@ -90,9 +90,9 @@ public class ProcessingInitialFormField {
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Convert ExtendField into InitialField">
-        InitialsFieldAttribute textField = null;
+        InitialsFieldAttribute initField = null;
         try {
-            textField = convertExtend_into_InitialField(
+            initField = convertExtend_into_InitialField(
                     user,
                     fieldData,
                     processRequest);
@@ -107,7 +107,7 @@ public class ProcessingInitialFormField {
                 document_,
                 documents.size(),
                 fieldData.getDocumentFieldId(),
-                textField,
+                initField,
                 transactionId);
 
         if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
