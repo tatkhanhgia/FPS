@@ -98,10 +98,10 @@ public class FieldController extends HttpServlet {
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         String language = Utils.getRequestHeader(req, "x-language-name");
+        String payload = Utils.getPayload(req);
         try {
             //<editor-fold defaultstate="collapsed" desc="Add field">
             if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/fields.*$") && !req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/fields/hash$")) {
-                String payload = Utils.getPayload(req);
                 String transactionId = Utils.getTransactionId(req, payload);
                 long packageId = Utils.getIdFromURL(req.getRequestURI());
                 LogHandler.request(
@@ -146,7 +146,6 @@ public class FieldController extends HttpServlet {
             //<editor-fold defaultstate="collapsed" desc="Fill Initials Field">
             if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/initial$")) {
                 String transactionId = Utils.getTransactionId(req, null);
-                String payload = Utils.getPayload(req);
                 long packageId = Utils.getIdFromURL(req.getRequestURI());
                 LogHandler.request(
                         FieldController.class,
@@ -191,7 +190,6 @@ public class FieldController extends HttpServlet {
             if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/qrcode-qrypto$")) {
                 System.out.println("Hello");
                 String transactionId = Utils.getTransactionId(req, null);
-                String payload = Utils.getPayload(req);
                 long packageId = Utils.getIdFromURL(req.getRequestURI());
                 LogHandler.request(
                         FieldController.class,

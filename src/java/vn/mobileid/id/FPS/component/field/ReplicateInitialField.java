@@ -71,7 +71,6 @@ public class ReplicateInitialField {
                 int page = temp.next();
                 InitialsFieldAttribute child = new InitialsFieldAttribute();
                 child.setApplyToAll(false);
-                child.setPages(Arrays.asList(page));
                 child.setPage(page);
                 child.setDimension(initParent.getDimension());
                 child.setType(initParent.getType());
@@ -83,14 +82,16 @@ public class ReplicateInitialField {
                         ? "_"
                         : "";
                 try {
+                    String suffix = Utils.hashAndExtractMiddleSixChars("SIGNATURE-" + String.valueOf(
+                                    rootTimestamp + page
+                            ));
+                    child.setSuffix(suffix);
                     child.setFieldName(
                             initParent.getFieldName()
                                     .substring(0,
                                             position + 1)
                             + buffer
-                            + Utils.hashAndExtractMiddleSixChars("SIGNATURE-" + String.valueOf(
-                                    rootTimestamp + page
-                            )));
+                            + suffix);
                 } catch (Exception ex) {
                     System.err.println("Invalid hash algorithm!!");
                     child.setFieldName(initParent.getFieldName()
