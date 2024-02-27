@@ -35,38 +35,69 @@ public class ReplicateInitialField {
     ) throws Exception {
         boolean enabled = false;
 
+        //<editor-fold defaultstate="collapsed" desc="Delete duplicate page existed in field.replicatePages">
+        List<Integer> replicatePages = new ArrayList<>();
+        if (!Utils.isNullOrEmpty(initParent.getReplicatePages())) {
+            for (int i = 0; i < initParent.getReplicatePages().size(); i++) {
+                int p = initParent.getPage();
+                int pp = initParent.getReplicatePages().get(i);
+                if (!replicatePages.contains(initParent.getReplicatePages().get(i))
+                        && (initParent.getReplicatePages().get(i) != initParent.getPage())) {
+                    replicatePages.add(initParent.getReplicatePages().get(i));
+                }
+            }
+        }
+        if (replicatePages.isEmpty()) {
+            replicatePages = initParent.getReplicatePages();
+        }
+        
+        //</editor-fold>
+
         //<editor-fold defaultstate="collapsed" desc="Create list child field">
         List<InitialsFieldAttribute> childs = new ArrayList<>();
         if (initParent.isReplicateAllPages()) {
             long root = System.currentTimeMillis();
             for (int i = 1; i <= document.getDocumentPages(); i++) {
+                if (i == initParent.getPage()) {
+                    continue;
+                }
                 InitialsFieldAttribute child = new InitialsFieldAttribute();
                 child.setApplyToAll(false);
-                child.setPages(Arrays.asList(i));
                 child.setPage(i);
                 child.setDimension(initParent.getDimension());
                 child.setType(initParent.getType());
                 child.setVisibleEnabled(true);
+
+                int position = initParent.getFieldName().lastIndexOf("_") == -1
+                        ? initParent.getFieldName().length() - 1
+                        : initParent.getFieldName().lastIndexOf("_");
+                String buffer = initParent.getFieldName().lastIndexOf("_") == -1
+                        ? "_"
+                        : "";
                 try {
+                    String suffix = Utils.hashAndExtractMiddleSixChars("SIGNATURE-" + String.valueOf(root));
+                    child.setSuffix(suffix);
                     child.setFieldName(
                             initParent.getFieldName()
                                     .substring(0,
-                                            initParent.getFieldName().lastIndexOf("_") + 1)
-                            + Utils.hashAndExtractMiddleSixChars("SIGNATURE-" + String.valueOf(root)));
+                                            position + 1)
+                            + buffer
+                            + suffix);
                     root++;
                 } catch (Exception ex) {
                     System.err.println("Invalid hash algorithm!!");
                     child.setFieldName(initParent.getFieldName()
                             .substring(0,
-                                    initParent.getFieldName().lastIndexOf("_") + 1)
+                                    position + 1)
+                            + buffer
                             + String.valueOf(root));
                 }
                 childs.add(child);
             }
             enabled = true;
-        } else if (!Utils.isNullOrEmpty(initParent.getReplicatePages())) {
+        } else if (!Utils.isNullOrEmpty(replicatePages)) {
             final long rootTimestamp = System.currentTimeMillis();
-            Iterator<Integer> temp = initParent.getReplicatePages().iterator();
+            Iterator<Integer> temp = replicatePages.iterator();
             while (temp.hasNext()) {
                 int page = temp.next();
                 InitialsFieldAttribute child = new InitialsFieldAttribute();
@@ -83,8 +114,8 @@ public class ReplicateInitialField {
                         : "";
                 try {
                     String suffix = Utils.hashAndExtractMiddleSixChars("SIGNATURE-" + String.valueOf(
-                                    rootTimestamp + page
-                            ));
+                            rootTimestamp + page
+                    ));
                     child.setSuffix(suffix);
                     child.setFieldName(
                             initParent.getFieldName()

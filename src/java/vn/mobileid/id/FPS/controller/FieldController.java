@@ -238,23 +238,24 @@ public class FieldController extends HttpServlet {
                         null);
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
-            Utils.sendMessage(
+            catchException(
+                    ex,
+                    req,
                     res,
-                    A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
-                    "application/json",
-                    ResponseMessageController.errorMessage("Internal Server Error"));
+                    payload,
+                    (int) Utils.getIdFromURL(req.getRequestURI()),
+                    language);
         }
     }
 
     @Override
     public void doPut(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         String language = Utils.getRequestHeader(req, "x-language-name");
-
+        String payload = Utils.getPayload(req);
+                
         try {
             //<editor-fold defaultstate="collapsed" desc="Update Field">
             if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/fields/.*$") && !req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/fields/hash$")) {
-                String payload = Utils.getPayload(req);
                 String transactionId = Utils.getTransactionId(req, null);
 
                 try {
@@ -303,7 +304,6 @@ public class FieldController extends HttpServlet {
             //<editor-fold defaultstate="collapsed" desc="Fill Form Field">
             if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/fields$")) {
                 String transactionId = Utils.getTransactionId(req, null);
-                String payload = Utils.getPayload(req);
                 LogHandler.request(
                         FieldController.class,
                         Utils.getDataRequestToLog(req, transactionId, "Fill Form Field", ""));
@@ -363,7 +363,7 @@ public class FieldController extends HttpServlet {
                     ex,
                     req,
                     res,
-                    language,
+                    payload,
                     (int) Utils.getIdFromURL(req.getRequestURI()),
                     language);
         }
@@ -372,9 +372,9 @@ public class FieldController extends HttpServlet {
     @Override
     public void doDelete(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         String language = Utils.getRequestHeader(req, "x-language-name");
-
+        String payload = Utils.getPayload(req);
+        
         if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/fields$")) {
-            String payload = Utils.getPayload(req);
             String transactionId = Utils.getTransactionId(req, payload);
             long packageId = Utils.getIdFromURL(req.getRequestURI());
             LogHandler.request(

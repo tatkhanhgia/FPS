@@ -455,6 +455,7 @@ public class InitialsProcessing implements ModuleProcessing, DocumentProcessing 
         long documentFieldId = (long) objects[3];
         InitialsFieldAttribute field = (InitialsFieldAttribute) objects[4];
         String transactionId = (String) objects[5];
+        long documentIDOriginal = (long) objects[6];
         byte[] file;
 
         //<editor-fold defaultstate="collapsed" desc="Check status of document">
@@ -497,11 +498,11 @@ public class InitialsProcessing implements ModuleProcessing, DocumentProcessing 
 
             //<editor-fold defaultstate="collapsed" desc="Check if Field is apply to all => create Multiple Initial">
             if (field.isApplyToAll()) {
-                InternalResponse temp = GetField.getFieldsData(documentFieldId, transactionId);
-                if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                    return response;
+                InternalResponse temp = GetField.getFieldsData(documentIDOriginal, transactionId);
+                if (temp.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                    return temp;
                 }
-                List<ExtendedFieldAttribute> fields = (List<ExtendedFieldAttribute>) response.getData();
+                List<ExtendedFieldAttribute> fields = (List<ExtendedFieldAttribute>) temp.getData();
                 appendedFile = DocumentUtils_itext7.createMultipleInitialsForm(
                         file,
                         fields,

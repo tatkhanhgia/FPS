@@ -580,7 +580,7 @@ public class ConnectorField {
         //<editor-fold defaultstate="collapsed" desc="Merge Payload vs Field Value Old">
         JsonNode merge2 = Utils.merge(fieldOld.getFieldValue(), payload);
         //</editor-fold>
-
+        
         //<editor-fold defaultstate="collapsed" desc="Create new QR Image if that type is QR Code">
         if (field instanceof QRFieldAttribute) {
             try {
@@ -612,7 +612,7 @@ public class ConnectorField {
                 field.getRenamedAs(),
                 merge2.toPrettyString(),
                 null,
-                field.getPage() <= 0 ? fieldOld.getPage() : field.getPage(),
+                field.getPage()<=0?fieldOld.getPage():field.getPage(),
                 field.getDimension().getWidth(),
                 field.getDimension().getHeight(),
                 field.getDimension().getY() + field.getDimension().getHeight(),
@@ -647,7 +647,9 @@ public class ConnectorField {
 //            if(resultThread.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS){
 //                return resultThread.setUser(user);
 //            }
-
+            if(field.getPage()<=0){
+                field.setPage(fieldOld.getPage());
+            }
             return ReplicateInitialField.replicateField(
                     (InitialsFieldAttribute) field,
                     document_,

@@ -55,9 +55,11 @@ public class ProcessingInitialFormField {
 
         //<editor-fold defaultstate="collapsed" desc="Get all data of the field">
         Document document_ = null;
+        long documentIdOriginal = 0;
         InternalResponse response = new InternalResponse();
         for (int i = documents.size() - 1; i >= 0; i--) {
             if (documents.get(i).getRevision() == 1) {
+                documentIdOriginal = documents.get(i).getId();
                 response = ConnectorField_Internal.getField(
                         documents.get(i).getId(),
                         processRequest.getFieldName(),
@@ -79,7 +81,7 @@ public class ProcessingInitialFormField {
         InternalResponse response_ = CheckFieldProcessedYet.checkProcessed(fieldData.getFieldValue());
         if (response_.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
             return response;
-        }        
+        }
 
         if (!fieldData.getType().getParentType().equals(FieldTypeName.INITIAL.getParentName())) {
             return new InternalResponse(
@@ -108,7 +110,9 @@ public class ProcessingInitialFormField {
                 documents.size(),
                 fieldData.getDocumentFieldId(),
                 initField,
-                transactionId);
+                transactionId,
+                documentIdOriginal //flow 2 add this param
+        );
 
         if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
             return response;
