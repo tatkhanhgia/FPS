@@ -264,8 +264,8 @@ class DatabaseImpl_field_ implements DatabaseImpl_field {
                             ));
                 }
             } else {
-                datas.put("pLEVEL_OF_ASSURANCE", "{\"suffix\":" + field.getSuffix() + "}");
-            }
+                datas.put("pLEVEL_OF_ASSURANCE", null);
+            } 
         } catch (Exception ex) {
             ex.printStackTrace();
         }

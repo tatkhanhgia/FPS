@@ -37,7 +37,7 @@ public class ReplicateInitialField {
 
         //<editor-fold defaultstate="collapsed" desc="Create list child field">
         List<InitialsFieldAttribute> childs = new ArrayList<>();
-        if (initParent.isApplyToAll()) {
+        if (initParent.isReplicateAllPages()) {
             long root = System.currentTimeMillis();
             for (int i = 1; i <= document.getDocumentPages(); i++) {
                 InitialsFieldAttribute child = new InitialsFieldAttribute();

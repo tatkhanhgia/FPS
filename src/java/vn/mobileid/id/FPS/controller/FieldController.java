@@ -361,7 +361,13 @@ public class FieldController extends HttpServlet {
             }
 
         } catch (Exception ex) {
-            catchException(ex, req, res, language, (int) Utils.getIdFromURL(req.getRequestURI()), language);
+            catchException(
+                    ex,
+                    req,
+                    res,
+                    language,
+                    (int) Utils.getIdFromURL(req.getRequestURI()),
+                    language);
         }
     }
 

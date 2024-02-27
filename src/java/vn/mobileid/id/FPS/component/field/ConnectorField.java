@@ -375,8 +375,6 @@ public class ConnectorField {
             String payload,
             String transactionId
     ) throws Exception {
-//        final List<InitialsFieldAttribute> fieldsInit = new ArrayList<>();
-
         //<editor-fold defaultstate="collapsed" desc="Check payload">
         if (payload == null) {
             return new InternalResponse(
