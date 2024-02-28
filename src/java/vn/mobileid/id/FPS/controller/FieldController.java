@@ -81,7 +81,8 @@ public class FieldController extends HttpServlet {
                         res,
                         response.getStatus(),
                         "application/json",
-                        response.getMessage());
+                        response.getMessage(),
+                        transactionId);
             } catch (Exception ex) {
                 catchException(ex, req, res, payload, (int) Utils.getIdFromURL(req.getRequestURI()), transactionId);
             }
@@ -91,7 +92,8 @@ public class FieldController extends HttpServlet {
                     res,
                     A_FPSConstant.HTTP_CODE_METHOD_NOT_ALLOWED,
                     "application/json",
-                    null);
+                    null,
+                    "none");
         }
     }
 
@@ -133,7 +135,8 @@ public class FieldController extends HttpServlet {
                                 res,
                                 response.getStatus(),
                                 "application/json",
-                                response.getMessage());
+                                response.getMessage(),
+                                transactionId);
                         return;
                     } catch (Exception ex) {
                         catchException(ex, req, res, payload, (int) packageId, transactionId);
@@ -175,17 +178,19 @@ public class FieldController extends HttpServlet {
                             res,
                             response.getStatus(),
                             "application/json",
-                            response.getMessage());
+                            response.getMessage(),
+                            transactionId);
                 } else {
                     Utils.sendMessage(
                             res,
                             HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
                             "application/json",
-                            null);
+                            null,
+                            transactionId);
                 }
                 return;
             } //</editor-fold>
-            
+
             //<editor-fold defaultstate="collapsed" desc="Fill QR Qrypto Field">
             if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/qrcode-qrypto$")) {
                 System.out.println("Hello");
@@ -219,23 +224,25 @@ public class FieldController extends HttpServlet {
                             res,
                             response.getStatus(),
                             "application/json",
-                            response.getMessage());
+                            response.getMessage(),
+                            transactionId);
                 } else {
                     Utils.sendMessage(
                             res,
                             HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
                             "application/json",
-                            null);
+                            null,
+                            transactionId);
                 }
                 return;
             } //</editor-fold>
-            
             else {
                 Utils.sendMessage(
                         res,
                         A_FPSConstant.HTTP_CODE_METHOD_NOT_ALLOWED,
                         "application/json",
-                        null);
+                        null,
+                        "");
             }
         } catch (Exception ex) {
             catchException(
@@ -252,7 +259,7 @@ public class FieldController extends HttpServlet {
     public void doPut(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         String language = Utils.getRequestHeader(req, "x-language-name");
         String payload = Utils.getPayload(req);
-                
+
         try {
             //<editor-fold defaultstate="collapsed" desc="Update Field">
             if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/fields/.*$") && !req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/fields/hash$")) {
@@ -286,13 +293,15 @@ public class FieldController extends HttpServlet {
                                 res,
                                 response.getStatus(),
                                 "application/json",
-                                response.getMessage());
+                                response.getMessage(),
+                                transactionId);
                     } else {
                         Utils.sendMessage(
                                 res,
                                 HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
                                 "application/json",
-                                null);
+                                null,
+                                "none");
                     }
                 } catch (Exception ex) {
                     catchException(ex, req, res, payload, 0, transactionId);
@@ -336,7 +345,8 @@ public class FieldController extends HttpServlet {
                             res,
                             response.getStatus(),
                             "application/json",
-                            response.getMessage());
+                            response.getMessage(),
+                            transactionId);
 
                     return;
                 } else {
@@ -344,8 +354,8 @@ public class FieldController extends HttpServlet {
                             res,
                             HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
                             "application/json",
-                            null);
-                    return;
+                            null,
+                            "");
                 }
                 //</editor-fold>
 
@@ -354,7 +364,8 @@ public class FieldController extends HttpServlet {
                         res,
                         A_FPSConstant.HTTP_CODE_METHOD_NOT_ALLOWED,
                         "application/json",
-                        null);
+                        null,
+                        "");
 
             }
 
@@ -373,7 +384,7 @@ public class FieldController extends HttpServlet {
     public void doDelete(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         String language = Utils.getRequestHeader(req, "x-language-name");
         String payload = Utils.getPayload(req);
-        
+
         if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/fields$")) {
             String transactionId = Utils.getTransactionId(req, payload);
             long packageId = Utils.getIdFromURL(req.getRequestURI());
@@ -405,7 +416,8 @@ public class FieldController extends HttpServlet {
                             res,
                             response.getStatus(),
                             "application/json",
-                            response.getMessage());
+                            response.getMessage(),
+                            transactionId);
                 } catch (Exception ex) {
                     catchException(ex, req, res, payload, (int) packageId, transactionId);
                 }
@@ -414,15 +426,16 @@ public class FieldController extends HttpServlet {
                         res,
                         HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
                         "application/json",
-                        null);
+                        null,
+                        transactionId);
             }
-            return;
         } else {
             Utils.sendMessage(
                     res,
                     A_FPSConstant.HTTP_CODE_METHOD_NOT_ALLOWED,
                     "application/json",
-                    null);
+                    null,
+                    "none");
         }
     }
     //==========================================================================
@@ -453,7 +466,8 @@ public class FieldController extends HttpServlet {
                     res,
                     A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
                     "application/json",
-                    A_FPSConstant.INTERNAL_EXP_MESS);
+                    A_FPSConstant.INTERNAL_EXP_MESS,
+                    transactionId);
 
             Utils.createAPILog(req, payload, documentId, response, response.getException(), transactionId);
 

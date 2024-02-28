@@ -43,6 +43,7 @@ import vn.mobileid.id.FPS.component.document.process.ProcessingFactory;
 import vn.mobileid.id.FPS.component.enterprise.ProcessModuleForEnterprise;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.controller.ResponseMessageController;
+import vn.mobileid.id.FPS.fieldAttribute.QryptoFieldAttribute;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
@@ -812,7 +813,7 @@ public class ConnectorField {
         List<TextFieldAttribute> textboxs = new ArrayList<>();
         List<InitialsFieldAttribute> initials = new ArrayList<>();
         List<QRFieldAttribute> qrs = new ArrayList<>();
-        List<QRFieldAttribute> qryptos = new ArrayList<>();
+        List<QryptoFieldAttribute> qryptos = new ArrayList<>();
 
         for (ExtendedFieldAttribute field : fields) {
             try {
@@ -843,9 +844,9 @@ public class ConnectorField {
                         break;
                     }
                     case 37: {
-                        QRFieldAttribute qr = new ObjectMapper().readValue(field.getDetailValue(), QRFieldAttribute.class);
+                        QryptoFieldAttribute qr = new ObjectMapper().readValue(field.getDetailValue(), QryptoFieldAttribute.class);
                         qr.setDimension(ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
-                        qr = (QRFieldAttribute) field.clone(qr, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
+                        qr = (QryptoFieldAttribute) field.clone(qr, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
                         qryptos.add(qr);
                         break;
                     }
@@ -1114,9 +1115,9 @@ public class ConnectorField {
             }
             case "qrcode-qrypto": {
                 //<editor-fold defaultstate="collapsed" desc="Generate QRFieldAttribute from Payload">
-                QRFieldAttribute field = null;
+                QryptoFieldAttribute field = null;
                 try {
-                    field = new ObjectMapper().readValue(payload, QRFieldAttribute.class);
+                    field = new ObjectMapper().readValue(payload, QryptoFieldAttribute.class);
                 } catch (JsonProcessingException ex) {
                     return new InternalResponse(
                             A_FPSConstant.HTTP_CODE_BAD_REQUEST,

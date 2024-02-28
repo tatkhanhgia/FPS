@@ -18,7 +18,8 @@ public class CreateAPILog {
     //<editor-fold defaultstate="collapsed" desc="Create API Log">
     public static void createAPILog(
             long pENTERPRISE_ID, 
-            long pDOCUMENT_ID, 
+            long pDOCUMENT_ID,
+            String pTRANSACTION_ID,
             String pAPP_NAME, 
             String pAPI_KEY, 
             String pVERSION,
@@ -37,6 +38,7 @@ public class CreateAPILog {
             DatabaseResponse response = DatabaseFactory.getDatabaseImpl().createAPILog(
                     pENTERPRISE_ID, 
                     pDOCUMENT_ID,
+                    pTRANSACTION_ID,
                     pAPP_NAME,
                     pAPI_KEY, 
                     pVERSION, 
@@ -60,6 +62,7 @@ public class CreateAPILog {
         createAPILog(
                 0, 
                 0,
+                "app",
                 "app", 
                 "api", 
                 "ver", 

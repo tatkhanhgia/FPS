@@ -46,7 +46,8 @@ public class AuthorizeController extends HttpServlet {
                         res,
                         A_FPSConstant.HTTP_CODE_METHOD_NOT_ALLOWED,
                         "application/json",
-                        "");
+                        "",
+                        "none");
             }
         }
     }
@@ -64,18 +65,21 @@ public class AuthorizeController extends HttpServlet {
                     res,
                     A_FPSConstant.HTTP_CODE_SUCCESS,
                     "application/json",
-                    new ObjectMapper().writeValueAsString(serializer));
+                    new ObjectMapper().writeValueAsString(serializer),
+                    "none");
         } else {
             Utils.sendMessage(
                     res,
                     A_FPSConstant.HTTP_CODE_METHOD_NOT_ALLOWED,
                     "application/json",
-                    null);
+                    null,
+                    "none");
         }
     }
 
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        String transactionId = "none";
         if (req.getRequestURI().contains("authenticate")) {
             String language = Utils.getRequestHeader(req, "x-language-name");
             String payload = null;
@@ -96,13 +100,18 @@ public class AuthorizeController extends HttpServlet {
                         res,
                         A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                         "application/json",
-                        message);
+                        message,
+                        "");
                 return;
             }
-            String transactionId = Utils.getTransactionId(req, payload);
+            transactionId = Utils.getTransactionId(req, payload);
             LogHandler.request(
                     AuthorizeController.class,
-                    Utils.getDataRequestToLog(req, transactionId, "Client Credentials Authorization", payload));
+                    Utils.getDataRequestToLog(
+                            req, 
+                            transactionId, 
+                            "Client Credentials Authorization",
+                            payload));
             try {
                 InternalResponse response = ConnectorAuthorize.processLogin(req, payload, transactionId);
                 
@@ -137,7 +146,8 @@ public class AuthorizeController extends HttpServlet {
                         res,
                         response.getStatus(),
                         "application/json",
-                        response.getMessage());
+                        response.getMessage(),
+                        transactionId);
             } catch (Exception ex) {
                 catchException(ex, req, res, payload, 0, transactionId);
             }
@@ -146,7 +156,8 @@ public class AuthorizeController extends HttpServlet {
                     res,
                     A_FPSConstant.HTTP_CODE_METHOD_NOT_ALLOWED,
                     "application/json",
-                    null);
+                    null,
+                    transactionId);
         }
     }
 
@@ -176,7 +187,8 @@ public class AuthorizeController extends HttpServlet {
                     res,
                     A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
                     "application/json",
-                    A_FPSConstant.INTERNAL_EXP_MESS);
+                    A_FPSConstant.INTERNAL_EXP_MESS,
+                    transactionId);
             
             Utils.createAPILog(req, payload, documentId, response, response.getException(),transactionId);
         } catch (IOException ex1) {

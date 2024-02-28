@@ -40,6 +40,7 @@ public class FMSController extends HttpServlet {
                         res,
                         A_FPSConstant.HTTP_CODE_METHOD_NOT_ALLOWED,
                         "application/json",
+                        "",
                         "");
             }
         }
@@ -63,7 +64,8 @@ public class FMSController extends HttpServlet {
                             res,
                             response.getStatus(),
                             "application/octet-stream",
-                            response.getData());
+                            response.getData(),
+                            transactionId);
                 } else {
                     String message = ResponseMessageController.getErrorMessageAdvanced(
                             response.getCode(),
@@ -76,21 +78,24 @@ public class FMSController extends HttpServlet {
                             res,
                             response.getStatus(),
                             "application/json",
-                            response.getMessage());
+                            response.getMessage(),
+                            transactionId);
                 }
             } else {
                 Utils.sendMessage(
                         res,
                         A_FPSConstant.HTTP_CODE_METHOD_NOT_ALLOWED,
                         "application/json",
-                        null);
+                        null,
+                        "none");
             }
         } catch (Exception ex) {
             Utils.sendMessage(
                     res,
                     A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
                     "application/json",
-                    null);
+                    null,
+                    "none");
         }
     }
 
@@ -120,20 +125,23 @@ public class FMSController extends HttpServlet {
                         res,
                         response.getStatus(),
                         "application/json",
-                        response.getMessage());
+                        response.getMessage(),
+                        transactionId);
             } else {
                 Utils.sendMessage(
                         res,
                         A_FPSConstant.HTTP_CODE_METHOD_NOT_ALLOWED,
                         "application/json",
-                        null);
+                        null,
+                        "none");
             }
         } catch (Exception ex) {
             Utils.sendMessage(
                     res,
                     A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
                     "application/json",
-                    null);
+                    null,
+                    "none");
         }
     }
 
@@ -164,20 +172,23 @@ public class FMSController extends HttpServlet {
                         res,
                         response.getStatus(),
                         "application/json",
-                        response.getMessage());
+                        response.getMessage(),
+                        transactionId);
             } else {
                 Utils.sendMessage(
                         res,
                         A_FPSConstant.HTTP_CODE_METHOD_NOT_ALLOWED,
                         "application/json",
-                        null);
+                        null,
+                        "");
             }
         } catch (Exception ex) {
             Utils.sendMessage(
                     res,
                     A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
                     "application/json",
-                    null);
+                    null,
+                    "");
         }
     }
 }

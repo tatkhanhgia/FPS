@@ -60,6 +60,7 @@ public interface DatabaseImpl {
     public DatabaseResponse createAPILog(
             long pENTERPRISE_ID,
             long pDOCUMENT_ID,
+            String pTRANSACTION_ID,
             String pAPP_NAME,
             String pAPI_KEY,
             String pVERSION,
@@ -298,6 +299,7 @@ class DatabaseImpl_ implements DatabaseImpl {
     public DatabaseResponse createAPILog(
             long pENTERPRISE_ID,
             long pDOCUMENT_ID,
+            String pTRANSACTION_ID,
             String pAPP_NAME,
             String pAPI_KEY,
             String pVERSION,
@@ -311,11 +313,12 @@ class DatabaseImpl_ implements DatabaseImpl {
             String pHMAC,
             String pCREATED_BY,
             String transactionId) throws Exception {
-        String nameStore = "{ CALL USP_API_LOG_ADD(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}";
+        String nameStore = "{ CALL USP_API_LOG_ADD(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}";
 
         HashMap<String, Object> datas = new HashMap<>();
         datas.put("pENTERPRISE_ID", pENTERPRISE_ID);
         datas.put("pDOCUMENT_ID", pDOCUMENT_ID);
+        datas.put("pTRANSACTION", pTRANSACTION_ID);
         datas.put("pAPP_NAME", pAPP_NAME);
         datas.put("pAPI_KEY", pAPI_KEY);
         datas.put("pVERSION", pVERSION);

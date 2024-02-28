@@ -54,7 +54,6 @@ import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.general.PolicyConfiguration;
-import vn.mobileid.id.general.Resources;
 
 /**
  *
@@ -68,7 +67,8 @@ public class Utils {
             HttpServletResponse response,
             int status,
             String contentType,
-            Object message) throws IOException {
+            Object message,
+            String transactionId) throws IOException {
         switch (contentType) {
             case "application/json": {
                 if (Utils.isNullOrEmpty((String) message)) {
@@ -80,6 +80,7 @@ public class Utils {
                 } else {
                     response.setStatus(status);
                     response.addHeader(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+                    response.addHeader("x-transaction-id", transactionId);
                     response.getOutputStream()
                             .write(((String) message).getBytes());
                 }
@@ -91,6 +92,7 @@ public class Utils {
                 } else {
                     response.setStatus(status);
                     response.addHeader(HttpHeaders.CONTENT_TYPE, "application/octet-stream");
+                    response.addHeader("x-transaction-id", transactionId);
                     response.getOutputStream()
                             .write((byte[]) message);
                 }
@@ -102,6 +104,7 @@ public class Utils {
                 } else {
                     response.setStatus(status);
                     response.addHeader(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+                    response.addHeader("x-transaction-id", transactionId);
                     response.getOutputStream()
                             .write(((String) message).getBytes());
                 }
@@ -113,7 +116,8 @@ public class Utils {
     public static void sendMessage(
             HttpServletResponse response,
             String contentType,
-            InternalResponse res) throws IOException {
+            InternalResponse res,
+            String transactionId) throws IOException {
         switch (contentType) {
             case "application/json": {
                 if (Utils.isNullOrEmpty(res.getMessage())) {
@@ -125,6 +129,7 @@ public class Utils {
                 } else {
                     response.setStatus(res.getStatus());
                     response.addHeader(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+                    response.addHeader("x-transaction-id", transactionId);
                     for (String key : res.getHeaders().keySet()) {
                         response.addHeader(key, (String) res.getHeaders().get(key));
                     }
@@ -139,6 +144,7 @@ public class Utils {
                 } else {
                     response.setStatus(res.getStatus());
                     response.addHeader(HttpHeaders.CONTENT_TYPE, "application/octet-stream");
+                    response.addHeader("x-transaction-id", transactionId);
                     for (String key : res.getHeaders().keySet()) {
                         response.addHeader(key, (String) res.getHeaders().get(key));
                     }
@@ -157,6 +163,7 @@ public class Utils {
                 } else {
                     response.setStatus(res.getStatus());
                     response.addHeader(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+                    response.addHeader("x-transaction-id", transactionId);
                     for (String key : res.getHeaders().keySet()) {
                         response.addHeader(key, (String) res.getHeaders().get(key));
                     }
@@ -607,12 +614,13 @@ public class Utils {
         CreateAPILog.createAPILog(
                 entId,
                 documentId,
+                transactionId,
                 req.getParameter("User-Agent"),
                 apiKey,
                 "FPS_V1",
                 req.getParameter("User-Agent"),
                 req.getRequestURI(),
-                req.getProtocol(),
+                req.getMethod(),
                 response.getStatus(),
                 payload,
                 response.getMessage(),

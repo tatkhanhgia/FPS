@@ -51,6 +51,7 @@ public class ManagementController extends HttpServlet {
                 res,
                 A_FPSConstant.HTTP_CODE_NOT_FOUND,
                 "application/json",
-                null);
+                null,
+                "none");
     }
 }

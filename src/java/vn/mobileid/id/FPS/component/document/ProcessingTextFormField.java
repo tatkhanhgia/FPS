@@ -93,14 +93,6 @@ public class ProcessingTextFormField {
 
             ExtendedFieldAttribute fieldData = (ExtendedFieldAttribute) response.getData();
 
-            if (!Utils.isNullOrEmpty(fieldData.getFieldValue())) {
-                errorField.setValue(
-                        String.valueOf(A_FPSConstant.CODE_FIELD) +
-                        String.valueOf(A_FPSConstant.SUBCODE_FIELD_ALREADY_PROCESS)
-                        );
-                listOfErrorField.add(errorField);
-                continue;
-            }
             //</editor-fold>
 
             //<editor-fold defaultstate="collapsed" desc="Check data in ExtendedField is sastified">

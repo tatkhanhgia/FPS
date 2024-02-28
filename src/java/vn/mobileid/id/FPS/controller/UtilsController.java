@@ -53,7 +53,8 @@ public class UtilsController extends HttpServlet{
                             res,
                             response.getStatus(),
                             "application/json",
-                            response.getMessage());
+                            response.getMessage(),
+                            transactionId);
                 } catch (Exception ex) {
                     catchException(
                             ex,
@@ -68,7 +69,8 @@ public class UtilsController extends HttpServlet{
                     res,
                     A_FPSConstant.HTTP_CODE_METHOD_NOT_ALLOWED,
                     "application/json",
-                    null);
+                    null,
+                    "");
         }
     }
     
@@ -95,7 +97,8 @@ public class UtilsController extends HttpServlet{
                             res,
                             response.getStatus(),
                             "application/json",
-                            response.getMessage());
+                            response.getMessage(),
+                            transactionId);
                 } catch (Exception ex) {
                     catchException(
                             ex,
@@ -110,14 +113,16 @@ public class UtilsController extends HttpServlet{
                         res,
                         HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
                         "application/json",
-                        null);
+                        null,
+                        "none");
             }
         } else {
             Utils.sendMessage(
                     res,
                     A_FPSConstant.HTTP_CODE_METHOD_NOT_ALLOWED,
                     "application/json",
-                    null);
+                    null,
+                    "none");
         }
     }
     
@@ -147,7 +152,8 @@ public class UtilsController extends HttpServlet{
                     res,
                     A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
                     "application/json",
-                    A_FPSConstant.INTERNAL_EXP_MESS);
+                    A_FPSConstant.INTERNAL_EXP_MESS,
+                    transactionId);
 
             Utils.createAPILog(req, payload, documentId, response, response.getException(), transactionId);
         } catch (IOException ex1) {

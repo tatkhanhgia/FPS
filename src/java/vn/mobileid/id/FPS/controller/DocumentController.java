@@ -62,7 +62,8 @@ public class DocumentController extends HttpServlet {
                             res,
                             response.getStatus(),
                             "application/octet-stream",
-                            response.getData());
+                            response.getData(),
+                            transactionId);
                 } else {
                     String message = ResponseMessageController.getErrorMessageAdvanced(
                             response.getCode(),
@@ -76,7 +77,8 @@ public class DocumentController extends HttpServlet {
                             res,
                             response.getStatus(),
                             "application/json",
-                            response.getMessage());
+                            response.getMessage(),
+                            transactionId);
                 }
 
                 Utils.createAPILog(
@@ -110,7 +112,8 @@ public class DocumentController extends HttpServlet {
                             res,
                             response.getStatus(),
                             "application/json",
-                            response.getMessage());
+                            response.getMessage(),
+                            transactionId);
                 } else {
                     String message = ResponseMessageController.getErrorMessageAdvanced(
                             response.getCode(),
@@ -124,7 +127,8 @@ public class DocumentController extends HttpServlet {
                             res,
                             response.getStatus(),
                             "application/json",
-                            response.getMessage());
+                            response.getMessage(),
+                            transactionId);
                 }
 
                 Utils.createAPILog(
@@ -174,7 +178,8 @@ public class DocumentController extends HttpServlet {
                         res,
                         response.getStatus(),
                         "application/json",
-                        response.getMessage());
+                        response.getMessage(),
+                        transactionId);
             } catch (Exception ex) {
                 catchException(ex, req, res, "", (int) packageId, transactionId);
             }
@@ -215,7 +220,8 @@ public class DocumentController extends HttpServlet {
                         res,
                         response.getStatus(),
                         "application/json",
-                        response.getMessage());
+                        response.getMessage(),
+                        transactionId);
             } catch (Exception ex) {
                 catchException(ex, req, res, "", (int) packageId, transactionId);
             }
@@ -241,7 +247,8 @@ public class DocumentController extends HttpServlet {
                     Utils.sendMessage(
                             res,
                             "application/octet-stream",
-                            response);
+                            response,
+                            transactionId);
                 } else {
                     String message = ResponseMessageController.getErrorMessageAdvanced(
                             response.getCode(),
@@ -254,7 +261,8 @@ public class DocumentController extends HttpServlet {
                             res,
                             response.getStatus(),
                             "application/json",
-                            response.getMessage());
+                            response.getMessage(),
+                            transactionId);
                 }
 
                 Utils.createAPILog(
@@ -303,7 +311,8 @@ public class DocumentController extends HttpServlet {
                         res,
                         response.getStatus(),
                         "application/json",
-                        response.getMessage());
+                        response.getMessage(),
+                        transactionId);
 
             } catch (Exception ex) {
                 catchException(ex, req, res, "", (int) packageId, transactionId);
@@ -315,7 +324,8 @@ public class DocumentController extends HttpServlet {
                     res,
                     A_FPSConstant.HTTP_CODE_METHOD_NOT_ALLOWED,
                     "application/json",
-                    null);
+                    null,
+                    "none");
         }
     }
 
@@ -352,7 +362,8 @@ public class DocumentController extends HttpServlet {
                         res,
                         response.getStatus(),
                         "application/json",
-                        response.getMessage());
+                        response.getMessage(),
+                        transactionId);
             } catch (Exception ex) {
                 catchException(ex, req, res, "", 0, transactionId);
             }
@@ -393,7 +404,8 @@ public class DocumentController extends HttpServlet {
                             res,
                             response.getStatus(),
                             "application/json",
-                            response.getMessage());
+                            response.getMessage(),
+                            transactionId);
                 } catch (Exception ex) {
                     catchException(ex, req, res, payload, 0, transactionId);
                 }
@@ -402,7 +414,8 @@ public class DocumentController extends HttpServlet {
                         res,
                         HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
                         "application/json",
-                        null);
+                        null,
+                        transactionId);
             }
             return;
         }
@@ -440,7 +453,8 @@ public class DocumentController extends HttpServlet {
                             res,
                             response.getStatus(),
                             "application/json",
-                            response.getMessage());
+                            response.getMessage(),
+                            transactionId);
                 } catch (Exception ex) {
                     catchException(ex, req, res, "", 0, transactionId);
                 }
@@ -449,7 +463,8 @@ public class DocumentController extends HttpServlet {
                         res,
                         HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
                         "application/json",
-                        null);
+                        null,
+                        transactionId);
             }
             return;
         }
@@ -482,7 +497,8 @@ public class DocumentController extends HttpServlet {
                             res,
                             response.getStatus(),
                             "application/json",
-                            response.getMessage());
+                            response.getMessage(),
+                            transactionId);
                 } catch (Exception ex) {
                     catchException(ex, req, res, payload, 0, transactionId);
                 }
@@ -491,7 +507,8 @@ public class DocumentController extends HttpServlet {
                         res,
                         HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
                         "application/json",
-                        null);
+                        null,
+                        transactionId);
             }
             return;
         }
@@ -533,7 +550,8 @@ public class DocumentController extends HttpServlet {
                             res,
                             response.getStatus(),
                             "application/json",
-                            response.getMessage());
+                            response.getMessage(),
+                            transactionId);
                 } catch (Exception ex) {
                     catchException(ex, req, res, payload, (int) packageId, transactionId);
                 }
@@ -542,7 +560,8 @@ public class DocumentController extends HttpServlet {
                         res,
                         HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
                         "application/json",
-                        null);
+                        null,
+                        transactionId);
             }
             return;
         }
@@ -582,7 +601,8 @@ public class DocumentController extends HttpServlet {
                             res,
                             response.getStatus(),
                             "application/json",
-                            response.getMessage());
+                            response.getMessage(),
+                            transactionId);
                 } catch (Exception ex) {
                     catchException(ex, req, res, payload, (int) packageId, transactionId);
                 }
@@ -591,7 +611,8 @@ public class DocumentController extends HttpServlet {
                         res,
                         HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
                         "application/json",
-                        null);
+                        null,
+                        transactionId);
             }
             return;
         } //</editor-fold>
@@ -600,7 +621,8 @@ public class DocumentController extends HttpServlet {
                     res,
                     A_FPSConstant.HTTP_CODE_METHOD_NOT_ALLOWED,
                     "application/json",
-                    null);
+                    null,
+                    "");
         }
     }
 
@@ -630,7 +652,8 @@ public class DocumentController extends HttpServlet {
                     res,
                     A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
                     "application/json",
-                    A_FPSConstant.INTERNAL_EXP_MESS);
+                    A_FPSConstant.INTERNAL_EXP_MESS,
+                    transactionId);
 
             Utils.createAPILog(req, payload, documentId, response, response.getException(), transactionId);
         } catch (IOException ex1) {
