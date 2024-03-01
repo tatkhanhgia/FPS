@@ -169,18 +169,19 @@ public class ProcessingTextFormField {
             String value) throws Exception {
         //Read details
         TextFieldAttribute textField = new ObjectMapper().readValue(fieldData.getDetailValue(), TextFieldAttribute.class);
-        //Read Basic
-        textField.setFieldName(fieldData.getFieldName());
-        textField.setPage(fieldData.getPage());
-        textField.setDimension(fieldData.getDimension());
-        textField.setVisibleEnabled(fieldData.getVisibleEnabled());
-        textField.setRequired(fieldData.getRequired());
-        textField.setType(fieldData.getType());
-        textField.setProcessBy(user.getAzp());
-        SimpleDateFormat dateFormat = new SimpleDateFormat(PolicyConfiguration.getInstant().getSystemConfig().getAttributes().get(0).getDateFormat());
-        textField.setProcessOn(dateFormat.format(Date.from(Instant.now())));
-        textField.setValue(value);
-        textField.setRotate(fieldData.getRotate());
+        textField = (TextFieldAttribute) fieldData.clone(textField, fieldData.getDimension());
+//        //Read Basic
+//        textField.setFieldName(fieldData.getFieldName());
+//        textField.setPage(fieldData.getPage());
+//        textField.setDimension(fieldData.getDimension());
+//        textField.setVisibleEnabled(fieldData.getVisibleEnabled());
+//        textField.setRequired(fieldData.getRequired());
+//        textField.setType(fieldData.getType());
+//        textField.setProcessBy(user.getAzp());
+//        SimpleDateFormat dateFormat = new SimpleDateFormat(PolicyConfiguration.getInstant().getSystemConfig().getAttributes().get(0).getDateFormat());
+//        textField.setProcessOn(dateFormat.format(Date.from(Instant.now())));
+//        textField.setValue(value);
+//        textField.setRotate(fieldData.getRotate());
 
         return textField;
     }
