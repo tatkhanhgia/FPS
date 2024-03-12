@@ -11,7 +11,7 @@ import vn.mobileid.id.general.database.DatabaseFactory;
 import vn.mobileid.id.general.policy.object.PolicyConstant;
 import vn.mobileid.id.general.policy.object.PolicyResponse;
 import vn.mobileid.id.general.policy.object.PolicySystemConfiguration;
-import vn.mobileid.id.helper.database.objects.DatabaseResponse;
+import vn.mobileid.id.helper.ORM_JPA.database.objects.DatabaseResponse;
 
 /**
  *

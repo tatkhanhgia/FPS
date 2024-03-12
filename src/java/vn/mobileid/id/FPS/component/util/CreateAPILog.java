@@ -8,7 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 import vn.mobileid.id.general.database.DatabaseFactory;
 import vn.mobileid.id.general.database.DatabaseImpl;
-import vn.mobileid.id.helper.database.objects.DatabaseResponse;
+import vn.mobileid.id.helper.ORM_JPA.database.objects.DatabaseResponse;
 
 /**
  *

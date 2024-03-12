@@ -43,7 +43,7 @@ import vn.mobileid.id.FPS.QryptoService.object.QRSchema;
 import vn.mobileid.id.FPS.QryptoService.object.qryptoEffectiveDate;
 import vn.mobileid.id.FPS.exception.InvalidFormatOfItems;
 import vn.mobileid.id.utils.Utils;
-import vn.mobileid.id.FPS.QryptoService.process.ItemsType;
+import vn.mobileid.id.FPS.fieldAttribute.QryptoFieldAttribute;
 import vn.mobileid.id.FPS.object.User;
 
 /**
@@ -293,7 +293,7 @@ public class CreateQRSchema {
 
     //<editor-fold defaultstate="collapsed" desc="Create Config">
     public static Configuration createConfiguration(
-            QRFieldAttribute field,
+            QryptoFieldAttribute field,
             User user,
             int pixel,
             String transactionID) throws Exception {

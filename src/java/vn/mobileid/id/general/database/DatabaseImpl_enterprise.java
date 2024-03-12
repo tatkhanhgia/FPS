@@ -13,8 +13,8 @@ import vn.mobileid.id.general.Configuration;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.Enterprise;
 import vn.mobileid.id.general.LogHandler;
-import vn.mobileid.id.helper.database.CreateConnection;
-import vn.mobileid.id.helper.database.objects.DatabaseResponse;
+import vn.mobileid.id.helper.ORM_JPA.database.CreateConnection;
+import vn.mobileid.id.helper.ORM_JPA.database.objects.DatabaseResponse;
 import vn.mobileid.id.utils.Utils;
 
 /**

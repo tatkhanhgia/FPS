@@ -1592,12 +1592,13 @@ public class ConnectorDocument {
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                     A_FPSConstant.CODE_FIELD,
-                    A_FPSConstant.SUBCODE_MISSING_FIELD_NAME);
+                    A_FPSConstant.SUBCODE_MISSING_FIELD_NAME).setUser(user);
         }
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Process QR Qrypto Field">
         if (!Utils.isNullOrEmpty(processRequest.getItem())) {
+            //<editor-fold defaultstate="collapsed" desc="Flow 1 => Gen Qrypto from payload">
             response = ProcessingQRQryptoField.processQRQryptoField(
                     packageId,
                     processRequest.getFieldName(),
@@ -1606,14 +1607,27 @@ public class ConnectorDocument {
                     transactionId);
 
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                return response;
+                return response.setUser(user);
             }
+            //</editor-fold>
         } else {
-            return new InternalResponse(
-                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                    A_FPSConstant.CODE_FIELD_QR_Qrypto,
-                    A_FPSConstant.SUBCODE_MISSING_ITEMS
-            ).setUser(user);
+            //<editor-fold defaultstate="collapsed" desc="Version 2 - Generate from old items in field">
+            response = ProcessingQRQryptoField.processQRQryptoFieldV2(
+                    packageId,
+                    processRequest.getFieldName(),
+                    user,
+                    transactionId);
+
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                return response.setUser(user);
+            }
+            //</editor-fold>
+            
+//            return new InternalResponse(
+//                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+//                    A_FPSConstant.CODE_FIELD_QR_Qrypto,
+//                    A_FPSConstant.SUBCODE_MISSING_ITEMS
+//            ).setUser(user);
         }
         //</editor-fold>
 

@@ -17,7 +17,7 @@ import vn.mobileid.id.general.database.DatabaseImpl;
 import vn.mobileid.id.FPS.object.ResponseCode;
 import vn.mobileid.id.general.database.DatabaseFactory;
 import vn.mobileid.id.general.database.DatabaseImpl_field;
-import vn.mobileid.id.helper.database.objects.DatabaseResponse;
+import vn.mobileid.id.helper.ORM_JPA.database.objects.DatabaseResponse;
 
 /**
  *

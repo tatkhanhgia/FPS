@@ -16,8 +16,8 @@ import vn.mobileid.id.FPS.object.ResponseCode;
 import vn.mobileid.id.FPS.object.TemporalObject;
 import vn.mobileid.id.general.LogHandler;
 import vn.mobileid.id.general.policy.object.PolicyResponse;
-import vn.mobileid.id.helper.database.CreateConnection;
-import vn.mobileid.id.helper.database.objects.DatabaseResponse;
+import vn.mobileid.id.helper.ORM_JPA.database.CreateConnection;
+import vn.mobileid.id.helper.ORM_JPA.database.objects.DatabaseResponse;
 import vn.mobileid.id.utils.Utils;
 
 /**

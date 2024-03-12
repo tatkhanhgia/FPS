@@ -15,7 +15,7 @@ import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.general.database.DatabaseFactory;
 import vn.mobileid.id.FPS.groupdoc.Conversion_22_8_1;
 import vn.mobileid.id.general.database.DatabaseImpl_document;
-import vn.mobileid.id.helper.database.objects.DatabaseResponse;
+import vn.mobileid.id.helper.ORM_JPA.database.objects.DatabaseResponse;
 
 /**
  *

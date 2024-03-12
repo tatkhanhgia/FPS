@@ -8,7 +8,7 @@ import fps_core.enumration.Language;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.RemarkLanguage;
 import vn.mobileid.id.general.database.DatabaseFactory;
-import vn.mobileid.id.helper.database.objects.DatabaseResponse;
+import vn.mobileid.id.helper.ORM_JPA.database.objects.DatabaseResponse;
 
 /**
  *

@@ -35,6 +35,7 @@ import vn.mobileid.id.FPS.controller.ResponseMessageController;
 import vn.mobileid.id.FPS.exception.InvalidFormatOfItems;
 import vn.mobileid.id.FPS.exception.LoginException;
 import vn.mobileid.id.FPS.exception.QryptoException;
+import vn.mobileid.id.FPS.fieldAttribute.QryptoFieldAttribute;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
@@ -53,7 +54,7 @@ public class QryptoProcessing implements DocumentProcessing {
         User user = (User) objects[0];
         Document document = (Document) objects[1];
         int revision = (int) objects[2] + 1;
-        QRFieldAttribute field = (QRFieldAttribute) objects[3];
+        QryptoFieldAttribute field = (QryptoFieldAttribute) objects[3];
         List<ItemDetails> items = (List<ItemDetails>) objects[4];
         long documentFieldId = (long) objects[5];
         String transactionId = (String) objects[6];

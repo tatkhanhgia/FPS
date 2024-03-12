@@ -4,7 +4,7 @@
  */
 package vn.mobileid.id.FPS.object;
 
-import vn.mobileid.id.helper.annotation.AnnotationORM;
+import vn.mobileid.id.helper.ORM_JPA.annotation.AnnotationORM;
 
 /**
  *

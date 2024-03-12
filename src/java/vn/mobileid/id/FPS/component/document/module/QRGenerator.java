@@ -86,7 +86,7 @@ public class QRGenerator {
 
         FileOutputStream fos = new FileOutputStream("C:\\Users\\Admin\\Downloads\\test2.jpg");
 //        fos.write(bos.toByteArray());
-        fos.write(generateQR("encod", 1024, 1024, false));
+        fos.write(generateQR("", 1024, 1024, false));
         fos.close();
         
 //        Graphics2D graphics = (Graphics2D) image.getGraphics();
