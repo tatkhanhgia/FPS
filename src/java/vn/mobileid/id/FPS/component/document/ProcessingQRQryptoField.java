@@ -6,7 +6,6 @@ package vn.mobileid.id.FPS.component.document;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fps_core.objects.ExtendedFieldAttribute;
-import fps_core.objects.QRFieldAttribute;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
@@ -193,7 +192,7 @@ public class ProcessingQRQryptoField {
         //<editor-fold defaultstate="collapsed" desc="Check data in ExtendedField is sastified">
         InternalResponse response_ = CheckFieldProcessedYet.checkProcessed(fieldData.getFieldValue());
         if (response_.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-            return response;
+            return response_;
         }
 
         if (!fieldData.getType().getParentType().equals(FieldTypeName.QRYPTO.getParentName())) {

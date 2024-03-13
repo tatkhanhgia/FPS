@@ -266,7 +266,7 @@ public class QryptoProcessing implements DocumentProcessing {
             @Override
             public Object call() {
                 try {
-                    QRFieldAttribute field = (QRFieldAttribute) this.get()[0];
+                    QryptoFieldAttribute field = (QryptoFieldAttribute) this.get()[0];
                     String imageQR = (String)this.get()[1];
                     long documentFieldId = (long)this.get()[2];
                     field.setImageQR(imageQR);
