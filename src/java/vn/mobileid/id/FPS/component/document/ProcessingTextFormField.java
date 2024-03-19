@@ -170,6 +170,8 @@ public class ProcessingTextFormField {
         //Read details
         TextFieldAttribute textField = new ObjectMapper().readValue(fieldData.getDetailValue(), TextFieldAttribute.class);
         textField = (TextFieldAttribute) fieldData.clone(textField, fieldData.getDimension());
+        textField.setValue(value);
+        textField.setProcessBy(user.getAzp());
 //        //Read Basic
 //        textField.setFieldName(fieldData.getFieldName());
 //        textField.setPage(fieldData.getPage());
