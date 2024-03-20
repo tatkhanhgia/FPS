@@ -141,7 +141,7 @@ public class ConnectorField {
         if (field instanceof QRFieldAttribute) {
             try {
                 QRFieldAttribute qr = (QRFieldAttribute) field;
-                if (Utils.isNullOrEmpty(qr.getImageQR())) {
+                if (Utils.isNullOrEmpty(qr.getValue())) {
                     qr.setValue("Waiting for process Qrypto");
                 }
                 byte[] imageQR = QRGenerator.generateQR(
@@ -149,7 +149,9 @@ public class ConnectorField {
                         Math.round(qr.getDimension().getWidth()),
                         Math.round(qr.getDimension().getWidth()),
                         qr.IsTransparent());
-                qr.setImageQR(Base64.toBase64String(imageQR));
+                if (Utils.isNullOrEmpty(qr.getImageQR())) {
+                    qr.setImageQR(Base64.toBase64String(imageQR));
+                }
             } catch (Exception ex) {
                 ex.printStackTrace();
                 response = new InternalResponse(
@@ -581,7 +583,7 @@ public class ConnectorField {
         //<editor-fold defaultstate="collapsed" desc="Merge Payload vs Field Value Old">
         JsonNode merge2 = Utils.merge(fieldOld.getFieldValue(), payload);
         //</editor-fold>
-        
+
         //<editor-fold defaultstate="collapsed" desc="Create new QR Image if that type is QR Code">
         if (field instanceof QRFieldAttribute) {
             try {
@@ -613,7 +615,7 @@ public class ConnectorField {
                 field.getRenamedAs(),
                 merge2.toPrettyString(),
                 null,
-                field.getPage()<=0?fieldOld.getPage():field.getPage(),
+                field.getPage() <= 0 ? fieldOld.getPage() : field.getPage(),
                 field.getDimension().getWidth(),
                 field.getDimension().getHeight(),
                 field.getDimension().getY() + field.getDimension().getHeight(),
@@ -648,7 +650,7 @@ public class ConnectorField {
 //            if(resultThread.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS){
 //                return resultThread.setUser(user);
 //            }
-            if(field.getPage()<=0){
+            if (field.getPage() <= 0) {
                 field.setPage(fieldOld.getPage());
             }
             return ReplicateInitialField.replicateField(
@@ -1114,7 +1116,7 @@ public class ConnectorField {
                 //</editor-fold>
             }
             case "qrcode-qrypto": {
-                //<editor-fold defaultstate="collapsed" desc="Generate QRFieldAttribute from Payload">
+                //<editor-fold defaultstate="collapsed" desc="Generate QryptoFieldAttribute from Payload">
                 QryptoFieldAttribute field = null;
                 try {
                     field = new ObjectMapper().readValue(payload, QryptoFieldAttribute.class);
