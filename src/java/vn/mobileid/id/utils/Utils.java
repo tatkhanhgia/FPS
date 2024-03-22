@@ -8,6 +8,7 @@ package vn.mobileid.id.utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fps_core.enumration.TextField_Font;
 import java.io.BufferedReader;
@@ -229,7 +230,7 @@ public class Utils {
         }
         return new String(otp);
     }
-    
+
     //<editor-fold defaultstate="collapsed" desc="Generate Random String">
     public static String generateRandomString(int lenght) {
         int leftLimit = 48; // numeral '0'
@@ -463,7 +464,7 @@ public class Utils {
                     if (object.getValue().isContainerNode()) {
                         return getFromJson_(name, object.getValue().toPrettyString());
                     }
-                    if(object.getValue().isDouble()){
+                    if (object.getValue().isDouble()) {
                         return object.getValue().asDouble();
                     }
                 }
@@ -486,6 +487,46 @@ public class Utils {
             return node.findValue(name).asText();
         } catch (Exception ex) {
             return null;
+        }
+    }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="Summarize payload">   
+    public static JsonNode summarizePayload(String payload) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode rootNode = mapper.readTree(payload);
+            return summarizeNode(rootNode);
+        } catch (Exception ex) {
+            ex.printStackTrace(); // Handle or log the exception as needed
+            return null;
+        }
+    }
+
+    private static JsonNode summarizeNode(JsonNode node) {
+        ObjectMapper mapper = new ObjectMapper();
+        if (node.isObject()) {
+            ObjectNode summarizedObject = mapper.createObjectNode();
+            node.fields().forEachRemaining(entry -> {
+                String key = entry.getKey();
+                JsonNode value = entry.getValue();
+                if (value.isTextual()) {
+                    String originalValue = value.asText();
+                    String summarizedValue = originalValue.length() > 150 ? originalValue.substring(0, 150) + "..." : originalValue;
+                    summarizedObject.put(key, summarizedValue);
+                } else if (value.isObject()) {
+                    summarizedObject.set(key, summarizeNode(value));
+                } else if (value.isArray()) {
+                    ArrayNode summarizedArray = mapper.createArrayNode();
+                    value.elements().forEachRemaining(element -> summarizedArray.add(summarizeNode(element)));
+                    summarizedObject.set(key, summarizedArray);
+                } else {
+                    summarizedObject.set(key, value);
+                }
+            });
+            return summarizedObject;
+        } else {
+            return node;
         }
     }
     //</editor-fold>
@@ -611,6 +652,10 @@ public class Utils {
 
         String exceptionSummary = Utils.summaryException(ex);
 
+        //<editor-fold defaultstate="collapsed" desc="Summarize all data which is long data">
+        JsonNode summary = Utils.summarizePayload(payload);
+        //</editor-fold>
+
         CreateAPILog.createAPILog(
                 entId,
                 documentId,
@@ -622,7 +667,7 @@ public class Utils {
                 req.getRequestURI(),
                 req.getMethod(),
                 response.getStatus(),
-                payload,
+                summary.toPrettyString(),
                 response.getMessage(),
                 exceptionSummary,
                 "HMAC",
@@ -721,15 +766,15 @@ public class Utils {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Check newLine">
-    public static int checkNewLine(String value){
+    public static int checkNewLine(String value) {
         String[] number = value.split("\n");
         return number.length;
     }
     //</editor-fold>
-    
+
     //<editor-fold defaultstate="collapsed" desc="Get timestamp">
-    public static String getTimestamp(){
-        try{
+    public static String getTimestamp() {
+        try {
             SimpleDateFormat dateFormat = new SimpleDateFormat(
                     PolicyConfiguration
                             .getInstant()
@@ -738,13 +783,13 @@ public class Utils {
                             .get(0)
                             .getDateFormat());
             return dateFormat.format(new Date(System.currentTimeMillis()));
-        }catch(Exception ex){
+        } catch (Exception ex) {
             SimpleDateFormat dateFormat = new SimpleDateFormat();
             return dateFormat.format(System.currentTimeMillis());
         }
     }
     //</editor-fold>
-    
+
     //<editor-fold defaultstate="collapsed" desc="Hash field in Dokobit rule">
     public static String hashAndExtractMiddleSixChars(String input) throws NoSuchAlgorithmException {
         // Sử dụng thuật toán SHA-256 để hash
@@ -755,7 +800,9 @@ public class Utils {
         StringBuilder hexString = new StringBuilder();
         for (byte b : hashBytes) {
             String hex = Integer.toHexString(0xff & b);
-            if (hex.length() == 1) hexString.append('0');
+            if (hex.length() == 1) {
+                hexString.append('0');
+            }
             hexString.append(hex);
         }
 
@@ -764,7 +811,7 @@ public class Utils {
         return hexString.substring(middleIndex, middleIndex + 6);
     }
     //</editor-fold>
-    
+
     public static void main(String[] args) throws NoSuchAlgorithmException {
         String payload = "onetwo";
         System.out.println(Utils.hashAndExtractMiddleSixChars(payload));
