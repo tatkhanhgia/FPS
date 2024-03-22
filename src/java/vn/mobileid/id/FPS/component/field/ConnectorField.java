@@ -24,15 +24,13 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import org.bouncycastle.util.encoders.Base64;
+import vn.mobileid.id.FMS;
 import vn.mobileid.id.FPS.component.document.CheckPayloadRequest;
 import vn.mobileid.id.FPS.component.document.ConnectorDocument;
 import vn.mobileid.id.FPS.component.document.ConnectorDocument_Internal;
@@ -863,6 +861,20 @@ public class ConnectorField {
                         InitialsFieldAttribute initialField = new ObjectMapper().readValue(field.getDetailValue(), InitialsFieldAttribute.class);
                         initialField = (InitialsFieldAttribute) field.clone(initialField, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
 
+                        //<editor-fold defaultstate="collapsed" desc="Download Image from FMS if image is UUID">
+                        if(initialField.getImage().length() <= 32){
+                            try{
+                                InternalResponse response = FMS.downloadDocumentFromFMS(initialField.getImage(), "tran");
+                                
+                                if(response.getStatus() == A_FPSConstant.HTTP_CODE_SUCCESS){
+                                    initialField.setImage(Base64.toBase64String((byte[])response.getData()));
+                                }
+                            } catch(Exception ex){
+                                System.err.println("Cannot Download Image in Initial from FMS");
+                            }
+                        }
+                        //</editor-fold>
+                        
                         initials.add(initialField);
                         break;
                     }
@@ -1051,7 +1063,6 @@ public class ConnectorField {
                 InitialsFieldAttribute field = null;
                 try {
                     field = new ObjectMapper().readValue(payload, InitialsFieldAttribute.class);
-                    System.out.println("Payload:" + payload);
                 } catch (JsonProcessingException ex) {
                     return new InternalResponse(
                             A_FPSConstant.HTTP_CODE_BAD_REQUEST,
@@ -1067,6 +1078,22 @@ public class ConnectorField {
                 }
 
                 field.setType(Resources.getFieldTypes().get(FieldTypeName.INITIAL.getParentName()));
+
+                if (field.getImage() != null) {
+                    try {
+                        InternalResponse response = vn.mobileid.id.FMS.uploadToFMS(
+                                Base64.decode(field.getImage()),
+                                "png",
+                                transactionId);
+                        if (response.getStatus() == A_FPSConstant.HTTP_CODE_SUCCESS) {
+                            String uuid = (String) response.getData();
+                            field.setImage(uuid);
+                        }
+                    } catch (Exception ex) {
+                        System.err.println("Cannot upload image from QR to FMS!. Using default");
+                    }
+                }
+
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
                 //</editor-fold>
             }
@@ -1110,6 +1137,21 @@ public class ConnectorField {
                     field.setType(Resources.getFieldTypes().get(field.getTypeName()));
                 } else {
                     field.setType(Resources.getFieldTypes().get(FieldTypeName.QR.getParentName()));
+                }
+
+                if (field.getImageQR() != null && field.getImageQR().length() > 100000) {
+                    try {
+                        InternalResponse response = vn.mobileid.id.FMS.uploadToFMS(
+                                Base64.decode(field.getImageQR()),
+                                "png",
+                                transactionId);
+                        if (response.getStatus() == A_FPSConstant.HTTP_CODE_SUCCESS) {
+                            String uuid = (String) response.getData();
+                            field.setImageQR(uuid);
+                        }
+                    } catch (Exception ex) {
+                        System.err.println("Cannot upload image from QR to FMS!. Using default");
+                    }
                 }
 
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);

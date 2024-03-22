@@ -515,7 +515,7 @@ public class InitialsProcessing implements ModuleProcessing, DocumentProcessing 
                                 InitialsFieldAttribute.class);
                         fieldChild = (InitialsFieldAttribute) initChild.clone(fieldChild, initChild.getDimension());
 
-                        if (fieldChild.getImage() == null || fieldChild.getImage().isEmpty()) {
+                        if (fieldChild.getImage() == null || fieldChild.getImage().isEmpty() || fieldChild.getImage().length()<=32) {
                             fieldChild.setImage(field.getImage());
                         }
 

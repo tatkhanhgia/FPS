@@ -67,8 +67,9 @@ public class InternalResponse {
         return message;
     }
 
-    public void setMessage(String message) {
+    public InternalResponse setMessage(String message) {
         this.message = message;
+        return this;
     }     
  
     /**

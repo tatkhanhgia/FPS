@@ -16,6 +16,9 @@ import vn.mobileid.id.FPS.component.field.CheckFieldProcessedYet;
 import vn.mobileid.id.FPS.component.field.ConnectorField_Internal;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import fps_core.enumration.FieldTypeName;
+import java.util.Base64;
+import vn.mobileid.id.FMS;
+import vn.mobileid.id.FPS.controller.ResponseMessageController;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
@@ -94,10 +97,16 @@ public class ProcessingInitialFormField {
         //<editor-fold defaultstate="collapsed" desc="Convert ExtendField into InitialField">
         InitialsFieldAttribute initField = null;
         try {
-            initField = convertExtend_into_InitialField(
+            InternalResponse temp = convertExtend_into_InitialField(
                     user,
                     fieldData,
                     processRequest);
+            
+            if(temp.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS){
+                return temp;
+            }        
+            
+            initField = (InitialsFieldAttribute) temp.getData();
         } catch (Exception ex) {
             throw new Exception(ex);
         }
@@ -129,7 +138,7 @@ public class ProcessingInitialFormField {
 
     //==========================================================================
     //<editor-fold defaultstate="collapsed" desc="Convert ExtendedField into TextField">
-    private static InitialsFieldAttribute convertExtend_into_InitialField(
+    private static InternalResponse convertExtend_into_InitialField(
             User user,
             ExtendedFieldAttribute fieldData,
             InitialsFieldAttribute processRequest) throws Exception {
@@ -146,14 +155,45 @@ public class ProcessingInitialFormField {
         initialField.setProcessBy(user.getAzp());
         SimpleDateFormat dateFormat = new SimpleDateFormat(PolicyConfiguration.getInstant().getSystemConfig().getAttributes().get(0).getDateFormat());
         initialField.setProcessOn(dateFormat.format(Date.from(Instant.now())));
-        initialField.setImage(processRequest.getImage());
+
+        if (processRequest.getImage() != null) {
+            initialField.setImage(processRequest.getImage());
+        } else {
+            try {
+                InternalResponse response = FMS.downloadDocumentFromFMS(initialField.getImage(), "");
+                
+                if(response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS){
+                    return new InternalResponse(
+                        A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
+                        0, 
+                        0).setMessage(
+                                new ResponseMessageController().writeStringField(
+                                        "error",
+                                        "Cannot get Image in Initial from FMS!").build()
+                        );
+                }
+                
+                byte[] image_ = (byte[]) response.getData();
+                initialField.setImage(Base64.getEncoder().encodeToString(image_));
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                return new InternalResponse(
+                        A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
+                        0, 
+                        0).setMessage(
+                                new ResponseMessageController().writeStringField(
+                                        "error",
+                                        "Cannot get Image in Initial from FMS!").build()
+                        );
+            }
+        }
         if (processRequest.isApplyToAll()) {
             initialField.setApplyToAll(true);
         } else if (!Utils.isNullOrEmpty(processRequest.getPages())) {
             initialField.setPages(processRequest.getPages());
         }
 
-        return initialField;
+        return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, initialField);
     }
     //</editor-fold>
 }
