@@ -1041,6 +1041,7 @@ public class ConnectorDocument {
         }
 
         //</editor-fold>
+        
         //<editor-fold defaultstate="collapsed" desc="Check Hash of Signature field is existed in Temporal Table?">
         if (!Utils.isNullOrEmpty(fieldData.getHash())) {
             InternalResponse response2 = ManagementTemporal.getTemporal(
@@ -1048,10 +1049,13 @@ public class ConnectorDocument {
                     fieldData.getHash(),
                     transactionId);
             if (response2.getStatus() == A_FPSConstant.HTTP_CODE_SUCCESS) {
-                return new InternalResponse(
-                        A_FPSConstant.HTTP_CODE_SUCCESS,
-                        new ResponseMessageController().writeStringField("hash_value", fieldData.getHash()).build()
-                ).setUser(user);
+                ManagementTemporal.removeTemporal(
+                        String.valueOf(document_.getId()),
+                        transactionId);
+//                return new InternalResponse(
+//                        A_FPSConstant.HTTP_CODE_SUCCESS,
+//                        new ResponseMessageController().writeStringField("hash_value", fieldData.getHash()).build()
+//                ).setUser(user);
             }
         }
         //</editor-fold>

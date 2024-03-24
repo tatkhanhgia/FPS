@@ -321,7 +321,6 @@ class SignatureProcessing implements DocumentProcessing, ModuleProcessing {
             //Create form Signature
             Object[] objs = null;
             if (isEsealForm) {
-                
                 objs = DocumentUtils_rssp_i7.createEsealFormSignature(
                         field.getFieldName(),
                         file,
@@ -603,5 +602,4 @@ class SignatureProcessing implements DocumentProcessing, ModuleProcessing {
     //</editor-fold>
 
     //=====================INTERNAL METHOD======================================
-    
 }

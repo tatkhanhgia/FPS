@@ -862,7 +862,7 @@ public class ConnectorField {
                         initialField = (InitialsFieldAttribute) field.clone(initialField, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
 
                         //<editor-fold defaultstate="collapsed" desc="Download Image from FMS if image is UUID">
-                        if(initialField.getImage().length() <= 32){
+                        if(initialField.getImage() != null && initialField.getImage().length() <= 32){
                             try{
                                 InternalResponse response = FMS.downloadDocumentFromFMS(initialField.getImage(), "tran");
                                 
