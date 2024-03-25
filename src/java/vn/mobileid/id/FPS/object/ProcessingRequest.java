@@ -7,9 +7,11 @@ package vn.mobileid.id.FPS.object;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import fps_core.objects.SignatureFieldAttribute;
 import java.util.ArrayList;
 import java.util.List;
 import vn.mobileid.id.FPS.QryptoService.object.ItemDetails;
+import vn.mobileid.id.utils.Utils;
 
 /**
  *
@@ -37,6 +39,7 @@ public class ProcessingRequest {
     private List<ProcessingFormFillRequest> checkbox=new ArrayList<>();
     private List<ProcessingFormFillRequest> dropdown=new ArrayList<>();
     private List<ProcessingFormFillRequest> listbox=new ArrayList<>();
+    private List<ProcessingFormFillRequest> images=new ArrayList<>();
     
     //Data for fill QR Qrypto Field
     private List<ItemDetails> item;
@@ -152,9 +155,34 @@ public class ProcessingRequest {
     public void setHashValue(String hashValue) {
         this.hashValue = hashValue;
     }
-    
-    
 
+    public void convert(SignatureFieldAttribute original){
+        if(original.getVerification() == null){
+            return;
+        }
+        if(!Utils.isNullOrEmpty(this.certificateChain)){
+            original.getVerification().setCertificateChain(certificateChain);
+        }
+        if(!Utils.isNullOrEmpty(this.handSignatureImage)){
+            original.setHandSignatureImage(handSignatureImage);
+        }
+        if(!Utils.isNullOrEmpty(this.signatureAlgorithm)){
+            original.getVerification().setSignatureAlgorithm(signatureAlgorithm);
+        }
+        if(!Utils.isNullOrEmpty(this.signatureValue)){
+            original.getVerification().setSignatureValue(signatureValue);
+        }
+        if(!Utils.isNullOrEmpty(this.signedHash)){
+            original.getVerification().setSignedHash(signedHash);
+        }
+        if(!Utils.isNullOrEmpty(this.signingLocation)){
+            original.getVerification().setSigningLocation(signingLocation);
+        }
+        if(!Utils.isNullOrEmpty(this.signingReason)){
+            original.getVerification().setSigningReason(signingReason);
+        }
+    }
+    
     @JsonProperty("text")
     public List<ProcessingFormFillRequest> getText() {
         return text;
@@ -178,6 +206,11 @@ public class ProcessingRequest {
     @JsonProperty("listbox")
     public List<ProcessingFormFillRequest> getListbox() {
         return listbox;
+    }
+    
+    @JsonProperty("image")
+    public List<ProcessingFormFillRequest> getImages() {
+        return images;
     }
 
     @JsonProperty("hand_signature_image")

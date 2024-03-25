@@ -293,7 +293,7 @@ class SignatureProcessing implements DocumentProcessing, ModuleProcessing {
 
                     try {
                         byte[] imageQR = Base64.getDecoder().decode(qr.getImageQR());
-                        file = DocumentUtils_itext7.addImage_test(
+                        file = DocumentUtils_itext7.addImage(
                                 file,
                                 imageQR,
                                 qr.getPage(),

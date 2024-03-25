@@ -5,6 +5,7 @@
 package vn.mobileid.id.FPS.component.document;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fps_core.enumration.DocumentStatus;
 import fps_core.enumration.DocumentType;
@@ -875,6 +876,20 @@ public class ConnectorDocument {
         }
         //</editor-fold>
 
+        //<editor-fold defaultstate="collapsed" desc="Process Image Form Field">
+        if (!Utils.isNullOrEmpty(processRequest.getImages())) {
+//            response = ProcessingImageField.processImageField(
+//                    Utils.getIdFromURL(request.getRequestURI()),
+//                    user,
+//                    processRequest.getText(),
+//                    transactionId);
+
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                return response;
+            }
+        }
+        //</editor-fold>
+        
         response = new InternalResponse(
                 A_FPSConstant.HTTP_CODE_SUCCESS,
                 ""
@@ -1041,7 +1056,6 @@ public class ConnectorDocument {
         }
 
         //</editor-fold>
-        
         //<editor-fold defaultstate="collapsed" desc="Check Hash of Signature field is existed in Temporal Table?">
         if (!Utils.isNullOrEmpty(fieldData.getHash())) {
             InternalResponse response2 = ManagementTemporal.getTemporal(
@@ -1062,16 +1076,21 @@ public class ConnectorDocument {
 
         //<editor-fold defaultstate="collapsed" desc="Mapping into SignatureFieldAttribute">
         SignatureFieldAttribute signatureField = new SignatureFieldAttribute();
+        signatureField = new ObjectMapper().readValue(fieldData.getDetailValue(), SignatureFieldAttribute.class);
+        signatureField = (SignatureFieldAttribute) fieldData.clone(signatureField, fieldData.getDimension());
+
         signatureField.setHandSignatureImage(processRequest.getHandSignatureImage());
-        signatureField.setDimension(fieldData.getDimension());
-        signatureField.setFieldName(fieldData.getFieldName());
-        signatureField.setPage(fieldData.getPage());
-        signatureField.setVisibleEnabled(fieldData.getVisibleEnabled());
         signatureField.setLevelOfAssurance(fieldData.getLevelOfAssurance());
-        signatureField.setVerification(new ObjectMapper().setAnnotationIntrospector(new IgnoreIngeritedIntrospector()).readValue(payload, Signature.class));
+
         SimpleDateFormat dateFormat = new SimpleDateFormat(PolicyConfiguration.getInstant().getSystemConfig().getAttributes().get(0).getDateFormat());
         signatureField.setProcessOn(dateFormat.format(Date.from(Instant.now())));
         signatureField.setProcessBy(user.getAzp());
+
+        if(signatureField.getVerification() == null){
+            signatureField.setVerification(new Signature());
+        }
+        processRequest.convert(signatureField);
+        
         if (!Utils.isNullOrEmpty(signatureField.getHandSignatureImage())) {
             signatureField.getVerification().setImageEnabled(true);
         }
@@ -1626,7 +1645,7 @@ public class ConnectorDocument {
                 return response.setUser(user);
             }
             //</editor-fold>
-            
+
 //            return new InternalResponse(
 //                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
 //                    A_FPSConstant.CODE_FIELD_QR_Qrypto,

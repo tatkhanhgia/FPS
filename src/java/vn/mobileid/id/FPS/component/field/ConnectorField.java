@@ -15,6 +15,7 @@ import fps_core.objects.CheckBoxFieldAttribute;
 import fps_core.objects.Dimension;
 import fps_core.objects.ExtendedFieldAttribute;
 import fps_core.objects.FieldType;
+import fps_core.objects.ImageFieldAttribute;
 import fps_core.objects.InitialsFieldAttribute;
 import fps_core.objects.QRFieldAttribute;
 import fps_core.objects.SignatureFieldAttribute;
@@ -475,6 +476,7 @@ public class ConnectorField {
 //        });
 //        executors.shutdown();
 //        //</editor-fold>
+        
         //<editor-fold defaultstate="collapsed" desc="Check Process Status of Field">
         InternalResponse checking = CheckFieldProcessedYet.checkProcessed(fieldOld);
         if (checking.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
@@ -1194,6 +1196,48 @@ public class ConnectorField {
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
                 //</editor-fold>
             }
+            case "image": {
+                //<editor-fold defaultstate="collapsed" desc="Generate ImageFieldAttribute from Payload">
+                ImageFieldAttribute field = null;
+                try {
+                    field = new ObjectMapper().readValue(payload, ImageFieldAttribute.class);
+                } catch (JsonProcessingException ex) {
+                    return new InternalResponse(
+                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                            A_FPSConstant.CODE_FAIL,
+                            A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE
+                    );
+                }
+                if (isCheckBasicField) {
+                    InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
+                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                        return response;
+                    }
+                }
+
+                if (!Utils.isNullOrEmpty(field.getTypeName())) {
+                    boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.IMAGE);
+
+                    if (!check) {
+                        return new InternalResponse(
+                                A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                                A_FPSConstant.CODE_FIELD_IMAGE,
+                                A_FPSConstant.SUBCODE_INVALID_IMAGE_FIELD_TYPE
+                        );
+                    }
+                    field.setType(Resources.getFieldTypes().get(field.getTypeName()));
+                }
+                if(!Utils.isNullOrEmpty(field.getImage())){
+                    return new InternalResponse(
+                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                            A_FPSConstant.CODE_FIELD_IMAGE,
+                            A_FPSConstant.SUBCODE_MISSING_IMAGE
+                    );
+                }
+                
+                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
+                //</editor-fold>
+            } 
         }
         return new InternalResponse(A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                 new ResponseMessageController().writeStringField("error", "This type of Field not provide yet"));

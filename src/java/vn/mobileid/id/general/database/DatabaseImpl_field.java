@@ -265,7 +265,7 @@ class DatabaseImpl_field_ implements DatabaseImpl_field {
                 }
             } else {
                 datas.put("pLEVEL_OF_ASSURANCE", null);
-            } 
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -378,7 +378,7 @@ class DatabaseImpl_field_ implements DatabaseImpl_field {
             dimension.setWidth((float) row.get("FIELD_WIDTH"));
             dimension.setHeight((float) row.get("FIELD_HEIGHT"));
             attribute.setDimension(dimension);
-            attribute.setRotate((int)row.get("ROTATE"));
+            attribute.setRotate((int) row.get("ROTATE"));
             try {
                 attribute.setVisibleEnabled((Boolean) row.get("VISIBLE_ENABLED"));
             } catch (Exception ex) {
@@ -515,16 +515,20 @@ class DatabaseImpl_field_ implements DatabaseImpl_field {
             attribute.setDetailValue((String) row.get("DOCUMENT_FIELD_DETAIL_VALUE"));
             attribute.setDetailType((long) row.get("DOCUMENT_FIELD_ATTR_TYPE"));
             attribute.setPage((int) row.get("PAGE_NUMBER"));
-                Dimension dimension = new Dimension();
-                dimension.setX((float) row.get("FIELD_LEFT"));
-                float bottom = (float) row.get("FIELD_TOP") - (float) row.get("FIELD_HEIGHT");
-                dimension.setY(bottom);
-                dimension.setWidth((float) row.get("FIELD_WIDTH"));
-                dimension.setHeight((float) row.get("FIELD_HEIGHT"));
-                attribute.setDimension(dimension);
+            Dimension dimension = new Dimension();
+            dimension.setX((float) row.get("FIELD_LEFT"));
+            float bottom = (float) row.get("FIELD_TOP") - (float) row.get("FIELD_HEIGHT");
+            dimension.setY(bottom);
+            dimension.setWidth((float) row.get("FIELD_WIDTH"));
+            dimension.setHeight((float) row.get("FIELD_HEIGHT"));
+            attribute.setDimension(dimension);
             attribute.setVisibleEnabled(row.get("VISIBLE_ENABLED") == null ? Boolean.FALSE : (Boolean) row.get("VISIBLE_ENABLED"));
             attribute.setHash((String) row.get("HASH"));
-            attribute.setRotate((int)row.get("ROTATE"));
+            if (row.get("ROTATE") != null) {
+                attribute.setRotate((int) row.get("ROTATE"));
+            } else {
+                attribute.setRotate(0);
+            }
             for (FieldType type : Resources.getFieldTypes().values()) {
                 if (type.getTypeId() == (int) row.get("DOCUMENT_FIELD_TYPE")) {
                     attribute.setType(type);
@@ -617,7 +621,7 @@ class DatabaseImpl_field_ implements DatabaseImpl_field {
             dimension.setWidth((float) row.get("FIELD_WIDTH"));
             dimension.setHeight((float) row.get("FIELD_HEIGHT"));
             attribute.setDimension(dimension);
-            attribute.setRotate((int)row.get("ROTATE"));
+            attribute.setRotate((int) row.get("ROTATE"));
             attribute.setVisibleEnabled((Boolean) row.get("VISIBLE_ENABLED"));
             for (FieldType type : Resources.getFieldTypes().values()) {
                 if (type.getTypeId() == (int) row.get("DOCUMENT_FIELD_TYPE")) {
@@ -625,7 +629,7 @@ class DatabaseImpl_field_ implements DatabaseImpl_field {
                     break;
                 }
             }
-            
+
             try {
                 BasicFieldAttribute basic = new ObjectMapper().readValue((String) row.get("DOCUMENT_FIELD_VALUE"), BasicFieldAttribute.class);
                 attribute.setProcessStatus(basic.getProcessStatus());

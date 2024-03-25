@@ -7,12 +7,10 @@ package vn.mobileid.id.FPS.component.document;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fps_core.objects.ExtendedFieldAttribute;
 import fps_core.objects.TextFieldAttribute;
-import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import vn.mobileid.id.FPS.component.document.process.ProcessingFactory;
+import vn.mobileid.id.FPS.component.enterprise.ProcessModuleForEnterprise;
 import vn.mobileid.id.FPS.component.field.CheckFieldProcessedYet;
 import vn.mobileid.id.FPS.component.field.ConnectorField_Internal;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
@@ -21,7 +19,6 @@ import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.InternalResponse.InternalData;
 import vn.mobileid.id.FPS.object.ProcessingRequest;
 import vn.mobileid.id.FPS.object.User;
-import vn.mobileid.id.general.PolicyConfiguration;
 import vn.mobileid.id.utils.Utils;
 
 /**
@@ -118,7 +115,7 @@ public class ProcessingTextFormField {
             //<editor-fold defaultstate="collapsed" desc="Convert ExtendField into TextField">
             TextFieldAttribute textField = null;
             try {
-                textField = convertExtend_into_TextField(user, fieldData, (String) field.getValue());
+                textField = convertExtenđIntoTextField(user, fieldData, (String) field.getValue());
             } catch (Exception ex) {
                 errorField.setValue(Utils.summaryException(ex));
                 listOfErrorField.add(errorField);
@@ -150,7 +147,7 @@ public class ProcessingTextFormField {
             );
         }
         InternalResponse response = new InternalResponse(
-                A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                ProcessModuleForEnterprise.getInstance(user).getStatusCodeFillFormField(listOfErrorField),
                 ""
         );
 
@@ -163,7 +160,7 @@ public class ProcessingTextFormField {
 
     //==========================================================================
     //<editor-fold defaultstate="collapsed" desc="Convert ExtendedField into TextField">
-    private static TextFieldAttribute convertExtend_into_TextField(
+    private static TextFieldAttribute convertExtenđIntoTextField(
             User user,
             ExtendedFieldAttribute fieldData,
             String value) throws Exception {

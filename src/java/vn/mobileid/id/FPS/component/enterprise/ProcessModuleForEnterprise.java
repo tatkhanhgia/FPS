@@ -47,19 +47,6 @@ public class ProcessModuleForEnterprise {
             long packageId,
             String transactionId
     ) throws Exception {
-//        //Check existed API Key
-//        Broadcast broadcast = new GetKEYAPI();
-//        InternalResponse response = broadcast.call(
-//                broadcast.getMethod("getKEYAPI", GetKEYAPI.class),
-//                clientId,
-//                transactionId);
-//
-//        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-//            return response;
-//        }
-//
-//        Enterprise enterprise = (Enterprise) response.getData();
-
         //Dokobit Gateway
         switch (this.clientId) {
             case "Dokobit_Gateway": {
@@ -110,6 +97,21 @@ public class ProcessModuleForEnterprise {
     }
     //</editor-fold>
     
+    //<editor-fold defaultstate="collapsed" desc="Create another Status Code in API "Fill Form Field"">
+    public int getStatusCodeFillFormField(List<InternalResponse.InternalData> listOfErrorField){
+        if(!clientId.equalsIgnoreCase("Dokobit_Gateway")){
+            return A_FPSConstant.HTTP_CODE_BAD_REQUEST;
+        }
+        for(InternalResponse.InternalData internalData : listOfErrorField){
+            String value = (String)internalData.getValue();
+            if(!value.equalsIgnoreCase(String.valueOf(A_FPSConstant.CODE_FIELD) +
+                        String.valueOf(A_FPSConstant.SUBCODE_FIELD_ALREADY_PROCESS))){
+                return A_FPSConstant.HTTP_CODE_BAD_REQUEST;
+            }
+        }
+        return A_FPSConstant.HTTP_CODE_SUCCESS;
+    }
+    //</editor-fold>
     //===========================RP=============================================
     //<editor-fold defaultstate="collapsed" desc="Dokobit Gateway">
     private InternalResponse process(

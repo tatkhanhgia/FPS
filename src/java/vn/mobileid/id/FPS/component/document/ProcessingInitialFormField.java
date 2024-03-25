@@ -97,7 +97,7 @@ public class ProcessingInitialFormField {
         //<editor-fold defaultstate="collapsed" desc="Convert ExtendField into InitialField">
         InitialsFieldAttribute initField = null;
         try {
-            InternalResponse temp = convertExtend_into_InitialField(
+            InternalResponse temp = convertExtendIntoInitialField(
                     user,
                     fieldData,
                     processRequest);
@@ -138,20 +138,15 @@ public class ProcessingInitialFormField {
 
     //==========================================================================
     //<editor-fold defaultstate="collapsed" desc="Convert ExtendedField into TextField">
-    private static InternalResponse convertExtend_into_InitialField(
+    private static InternalResponse convertExtendIntoInitialField(
             User user,
             ExtendedFieldAttribute fieldData,
             InitialsFieldAttribute processRequest) throws Exception {
         //Read details
         InitialsFieldAttribute initialField = new ObjectMapper().readValue(fieldData.getDetailValue(), InitialsFieldAttribute.class);
-
+        initialField = (InitialsFieldAttribute) fieldData.clone(initialField, fieldData.getDimension());
+        
         //Read Basic
-        initialField.setFieldName(fieldData.getFieldName());
-        initialField.setPage(fieldData.getPage());
-        initialField.setDimension(fieldData.getDimension());
-        initialField.setVisibleEnabled(fieldData.getVisibleEnabled());
-        initialField.setRequired(fieldData.getRequired());
-        initialField.setType(fieldData.getType());
         initialField.setProcessBy(user.getAzp());
         SimpleDateFormat dateFormat = new SimpleDateFormat(PolicyConfiguration.getInstant().getSystemConfig().getAttributes().get(0).getDateFormat());
         initialField.setProcessOn(dateFormat.format(Date.from(Instant.now())));

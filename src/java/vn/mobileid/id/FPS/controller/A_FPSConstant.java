@@ -95,6 +95,7 @@ public class A_FPSConstant {
     final public static int CODE_FIELD_QR = 10;
     final public static int CODE_FIELD_QR_Qrypto = 11;
     final public static int CODE_ERROR_WHILE_CALLING_THREAD = 12;
+    final public static int CODE_FIELD_IMAGE = 13;
     
     
     //SubCode
@@ -182,4 +183,9 @@ public class A_FPSConstant {
     
     //Subcode Error while calling thread - 12
     final public static int SUBCODE_THREAD_GET_FIELDS_IN_UPDATE_INITIALFIELD = 1;
+    
+    //Subcode Field Image - 13
+    final public static int SUBCODE_INVALID_IMAGE_FIELD_TYPE = 1;
+    final public static int SUBCODE_MISSING_IMAGE = 2;
+    final public static int SUBCODE_VALUE_MUST_BE_ENCODE_BASE64_FORMAT = 3;
 }

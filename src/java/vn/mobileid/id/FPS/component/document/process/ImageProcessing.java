@@ -7,7 +7,9 @@ package vn.mobileid.id.FPS.component.document.process;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fps_core.enumration.ProcessStatus;
 import fps_core.module.DocumentUtils_itext7;
+import fps_core.objects.ImageFieldAttribute;
 import fps_core.objects.QRFieldAttribute;
+import java.util.Base64;
 import vn.mobileid.id.FMS;
 import vn.mobileid.id.FPS.component.document.module.QRGenerator;
 import vn.mobileid.id.FPS.component.field.ConnectorField_Internal;
@@ -21,7 +23,7 @@ import vn.mobileid.id.general.LogHandler;
  *
  * @author GiaTK
  */
-public class QRProcessing implements DocumentProcessing{
+public class ImageProcessing implements DocumentProcessing{
 
     @Override
     public InternalResponse process(Object... objects) throws Exception {
@@ -29,7 +31,7 @@ public class QRProcessing implements DocumentProcessing{
         User user = (User)objects[0];
         Document document = (Document)objects[1];
         long documentFieldId = (long)objects[2];
-        QRFieldAttribute field = (QRFieldAttribute)objects[3];
+        ImageFieldAttribute field = (ImageFieldAttribute)objects[3];
         String transactionId = (String)objects[4];
         byte[] file;
         
@@ -53,16 +55,11 @@ public class QRProcessing implements DocumentProcessing{
 
         //Append data into field 
         try {
-            //Create QR Image
-            byte[] qr = QRGenerator.generateQR(
-                    field.getValue(), 
-                    Math.round(field.getDimension().getWidth()), 
-                    Math.round(field.getDimension().getHeight()), 
-                    field.IsTransparent());
+            byte[] image = Base64.getDecoder().decode(field.getImage());
             
             byte[] resultODF = DocumentUtils_itext7.addImage(
                     file, 
-                    qr, 
+                    image, 
                     field.getPage(), 
                     field.getDimension().getX(), 
                     field.getDimension().getY(), 
@@ -86,7 +83,7 @@ public class QRProcessing implements DocumentProcessing{
                 );
             }
 
-            //Update new data of TextField
+            //Update new data of ImageField
             response = ConnectorField_Internal.updateFieldDetail(
                     documentFieldId,
                     user,
@@ -112,7 +109,7 @@ public class QRProcessing implements DocumentProcessing{
                     ex);
             response = new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                    "{\"message\":\"Cannot add QR into file\"}"
+                    "{\"message\":\"Cannot add image into file\"}"
             );
             response.setException(ex);
             return response;

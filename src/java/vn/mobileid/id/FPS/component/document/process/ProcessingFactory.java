@@ -26,6 +26,9 @@ public class ProcessingFactory {
             case QRYPTO:{
                 return new QryptoProcessing();
             }
+            case IMAGE:{
+                return new ImageProcessing();
+            }
         }
         throw new IllegalArgumentException();
     }
@@ -53,6 +56,7 @@ public class ProcessingFactory {
         TEXTFIELD,
         CHECKBOX,
         INITIALS,
-        QRYPTO
+        QRYPTO,
+        IMAGE
     }
 }
