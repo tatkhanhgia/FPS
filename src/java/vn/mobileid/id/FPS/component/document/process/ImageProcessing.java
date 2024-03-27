@@ -5,12 +5,19 @@
 package vn.mobileid.id.FPS.component.document.process;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fps_core.enumration.DocumentStatus;
 import fps_core.enumration.ProcessStatus;
 import fps_core.module.DocumentUtils_itext7;
+import fps_core.objects.FileManagement;
 import fps_core.objects.ImageFieldAttribute;
 import fps_core.objects.QRFieldAttribute;
 import java.util.Base64;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import org.apache.commons.codec.binary.Hex;
 import vn.mobileid.id.FMS;
+import vn.mobileid.id.FPS.component.document.UploadDocument;
 import vn.mobileid.id.FPS.component.document.module.QRGenerator;
 import vn.mobileid.id.FPS.component.field.ConnectorField_Internal;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
@@ -18,6 +25,8 @@ import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.general.LogHandler;
+import vn.mobileid.id.utils.Crypto;
+import vn.mobileid.id.utils.TaskV2;
 
 /**
  *
@@ -33,6 +42,7 @@ public class ImageProcessing implements DocumentProcessing{
         long documentFieldId = (long)objects[2];
         ImageFieldAttribute field = (ImageFieldAttribute)objects[3];
         String transactionId = (String)objects[4];
+        int revision = (int) objects[5];
         byte[] file;
         
         //Check status document
@@ -67,6 +77,75 @@ public class ImageProcessing implements DocumentProcessing{
                     field.getDimension().getHeight());
             
            
+            //Analys file
+            ExecutorService executor = Executors.newFixedThreadPool(2);
+            Future<?> analysis = executor.submit(new TaskV2(new Object[]{resultODF}, transactionId) {
+                @Override
+                public Object call() {
+                    try {
+                        return DocumentUtils_itext7.analysisPDF_i7((byte[]) this.get()[0]);
+                    } catch (Exception ex) {
+                        return null;
+                    }
+                }
+            });
+            
+            //Upload to FMS
+            Future<?> uploadFMS = executor.submit(new TaskV2(new Object[]{resultODF}, transactionId) {
+                @Override
+                public Object call() {
+                    InternalResponse response = new InternalResponse();
+                    try {
+                        byte[] appendedFile = (byte[])this.get()[0];
+                        response = FMS.uploadToFMS(appendedFile, "pdf", transactionId);
+                        return response;
+                    } catch (Exception ex) {
+                        response.setStatus(A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR);
+                        response.setCode(A_FPSConstant.CODE_FMS);
+                        response.setCodeDescription(A_FPSConstant.SUBCODE_ERROR_WHILE_UPLOAD_FMS);
+                        response.setException(ex);
+                    }
+                    return response;
+                }
+            });
+
+            executor.shutdown();
+            
+            FileManagement fileManagement = (FileManagement) analysis.get();
+            if (fileManagement == null) {
+                return new InternalResponse(
+                        A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                        A_FPSConstant.CODE_DOCUMENT,
+                        A_FPSConstant.SUBCODE_CANNOT_ANNALYSIS_THE_DOCUMENT
+                );
+            }
+            fileManagement.setSize(resultODF.length);
+            fileManagement.setDigest(Hex.encodeHexString(Crypto.hashData(resultODF, fileManagement.getAlgorithm().getName())));
+            response = (InternalResponse) uploadFMS.get();
+
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                return response;
+            }
+
+            String uuid = (String) response.getData();
+
+            //Update new Document in DB    
+            response = UploadDocument.uploadDocument(
+                    document.getPackageId(),
+                    revision + 1,
+                    fileManagement,
+                    DocumentStatus.READY,
+                    "url",
+                    "contents",
+                    uuid,
+                    "Appended Image - " + field.getFieldName(),
+                    "hmac",
+                    user.getAzp(),
+                    transactionId);
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                return response;
+            }
+            
             //Update field after processing
             field.setProcessStatus(ProcessStatus.PROCESSED.getName());
             ObjectMapper ob = new ObjectMapper();

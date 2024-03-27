@@ -30,6 +30,7 @@ import vn.mobileid.id.FPS.component.document.UploadDocument;
 import vn.mobileid.id.FPS.component.field.ConnectorField_Internal;
 import vn.mobileid.id.FPS.component.field.GetField;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.controller.ResponseMessageController;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.InternalResponse.InternalData;
@@ -286,13 +287,33 @@ class SignatureProcessing implements DocumentProcessing, ModuleProcessing {
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 return response;
             }
-            for (ExtendedFieldAttribute temp : (List<ExtendedFieldAttribute>) response.getData()) {                
+            for (ExtendedFieldAttribute temp : (Iterable<? extends ExtendedFieldAttribute>) response.getData()) {
                 if (temp.getType().getParentType().equals(FieldTypeName.QR.getParentName())) {
                     QRFieldAttribute qr = new ObjectMapper().readValue(temp.getDetailValue(), QRFieldAttribute.class);
                     qr = (QRFieldAttribute) temp.clone(qr, temp.getDimension());
 
+                    byte[] imageQR = null;
+                    //<editor-fold defaultstate="collapsed" desc="Download Image from FMS">
+                    if (qr.getImageQR().length() <= 32) {
+                        response = FMS.downloadDocumentFromFMS(qr.getImageQR(), "");
+
+                        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                            return new InternalResponse(
+                                    A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
+                                    0,
+                                    0).setMessage(
+                                    new ResponseMessageController().writeStringField(
+                                            "error",
+                                            "Cannot get Image in QRCode from FMS!").build()
+                            );
+                        }
+                        imageQR = (byte[]) response.getData();
+                    } else {
+                        imageQR = Base64.getDecoder().decode(qr.getImageQR());
+                    }
+                    //</editor-fold>
+
                     try {
-                        byte[] imageQR = Base64.getDecoder().decode(qr.getImageQR());
                         file = DocumentUtils_itext7.addImage(
                                 file,
                                 imageQR,
@@ -526,7 +547,7 @@ class SignatureProcessing implements DocumentProcessing, ModuleProcessing {
             //Update field after processing
             ObjectMapper ob = new ObjectMapper();
             field.setProcessStatus(ProcessStatus.PROCESSED.getName());
-            
+
             response = ConnectorField_Internal.updateValueOfField(
                     documentFieldId,
                     user,

@@ -18,6 +18,7 @@ public class SystemConfiguration {
     private String dateFormat;
     private String qrExpiredTime;
     private String qrHost;
+    private long maximumFile;
 
     public SystemConfiguration() {
     }
@@ -48,4 +49,15 @@ public class SystemConfiguration {
     public void setQrHost(String qrHost) {
         this.qrHost = qrHost;
     }
+
+    @JsonProperty("max_size_store")
+    public long getMaximumFile() {
+        return maximumFile;
+    }
+
+    public void setMaximumFile(long maximumFile) {
+        this.maximumFile = maximumFile;
+    }
+    
+    
 }

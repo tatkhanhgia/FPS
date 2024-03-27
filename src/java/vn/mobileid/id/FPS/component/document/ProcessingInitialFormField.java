@@ -101,11 +101,11 @@ public class ProcessingInitialFormField {
                     user,
                     fieldData,
                     processRequest);
-            
-            if(temp.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS){
+
+            if (temp.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 return temp;
-            }        
-            
+            }
+
             initField = (InitialsFieldAttribute) temp.getData();
         } catch (Exception ex) {
             throw new Exception(ex);
@@ -145,43 +145,48 @@ public class ProcessingInitialFormField {
         //Read details
         InitialsFieldAttribute initialField = new ObjectMapper().readValue(fieldData.getDetailValue(), InitialsFieldAttribute.class);
         initialField = (InitialsFieldAttribute) fieldData.clone(initialField, fieldData.getDimension());
-        
+
         //Read Basic
         initialField.setProcessBy(user.getAzp());
         SimpleDateFormat dateFormat = new SimpleDateFormat(PolicyConfiguration.getInstant().getSystemConfig().getAttributes().get(0).getDateFormat());
         initialField.setProcessOn(dateFormat.format(Date.from(Instant.now())));
 
+        //<editor-fold defaultstate="collapsed" desc="Check if image is UUID ? => get From FMS">
         if (processRequest.getImage() != null) {
             initialField.setImage(processRequest.getImage());
         } else {
             try {
-                InternalResponse response = FMS.downloadDocumentFromFMS(initialField.getImage(), "");
-                
-                if(response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS){
-                    return new InternalResponse(
-                        A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
-                        0, 
-                        0).setMessage(
+                if (initialField.getImage().length() <= 32) {
+                    InternalResponse response = FMS.downloadDocumentFromFMS(initialField.getImage(), "");
+
+                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                        return new InternalResponse(
+                                A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
+                                0,
+                                0).setMessage(
                                 new ResponseMessageController().writeStringField(
                                         "error",
                                         "Cannot get Image in Initial from FMS!").build()
                         );
+                    }
+
+                    byte[] image_ = (byte[]) response.getData();
+                    initialField.setImage(Base64.getEncoder().encodeToString(image_));
                 }
-                
-                byte[] image_ = (byte[]) response.getData();
-                initialField.setImage(Base64.getEncoder().encodeToString(image_));
             } catch (Exception ex) {
                 ex.printStackTrace();
                 return new InternalResponse(
                         A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
-                        0, 
+                        0,
                         0).setMessage(
-                                new ResponseMessageController().writeStringField(
-                                        "error",
-                                        "Cannot get Image in Initial from FMS!").build()
-                        );
+                        new ResponseMessageController().writeStringField(
+                                "error",
+                                "Cannot get Image in Initial from FMS!").build()
+                );
             }
         }
+        //</editor-fold>
+        
         if (processRequest.isApplyToAll()) {
             initialField.setApplyToAll(true);
         } else if (!Utils.isNullOrEmpty(processRequest.getPages())) {

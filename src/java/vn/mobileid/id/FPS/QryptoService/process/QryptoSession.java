@@ -133,6 +133,9 @@ public class QryptoSession implements ISession {
 
         HashMap<String, String> names = new HashMap<>();
         for (String key : QR.getHeader().keySet()) {
+            if(key == null){
+                continue;
+            }
             System.out.println("Put bodypart:" + key);
             bodypart.put(key, QR.getHeader().get(key));
             for (field field : QR.getFormat().getFields()) {

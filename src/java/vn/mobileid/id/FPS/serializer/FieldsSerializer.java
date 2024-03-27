@@ -28,7 +28,8 @@ public class FieldsSerializer implements JsonSerializable {
         "signature", 
         "dropdown", 
         "listbox",
-        "qrypto"};
+        "qrypto",
+        "image"};
 
     @Override
     public void serialize(JsonGenerator jg, SerializerProvider sp) throws IOException {

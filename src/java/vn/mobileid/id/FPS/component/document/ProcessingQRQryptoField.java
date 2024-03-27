@@ -16,11 +16,17 @@ import vn.mobileid.id.FPS.component.field.CheckFieldProcessedYet;
 import vn.mobileid.id.FPS.component.field.ConnectorField_Internal;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import fps_core.enumration.FieldTypeName;
+import java.util.Base64;
+import vn.mobileid.id.FMS;
+import vn.mobileid.id.FPS.QryptoService.object.Item_IDPicture4Label;
+import vn.mobileid.id.FPS.QryptoService.object.ItemsType;
+import vn.mobileid.id.FPS.controller.ResponseMessageController;
 import vn.mobileid.id.FPS.fieldAttribute.QryptoFieldAttribute;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.general.PolicyConfiguration;
+import vn.mobileid.id.utils.Utils;
 
 /**
  *
@@ -62,7 +68,7 @@ public class ProcessingQRQryptoField {
 
         List<Document> documents = (List<Document>) response.getData();
         //</editor-fold>
-        
+
         //<editor-fold defaultstate="collapsed" desc="Get all data of the field">
         Document document_ = null;
         response = new InternalResponse();
@@ -84,7 +90,7 @@ public class ProcessingQRQryptoField {
 
         ExtendedFieldAttribute fieldData = (ExtendedFieldAttribute) response.getData();
         //</editor-fold>
-        
+
         //<editor-fold defaultstate="collapsed" desc="Check data in ExtendedField is sastified">
         InternalResponse response_ = CheckFieldProcessedYet.checkProcessed(fieldData.getFieldValue());
         if (response_.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
@@ -102,10 +108,16 @@ public class ProcessingQRQryptoField {
         //<editor-fold defaultstate="collapsed" desc="Convert ExtendField into QRField">
         QryptoFieldAttribute QRField = null;
         try {
-            QRField = convertExtend_into_QRField(
+            InternalResponse res = convertExtendIntoQryptoField(
                     user,
                     fieldData
-                    );
+            );
+
+            if (res.getStatus() == A_FPSConstant.HTTP_CODE_SUCCESS) {
+                return res;
+            }
+
+            QRField = (QryptoFieldAttribute) res.getData();
         } catch (Exception ex) {
             throw new Exception(ex);
         }
@@ -114,7 +126,7 @@ public class ProcessingQRQryptoField {
         //Processing
         response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.QRYPTO).process(
                 user,
-                document_,           
+                document_,
                 documents.size(),
                 QRField,
                 processRequest,
@@ -133,15 +145,14 @@ public class ProcessingQRQryptoField {
         return response;
     }
     //</editor-fold>
-    
-    
+
     //<editor-fold defaultstate="collapsed" desc="Processing QR Qrypto Form Field based on old items in Field">
     /**
      * Processing QR Qrypto Form Field in Payload
      *
      * @param packageId
      * @param fieldName
-     * @param user    
+     * @param user
      * @param transactionId
      * @return InternalResponse If the InternalResponse.getStatus() !=
      * HTTP.Success => That InternalResponse have an InternalData satisfied
@@ -152,7 +163,7 @@ public class ProcessingQRQryptoField {
     public static InternalResponse processQRQryptoFieldV2(
             long packageId,
             String fieldName,
-            User user,           
+            User user,
             String transactionId
     ) throws Exception {
         //<editor-fold defaultstate="collapsed" desc="Get Documents">
@@ -166,7 +177,7 @@ public class ProcessingQRQryptoField {
 
         List<Document> documents = (List<Document>) response.getData();
         //</editor-fold>
-        
+
         //<editor-fold defaultstate="collapsed" desc="Get all data of the field">
         Document document_ = null;
         response = new InternalResponse();
@@ -188,7 +199,7 @@ public class ProcessingQRQryptoField {
 
         ExtendedFieldAttribute fieldData = (ExtendedFieldAttribute) response.getData();
         //</editor-fold>
-        
+
         //<editor-fold defaultstate="collapsed" desc="Check data in ExtendedField is sastified">
         InternalResponse response_ = CheckFieldProcessedYet.checkProcessed(fieldData.getFieldValue());
         if (response_.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
@@ -206,10 +217,16 @@ public class ProcessingQRQryptoField {
         //<editor-fold defaultstate="collapsed" desc="Convert ExtendField into QRField">
         QryptoFieldAttribute QRField = null;
         try {
-            QRField = convertExtend_into_QRField(
+            InternalResponse res = convertExtendIntoQryptoField(
                     user,
                     fieldData
-                    );
+            );
+
+            if (res.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                return res;
+            }
+
+            QRField = (QryptoFieldAttribute) res.getData();
         } catch (Exception ex) {
             throw new Exception(ex);
         }
@@ -218,7 +235,7 @@ public class ProcessingQRQryptoField {
         //Processing
         response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.QRYPTO).process(
                 user,
-                document_,           
+                document_,
                 documents.size(),
                 QRField,
                 QRField.getItems(),
@@ -238,21 +255,16 @@ public class ProcessingQRQryptoField {
     }
     //</editor-fold>
     //==========================================================================
-    
+
     //<editor-fold defaultstate="collapsed" desc="Convert ExtendedField into TextField">
-    private static QryptoFieldAttribute convertExtend_into_QRField(
+    private static InternalResponse convertExtendIntoQryptoField(
             User user,
             ExtendedFieldAttribute fieldData) throws Exception {
         //Read details
         QryptoFieldAttribute QRField = new ObjectMapper().readValue(fieldData.getDetailValue(), QryptoFieldAttribute.class);
+        QRField = (QryptoFieldAttribute) fieldData.clone(QRField, fieldData.getDimension());
 
         //Read Basic
-        QRField.setFieldName(fieldData.getFieldName());
-        QRField.setPage(fieldData.getPage());
-        QRField.setDimension(fieldData.getDimension());
-        QRField.setVisibleEnabled(fieldData.getVisibleEnabled());
-        QRField.setRequired(fieldData.getRequired());
-        QRField.setType(fieldData.getType());
         QRField.setProcessBy(user.getAzp());
         SimpleDateFormat dateFormat = new SimpleDateFormat(
                 PolicyConfiguration
@@ -264,7 +276,83 @@ public class ProcessingQRQryptoField {
         QRField.setProcessOn(dateFormat.format(Date.from(Instant.now())));
         QRField.setPage(fieldData.getPage());
 
-        return QRField;
+        //<editor-fold defaultstate="collapsed" desc="Download Image from FMS">
+        if (!Utils.isNullOrEmpty(QRField.getItems())) {
+            for (ItemDetails item : QRField.getItems()) {
+                if (item.getType() == ItemsType.ID_Picture_with_4_labels.getId()) {
+                    String temp_ = new ObjectMapper().writeValueAsString(item.getValue());
+                    Item_IDPicture4Label tempp = new ObjectMapper().readValue(temp_, Item_IDPicture4Label.class);
+                    if (tempp != null
+                            && tempp.getIdPicture() != null
+                            && tempp.getIdPicture().getBase64() != null
+                            && tempp.getIdPicture().getBase64().length() <= 32) {
+                        try {
+                            InternalResponse response = FMS.downloadDocumentFromFMS(tempp.getIdPicture().getBase64(), "");
+
+                            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                                return new InternalResponse(
+                                        A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
+                                        0,
+                                        0).setMessage(
+                                        new ResponseMessageController().writeStringField(
+                                                "error",
+                                                "Cannot get Image in Qrypto from FMS!").build()
+                                );
+                            }
+
+                            byte[] image_ = (byte[]) response.getData();
+                            tempp.getIdPicture().setBase64(Base64.getEncoder().encodeToString(image_));
+                            item.setValue(tempp);
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                            return new InternalResponse(
+                                    A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
+                                    0,
+                                    0).setMessage(
+                                    new ResponseMessageController().writeStringField(
+                                            "error",
+                                            "Cannot get Image in Qrypto  from FMS!").build()
+                            );
+                        }
+
+                    }
+                }
+                if (item.getType() == ItemsType.Binary.getId() || item.getType() == ItemsType.File.getId()) {
+                    try {
+                        if (((String) item.getValue()).length() <= 32) {
+                            InternalResponse response = FMS.downloadDocumentFromFMS((String) item.getValue(), "");
+
+                            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                                return new InternalResponse(
+                                        A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
+                                        0,
+                                        0).setMessage(
+                                        new ResponseMessageController().writeStringField(
+                                                "error",
+                                                "Cannot get Image in Qrypto from FMS!").build()
+                                );
+                            }
+
+                            byte[] image_ = (byte[]) response.getData();
+                            item.setValue(Base64.getEncoder().encodeToString(image_));
+                        }
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        return new InternalResponse(
+                                A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
+                                0,
+                                0).setMessage(
+                                new ResponseMessageController().writeStringField(
+                                        "error",
+                                        "Cannot get Image in Qrypto  from FMS!").build()
+                        );
+                    }
+                }
+            }
+        }
+        //</editor-fold>
+
+        return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, QRField);
     }
     //</editor-fold>
 }

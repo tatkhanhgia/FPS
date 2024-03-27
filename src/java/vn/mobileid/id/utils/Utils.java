@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import fps_core.enumration.TextField_Font;
+import fps_core.enumration.FPSFont;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -601,8 +601,8 @@ public class Utils {
         return targetArray;
     }
 
-    //<editor-fold defaultstate="collapsed" desc="Read Font File">
-    public static byte[] readFile(TextField_Font path) throws Exception {
+    //<editor-fold defaultstate="collapsed" desc="Read FPSFont File">
+    public static byte[] readFile(FPSFont path) throws Exception {
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         InputStream stream = loader.getResourceAsStream(path.getPath());
         ByteArrayOutputStream buffer = new ByteArrayOutputStream();

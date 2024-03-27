@@ -4,6 +4,7 @@
  */
 package vn.mobileid.id.FPS.QryptoService.process;
 
+import vn.mobileid.id.FPS.QryptoService.object.ItemsType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -147,10 +148,10 @@ public class CreateQRSchema {
                         field.setType(QRSchema.fieldType.f1);
                         field.setName(item.getField());
                         field.setFile_type(item.getFile_format());
-                        field.setFile_field(item.getFile_field());
+                        field.setFile_field(Utils.isNullOrEmpty(item.getFile_field())?Utils.generateRandomString(5):item.getFile_field());
                         field.setFile_name(item.getFile_name());
                         field.setShare_mode(3);
-                        headers.put(item.getFile_field(), Base64.getDecoder().decode((String) item.getValue()));
+                        headers.put(field.getFile_field(), Base64.getDecoder().decode((String) item.getValue()));
                         listField.add(field);
                         break;
                     }

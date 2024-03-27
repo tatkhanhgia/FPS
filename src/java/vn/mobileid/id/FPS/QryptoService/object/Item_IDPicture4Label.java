@@ -22,6 +22,7 @@ public class Item_IDPicture4Label {
     public Item_IDPicture4Label() {
     }
 
+    @JsonProperty("value")
     public IDPicture4Label getIdPicture() {
         return idPicture;
     }
@@ -89,23 +90,13 @@ public class Item_IDPicture4Label {
     }
     
     public static void main(String[] args) throws JsonProcessingException {
-        String json = 
-"        {\n" +
-"            \"field\": \"Photo\",\n" +
-"            \"type\": 11,\n" +
-"            \"value\": {\n" +
-"                \"label_1\": \"one\",\n" +
-"                \"label_2\": \"two\",\n" +
-"                \"label_3\": \"three\",\n" +
-"                \"label_4\": \"four\",\n" +
-"                \"image\": \"{Base64_image}\"\n" +
-"            }\n" +
-"        }";
-        Item_IDPicture4Label idPicture = new ObjectMapper().readValue(json, Item_IDPicture4Label.class);
-        System.out.println(idPicture.getIdPicture().getLabel1());
-        System.out.println(idPicture.getIdPicture().getLabel2());
-        System.out.println(idPicture.getIdPicture().getLabel3());
-        System.out.println(idPicture.getIdPicture().getLabel4());
-//        System.out.println(idPicture.getIdPicture().getImageBase64());
+        String temp = "{\"field\":\"Photo\",\"mandatory_enable\":false,\"type\":11,\"value\":{\"label_1\":\"one\",\"label_2\":\"two\",\"label_3\":\"three\",\"label_4\":\"four\",\"file_data\":\"{Base64_of_file}\"},\"file_field\":\"fileA\",\"file_format\":\"image/png\",\"file_name\":\"hello.png\"}";
+        Item_IDPicture4Label tempp = new ObjectMapper().readValue(temp, Item_IDPicture4Label.class);
+        
+        System.out.println(tempp.getIdPicture().getLabel1());
+        System.out.println(tempp.getIdPicture().getLabel2());
+        System.out.println(tempp.getIdPicture().getLabel3());
+        System.out.println(tempp.getIdPicture().getLabel4());
+        System.out.println(tempp.getIdPicture().getBase64());
     }
 }

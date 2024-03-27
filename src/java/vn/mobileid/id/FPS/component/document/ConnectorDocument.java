@@ -878,11 +878,11 @@ public class ConnectorDocument {
 
         //<editor-fold defaultstate="collapsed" desc="Process Image Form Field">
         if (!Utils.isNullOrEmpty(processRequest.getImages())) {
-//            response = ProcessingImageField.processImageField(
-//                    Utils.getIdFromURL(request.getRequestURI()),
-//                    user,
-//                    processRequest.getText(),
-//                    transactionId);
+            response = ProcessingImageField.processImageFields(
+                    Utils.getIdFromURL(request.getRequestURI()),
+                    user,
+                    processRequest.getImages(),
+                    transactionId);
 
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 return response;
@@ -1645,12 +1645,6 @@ public class ConnectorDocument {
                 return response.setUser(user);
             }
             //</editor-fold>
-
-//            return new InternalResponse(
-//                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-//                    A_FPSConstant.CODE_FIELD_QR_Qrypto,
-//                    A_FPSConstant.SUBCODE_MISSING_ITEMS
-//            ).setUser(user);
         }
         //</editor-fold>
 

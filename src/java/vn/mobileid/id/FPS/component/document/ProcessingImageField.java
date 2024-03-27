@@ -246,13 +246,25 @@ public class ProcessingImageField {
             }
             //</editor-fold>
 
+            //<editor-fold defaultstate="collapsed" desc="Check ImageField is have image data ?">
+            if (Utils.isNullOrEmpty(imageField.getImage())) {
+                errorField.setValue(
+                        String.valueOf(A_FPSConstant.CODE_FIELD_IMAGE)
+                        + String.valueOf(A_FPSConstant.SUBCODE_MISSING_IMAGE)
+                );
+                listOfErrorField.add(errorField);
+                continue;
+            }
+            //</editor-fold>
+
             //Processing
             response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.IMAGE).process(
                     user,
                     document_,
                     fieldData.getDocumentFieldId(),
                     imageField,
-                    transactionId);
+                    transactionId,
+                    documents.size());
 
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 errorField.setValue(
