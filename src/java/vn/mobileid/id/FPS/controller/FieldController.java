@@ -148,7 +148,7 @@ public class FieldController extends HttpServlet {
 
             //<editor-fold defaultstate="collapsed" desc="Fill Initials Field">
             if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/initial$")) {
-                String transactionId = Utils.getTransactionId(req, null);
+                String transactionId = Utils.getTransactionId(req, payload);
                 long packageId = Utils.getIdFromURL(req.getRequestURI());
                 LogHandler.request(
                         FieldController.class,
@@ -194,7 +194,7 @@ public class FieldController extends HttpServlet {
             //<editor-fold defaultstate="collapsed" desc="Fill QR Qrypto Field">
             if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/qrcode-qrypto$")) {
                 System.out.println("Hello");
-                String transactionId = Utils.getTransactionId(req, null);
+                String transactionId = Utils.getTransactionId(req, payload);
                 long packageId = Utils.getIdFromURL(req.getRequestURI());
                 LogHandler.request(
                         FieldController.class,
@@ -263,7 +263,7 @@ public class FieldController extends HttpServlet {
         try {
             //<editor-fold defaultstate="collapsed" desc="Update Field">
             if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/fields/.*$") && !req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/fields/hash$")) {
-                String transactionId = Utils.getTransactionId(req, null);
+                String transactionId = Utils.getTransactionId(req, payload);
 
                 try {
                     LogHandler.request(
@@ -312,7 +312,7 @@ public class FieldController extends HttpServlet {
 
             //<editor-fold defaultstate="collapsed" desc="Fill Form Field">
             if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/fields$")) {
-                String transactionId = Utils.getTransactionId(req, null);
+                String transactionId = Utils.getTransactionId(req, payload);
                 LogHandler.request(
                         FieldController.class,
                         Utils.getDataRequestToLog(req, transactionId, "Fill Form Field", ""));
