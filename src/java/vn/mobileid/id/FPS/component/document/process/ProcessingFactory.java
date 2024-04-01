@@ -4,12 +4,15 @@
  */
 package vn.mobileid.id.FPS.component.document.process;
 
+import vn.mobileid.id.FPS.component.document.process.interfaces.IDocumentProcessing;
+import vn.mobileid.id.FPS.component.document.process.interfaces.IModuleProcessing;
+
 /**
  *
  * @author GiaTK
  */
 public class ProcessingFactory {
-    public static DocumentProcessing createType(TypeProcess type) throws Exception{
+    public static IDocumentProcessing createType(TypeProcess type) throws Exception{
         switch(type){
             case TEXTFIELD:{
                 return new TextFieldProcessing();
@@ -36,7 +39,7 @@ public class ProcessingFactory {
         throw new IllegalArgumentException();
     }
     
-    public static ModuleProcessing createType_Module(TypeProcess type)throws Exception{
+    public static IModuleProcessing createType_Module(TypeProcess type)throws Exception{
         switch(type){
             case TEXTFIELD:{
                 return new TextFieldProcessing();

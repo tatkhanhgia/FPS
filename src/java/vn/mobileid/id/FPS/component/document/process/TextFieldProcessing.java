@@ -27,12 +27,14 @@ import vn.mobileid.id.FPS.serializer.IgnoreIngeritedIntrospector;
 import vn.mobileid.id.general.LogHandler;
 import vn.mobileid.id.utils.Crypto;
 import vn.mobileid.id.utils.TaskV2;
+import vn.mobileid.id.FPS.component.document.process.interfaces.IDocumentProcessing;
+import vn.mobileid.id.FPS.component.document.process.interfaces.IModuleProcessing;
 
 /**
  *
  * @author GIATK
  */
-class TextFieldProcessing implements DocumentProcessing, ModuleProcessing {
+class TextFieldProcessing implements IDocumentProcessing, IModuleProcessing {
 
     /*
     Thực hiện luồng V1 => Tạo form field + append cùng 1 lúc tại thời điểm process

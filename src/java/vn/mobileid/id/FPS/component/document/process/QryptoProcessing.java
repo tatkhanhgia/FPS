@@ -41,12 +41,13 @@ import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.utils.TaskV2;
 import vn.mobileid.id.utils.Utils;
+import vn.mobileid.id.FPS.component.document.process.interfaces.IDocumentProcessing;
 
 /**
  *
  * @author GiaTK
  */
-public class QryptoProcessing implements DocumentProcessing {
+public class QryptoProcessing implements IDocumentProcessing {
 
     @Override
     public InternalResponse process(Object... objects) throws Exception {

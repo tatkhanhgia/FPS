@@ -16,12 +16,13 @@ import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.general.LogHandler;
+import vn.mobileid.id.FPS.component.document.process.interfaces.IDocumentProcessing;
 
 /**
  *
  * @author GiaTK
  */
-public class QRProcessing implements DocumentProcessing{
+public class QRProcessing implements IDocumentProcessing{
 
     @Override
     public InternalResponse process(Object... objects) throws Exception {

@@ -29,12 +29,13 @@ import vn.mobileid.id.FPS.serializer.IgnoreIngeritedIntrospector;
 import vn.mobileid.id.general.LogHandler;
 import vn.mobileid.id.utils.Crypto;
 import vn.mobileid.id.utils.TaskV2;
+import vn.mobileid.id.FPS.component.document.process.interfaces.IDocumentProcessing;
 
 /**
  *
  * @author GiaTK
  */
-public class ImageProcessing implements DocumentProcessing {
+public class ImageProcessing implements IDocumentProcessing {
 
     @Override
     public InternalResponse process(Object... objects) throws Exception {

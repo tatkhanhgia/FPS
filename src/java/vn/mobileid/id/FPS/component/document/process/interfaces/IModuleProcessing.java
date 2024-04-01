@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package vn.mobileid.id.FPS.component.document.process;
+package vn.mobileid.id.FPS.component.document.process.interfaces;
 
 import vn.mobileid.id.FPS.object.InternalResponse;
 
@@ -10,7 +10,7 @@ import vn.mobileid.id.FPS.object.InternalResponse;
  *
  * @author GIATK
  */
-public interface ModuleProcessing {
+public interface IModuleProcessing {
     public InternalResponse createFormField(Object...objects)throws Exception;
     
     public InternalResponse fillFormField(Object...objects)throws Exception;

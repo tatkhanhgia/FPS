@@ -41,12 +41,14 @@ import vn.mobileid.id.general.PolicyConfiguration;
 import vn.mobileid.id.utils.Crypto;
 import vn.mobileid.id.utils.TaskV2;
 import vn.mobileid.id.utils.Utils;
+import vn.mobileid.id.FPS.component.document.process.interfaces.IDocumentProcessing;
+import vn.mobileid.id.FPS.component.document.process.interfaces.IModuleProcessing;
 
 /**
  *
  * @author GiaTK
  */
-class SignatureProcessing implements DocumentProcessing, ModuleProcessing {
+class SignatureProcessing implements IDocumentProcessing, IModuleProcessing {
 
     //<editor-fold defaultstate="collapsed" desc="Process (Use for the flow append immediately)">
     @Override
