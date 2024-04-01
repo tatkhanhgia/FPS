@@ -54,6 +54,7 @@ import vn.mobileid.id.utils.ManagementTemporal;
 import vn.mobileid.id.utils.TaskV2;
 import vn.mobileid.id.utils.Utils;
 import fps_core.objects.InitialsFieldAttribute;
+import vn.mobileid.id.FPS.object.ProcessInitialField;
 
 /**
  *
@@ -717,7 +718,7 @@ public class ConnectorDocument {
             ).setException(ex).setUser(user);
         }
 
-        return ProcessingTextFormField.processTextField(
+        return ProcessingTextFormField.processMultipleTextField(
                 Utils.getIdFromURL(request.getRequestURI()),
                 user,
                 processRequest.getText(),
@@ -812,7 +813,7 @@ public class ConnectorDocument {
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Fill Form Field">
-    public static InternalResponse fillFormField(
+    public static InternalResponse fillFormField_V1(
             HttpServletRequest request,
             String payload,
             String transactionId) throws Exception {
@@ -850,7 +851,7 @@ public class ConnectorDocument {
 
         //<editor-fold defaultstate="collapsed" desc="Process Text Form Field">
         if (!Utils.isNullOrEmpty(processRequest.getText())) {
-            response = ProcessingTextFormField.processTextField(
+            response = ProcessingTextFormField.processMultipleTextField(
                     Utils.getIdFromURL(request.getRequestURI()),
                     user,
                     processRequest.getText(),
@@ -1449,8 +1450,8 @@ public class ConnectorDocument {
     }
     // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="Fill Initials">
-    public static InternalResponse fillInitialField(
+    // <editor-fold defaultstate="collapsed" desc="Fill Initials Version1">
+    public static InternalResponse fillInitialField_V1(
             HttpServletRequest request,
             long packageId,
             String payload,
@@ -1550,6 +1551,85 @@ public class ConnectorDocument {
     }
     // </editor-fold>
 
+    // <editor-fold defaultstate="collapsed" desc="Fill Initials Version2">
+    public static InternalResponse fillInitialField_V2(
+            HttpServletRequest request,
+            long packageId,
+            String payload,
+            String transactionId) throws Exception {
+        //<editor-fold defaultstate="collapsed" desc="Verify Token">
+        InternalResponse response = Utils.verifyAuthorizationToken(request, transactionId);
+        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+            return response;
+        }
+        User user = (User) response.getData();
+        //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="Check payload">
+        if (Utils.isNullOrEmpty(payload)) {
+            return new InternalResponse(
+                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                    A_FPSConstant.CODE_FAIL,
+                    A_FPSConstant.SUBCODE_NO_PAYLOAD_FOUND
+            ).setUser(user);
+        }
+        //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="Parse Payload">
+        ProcessInitialField processRequest = null;
+        try {
+            processRequest = new ObjectMapper().readValue(payload, ProcessInitialField.class);
+
+            response = CheckPayloadRequest.checkFillInitialField(processRequest, transactionId);
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                response.setUser(user);
+                return response;
+            }
+        } catch (JsonProcessingException ex) {
+            response = new InternalResponse(
+                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                    A_FPSConstant.CODE_FAIL,
+                    A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE
+            );
+            response.setException(ex).setUser(user);
+            return response;
+        }
+        //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="Get Documents">
+        response = GetDocument.getDocuments(
+                packageId,
+                transactionId);
+
+        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+            return response.setUser(user);
+        }
+
+        List<Document> documents = (List<Document>) response.getData();
+        //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="Process Initial Form Field">
+        response = ProcessingInitialFormField.processMultipleInitial_V2(
+                documents,
+                user,
+                processRequest,
+                transactionId);
+
+        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+            response.setUser(user);
+            return response;
+        }
+        //</editor-fold>
+
+        response = new InternalResponse(
+                A_FPSConstant.HTTP_CODE_SUCCESS,
+                ""
+        );
+        response.setUser(user);
+        return response;
+    }
+    // </editor-fold>
+    
     //<editor-fold defaultstate="collapsed" desc="Recall Document">
     public static InternalResponse recallDocument(
             HttpServletRequest request,

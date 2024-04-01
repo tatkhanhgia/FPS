@@ -33,7 +33,7 @@ import vn.mobileid.id.FPS.component.document.process.interfaces.IModuleProcessin
  *
  * @author GiaTK
  */
-public class RadioProcessing implements IModuleProcessing, IDocumentProcessing {
+class RadioProcessing implements IModuleProcessing, IDocumentProcessing {
 
     @Override
     public InternalResponse createFormField(Object... objects) throws Exception {
@@ -173,7 +173,7 @@ public class RadioProcessing implements IModuleProcessing, IDocumentProcessing {
     }
 
     @Override
-    public InternalResponse process(Object... objects) throws Exception {
+    public InternalResponse processMultipleField(Object... objects) throws Exception {
         //Variable
         User user = (User) objects[0];
         Document document = (Document) objects[1];
@@ -329,5 +329,10 @@ public class RadioProcessing implements IModuleProcessing, IDocumentProcessing {
                     "{\"message\":\"Cannot append radiobox value into file\"}"
             ).setException(ex);
         }
+    }
+
+    @Override
+    public InternalResponse processField(Object... object) throws Exception {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 }

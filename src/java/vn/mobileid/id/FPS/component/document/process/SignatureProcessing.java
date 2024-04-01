@@ -52,7 +52,7 @@ class SignatureProcessing implements IDocumentProcessing, IModuleProcessing {
 
     //<editor-fold defaultstate="collapsed" desc="Process (Use for the flow append immediately)">
     @Override
-    public InternalResponse process(Object... objects) throws Exception {
+    public InternalResponse processMultipleField(Object... objects) throws Exception {
         //Convert data
         User user = null;
         boolean isVerify = false;
@@ -625,4 +625,9 @@ class SignatureProcessing implements IDocumentProcessing, IModuleProcessing {
     //</editor-fold>
 
     //=====================INTERNAL METHOD======================================
+
+    @Override
+    public InternalResponse processField(Object... object) throws Exception {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
 }

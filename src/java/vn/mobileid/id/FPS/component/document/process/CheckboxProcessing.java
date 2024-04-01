@@ -33,7 +33,7 @@ import vn.mobileid.id.FPS.component.document.process.interfaces.IModuleProcessin
  *
  * @author GiaTK
  */
-public class CheckboxProcessing implements IModuleProcessing, IDocumentProcessing {
+class CheckboxProcessing implements IModuleProcessing, IDocumentProcessing {
 
     @Override
     public InternalResponse createFormField(Object... objects) throws Exception {
@@ -286,7 +286,7 @@ public class CheckboxProcessing implements IModuleProcessing, IDocumentProcessin
     }
 
     @Override
-    public InternalResponse process(Object... objects) throws Exception {
+    public InternalResponse processMultipleField(Object... objects) throws Exception {
         //Variable
         User user = (User) objects[0];
         Document document = (Document) objects[1];
@@ -442,5 +442,10 @@ public class CheckboxProcessing implements IModuleProcessing, IDocumentProcessin
                     "{\"message\":\"Cannot append checkbox value into file\"}"
             ).setException(ex);
         }
+    }
+
+    @Override
+    public InternalResponse processField(Object... object) throws Exception {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 }

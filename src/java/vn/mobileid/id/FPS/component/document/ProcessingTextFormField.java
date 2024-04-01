@@ -45,14 +45,12 @@ public class ProcessingTextFormField {
      * error while processed
      * @throws Exception
      */
-    public static InternalResponse processTextField(
+    public static InternalResponse processMultipleTextField(
             long packageId,
             User user,
             List<ProcessingRequest.ProcessingFormFillRequest> fields,
             String transactionId
     ) throws Exception {
-        //Nhwos thêm bước kiểm tra field.getValue dạng String
-        //Nhớ thêm bước trả message lỗi đối với đoạn Convert
         List<InternalData> listOfErrorField = new ArrayList<>();
 
         for (ProcessingRequest.ProcessingFormFillRequest field : fields) {
@@ -94,6 +92,7 @@ public class ProcessingTextFormField {
             ExtendedFieldAttribute fieldData = (ExtendedFieldAttribute) response.getData();
 
             //</editor-fold>
+            
             //<editor-fold defaultstate="collapsed" desc="Check data in ExtendedField is sastified">
             if (CheckFieldProcessedYet.checkProcessed(fieldData.getFieldValue()).getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 errorField.setValue(
@@ -135,7 +134,7 @@ public class ProcessingTextFormField {
             //</editor-fold>
 
             //Processing
-            response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.TEXTFIELD).process(
+            response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.TEXTFIELD).processMultipleField(
                     user,
                     document_,
                     documents.size(),

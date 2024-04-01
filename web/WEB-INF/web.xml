@@ -23,11 +23,11 @@
         <servlet-class>vn.mobileid.id.general.api.ManagementController</servlet-class>
         <init-param>
             <param-name>documentPattern</param-name>
-            <param-value>^/fps/v1/(documents|synchronize)[/]{0,1}(base64|pre){0,1}[0-9]*[/]{0,1}(sign|details|images|verification|base64|hash){0,1}[/]{0,1}[0-9]*[/]{0,1}(base64){0,1}$</param-value>
+            <param-value>^/fps/(v1|v2)/(documents|synchronize)[/]{0,1}(base64|pre){0,1}[0-9]*[/]{0,1}(sign|details|images|verification|base64|hash){0,1}[/]{0,1}[0-9]*[/]{0,1}(base64){0,1}$</param-value>
         </init-param>
         <init-param>
             <param-name>fieldPattern</param-name>
-            <param-value>^/fps/v1/documents/[0-9]+/(fields|initial|qrcode-qrypto|image|checkbox|camera|radio).*$</param-value>
+            <param-value>^/fps/(v1|v2)/documents/[0-9]+/(fields|initial|qrcode-qrypto|image|checkbox|camera|radio).*$</param-value>
         </init-param>
         <init-param>
             <param-name>authorizePattern</param-name>

@@ -483,6 +483,7 @@ public class ConnectorField {
 //        });
 //        executors.shutdown();
 //        //</editor-fold>
+
         //<editor-fold defaultstate="collapsed" desc="Check Process Status of Field">
         InternalResponse checking = CheckFieldProcessedYet.checkProcessed(fieldOld);
         if (checking.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {

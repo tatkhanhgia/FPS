@@ -120,7 +120,7 @@ public class ProcessingImageField {
         //</editor-fold>
 
         //Processing
-        response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.IMAGE).process(
+        response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.IMAGE).processMultipleField(
                 user,
                 document_,
                 fieldData.getDocumentFieldId(),
@@ -288,7 +288,7 @@ public class ProcessingImageField {
             //</editor-fold>
             
             //Processing
-            response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.IMAGE).process(
+            response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.IMAGE).processMultipleField(
                     user,
                     document_,
                     fieldData.getDocumentFieldId(),

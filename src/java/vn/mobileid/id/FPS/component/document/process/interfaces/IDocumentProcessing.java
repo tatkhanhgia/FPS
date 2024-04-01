@@ -4,7 +4,6 @@
  */
 package vn.mobileid.id.FPS.component.document.process.interfaces;
 
-import com.groupdocs.conversion.internal.c.a.e.system.collections.ICollection;
 import vn.mobileid.id.FPS.object.InternalResponse;
 
 /**
@@ -12,6 +11,8 @@ import vn.mobileid.id.FPS.object.InternalResponse;
  * @author GiaTK
  */
 public interface IDocumentProcessing {
-    public InternalResponse process(Object... object)throws Exception;
+    public InternalResponse processMultipleField(Object... object)throws Exception;
+    
+    public InternalResponse processField(Object... object)throws Exception;
     
 }

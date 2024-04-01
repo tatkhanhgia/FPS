@@ -37,10 +37,10 @@ import vn.mobileid.id.FPS.component.document.process.interfaces.IModuleProcessin
 class TextFieldProcessing implements IDocumentProcessing, IModuleProcessing {
 
     /*
-    Thực hiện luồng V1 => Tạo form field + append cùng 1 lúc tại thời điểm process
+    Thực hiện luồng V1 => Tạo form field + append cùng 1 lúc tại thời điểm processMultipleField
      */
     @Override
-    public InternalResponse process(Object... objects) throws Exception {
+    public InternalResponse processMultipleField(Object... objects) throws Exception {
         //Variable
         User user = (User) objects[0];
         Document document = (Document) objects[1];
@@ -444,6 +444,11 @@ class TextFieldProcessing implements IDocumentProcessing, IModuleProcessing {
 
     @Override
     public InternalResponse replaceFormField(Object... objects) throws Exception {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public InternalResponse processField(Object... object) throws Exception {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 

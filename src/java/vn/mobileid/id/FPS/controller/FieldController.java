@@ -146,7 +146,7 @@ public class FieldController extends HttpServlet {
             }
             //</editor-fold>
 
-            //<editor-fold defaultstate="collapsed" desc="Fill Initials Field">
+            //<editor-fold defaultstate="collapsed" desc="Fill Initials Field Version1">
             if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/initial$")) {
                 String transactionId = Utils.getTransactionId(req, payload);
                 long packageId = Utils.getIdFromURL(req.getRequestURI());
@@ -155,7 +155,52 @@ public class FieldController extends HttpServlet {
                         Utils.getDataRequestToLog(req, transactionId, "Fill Form Field", ""));
                 if (!Utils.isNullOrEmpty(req.getContentType()) && req.getContentType().contains("application/json")) {
 
-                    InternalResponse response = ConnectorDocument.fillInitialField(req, packageId, payload, transactionId);
+                    InternalResponse response = ConnectorDocument.fillInitialField_V1(req, packageId, payload, transactionId);
+
+                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                        String message = ResponseMessageController.getErrorMessageAdvanced(
+                                response.getCode(),
+                                response.getCodeDescription(),
+                                response.getMessage(),
+                                language,
+                                transactionId);
+                        response.setMessage(message);
+                    }
+
+                    Utils.createAPILog(req,
+                            payload,
+                            (int) packageId,
+                            response,
+                            response.getException(),
+                            transactionId);
+
+                    Utils.sendMessage(
+                            res,
+                            response.getStatus(),
+                            "application/json",
+                            response.getMessage(),
+                            transactionId);
+                } else {
+                    Utils.sendMessage(
+                            res,
+                            HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
+                            "application/json",
+                            null,
+                            transactionId);
+                }
+                return;
+            } //</editor-fold>
+            
+            //<editor-fold defaultstate="collapsed" desc="Fill Initials Field Version2">
+            if (req.getRequestURI().matches("^/fps/v2/documents/[0-9]+/initial$")) {
+                String transactionId = Utils.getTransactionId(req, payload);
+                long packageId = Utils.getIdFromURL(req.getRequestURI());
+                LogHandler.request(
+                        FieldController.class,
+                        Utils.getDataRequestToLog(req, transactionId, "Fill Form Field", ""));
+                if (!Utils.isNullOrEmpty(req.getContentType()) && req.getContentType().contains("application/json")) {
+
+                    InternalResponse response = ConnectorDocument.fillInitialField_V2(req, packageId, payload, transactionId);
 
                     if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                         String message = ResponseMessageController.getErrorMessageAdvanced(
@@ -317,7 +362,7 @@ public class FieldController extends HttpServlet {
                         FieldController.class,
                         Utils.getDataRequestToLog(req, transactionId, "Fill Form Field", ""));
                 if (!Utils.isNullOrEmpty(req.getContentType()) && req.getContentType().contains("application/json")) {
-                    InternalResponse response = ConnectorDocument.fillFormField(req, payload, transactionId);
+                    InternalResponse response = ConnectorDocument.fillFormField_V1(req, payload, transactionId);
 
                     if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                         String message = "";

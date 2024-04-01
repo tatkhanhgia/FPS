@@ -10,7 +10,6 @@ import fps_core.enumration.DocumentType;
 import fps_core.enumration.ProcessStatus;
 import fps_core.module.DocumentUtils_itext7;
 import fps_core.objects.FileManagement;
-import fps_core.objects.QRFieldAttribute;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
@@ -47,10 +46,10 @@ import vn.mobileid.id.FPS.component.document.process.interfaces.IDocumentProcess
  *
  * @author GiaTK
  */
-public class QryptoProcessing implements IDocumentProcessing {
+class QryptoProcessing implements IDocumentProcessing {
 
     @Override
-    public InternalResponse process(Object... objects) throws Exception {
+    public InternalResponse processMultipleField(Object... objects) throws Exception {
         //Variable
         User user = (User) objects[0];
         Document document = (Document) objects[1];
@@ -255,7 +254,7 @@ public class QryptoProcessing implements IDocumentProcessing {
         });        
         //</editor-fold>
 
-        //<editor-fold defaultstate="collapsed" desc="Update Image of QR and process Status of Field">
+        //<editor-fold defaultstate="collapsed" desc="Update Image of QR and processMultipleField Status of Field">
         taskCompletion.submit(new TaskV2(
                 new Object[]{
                     field,
@@ -318,6 +317,11 @@ public class QryptoProcessing implements IDocumentProcessing {
                 A_FPSConstant.HTTP_CODE_SUCCESS,
                 ""
         );
+    }
+
+    @Override
+    public InternalResponse processField(Object... object) throws Exception {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
 }

@@ -8,10 +8,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import fps_core.enumration.DocumentStatus;
 import fps_core.enumration.ProcessStatus;
 import fps_core.module.DocumentUtils_itext7;
-import fps_core.objects.ExtendedFieldAttribute;
 import fps_core.objects.FileManagement;
 import fps_core.objects.ImageFieldAttribute;
-import fps_core.objects.QRFieldAttribute;
 import java.util.Base64;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -19,7 +17,6 @@ import java.util.concurrent.Future;
 import org.apache.commons.codec.binary.Hex;
 import vn.mobileid.id.FMS;
 import vn.mobileid.id.FPS.component.document.UploadDocument;
-import vn.mobileid.id.FPS.component.document.module.QRGenerator;
 import vn.mobileid.id.FPS.component.field.ConnectorField_Internal;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.Document;
@@ -35,10 +32,10 @@ import vn.mobileid.id.FPS.component.document.process.interfaces.IDocumentProcess
  *
  * @author GiaTK
  */
-public class ImageProcessing implements IDocumentProcessing {
+class ImageProcessing implements IDocumentProcessing {
 
     @Override
-    public InternalResponse process(Object... objects) throws Exception {
+    public InternalResponse processMultipleField(Object... objects) throws Exception {
         //Variable
         User user = (User) objects[0];
         Document document = (Document) objects[1];
@@ -226,5 +223,10 @@ public class ImageProcessing implements IDocumentProcessing {
             response.setException(ex);
             return response;
         }
+    }
+
+    @Override
+    public InternalResponse processField(Object... object) throws Exception {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 }

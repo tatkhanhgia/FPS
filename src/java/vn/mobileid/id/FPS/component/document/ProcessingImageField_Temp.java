@@ -123,7 +123,7 @@ public class ProcessingImageField_Temp {
         //</editor-fold>
         
         //Processing
-        response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.IMAGE).process(
+        response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.IMAGE).processMultipleField(
                 user,
                 document_,
                 documents.size(),

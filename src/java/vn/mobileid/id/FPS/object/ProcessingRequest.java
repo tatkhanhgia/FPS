@@ -19,7 +19,7 @@ import vn.mobileid.id.utils.Utils;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ProcessingRequest {
+public class ProcessingRequest { 
 
     //Data for sign
     private String fieldName;
@@ -107,7 +107,7 @@ public class ProcessingRequest {
     public void setItem(List<ItemDetails> item) {
         this.item = item;
     }
-    
+
     @JsonProperty("field_name")
     public String getFieldName() {
         return fieldName;

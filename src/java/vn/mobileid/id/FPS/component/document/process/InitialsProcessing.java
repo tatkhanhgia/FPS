@@ -41,8 +41,9 @@ import vn.mobileid.id.FPS.component.document.process.interfaces.IModuleProcessin
  *
  * @author GiaTK
  */
-public class InitialsProcessing implements IModuleProcessing, IDocumentProcessing {
+class InitialsProcessing implements IModuleProcessing, IDocumentProcessing {
 
+    //<editor-fold defaultstate="collapsed" desc="Create Form Field">
     @Override
     public InternalResponse createFormField(Object... objects) throws Exception {
         //<editor-fold defaultstate="collapsed" desc="Variable">
@@ -164,7 +165,9 @@ public class InitialsProcessing implements IModuleProcessing, IDocumentProcessin
             ).setException(ex);
         }
     }
-
+    //</editor-fold>
+    
+    //<editor-fold defaultstate="collapsed" desc="Fill Form Field">
     @Override
     public InternalResponse fillFormField(Object... objects) throws Exception {
         //Variable
@@ -282,6 +285,7 @@ public class InitialsProcessing implements IModuleProcessing, IDocumentProcessin
             ).setException(ex);
         }
     }
+    //</editor-fold>
 
     @Override
     public InternalResponse deleteFormField(Object... objects) throws Exception {
@@ -294,12 +298,23 @@ public class InitialsProcessing implements IModuleProcessing, IDocumentProcessin
     }
 
     @Override
-    public InternalResponse process(Object... objects) throws Exception {
+    public InternalResponse processMultipleField(Object... objects) throws Exception {
         return flow2(objects);
     }
 
+    @Override
+    public InternalResponse processField(Object... object) throws Exception {
+        return flow2(object);
+    }
+    
     //==========================================================================
     //<editor-fold defaultstate="collapsed" desc="Flow create Intial 1">
+    /**
+     * I don't know this :))) I forgot it
+     * @param objects
+     * @return
+     * @throws Exception 
+     */
     private static InternalResponse flow1(
             Object... objects) throws Exception {
         //Variable
@@ -455,6 +470,17 @@ public class InitialsProcessing implements IModuleProcessing, IDocumentProcessin
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Flow create Intial 2">
+    /**
+     * If the field is have param "apply_to_all" 
+     *  => Get all Initial from DB and store into a List
+     *  => Then call DocumentUtils_i7 to process all Initial field in the List
+     * <p>
+     * Otherwise call DocumentUtil_i7 to process one initial field
+     * <p>
+     * @param objects
+     * @return
+     * @throws Exception 
+     */
     private static InternalResponse flow2(Object... objects) throws Exception {
         //Variable
         User user = (User) objects[0];
@@ -516,7 +542,8 @@ public class InitialsProcessing implements IModuleProcessing, IDocumentProcessin
                 List<InitialsFieldAttribute> initFields = new ArrayList<>();
                 HashMap<String, Long> map = new HashMap<>();
                 for (ExtendedFieldAttribute initChild : fields) {
-                    if (initChild.getType() != null && initChild.getType().getParentType().equalsIgnoreCase(FieldTypeName.INITIAL.getParentName())) {
+                    if (initChild.getType() != null 
+                            && initChild.getType().getParentType().equalsIgnoreCase(FieldTypeName.INITIAL.getParentName())) {
                         InitialsFieldAttribute fieldChild = new ObjectMapper().readValue(
                                 initChild.getFieldValue(),
                                 InitialsFieldAttribute.class);
@@ -573,7 +600,280 @@ public class InitialsProcessing implements IModuleProcessing, IDocumentProcessin
                     }
                 }
                 //</editor-fold>
-            }} else {
+            }
+            } else {
+                appendedFile = DocumentUtils_itext7.createInitialsForm(
+                        file,
+                        field,
+                        transactionId);
+            }
+            //</editor-fold>
+
+            //<editor-fold defaultstate="collapsed" desc="Upload new Document into FMS">
+            Future<?> uploadFMS = executor.submit(new TaskV2(new Object[]{appendedFile}, transactionId) {
+                @Override
+                public Object call() {
+                    InternalResponse response = new InternalResponse();
+                    try {
+                        //Upload new Document into FMS
+                        response = FMS.uploadToFMS((byte[]) this.get()[0], "pdf", transactionId);
+                        return response;
+                    } catch (Exception ex) {
+                        response.setStatus(A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR);
+                        response.setException(ex);
+                        response.setCode(A_FPSConstant.CODE_FMS);
+                        response.setCodeDescription(A_FPSConstant.SUBCODE_ERROR_WHILE_UPLOAD_FMS);
+                    }
+                    return response;
+                }
+            });
+
+            executor.shutdown();
+
+            FileManagement fileManagement = (FileManagement) analysis.get();
+            if (fileManagement == null) {
+                return new InternalResponse(
+                        A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                        A_FPSConstant.CODE_DOCUMENT,
+                        A_FPSConstant.SUBCODE_CANNOT_ANNALYSIS_THE_DOCUMENT
+                );
+            }
+            fileManagement.setSize(appendedFile.length);
+            fileManagement.setDigest(Hex.encodeHexString(Crypto.hashData(appendedFile, fileManagement.getAlgorithm().getName())));
+            response = (InternalResponse) uploadFMS.get();
+
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                return response;
+            }
+
+            String uuid = (String) response.getData();
+            //</editor-fold>
+
+            //<editor-fold defaultstate="collapsed" desc="Create new Revision of Document">
+            response = UploadDocument.uploadDocument(
+                    document.getPackageId(),
+                    revision + 1,
+                    fileManagement,
+                    DocumentStatus.READY,
+                    "url",
+                    "contents",
+                    uuid,
+                    "Appended Initials Field - " + field.getFieldName(),
+                    "hmac",
+                    user.getAzp(),
+                    transactionId);
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                return response;
+            }
+            //</editor-fold>
+    
+            //<editor-fold defaultstate="collapsed" desc="Update Field after processing">
+
+            //<editor-fold defaultstate="collapsed" desc="Upload Image of Fill (field) into FMS and update new UUID into initField">
+            try {
+                InternalResponse callFMS = FMS.uploadToFMS(
+                        Base64.getDecoder().decode(field.getImage()),
+                        "png",
+                        transactionId);
+                if(callFMS.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS){
+                    System.err.println("Cannot upload new Image of Initial into FMS! Using default");
+                } else {
+                    String uuid_ = (String)callFMS.getData();
+                    field.setImage(uuid_);
+                }
+            } catch (Exception ex) {
+                System.err.println("Cannot upload new Image of Initial into FMS! Using default");
+            }
+            //</editor-fold>
+            
+            field.setProcessStatus(ProcessStatus.PROCESSED.getName());
+
+            ObjectMapper ob = new ObjectMapper();
+            response = ConnectorField_Internal.updateValueOfField(
+                    documentFieldId,
+                    user,
+                    ob.writeValueAsString(field),
+                    transactionId);
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                return new InternalResponse(
+                        A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                        A_FPSConstant.CODE_DOCUMENT,
+                        A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD
+                );
+            }
+            //</editor-fold>
+
+            //<editor-fold defaultstate="collapsed" desc="Update new detail of Initial Field">
+            response = ConnectorField_Internal.updateFieldDetail(
+                    documentFieldId,
+                    user,
+                    new ObjectMapper()
+                            .setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
+                            .writeValueAsString(field),
+                    uuid,
+                    transactionId);
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                return new InternalResponse(
+                        A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                        A_FPSConstant.CODE_DOCUMENT,
+                        A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD_DETAILS
+                );
+            }
+            //</editor-fold>
+
+            return new InternalResponse(
+                    A_FPSConstant.HTTP_CODE_SUCCESS,
+                    ""
+            );
+        } catch (Exception ex) {
+            LogHandler.error(
+                    InitialsProcessing.class,
+                    transactionId,
+                    ex);
+            InternalResponse res = new InternalResponse(
+                    A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
+                    A_FPSConstant.CODE_FIELD_INITIAL,
+                    A_FPSConstant.SUBCODE_CANNOT_FILL_INITIALS
+            );
+            res.setException(ex);
+            return res;
+        }
+    }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="Flow create Initial 3">
+    /**
+     * If the field is have param "apply_to_all" 
+     *  => Get all Initial from DB and store into a List
+     *  => Then call DocumentUtils_i7 to Process all Initial field in the List
+     * <p>
+     * Otherwise call DocumentUtil_i7 to process one initial field
+     * <p>
+     * @param objects
+     * @return
+     * @throws Exception 
+     */
+    private static InternalResponse flow3(Object... objects) throws Exception {
+        //Variable
+        User user = (User) objects[0];
+        Document document = (Document) objects[1];
+        int revision = (int) objects[2];
+        long documentFieldId = (long) objects[3];
+        InitialsFieldAttribute field = (InitialsFieldAttribute) objects[4];
+        String transactionId = (String) objects[5];
+        long documentIDOriginal = (long) objects[6];
+        byte[] file;
+
+        //<editor-fold defaultstate="collapsed" desc="Check status of document">
+        if (document.isEnabled()) {
+            return new InternalResponse(
+                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                    A_FPSConstant.CODE_DOCUMENT,
+                    A_FPSConstant.SUBCODE_DOCUMENT_STATSUS_IS_DISABLE
+            );
+        }
+        //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="Download Document from FMS">
+        InternalResponse response = FMS.downloadDocumentFromFMS(document.getUuid(),
+                transactionId);
+
+        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+            return response;
+        }
+        file = (byte[]) response.getData();
+        //</editor-fold>
+
+        //Append data into field 
+        try {
+            //<editor-fold defaultstate="collapsed" desc="Analysis File">
+            ExecutorService executor = Executors.newFixedThreadPool(2);
+            Future<?> analysis = executor.submit(new TaskV2(new Object[]{file}, transactionId) {
+                @Override
+                public Object call() {
+                    try {
+                        return DocumentUtils_itext7.analysisPDF_i7((byte[]) this.get()[0]);
+                    } catch (Exception ex) {
+                        return null;
+                    }
+                }
+            });
+            //</editor-fold>
+
+            byte[] appendedFile = null;
+
+            //<editor-fold defaultstate="collapsed" desc="Check if Field is apply to all => create Multiple Initial">
+            if (field.isApplyToAll()) {
+                if(!ProcessModuleForEnterprise.getInstance(user).getEnterprise().equals(
+                        ProcessModuleForEnterprise.Enterprise.DOKOBIT_GATEWAY)){
+                InternalResponse temp = GetField.getFieldsData(documentIDOriginal, transactionId);
+                if (temp.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                    return temp;
+                }
+                List<ExtendedFieldAttribute> fields = (List<ExtendedFieldAttribute>) temp.getData();
+                List<InitialsFieldAttribute> initFields = new ArrayList<>();
+                HashMap<String, Long> map = new HashMap<>();
+                for (ExtendedFieldAttribute initChild : fields) {
+                    if (initChild.getType() != null 
+                            && initChild.getType().getParentType().equalsIgnoreCase(FieldTypeName.INITIAL.getParentName())) {
+                        InitialsFieldAttribute fieldChild = new ObjectMapper().readValue(
+                                initChild.getFieldValue(),
+                                InitialsFieldAttribute.class);
+                        fieldChild = (InitialsFieldAttribute) initChild.clone(fieldChild, initChild.getDimension());
+
+                        if (fieldChild.getImage() == null
+                                || fieldChild.getImage().isEmpty()
+                                || fieldChild.getImage().length() <= 32) {
+                            fieldChild.setImage(field.getImage());
+                        }
+
+                        initFields.add(fieldChild);
+                        map.put(fieldChild.getFieldName(), initChild.getDocumentFieldId());
+                    }
+                }
+
+                appendedFile = DocumentUtils_itext7.createMultipleInitialsForm(
+                        file,
+                        field.getImage(),
+                        initFields,
+                        transactionId);
+
+                //<editor-fold defaultstate="collapsed" desc="Update all Initial Field">
+                for (InitialsFieldAttribute initChild : initFields) {
+                    //Update field after processing
+                    initChild.setProcessStatus(ProcessStatus.PROCESSED.getName());
+                    ObjectMapper ob = new ObjectMapper();
+                    response = ConnectorField_Internal.updateValueOfField(
+                            map.get(initChild.getFieldName()),
+                            user,
+                            ob.writeValueAsString(initChild),
+                            transactionId);
+                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                        return new InternalResponse(
+                                A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                                A_FPSConstant.CODE_DOCUMENT,
+                                A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD
+                        );
+                    }
+
+                    //Update new data of CheckboxField
+                    response = ConnectorField_Internal.updateFieldDetail(
+                            map.get(initChild.getFieldName()),
+                            user,
+                            ob.writeValueAsString(initChild),
+                            "hmac",
+                            transactionId);
+                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                        return new InternalResponse(
+                                A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                                A_FPSConstant.CODE_DOCUMENT,
+                                A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD_DETAILS
+                        );
+                    }
+                }
+                //</editor-fold>
+            }
+            } else {
                 appendedFile = DocumentUtils_itext7.createInitialsForm(
                         file,
                         field,

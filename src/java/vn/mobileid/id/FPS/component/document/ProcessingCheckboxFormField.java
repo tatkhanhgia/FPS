@@ -136,7 +136,7 @@ public class ProcessingCheckboxFormField {
             //</editor-fold>
 
             //Processing
-            response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.CHECKBOX).process(
+            response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.CHECKBOX).processMultipleField(
                     user,
                     document_,
                     documents.size(),
