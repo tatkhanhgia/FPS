@@ -654,13 +654,10 @@ public class ConnectorField {
 
         //<editor-fold defaultstate="collapsed" desc="Create Replicate Field if that field is Initial">
         if (field instanceof InitialsFieldAttribute) {
-//            InternalResponse resultThread = (InternalResponse) thread.get();
-//            if(resultThread.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS){
-//                return resultThread.setUser(user);
-//            }
             if (field.getPage() <= 0) {
                 field.setPage(fieldOld.getPage());
             }
+            field.setRemark(fieldOld.getRemark());
             return ReplicateInitialField.replicateField(
                     (InitialsFieldAttribute) field,
                     document_,
