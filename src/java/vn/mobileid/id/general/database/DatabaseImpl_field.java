@@ -238,7 +238,9 @@ class DatabaseImpl_field_ implements DatabaseImpl_field {
         datas.put("pDOCUMENT_ID", documentId);
         datas.put("pTYPE", field.getType().getTypeId());
         datas.put("pNAME", field.getFieldName());
-        datas.put("pVALUE", new ObjectMapper().writeValueAsString(inputClass));
+        datas.put("pVALUE", new ObjectMapper()
+                .setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
+                .writeValueAsString(inputClass));
         datas.put("pPAGE_NUMBER", field.getPage());
         datas.put("pFIELD_WIDTH", field.getDimension().getWidth());
         datas.put("pFIELD_HEIGHT", field.getDimension().getHeight());
@@ -507,6 +509,7 @@ class DatabaseImpl_field_ implements DatabaseImpl_field {
                 attribute.setProcessBy(basic.getProcessBy());
                 attribute.setProcessOn(basic.getProcessOn());
             } catch (Exception ex) {
+                ex.printStackTrace();
             }
 
             attribute.setFieldValue((String) row.get("DOCUMENT_FIELD_VALUE"));

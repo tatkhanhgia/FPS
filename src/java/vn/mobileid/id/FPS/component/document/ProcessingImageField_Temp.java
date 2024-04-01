@@ -6,18 +6,18 @@ package vn.mobileid.id.FPS.component.document;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fps_core.objects.ExtendedFieldAttribute;
-import fps_core.objects.InitialsFieldAttribute;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
 import java.util.List;
-import vn.mobileid.id.FPS.component.document.process.ProcessingFactory;
 import vn.mobileid.id.FPS.component.field.CheckFieldProcessedYet;
 import vn.mobileid.id.FPS.component.field.ConnectorField_Internal;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import fps_core.enumration.FieldTypeName;
+import fps_core.objects.ImageFieldAttribute;
 import java.util.Base64;
 import vn.mobileid.id.FMS;
+import vn.mobileid.id.FPS.component.document.process.ProcessingFactory;
 import vn.mobileid.id.FPS.controller.ResponseMessageController;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
@@ -29,7 +29,7 @@ import vn.mobileid.id.utils.Utils;
  *
  * @author GiaTK
  */
-public class ProcessingInitialFormField {
+public class ProcessingImageField_Temp {
 
     //<editor-fold defaultstate="collapsed" desc="Processing Initial Form Field">
     /**
@@ -50,7 +50,7 @@ public class ProcessingInitialFormField {
             long packageId,
             User user,
             List<Document> documents,
-            InitialsFieldAttribute processRequest,
+            ImageFieldAttribute processRequest,
             String transactionId
     ) throws Exception {
         //Nhwos thêm bước kiểm tra field.getValue dạng String
@@ -94,10 +94,10 @@ public class ProcessingInitialFormField {
         }
         //</editor-fold>
 
-        //<editor-fold defaultstate="collapsed" desc="Convert ExtendField into InitialField">
-        InitialsFieldAttribute initField = null;
+        //<editor-fold defaultstate="collapsed" desc="Convert ExtendField into ImageField">
+        ImageFieldAttribute initField = null;
         try {
-            InternalResponse temp = convertExtendIntoInitialField(
+            InternalResponse temp = convertExtendIntoImageField(
                     user,
                     fieldData,
                     processRequest);
@@ -106,7 +106,7 @@ public class ProcessingInitialFormField {
                 return temp;
             }
 
-            initField = (InitialsFieldAttribute) temp.getData();
+            initField = (ImageFieldAttribute) temp.getData();
         } catch (Exception ex) {
             throw new Exception(ex);
         }
@@ -123,12 +123,13 @@ public class ProcessingInitialFormField {
         //</editor-fold>
         
         //Processing
-        response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.INITIALS).process(
+        response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.IMAGE).process(
                 user,
                 document_,
                 documents.size(),
                 fieldData.getDocumentFieldId(),
                 initField,
+                fieldData,
                 transactionId,
                 documentIdOriginal //flow 2 add this param
         );
@@ -147,27 +148,27 @@ public class ProcessingInitialFormField {
     //</editor-fold>
 
     //==========================================================================
-    //<editor-fold defaultstate="collapsed" desc="Convert ExtendedField into Initial Field">
-    private static InternalResponse convertExtendIntoInitialField(
+    //<editor-fold defaultstate="collapsed" desc="Convert ExtendedField into Image">
+    private static InternalResponse convertExtendIntoImageField(
             User user,
             ExtendedFieldAttribute fieldData,
-            InitialsFieldAttribute processRequest) throws Exception {
+            ImageFieldAttribute processRequest) throws Exception {
         //Read details
-        InitialsFieldAttribute initialField = new ObjectMapper().readValue(fieldData.getDetailValue(), InitialsFieldAttribute.class);
-        initialField = (InitialsFieldAttribute) fieldData.clone(initialField, fieldData.getDimension());
+        ImageFieldAttribute imageField = new ObjectMapper().readValue(fieldData.getDetailValue(), ImageFieldAttribute.class);
+        imageField = (ImageFieldAttribute) fieldData.clone(imageField, fieldData.getDimension());
 
         //Read Basic
-        initialField.setProcessBy(user.getAzp());
+        imageField.setProcessBy(user.getAzp());
         SimpleDateFormat dateFormat = new SimpleDateFormat(PolicyConfiguration.getInstant().getSystemConfig().getAttributes().get(0).getDateFormat());
-        initialField.setProcessOn(dateFormat.format(Date.from(Instant.now())));
+        imageField.setProcessOn(dateFormat.format(Date.from(Instant.now())));
 
         //<editor-fold defaultstate="collapsed" desc="Check if image is UUID ? => get From FMS">
         if (processRequest.getImage() != null) {
-            initialField.setImage(processRequest.getImage());
+            imageField.setImage(processRequest.getImage());
         } else {
             try {
-                if (initialField.getImage().length() <= 32) {
-                    InternalResponse response = FMS.downloadDocumentFromFMS(initialField.getImage(), "");
+                if (imageField.getImage().length() <= 32) {
+                    InternalResponse response = FMS.downloadDocumentFromFMS(imageField.getImage(), "");
 
                     if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                         return new InternalResponse(
@@ -181,7 +182,7 @@ public class ProcessingInitialFormField {
                     }
 
                     byte[] image_ = (byte[]) response.getData();
-                    initialField.setImage(Base64.getEncoder().encodeToString(image_));
+                    imageField.setImage(Base64.getEncoder().encodeToString(image_));
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -198,12 +199,12 @@ public class ProcessingInitialFormField {
         //</editor-fold>
         
         if (processRequest.isApplyToAll()) {
-            initialField.setApplyToAll(true);
+            imageField.setApplyToAll(true);
         } else if (!Utils.isNullOrEmpty(processRequest.getPages())) {
-            initialField.setPages(processRequest.getPages());
+            imageField.setPages(processRequest.getPages());
         }
 
-        return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, initialField);
+        return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, imageField);
     }
     //</editor-fold>
 }

@@ -31,7 +31,7 @@ import vn.mobileid.id.utils.Utils;
  *
  * @author GiaTK
  */
-public class ProcessingImageField {
+public class ProcessingCameraField {
 
     //<editor-fold defaultstate="collapsed" desc="Processing Image Form Field">
     /**
@@ -40,6 +40,8 @@ public class ProcessingImageField {
      * @param packageId
      * @param fieldName
      * @param user
+     * @param documents
+     * @param processRequest
      * @param transactionId
      * @return InternalResponse If the InternalResponse.getStatus() !=
      * HTTP.Success => That InternalResponse have an InternalData satisfied
@@ -47,7 +49,7 @@ public class ProcessingImageField {
      * error while processed
      * @throws Exception
      */
-    public static InternalResponse processImageField(
+    public static InternalResponse processCameraField(
             long packageId,
             String fieldName,
             User user,
@@ -154,7 +156,7 @@ public class ProcessingImageField {
      * error while processed
      * @throws Exception
      */
-    public static InternalResponse processImageFields(
+    public static InternalResponse processCameraField(
             long packageId,
             User user,
             List<ProcessingRequest.ProcessingFormFillRequest> fields,

@@ -17,6 +17,7 @@ import vn.mobileid.id.helper.ORM_JPA.database.objects.DatabaseResponse;
  */
 class GetEnterpriseInfo {
 
+    //<editor-fold defaultstate="collapsed" desc="Get Enterprise Info">
     /**
      * Trả về thông tin của enterprise - Return the information data of the enterprise
      * @param id
@@ -45,6 +46,7 @@ class GetEnterpriseInfo {
                 A_FPSConstant.HTTP_CODE_SUCCESS,
                 (Enterprise) response.getObject());
     }
+    //</editor-fold>
 
     public static void main(String[] arhs) throws Exception {
         InternalResponse res = GetEnterpriseInfo.getEnterpriseInfo(3, "hello");

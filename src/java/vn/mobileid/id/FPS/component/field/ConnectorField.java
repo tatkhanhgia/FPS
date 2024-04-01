@@ -4,13 +4,16 @@
  */
 package vn.mobileid.id.FPS.component.field;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import fps_core.enumration.DocumentStatus;
 import fps_core.enumration.FieldTypeName;
 import fps_core.enumration.RotateDegree;
 import fps_core.objects.BasicFieldAttribute;
+import fps_core.objects.CameraFieldAttribute;
 import fps_core.objects.CheckBoxFieldAttribute;
 import fps_core.objects.Dimension;
 import fps_core.objects.ExtendedFieldAttribute;
@@ -18,6 +21,7 @@ import fps_core.objects.FieldType;
 import fps_core.objects.ImageFieldAttribute;
 import fps_core.objects.InitialsFieldAttribute;
 import fps_core.objects.QRFieldAttribute;
+import fps_core.objects.RadioFieldAttribute;
 import fps_core.objects.SignatureFieldAttribute;
 import fps_core.objects.TextFieldAttribute;
 import java.text.SimpleDateFormat;
@@ -34,6 +38,7 @@ import org.bouncycastle.util.encoders.Base64;
 import vn.mobileid.id.FMS;
 import vn.mobileid.id.FPS.QryptoService.object.ItemDetails;
 import vn.mobileid.id.FPS.QryptoService.object.Item_IDPicture4Label;
+import vn.mobileid.id.FPS.QryptoService.object.Item_IDPicture4Label.IDPicture4Label;
 import vn.mobileid.id.FPS.QryptoService.object.ItemsType;
 import vn.mobileid.id.FPS.component.document.CheckPayloadRequest;
 import vn.mobileid.id.FPS.component.document.ConnectorDocument;
@@ -124,7 +129,6 @@ public class ConnectorField {
 //            }
 //        }
 //        //</editor-fold>
-
         //<editor-fold defaultstate="collapsed" desc="Parse from percentage unit to point unit">
         String temp_ = request.getHeader("x-dimension-unit");
         System.out.println("Dimension:" + temp_);
@@ -583,7 +587,7 @@ public class ConnectorField {
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Merge Payload vs Field Value Old">
-        JsonNode merge2 = Utils.merge(fieldOld.getFieldValue(), new ObjectMapper().writeValueAsString(field)); 
+        JsonNode merge2 = Utils.merge(fieldOld.getFieldValue(), new ObjectMapper().writeValueAsString(field));
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Create new QR Image if that type is QR Code">
@@ -819,6 +823,8 @@ public class ConnectorField {
         List<QRFieldAttribute> qrs = new ArrayList<>();
         List<QryptoFieldAttribute> qryptos = new ArrayList<>();
         List<ImageFieldAttribute> images = new ArrayList<>();
+        List<CheckBoxFieldAttribute> checkboxs = new ArrayList<>();
+        List<CameraFieldAttribute> cameras = new ArrayList<>();
 
         for (ExtendedFieldAttribute field : fields) {
             try {
@@ -843,6 +849,9 @@ public class ConnectorField {
                         break;
                     }
                     case 2: {
+                        CheckBoxFieldAttribute checkBox = new ObjectMapper().readValue(field.getDetailValue(), CheckBoxFieldAttribute.class);
+                        checkBox = (CheckBoxFieldAttribute) field.clone(checkBox, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
+                        checkboxs.add(checkBox);
                         break;
                     }
                     case 3: {
@@ -858,7 +867,7 @@ public class ConnectorField {
                             try {
                                 for (ItemDetails detail : qr.getItems()) {
                                     String file = null;
-                                    Item_IDPicture4Label tempp = null;
+                                    IDPicture4Label tempp = null;
                                     switch (ItemsType.getItemsType(detail.getType())) {
                                         case Binary:
                                         case File: {
@@ -866,9 +875,9 @@ public class ConnectorField {
                                             break;
                                         }
                                         case ID_Picture_with_4_labels: {
-                                            String temp_ = new ObjectMapper().writeValueAsString(detail);
-                                            tempp = new ObjectMapper().readValue(temp_, Item_IDPicture4Label.class);
-                                            file = tempp.getIdPicture().getBase64();
+                                            String temp_ = new ObjectMapper().writeValueAsString(detail.getValue());
+                                            tempp = new ObjectMapper().readValue(temp_, IDPicture4Label.class);
+                                            file = tempp.getBase64();
                                             break;
                                         }
                                         default: {
@@ -884,7 +893,7 @@ public class ConnectorField {
                                                 if (response.getStatus() == A_FPSConstant.HTTP_CODE_SUCCESS) {
                                                     byte[] data = (byte[]) response.getData();
                                                     if (tempp != null) {
-                                                        tempp.getIdPicture().setBase64(Base64.toBase64String(data));
+                                                        tempp.setBase64(Base64.toBase64String(data));
                                                         detail.setValue(tempp);
                                                     } else {
                                                         detail.setValue(Base64.toBase64String(data));
@@ -988,11 +997,10 @@ public class ConnectorField {
                         signatures.add(signatureField);
                         break;
                     }
-                    case 38:
-                    case 39: {
+                    case 38: {
                         ImageFieldAttribute image = new ObjectMapper().readValue(field.getDetailValue(), ImageFieldAttribute.class);
                         image = (ImageFieldAttribute) field.clone(image, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
-                        
+
                         //<editor-fold defaultstate="collapsed" desc="Download Image from FMS if need">
                         if (!Utils.isNullOrEmpty(image.getImage()) && image.getImage().length() <= 32) {
                             try {
@@ -1008,8 +1016,31 @@ public class ConnectorField {
                             }
                         }
                         //</editor-fold>
-                        
+
                         images.add(image);
+                        break;
+                    }
+                    case 39: {
+                        CameraFieldAttribute camera = new ObjectMapper().readValue(field.getDetailValue(), CameraFieldAttribute.class);
+                        camera = (CameraFieldAttribute) field.clone(camera, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
+
+                        //<editor-fold defaultstate="collapsed" desc="Download Image from FMS if need">
+                        if (!Utils.isNullOrEmpty(camera.getImage()) && camera.getImage().length() <= 32) {
+                            try {
+                                InternalResponse response = vn.mobileid.id.FMS.downloadDocumentFromFMS(
+                                        camera.getImage(),
+                                        "");
+                                if (response.getStatus() == A_FPSConstant.HTTP_CODE_SUCCESS) {
+                                    byte[] file = (byte[]) response.getData();
+                                    camera.setImage(Base64.toBase64String(file));
+                                }
+                            } catch (Exception ex) {
+                                System.err.println("Cannot download image from ImageField to FMS!");
+                            }
+                        }
+                        //</editor-fold>
+
+                        cameras.add(camera);
                     }
                 }
             } catch (Exception ex) {
@@ -1017,9 +1048,9 @@ public class ConnectorField {
                 return null;
             }
         }
-        Object[] array = new Object[11];
+        Object[] array = new Object[12];
         array[0] = textboxs;
-        array[1] = null;
+        array[1] = checkboxs;
         array[2] = null;
         array[3] = qrs;
         array[4] = initials;
@@ -1029,6 +1060,7 @@ public class ConnectorField {
         array[8] = null;
         array[9] = qryptos;
         array[10] = images;
+        array[11] = cameras;
         return array;
     }
     //</editor-fold>
@@ -1148,6 +1180,39 @@ public class ConnectorField {
                             A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                             A_FPSConstant.CODE_FIELD_CHECKBOX,
                             A_FPSConstant.SUBCODE_INVALID_CHECKBOX_FIELD_TYPE
+                    );
+                }
+                field.setType(Resources.getFieldTypes().get(field.getTypeName()));
+
+                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
+                //</editor-fold>
+            }
+            case "radio": {
+                //<editor-fold defaultstate="collapsed" desc="Generate RadioFieldAttribute from Payload">
+                RadioFieldAttribute field = null;
+                try {
+                    field = new ObjectMapper().readValue(payload, RadioFieldAttribute.class);
+                } catch (JsonProcessingException ex) {
+                    return new InternalResponse(
+                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                            A_FPSConstant.CODE_FAIL,
+                            A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE
+                    );
+                }
+                if (isCheckBasicField) {
+                    InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
+                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                        return response;
+                    }
+                }
+
+                boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.RADIOBOX);
+
+                if (!check) {
+                    return new InternalResponse(
+                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                            A_FPSConstant.CODE_RADIO_BOX,
+                            A_FPSConstant.SUBCODE_INVALID_TYPE_OF_RADIO
                     );
                 }
                 field.setType(Resources.getFieldTypes().get(field.getTypeName()));
@@ -1306,7 +1371,7 @@ public class ConnectorField {
                     try {
                         for (ItemDetails detail : field.getItems()) {
                             String file = null;
-                            Item_IDPicture4Label tempp = null;
+                            IDPicture4Label tempp = null;
                             switch (ItemsType.getItemsType(detail.getType())) {
                                 case Binary:
                                 case File: {
@@ -1314,9 +1379,9 @@ public class ConnectorField {
                                     break;
                                 }
                                 case ID_Picture_with_4_labels: {
-                                    String temp_ = new ObjectMapper().writeValueAsString(detail);
-                                    tempp = new ObjectMapper().readValue(temp_, Item_IDPicture4Label.class);
-                                    file = tempp.getIdPicture().getBase64();
+                                    String temp_ = new ObjectMapper().writeValueAsString(detail.getValue());
+                                    tempp = new ObjectMapper().readValue(temp_, IDPicture4Label.class);
+                                    file = tempp.getBase64();
                                     break;
                                 }
                                 default: {
@@ -1338,7 +1403,7 @@ public class ConnectorField {
                                         if (response.getStatus() == A_FPSConstant.HTTP_CODE_SUCCESS) {
                                             String uuid = (String) response.getData();
                                             if (tempp != null) {
-                                                tempp.getIdPicture().setBase64(uuid);
+                                                tempp.setBase64(uuid);
                                                 detail.setValue(tempp);
                                             } else {
                                                 detail.setValue(uuid);
@@ -1384,7 +1449,7 @@ public class ConnectorField {
                 }
 
                 if (!Utils.isNullOrEmpty(field.getTypeName())) {
-                    boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.IMAGE);
+                    boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.INITIAL);
 
                     if (!check) {
                         return new InternalResponse(
@@ -1430,6 +1495,71 @@ public class ConnectorField {
 //                            A_FPSConstant.CODE_FIELD_IMAGE,
 //                            A_FPSConstant.SUBCODE_MISSING_IMAGE
 //                    );
+                }
+
+                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
+                //</editor-fold>
+            }
+            case "camera": {
+                //<editor-fold defaultstate="collapsed" desc="Generate CameraFieldAttribute from Payload">
+                CameraFieldAttribute field = null;
+                try {
+                    field = new ObjectMapper().readValue(payload, CameraFieldAttribute.class);
+                } catch (JsonProcessingException ex) {
+                    return new InternalResponse(
+                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                            A_FPSConstant.CODE_FAIL,
+                            A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE
+                    );
+                }
+                if (isCheckBasicField) {
+                    InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
+                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                        return response;
+                    }
+                }
+
+                if (!Utils.isNullOrEmpty(field.getTypeName())) {
+                    boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.CAMERA);
+
+                    if (!check) {
+                        return new InternalResponse(
+                                A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                                A_FPSConstant.CODE_CAMERA,
+                                A_FPSConstant.SUBCODE_INVALID_CAMERA_FIELD_TYPE
+                        );
+                    }
+                    field.setType(Resources.getFieldTypes().get(field.getTypeName()));
+                } else if (!isUpdate) {
+                    return new InternalResponse(
+                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                            A_FPSConstant.CODE_FIELD_IMAGE,
+                            A_FPSConstant.SUBCODE_INVALID_IMAGE_FIELD_TYPE
+                    );
+                }
+                if (!Utils.isNullOrEmpty(field.getImage())) {
+
+                    //<editor-fold defaultstate="collapsed" desc="Upload into FMS if need">
+                    if (field.getImage() != null && field.getImage().length()
+                            > PolicyConfiguration.getInstant()
+                                    .getSystemConfig()
+                                    .getAttributes()
+                                    .get(0)
+                                    .getMaximumFile()) {
+                        try {
+                            InternalResponse response = vn.mobileid.id.FMS.uploadToFMS(
+                                    Base64.decode(field.getImage()),
+                                    "png",
+                                    transactionId);
+                            if (response.getStatus() == A_FPSConstant.HTTP_CODE_SUCCESS) {
+                                String uuid = (String) response.getData();
+                                field.setImage(uuid);
+                            }
+                        } catch (Exception ex) {
+                            System.err.println("Cannot upload image from ImageField to FMS!. Using default");
+                        }
+                    }
+                    //</editor-fold>
                 }
 
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
@@ -1555,7 +1685,13 @@ public class ConnectorField {
     //</editor-fold>   
 
     public static void main(String[] args) throws JsonProcessingException {
-        String json = "{\"workFlowName\":\"Test Ky Seal\",\"fileName\":\"b\",\"fieldName\":\"ADMIN_PROVIDER_QRYPTO_ac4512\",\"left\":52.61344,\"top\":8.392757,\"width\":20,\"height\":13,\"items\":[{\"field\":\"Workflow Name\",\"mandatory_enable\":true,\"type\":1,\"value\":\"Test Ky Seal\",\"remark\":\"text\"},{\"field\":\"File Name\",\"mandatory_enable\":true,\"type\":1,\"value\":\"b.pdf\",\"remark\":\"text\"},{\"field\":\"YOUR_PROVIDED_FIRST_SIGNER_ID\",\"mandatory_enable\":true,\"type\":8,\"value\":[{\"column_1\":\"Phan Ngọc Triệu\",\"column_2\":\"trieuphan0211@gmail.com\",\"column_3\":\"Signing Time\"},{\"column_1\":\"\"}],\"remark\":\"signer\"},{\"field\":\"YOUR_PROVIDED_SECOND_SIGNER_ID\",\"mandatory_enable\":true,\"type\":8,\"value\":[{\"column_1\":\"Huỳnh Cường\",\"column_2\":\"trieu12080211@gmail.com\",\"column_3\":\"Signing Time\"},{\"column_1\":\"\"}],\"remark\":\"signer\"},{\"field\":\"bold\",\"type\":6,\"remark\":\"boldLabel\",\"mandatory_enable\":false},{\"field\":\"choice\",\"type\":7,\"value\":[{\"element\":\"1\",\"choise\":false},{\"element\":\"2\",\"choise\":false},{\"element\":\"3\",\"choise\":false}],\"remark\":\"choice\",\"mandatory_enable\":false},{\"field\":\"text\",\"type\":1,\"value\":\"demo\",\"remark\":\"text\",\"mandatory_enable\":false},{\"field\":\"date\",\"type\":1,\"value\":\"1/3/2024\",\"remark\":\"date\",\"mandatory_enable\":false},{\"field\":\"photo\",\"type\":9,\"value\":\"báe64\",\"remark\":\"file\",\"file_format\":\"application/pdf\",\"file_name\":\"b_signed.pdf\",\"mandatory_enable\":false},{\"field\":\"table\",\"type\":8,\"value\":[{\"column_1\":\"123\",\"column_2\":\"123\",\"column_3\":\"123\"},{\"column_1\":\"123\"},{\"column_1\":\"123\",\"column_2\":\"123\",\"column_3\":\"123\"},{\"column_1\":\"123\"}],\"remark\":\"table\",\"mandatory_enable\":false},{\"field\":\"url\",\"type\":10,\"value\":{\"url\":\"localhost:3000\",\"label\":\"\"},\"remark\":\"url\",\"mandatory_enable\":false}]}";
-        Object temp = Utils.getFromJson("value", json);
+        String json = "{\"type\":\"CAMERA\",\"field_name\":\"CAMERA2\",\"page\":1,\"dimension\":{\"x\":200.0,\"y\":0.0,\"width\":100.0,\"height\":100.0},\"visible_enabled\":false,\"required\":[1,2,3],\"rotate\":0,\"suffix\":\"1\",\"remark\":\"hahahaha\",\"image\":\"B980F1B8FC156F6C8BF235968BD90138\",\"apply_to_all\":false,\"replicate_all_pages\":false,\"place_holder\":\"placeHolder\",\"tool_tip_text\":\"GiaTK\",\"show_icon_enabled\":true}";
+//        CameraFieldAttribute cam = new ObjectMapper().readValue(json, CameraFieldAttribute.class);
+//        System.out.println(cam.isShowIcon());
+//
+//        System.out.println(new ObjectMapper()
+//                .setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
+//                .writeValueAsString(cam));
+        BasicFieldAttribute basic = new ObjectMapper().readValue(json, BasicFieldAttribute.class);
     }
 }

@@ -232,6 +232,16 @@ public class ProcessingQRQryptoField {
         }
         //</editor-fold>
 
+        //<editor-fold defaultstate="collapsed" desc="Check page Sig is valid?">
+        if(document_.getDocumentPages() < fieldData.getPage()){
+            return new InternalResponse(
+                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                    A_FPSConstant.CODE_FIELD,
+                    A_FPSConstant.SUBCODE_PAGE_IN_FIELD_NEED_TO_BE_LOWER_THAN_DOCUMENT
+            );
+        }
+        //</editor-fold>
+        
         //Processing
         response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.QRYPTO).process(
                 user,
@@ -256,7 +266,7 @@ public class ProcessingQRQryptoField {
     //</editor-fold>
     //==========================================================================
 
-    //<editor-fold defaultstate="collapsed" desc="Convert ExtendedField into TextField">
+    //<editor-fold defaultstate="collapsed" desc="Convert ExtendedField into Qrypto Field">
     private static InternalResponse convertExtendIntoQryptoField(
             User user,
             ExtendedFieldAttribute fieldData) throws Exception {

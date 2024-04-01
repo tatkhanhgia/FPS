@@ -26,19 +26,28 @@ import vn.mobileid.id.FPS.object.User;
  */
 public class ProcessModuleForEnterprise {
 
-    private String clientId;
+    private Enterprise enterprise;
 
-    ProcessModuleForEnterprise(String clientId) {
-        this.clientId = clientId;
+    public Enterprise getEnterprise() {
+        return enterprise;
+    }
+
+    ProcessModuleForEnterprise(Enterprise clientId) {
+        this.enterprise = clientId;
     }
 
     public static ProcessModuleForEnterprise getInstance(User user) {
-        switch (user.getScope()) {
-            case "Dokobit_Gateway": {
-                return new ProcessModuleForEnterprise("Dokobit_Gateway");
+        Enterprise ent = Enterprise.getEnterprise(user.getScope());
+
+        switch (ent) {
+            case DOKOBIT_GATEWAY: {
+                return new ProcessModuleForEnterprise(Enterprise.DOKOBIT_GATEWAY);
+            }
+            case MOBILE_ID: {
+
             }
         }
-        return new ProcessModuleForEnterprise("Default");
+        return new ProcessModuleForEnterprise(Enterprise.DOKOBIT_GATEWAY);
     }
 
     //<editor-fold defaultstate="collapsed" desc="Process Response of API Sign Document">
@@ -47,10 +56,9 @@ public class ProcessModuleForEnterprise {
             long packageId,
             String transactionId
     ) throws Exception {
-        //Dokobit Gateway
-        switch (this.clientId) {
-            case "Dokobit_Gateway": {
-                return process(packageId, transactionId);
+        switch (this.enterprise) {
+            case DOKOBIT_GATEWAY: {
+                return createResponseAPISignDocument(packageId, transactionId);
             }
             default: {
                 return new InternalResponse(
@@ -64,57 +72,64 @@ public class ProcessModuleForEnterprise {
 
     //<editor-fold defaultstate="collapsed" desc="Parse percentage to point unit in API Add Field">
     public Dimension parse(Document document, Dimension field) {
-        if (clientId.equals("Dokobit_Gateway")) {
-            Dimension result = new Dimension();
-            result.setX(field.getX() * document.getDocumentWidth() / 100);
-            result.setHeight(field.getHeight() * document.getDocumentHeight() / 100);
-            result.setWidth(field.getWidth() * document.getDocumentWidth() / 100);
-            result.setY((1 - field.getY()/100) * document.getDocumentHeight() - result.getHeight());
-            return result;
-        } else {
-            Dimension dimension = new Dimension();
-            dimension.setX((field.getX() * document.getDocumentWidth()) / 100);
-            dimension.setY((field.getY() * document.getDocumentHeight()) / 100);
-            dimension.setWidth((field.getWidth() * document.getDocumentWidth()) / 100);
-            dimension.setHeight((field.getHeight() * document.getDocumentHeight()) / 100);
-            return dimension;
+        switch (enterprise) {
+            case DOKOBIT_GATEWAY: {
+                Dimension result = new Dimension();
+                result.setX(field.getX() * document.getDocumentWidth() / 100);
+                result.setHeight(field.getHeight() * document.getDocumentHeight() / 100);
+                result.setWidth(field.getWidth() * document.getDocumentWidth() / 100);
+                result.setY((1 - field.getY() / 100) * document.getDocumentHeight() - result.getHeight());
+                return result;
+            }
+            default: {
+                Dimension dimension = new Dimension();
+                dimension.setX((field.getX() * document.getDocumentWidth()) / 100);
+                dimension.setY((field.getY() * document.getDocumentHeight()) / 100);
+                dimension.setWidth((field.getWidth() * document.getDocumentWidth()) / 100);
+                dimension.setHeight((field.getHeight() * document.getDocumentHeight()) / 100);
+                return dimension;
+            }
         }
     }
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Reverse Parse point unit to percentage in API Get Fields">
     public Dimension reverseParse(Document document, Dimension field) {
-        if (clientId.equals("Dokobit_Gateway")) {
-            Dimension result = new Dimension();
-            result.setX(field.getX() / document.getDocumentWidth() * 100);
-            result.setHeight(field.getHeight() / document.getDocumentHeight() * 100);
-            result.setWidth(field.getWidth() / document.getDocumentWidth() * 100);
-            result.setY((1 - (field.getY() + field.getHeight()) / document.getDocumentHeight()) * 100);
-            return result;
-        } else {            
-            return field;
+        switch (enterprise) {
+            case DOKOBIT_GATEWAY:
+                Dimension result = new Dimension();
+                result.setX(field.getX() / document.getDocumentWidth() * 100);
+                result.setHeight(field.getHeight() / document.getDocumentHeight() * 100);
+                result.setWidth(field.getWidth() / document.getDocumentWidth() * 100);
+                result.setY((1 - (field.getY() + field.getHeight()) / document.getDocumentHeight()) * 100);
+                return result;
+            default:
+                return field;
         }
     }
     //</editor-fold>
-    
+
     //<editor-fold defaultstate="collapsed" desc="Create another Status Code in API "Fill Form Field"">
-    public int getStatusCodeFillFormField(List<InternalResponse.InternalData> listOfErrorField){
-        if(!clientId.equalsIgnoreCase("Dokobit_Gateway")){
-            return A_FPSConstant.HTTP_CODE_BAD_REQUEST;
-        }
-        for(InternalResponse.InternalData internalData : listOfErrorField){
-            String value = (String)internalData.getValue();
-            if(!value.equalsIgnoreCase(String.valueOf(A_FPSConstant.CODE_FIELD) +
-                        String.valueOf(A_FPSConstant.SUBCODE_FIELD_ALREADY_PROCESS))){
+    public int getStatusCodeFillFormField(List<InternalResponse.InternalData> listOfErrorField) {
+        switch (enterprise) {
+            case DOKOBIT_GATEWAY:
+                for (InternalResponse.InternalData internalData : listOfErrorField) {
+                    String value = (String) internalData.getValue();
+                    if (!value.equalsIgnoreCase(String.valueOf(A_FPSConstant.CODE_FIELD)
+                            + String.valueOf(A_FPSConstant.SUBCODE_FIELD_ALREADY_PROCESS))) {
+                        return A_FPSConstant.HTTP_CODE_BAD_REQUEST;
+                    }
+                }
+                return A_FPSConstant.HTTP_CODE_SUCCESS;
+            default:
                 return A_FPSConstant.HTTP_CODE_BAD_REQUEST;
-            }
         }
-        return A_FPSConstant.HTTP_CODE_SUCCESS;
     }
+
     //</editor-fold>
     //===========================RP=============================================
-    //<editor-fold defaultstate="collapsed" desc="Dokobit Gateway">
-    private InternalResponse process(
+    //<editor-fold defaultstate="collapsed" desc="Create Response API Sign Document">
+    private InternalResponse createResponseAPISignDocument(
             long packageId,
             String transactionId
     ) throws Exception {
@@ -159,25 +174,24 @@ public class ProcessModuleForEnterprise {
 
         ResponseMessageController temp = new ResponseMessageController();
         temp.writeStringField("uuid", document_.getUuid());
-        temp.writeStringField("file_data",Base64.getEncoder().encodeToString(data));
+        temp.writeStringField("file_data", Base64.getEncoder().encodeToString(data));
         temp.writeNumberField("file_size", file.getSize());
         temp.writeStringField("file_name", document_.getName());
         temp.writeStringField("digest", file.getDigest());
-        temp.writeStringField("signature_name", signatures.get(signatures.size()-1).getSignatureId());
+        temp.writeStringField("signature_name", signatures.get(signatures.size() - 1).getSignatureId());
         temp.writeStringField("signature_algorithm", hardcode
                 ? "RSA"
-                : signatures.get(signatures.size()-1).getSignatureAlgorithm() == null
+                : signatures.get(signatures.size() - 1).getSignatureAlgorithm() == null
                 ? "RSA"
-                : signatures.get(signatures.size()-1).getSignatureAlgorithm());
+                : signatures.get(signatures.size() - 1).getSignatureAlgorithm());
         temp.writeStringField("signed_hash",
                 hardcode
                         ? "SHA256"
-                        : signatures.get(signatures.size()-1).getSignedHash() == null
+                        : signatures.get(signatures.size() - 1).getSignedHash() == null
                         ? "SHA256"
-                        : signatures.get(signatures.size()-1).getSignedHash());
+                        : signatures.get(signatures.size() - 1).getSignedHash());
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX");
-        temp.writeStringField("signed_time", format.format(signatures.get(signatures.size()-1).getSigningTime()));
-        
+        temp.writeStringField("signed_time", format.format(signatures.get(signatures.size() - 1).getSigningTime()));
 
         return new InternalResponse(
                 A_FPSConstant.HTTP_CODE_SUCCESS,
@@ -185,4 +199,28 @@ public class ProcessModuleForEnterprise {
         );
     }
     //</editor-fold>
+
+    public static enum Enterprise {
+        DOKOBIT_GATEWAY("Dokobit_Gateway"),
+        MOBILE_ID("Mobile-ID");
+
+        private String name;
+
+        private Enterprise(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public static Enterprise getEnterprise(String name) {
+            for (Enterprise enterprise : values()) {
+                if (enterprise.getName().equalsIgnoreCase(name)) {
+                    return enterprise;
+                }
+            }
+            return null;
+        }
+    }
 }

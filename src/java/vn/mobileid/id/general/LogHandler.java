@@ -71,6 +71,7 @@ public class LogHandler {
         return configCaching;
     }
 
+    //<editor-fold defaultstate="collapsed" desc="Using for log the request/response into file">
     /**
      * Using for log the request/response into file
      *
@@ -83,7 +84,9 @@ public class LogHandler {
             LOG.log(Level.forName("REQUEST", 350), message);
         }
     }
+    //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="Using for log the debug into file">
     /**
      * Using for log the debug into file
      *
@@ -96,7 +99,9 @@ public class LogHandler {
             LOG.debug(message);
         }
     }
+    //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="Using for log the debug into file with Transaction">
     /**
      * Using for log the debug into file
      *
@@ -113,21 +118,9 @@ public class LogHandler {
             LOG.debug("TransactionID:" + transactionID + "\n" + message);
         }
     }
-
-//    /**
-//     * Using for log the error into file
-//     *
-//     * @param object
-//     * @param message
-//     */
-//    public static void error(
-//            Class object,
-//            String message) {
-//        if (isShowErrorLog()) {            
-//            Logger LOG = LogManager.getLogger(object);
-//            LOG.error(message);
-//        }
-//    }
+    //</editor-fold>
+    
+    //<editor-fold defaultstate="collapsed" desc="Using for log the error into file with transaction">
     /**
      * Using for log the error into file
      *
@@ -145,7 +138,9 @@ public class LogHandler {
             LOG.error(message);
         }
     }
+    //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="Using for log the error into file with Transaction">
     /**
      * Using for log the error into file
      *
@@ -193,7 +188,9 @@ public class LogHandler {
             System.err.println(sb.toString());            
         }
     }
+    //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="Using for log the info into file">
     /**
      * Using for log the info into file
      *
@@ -206,7 +203,9 @@ public class LogHandler {
             LOG.info(message);
         }
     }
+    //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="Using for log the info into file with Transaction">
     /**
      * Using for log the info into file
      *
@@ -223,6 +222,7 @@ public class LogHandler {
             LOG.info("TransactionID:" + transactionID + "\n" + message);
         }
     }
+    //</editor-fold>
 
     public static void fatal(
             Class object,

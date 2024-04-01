@@ -402,6 +402,4 @@ public class Configuration {
     public String getQryptoAuthentication() {
         return qryptoAuthentication;
     }
-    
-    
 }

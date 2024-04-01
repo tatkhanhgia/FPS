@@ -14,6 +14,7 @@ import fps_core.objects.ExtendedFieldAttribute;
 import fps_core.objects.FileManagement;
 import fps_core.objects.InitialsFieldAttribute;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -22,12 +23,14 @@ import java.util.concurrent.Future;
 import org.apache.commons.codec.binary.Hex;
 import vn.mobileid.id.FMS;
 import vn.mobileid.id.FPS.component.document.UploadDocument;
+import vn.mobileid.id.FPS.component.enterprise.ProcessModuleForEnterprise;
 import vn.mobileid.id.FPS.component.field.ConnectorField_Internal;
 import vn.mobileid.id.FPS.component.field.GetField;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
+import vn.mobileid.id.FPS.serializer.IgnoreIngeritedIntrospector;
 import vn.mobileid.id.general.LogHandler;
 import vn.mobileid.id.utils.Crypto;
 import vn.mobileid.id.utils.TaskV2;
@@ -501,6 +504,8 @@ public class InitialsProcessing implements ModuleProcessing, DocumentProcessing 
 
             //<editor-fold defaultstate="collapsed" desc="Check if Field is apply to all => create Multiple Initial">
             if (field.isApplyToAll()) {
+                if(!ProcessModuleForEnterprise.getInstance(user).getEnterprise().equals(
+                        ProcessModuleForEnterprise.Enterprise.DOKOBIT_GATEWAY)){
                 InternalResponse temp = GetField.getFieldsData(documentIDOriginal, transactionId);
                 if (temp.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                     return temp;
@@ -515,7 +520,9 @@ public class InitialsProcessing implements ModuleProcessing, DocumentProcessing 
                                 InitialsFieldAttribute.class);
                         fieldChild = (InitialsFieldAttribute) initChild.clone(fieldChild, initChild.getDimension());
 
-                        if (fieldChild.getImage() == null || fieldChild.getImage().isEmpty() || fieldChild.getImage().length()<=32) {
+                        if (fieldChild.getImage() == null
+                                || fieldChild.getImage().isEmpty()
+                                || fieldChild.getImage().length() <= 32) {
                             fieldChild.setImage(field.getImage());
                         }
 
@@ -532,8 +539,6 @@ public class InitialsProcessing implements ModuleProcessing, DocumentProcessing 
 
                 //<editor-fold defaultstate="collapsed" desc="Update all Initial Field">
                 for (InitialsFieldAttribute initChild : initFields) {
-                    System.out.println("Update:"+initChild.getFieldName());
-                    System.out.println("DocumentFieldId:"+map.get(initChild.getFieldName()));
                     //Update field after processing
                     initChild.setProcessStatus(ProcessStatus.PROCESSED.getName());
                     ObjectMapper ob = new ObjectMapper();
@@ -566,46 +571,15 @@ public class InitialsProcessing implements ModuleProcessing, DocumentProcessing 
                     }
                 }
                 //</editor-fold>
-            } else {
+            }} else {
                 appendedFile = DocumentUtils_itext7.createInitialsForm(
                         file,
                         field,
                         transactionId);
-                //<editor-fold defaultstate="collapsed" desc="Update Field">
-                                field.setProcessStatus(ProcessStatus.PROCESSED.getName());
-                ObjectMapper ob = new ObjectMapper();
-                response = ConnectorField_Internal.updateValueOfField(
-                        documentFieldId,
-                        user,
-                        ob.writeValueAsString(field),
-                        transactionId);
-                if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                    return new InternalResponse(
-                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                            A_FPSConstant.CODE_DOCUMENT,
-                            A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD
-                    );
-                }
-
-                //Update new data of CheckboxField
-                response = ConnectorField_Internal.updateFieldDetail(
-                        documentFieldId,
-                        user,
-                        ob.writeValueAsString(field),
-                        "hmac",
-                        transactionId);
-                if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                    return new InternalResponse(
-                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                            A_FPSConstant.CODE_DOCUMENT,
-                            A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD_DETAILS
-                    );
-                }
-                //</editor-fold>
             }
             //</editor-fold>
 
-            //Upload to FMS
+            //<editor-fold defaultstate="collapsed" desc="Upload new Document into FMS">
             Future<?> uploadFMS = executor.submit(new TaskV2(new Object[]{appendedFile}, transactionId) {
                 @Override
                 public Object call() {
@@ -643,8 +617,9 @@ public class InitialsProcessing implements ModuleProcessing, DocumentProcessing 
             }
 
             String uuid = (String) response.getData();
+            //</editor-fold>
 
-            //Update new Document in DB    
+            //<editor-fold defaultstate="collapsed" desc="Create new Revision of Document">
             response = UploadDocument.uploadDocument(
                     document.getPackageId(),
                     revision + 1,
@@ -660,6 +635,62 @@ public class InitialsProcessing implements ModuleProcessing, DocumentProcessing 
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 return response;
             }
+            //</editor-fold>
+    
+            //<editor-fold defaultstate="collapsed" desc="Update Field after processing">
+
+            //<editor-fold defaultstate="collapsed" desc="Upload Image of Fill (field) into FMS and update new UUID into initField">
+            try {
+                InternalResponse callFMS = FMS.uploadToFMS(
+                        Base64.getDecoder().decode(field.getImage()),
+                        "png",
+                        transactionId);
+                if(callFMS.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS){
+                    System.err.println("Cannot upload new Image of Initial into FMS! Using default");
+                } else {
+                    String uuid_ = (String)callFMS.getData();
+                    field.setImage(uuid_);
+                }
+            } catch (Exception ex) {
+                System.err.println("Cannot upload new Image of Initial into FMS! Using default");
+            }
+
+            //</editor-fold>
+            
+            field.setProcessStatus(ProcessStatus.PROCESSED.getName());
+
+            ObjectMapper ob = new ObjectMapper();
+            response = ConnectorField_Internal.updateValueOfField(
+                    documentFieldId,
+                    user,
+                    ob.writeValueAsString(field),
+                    transactionId);
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                return new InternalResponse(
+                        A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                        A_FPSConstant.CODE_DOCUMENT,
+                        A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD
+                );
+            }
+            //</editor-fold>
+
+            //<editor-fold defaultstate="collapsed" desc="Update new detail of Initial Field">
+            response = ConnectorField_Internal.updateFieldDetail(
+                    documentFieldId,
+                    user,
+                    new ObjectMapper()
+                            .setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
+                            .writeValueAsString(field),
+                    uuid,
+                    transactionId);
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                return new InternalResponse(
+                        A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                        A_FPSConstant.CODE_DOCUMENT,
+                        A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD_DETAILS
+                );
+            }
+            //</editor-fold>
 
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_SUCCESS,

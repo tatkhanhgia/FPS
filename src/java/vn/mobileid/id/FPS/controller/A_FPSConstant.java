@@ -96,7 +96,8 @@ public class A_FPSConstant {
     final public static int CODE_FIELD_QR_Qrypto = 11;
     final public static int CODE_ERROR_WHILE_CALLING_THREAD = 12;
     final public static int CODE_FIELD_IMAGE = 13;
-    
+    final public static int CODE_CAMERA = 14;
+    final public static int CODE_RADIO_BOX = 15;
     
     //SubCode
     final public static int SUBCODE_NO_PAYLOAD_FOUND = 1;
@@ -134,6 +135,7 @@ public class A_FPSConstant {
     final public static int SUBCODE_INVALID_FIELD_NAME = 102106;
     final public static int SUBCODE_THIS_DOCUMENT_IS_ALREADY_CHANGES_GETHASH_AGAIN = 6;
     final public static int SUBCODE_CANNOT_FILL_ALL_FORM_FIELD = 7;
+    final public static int SUBCODE_PAGE_IN_FIELD_NEED_TO_BE_LOWER_THAN_DOCUMENT = 8;
     
     //Subcode DOCUMENT - 5
     final public static int SUBCODE_DOCUMENT_STATSUS_IS_DISABLE = 1;
@@ -189,4 +191,10 @@ public class A_FPSConstant {
     final public static int SUBCODE_INVALID_IMAGE_FIELD_TYPE = 1;
     final public static int SUBCODE_MISSING_IMAGE = 2;
     final public static int SUBCODE_VALUE_MUST_BE_ENCODE_BASE64_FORMAT = 3;
+    
+    //Subcode Camera - 14
+    final public static int SUBCODE_INVALID_CAMERA_FIELD_TYPE = 1;
+    
+    //Subcode Radio - 15
+    final public static int SUBCODE_INVALID_TYPE_OF_RADIO = 1;
 }

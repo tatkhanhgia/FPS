@@ -40,6 +40,7 @@ public class ProcessingRequest {
     private List<ProcessingFormFillRequest> dropdown=new ArrayList<>();
     private List<ProcessingFormFillRequest> listbox=new ArrayList<>();
     private List<ProcessingFormFillRequest> images=new ArrayList<>();
+    private List<ProcessingFormFillRequest> cameras=new ArrayList<>();
     
     //Data for fill QR Qrypto Field
     private List<ItemDetails> item;
@@ -151,9 +152,18 @@ public class ProcessingRequest {
     public String getHashValue() {
         return hashValue;
     }
-
+    
     public void setHashValue(String hashValue) {
         this.hashValue = hashValue;
+    }
+
+    @JsonProperty("camera")
+    public List<ProcessingFormFillRequest> getCameras() {
+        return cameras;
+    }
+
+    public void setCameras(List<ProcessingFormFillRequest> cameras) {
+        this.cameras = cameras;
     }
 
     public void convert(SignatureFieldAttribute original){

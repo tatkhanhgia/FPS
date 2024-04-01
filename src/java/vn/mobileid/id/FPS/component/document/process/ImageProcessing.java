@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import fps_core.enumration.DocumentStatus;
 import fps_core.enumration.ProcessStatus;
 import fps_core.module.DocumentUtils_itext7;
+import fps_core.objects.ExtendedFieldAttribute;
 import fps_core.objects.FileManagement;
 import fps_core.objects.ImageFieldAttribute;
 import fps_core.objects.QRFieldAttribute;
@@ -24,6 +25,7 @@ import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
+import vn.mobileid.id.FPS.serializer.IgnoreIngeritedIntrospector;
 import vn.mobileid.id.general.LogHandler;
 import vn.mobileid.id.utils.Crypto;
 import vn.mobileid.id.utils.TaskV2;
@@ -32,32 +34,33 @@ import vn.mobileid.id.utils.TaskV2;
  *
  * @author GiaTK
  */
-public class ImageProcessing implements DocumentProcessing{
+public class ImageProcessing implements DocumentProcessing {
 
     @Override
     public InternalResponse process(Object... objects) throws Exception {
         //Variable
-        User user = (User)objects[0];
-        Document document = (Document)objects[1];
-        long documentFieldId = (long)objects[2];
-        ImageFieldAttribute field = (ImageFieldAttribute)objects[3];
-        String transactionId = (String)objects[4];
-        int revision = (int) objects[5];
+        User user = (User) objects[0];
+        Document document = (Document) objects[1];
+        long documentFieldId = (long) objects[2];
+        ImageFieldAttribute field = (ImageFieldAttribute) objects[3];
+        ExtendedFieldAttribute extendField = (ExtendedFieldAttribute) objects[4];
+        String transactionId = (String) objects[5];
+        int revision = (int) objects[6];
         byte[] file;
-        
+
         //Check status document
         if (document.isEnabled()) {
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                            A_FPSConstant.CODE_DOCUMENT,
-                            A_FPSConstant.SUBCODE_DOCUMENT_STATSUS_IS_DISABLE
+                    A_FPSConstant.CODE_DOCUMENT,
+                    A_FPSConstant.SUBCODE_DOCUMENT_STATSUS_IS_DISABLE
             );
         }
 
         //Download document from FMS
-        InternalResponse response = FMS.downloadDocumentFromFMS(document.getUuid(), 
+        InternalResponse response = FMS.downloadDocumentFromFMS(document.getUuid(),
                 transactionId);
-                
+
         if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
             return response;
         }
@@ -66,17 +69,16 @@ public class ImageProcessing implements DocumentProcessing{
         //Append data into field 
         try {
             byte[] image = Base64.getDecoder().decode(field.getImage());
-            
+
             byte[] resultODF = DocumentUtils_itext7.addImage(
-                    file, 
-                    image, 
-                    field.getPage(), 
-                    field.getDimension().getX(), 
-                    field.getDimension().getY(), 
-                    field.getDimension().getWidth(), 
+                    file,
+                    image,
+                    field.getPage(),
+                    field.getDimension().getX(),
+                    field.getDimension().getY(),
+                    field.getDimension().getWidth(),
                     field.getDimension().getHeight());
-            
-           
+
             //Analys file
             ExecutorService executor = Executors.newFixedThreadPool(2);
             Future<?> analysis = executor.submit(new TaskV2(new Object[]{resultODF}, transactionId) {
@@ -89,14 +91,14 @@ public class ImageProcessing implements DocumentProcessing{
                     }
                 }
             });
-            
+
             //Upload to FMS
             Future<?> uploadFMS = executor.submit(new TaskV2(new Object[]{resultODF}, transactionId) {
                 @Override
                 public Object call() {
                     InternalResponse response = new InternalResponse();
                     try {
-                        byte[] appendedFile = (byte[])this.get()[0];
+                        byte[] appendedFile = (byte[]) this.get()[0];
                         response = FMS.uploadToFMS(appendedFile, "pdf", transactionId);
                         return response;
                     } catch (Exception ex) {
@@ -110,7 +112,7 @@ public class ImageProcessing implements DocumentProcessing{
             });
 
             executor.shutdown();
-            
+
             FileManagement fileManagement = (FileManagement) analysis.get();
             if (fileManagement == null) {
                 return new InternalResponse(
@@ -145,20 +147,24 @@ public class ImageProcessing implements DocumentProcessing{
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 return response;
             }
-            
+
             //Update field after processing
-            field.setProcessStatus(ProcessStatus.PROCESSED.getName());
+            ImageFieldAttribute imageField = new ObjectMapper().readValue(extendField.getDetailValue(), ImageFieldAttribute.class);
+            imageField = (ImageFieldAttribute) extendField.clone(imageField, extendField.getDimension());
+            imageField.setProcessOn(field.getProcessOn());
+            imageField.setProcessBy(field.getProcessBy());
+            imageField.setProcessStatus(ProcessStatus.PROCESSED.getName());
             ObjectMapper ob = new ObjectMapper();
             response = ConnectorField_Internal.updateValueOfField(
                     documentFieldId,
                     user,
-                    ob.writeValueAsString(field),
+                    ob.writeValueAsString(imageField),
                     transactionId);
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 return new InternalResponse(
                         A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                                A_FPSConstant.CODE_DOCUMENT,
-                                A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD
+                        A_FPSConstant.CODE_DOCUMENT,
+                        A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD
                 );
             }
 
@@ -166,14 +172,16 @@ public class ImageProcessing implements DocumentProcessing{
             response = ConnectorField_Internal.updateFieldDetail(
                     documentFieldId,
                     user,
-                    ob.writeValueAsString(field),
+                    new ObjectMapper()
+                            .setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
+                            .writeValueAsString(imageField),
                     "HMAC",
                     transactionId);
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 return new InternalResponse(
                         A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                                A_FPSConstant.CODE_DOCUMENT,
-                                A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD_DETAILS
+                        A_FPSConstant.CODE_DOCUMENT,
+                        A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD_DETAILS
                 );
             }
 
@@ -194,5 +202,5 @@ public class ImageProcessing implements DocumentProcessing{
             return response;
         }
     }
-    
+
 }

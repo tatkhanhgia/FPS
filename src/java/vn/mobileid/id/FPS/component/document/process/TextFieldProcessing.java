@@ -9,6 +9,7 @@ import fps_core.enumration.ChildTextFieldTypeName;
 import fps_core.enumration.DocumentStatus;
 import fps_core.enumration.ProcessStatus;
 import fps_core.module.DocumentUtils_itext7;
+import fps_core.objects.ExtendedFieldAttribute;
 import fps_core.objects.FileManagement;
 import fps_core.objects.TextFieldAttribute;
 import java.util.concurrent.ExecutorService;
@@ -22,6 +23,7 @@ import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
+import vn.mobileid.id.FPS.serializer.IgnoreIngeritedIntrospector;
 import vn.mobileid.id.general.LogHandler;
 import vn.mobileid.id.utils.Crypto;
 import vn.mobileid.id.utils.TaskV2;
@@ -43,7 +45,8 @@ class TextFieldProcessing implements DocumentProcessing, ModuleProcessing {
         int revision = (int) objects[2];
         long documentFieldId = (long) objects[3];
         TextFieldAttribute field = (TextFieldAttribute) objects[4];
-        String transactionId = (String) objects[5];
+        ExtendedFieldAttribute extendField = (ExtendedFieldAttribute) objects[5];
+        String transactionId = (String) objects[6];
         byte[] file;
 
         //Check status document
@@ -93,7 +96,7 @@ class TextFieldProcessing implements DocumentProcessing, ModuleProcessing {
                 public Object call() {
                     InternalResponse response = new InternalResponse();
                     try {
-                        byte[] appendedFile = (byte[])this.get()[0];
+                        byte[] appendedFile = (byte[]) this.get()[0];
                         response = FMS.uploadToFMS(appendedFile, "pdf", transactionId);
                         return response;
                     } catch (Exception ex) {
@@ -144,14 +147,18 @@ class TextFieldProcessing implements DocumentProcessing, ModuleProcessing {
             }
 
             //Update field after processing
-            field.setProcessStatus(ProcessStatus.PROCESSED.getName());
+            TextFieldAttribute textField = new ObjectMapper().readValue(extendField.getDetailValue(), TextFieldAttribute.class);
+            textField = (TextFieldAttribute) extendField.clone(textField, extendField.getDimension());
+            
+            textField.setProcessStatus(ProcessStatus.PROCESSED.getName());
+            textField.setProcessBy(field.getProcessBy());
+            textField.setProcessOn(field.getProcessOn());
+
             ObjectMapper ob = new ObjectMapper();
-//            ob.setAnnotationIntrospector(new IgnoreIngeritedIntrospector());
-//            ob.enable(DeserializationFeature.UNWRAP_ROOT_VALUE);
             response = ConnectorField_Internal.updateValueOfField(
                     documentFieldId,
                     user,
-                    ob.writeValueAsString(field),
+                    ob.writeValueAsString(textField),
                     transactionId);
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 return new InternalResponse(
@@ -165,7 +172,9 @@ class TextFieldProcessing implements DocumentProcessing, ModuleProcessing {
             response = ConnectorField_Internal.updateFieldDetail(
                     documentFieldId,
                     user,
-                    ob.writeValueAsString(field),
+                    new ObjectMapper()
+                            .setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
+                            .writeValueAsString(textField),
                     uuid,
                     transactionId);
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {

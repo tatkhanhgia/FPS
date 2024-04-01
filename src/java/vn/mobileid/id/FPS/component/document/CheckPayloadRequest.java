@@ -265,20 +265,20 @@ public class CheckPayloadRequest {
             );
         }
         
-        if (object.getPage() <= 0 && Utils.isNullOrEmpty(object.getPages()) && !object.isApplyToAll()) {
-            return new InternalResponse(
-                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                            A_FPSConstant.CODE_FIELD,
-                            A_FPSConstant.SUBCODE_MISSING_PAGE
-            );
-        }
-        if (Utils.isNullOrEmpty(object.getImage())) {
-            return new InternalResponse(
-                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                            A_FPSConstant.CODE_FIELD_INITIAL,
-                            A_FPSConstant.SUBCODE_MISSING_OR_EMPTY_IMAGE_OF_INITIAL
-            );
-        }
+//        if (object.getPage() <= 0 && Utils.isNullOrEmpty(object.getPages()) && !object.isApplyToAll()) {
+//            return new InternalResponse(
+//                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+//                            A_FPSConstant.CODE_FIELD,
+//                            A_FPSConstant.SUBCODE_MISSING_PAGE
+//            );
+//        }
+//        if (Utils.isNullOrEmpty(object.getImage())) {
+//            return new InternalResponse(
+//                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+//                            A_FPSConstant.CODE_FIELD_INITIAL,
+//                            A_FPSConstant.SUBCODE_MISSING_OR_EMPTY_IMAGE_OF_INITIAL
+//            );
+//        }
         return new InternalResponse(
                 A_FPSConstant.HTTP_CODE_SUCCESS,
                 object

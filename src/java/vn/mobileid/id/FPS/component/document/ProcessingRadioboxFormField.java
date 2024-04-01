@@ -5,9 +5,11 @@
 package vn.mobileid.id.FPS.component.document;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.itextpdf.forms.fields.RadioFormFieldBuilder;
 import fps_core.enumration.FieldTypeName;
 import fps_core.objects.CheckBoxFieldAttribute;
 import fps_core.objects.ExtendedFieldAttribute;
+import fps_core.objects.RadioFieldAttribute;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -30,11 +32,11 @@ import vn.mobileid.id.utils.Utils;
  *
  * @author GiaTK
  */
-public class ProcessingCheckboxFormField {
+public class ProcessingRadioboxFormField {
 
-    //<editor-fold defaultstate="collapsed" desc="Processing Checkbox Form Field">
+    //<editor-fold defaultstate="collapsed" desc="Processing Radiobox Form Field">
     /**
-     * Processing all CheckboxField in Payload
+     * Processing all RadioBox in Payload
      *
      * @param packageId
      * @param user
@@ -46,7 +48,7 @@ public class ProcessingCheckboxFormField {
      * error while processed
      * @throws Exception
      */
-    public static InternalResponse processCheckboxField(
+    public static InternalResponse processRadioField(
             long packageId,
             User user,
             List<ProcessingRequest.ProcessingFormFillRequest> fields,
@@ -115,7 +117,7 @@ public class ProcessingCheckboxFormField {
             }
             //</editor-fold>
 
-            //<editor-fold defaultstate="collapsed" desc="Check page Checkbox is valid?">
+            //<editor-fold defaultstate="collapsed" desc="Check page is valid?">
             if (document_.getDocumentPages() < fieldData.getPage()) {
                 errorField.setValue(
                         String.valueOf(A_FPSConstant.CODE_FIELD) + String.valueOf(A_FPSConstant.SUBCODE_PAGE_IN_FIELD_NEED_TO_BE_LOWER_THAN_DOCUMENT));
@@ -124,10 +126,10 @@ public class ProcessingCheckboxFormField {
             }
             //</editor-fold>
             
-            //<editor-fold defaultstate="collapsed" desc="Convert ExtendField into CheckboxField">
-            CheckBoxFieldAttribute checkboxField = null;
+            //<editor-fold defaultstate="collapsed" desc="Convert ExtendField into RadiobField">
+            RadioFieldAttribute radioField = null;
             try {
-                checkboxField = convertExtendIntoCheckBoxField(user, fieldData, field.getValue()==null?null:(boolean)field.getValue());
+                radioField = convertExtendIntoRadioField(user, fieldData, field.getValue()==null?null:(boolean)field.getValue());
             } catch (Exception ex) {
                 errorField.setValue(Utils.summaryException(ex));
                 listOfErrorField.add(errorField);
@@ -136,12 +138,12 @@ public class ProcessingCheckboxFormField {
             //</editor-fold>
 
             //Processing
-            response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.CHECKBOX).process(
+            response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.RADIO).process(
                     user,
                     document_,
                     documents.size(),
                     fieldData.getDocumentFieldId(),
-                    checkboxField,
+                    radioField,
                     fieldData,
                     transactionId);
 
@@ -171,14 +173,14 @@ public class ProcessingCheckboxFormField {
     //</editor-fold>
 
     //==========================================================================
-    //<editor-fold defaultstate="collapsed" desc="Convert ExtendedField into CheckboxField">
-    private static CheckBoxFieldAttribute convertExtendIntoCheckBoxField(
+    //<editor-fold defaultstate="collapsed" desc="Convert ExtendedField into RadioField">
+    private static RadioFieldAttribute convertExtendIntoRadioField(
             User user,
             ExtendedFieldAttribute fieldData,
             Boolean value) throws Exception {
         //Read details
-        CheckBoxFieldAttribute checkboxField = new ObjectMapper().readValue(fieldData.getDetailValue(), CheckBoxFieldAttribute.class);
-        checkboxField = (CheckBoxFieldAttribute) fieldData.clone(checkboxField, fieldData.getDimension());
+        RadioFieldAttribute checkboxField = new ObjectMapper().readValue(fieldData.getDetailValue(), RadioFieldAttribute.class);
+        checkboxField = (RadioFieldAttribute) fieldData.clone(checkboxField, fieldData.getDimension());
 
         checkboxField.setProcessBy(user.getAzp());
         SimpleDateFormat dateFormat = new SimpleDateFormat(PolicyConfiguration.getInstant().getSystemConfig().getAttributes().get(0).getDateFormat());

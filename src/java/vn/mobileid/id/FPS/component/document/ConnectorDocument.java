@@ -867,7 +867,7 @@ public class ConnectorDocument {
             response = ProcessingCheckboxFormField.processCheckboxField(
                     Utils.getIdFromURL(request.getRequestURI()),
                     user,
-                    processRequest.getText(),
+                    processRequest.getCheckbox(),
                     transactionId);
 
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
@@ -882,6 +882,20 @@ public class ConnectorDocument {
                     Utils.getIdFromURL(request.getRequestURI()),
                     user,
                     processRequest.getImages(),
+                    transactionId);
+
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                return response;
+            }
+        }
+        //</editor-fold>
+        
+        //<editor-fold defaultstate="collapsed" desc="Process Camera Form Field">
+        if (!Utils.isNullOrEmpty(processRequest.getCameras())) {
+            response = ProcessingCameraField.processCameraField(
+                    Utils.getIdFromURL(request.getRequestURI()),
+                    user,
+                    processRequest.getCameras(),
                     transactionId);
 
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
@@ -975,312 +989,313 @@ public class ConnectorDocument {
     }
     // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="Get Hash of Signature Field">
-    public static InternalResponse getHashOfSignatureField(
-            HttpServletRequest request,
-            String payload,
-            long packageId,
-            String transactionId
-    ) throws Exception {
-        //<editor-fold defaultstate="collapsed" desc="Verify">
-        InternalResponse response = Utils.verifyAuthorizationToken(request, transactionId);
-        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-            return response;
-        }
-        User user = (User) response.getData();
-        //</editor-fold>
-
-        //<editor-fold defaultstate="collapsed" desc="Check input and get header datas">
-        if (Utils.isNullOrEmpty(payload)) {
-            return new InternalResponse(
-                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                    A_FPSConstant.CODE_FAIL,
-                    A_FPSConstant.SUBCODE_NO_PAYLOAD_FOUND
-            ).setUser(user);
-        }
-        //</editor-fold>
-
-        //<editor-fold defaultstate="collapsed" desc="Check detail in payload and parse into ProcessRequest Object">
-        response = CheckPayloadRequest.checkHashRequest(payload, transactionId);
-        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-            return response.setUser(user);
-        }
-        ProcessingRequest processRequest = (ProcessingRequest) response.getData();
-        //</editor-fold>
-
-        //<editor-fold defaultstate="collapsed" desc="Get Documents">
-        response = GetDocument.getDocuments(
-                packageId,
-                transactionId);
-
-        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-            return response.setUser(user);
-        }
-
-        List<Document> documents = (List<Document>) response.getData();
-        //</editor-fold>
-
-        //<editor-fold defaultstate="collapsed" desc="Get Signature Field based on the name that in payload of the request">
-        Document document_ = null;
-        long documentIdOriginal = 0;
-        for (Document document : documents) {
-            if (document.getRevision() == 1) {
-                response = ConnectorField_Internal.getField(
-                        document.getId(),
-                        processRequest.getFieldName(),
-                        transactionId);
-                documentIdOriginal = document.getId();
-            }
-            if (document.getRevision() == documents.size()) {
-                document_ = document;
-            }
-        }
-        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-            return response.setUser(user);
-        }
-        ExtendedFieldAttribute fieldData = (ExtendedFieldAttribute) response.getData();
-        //</editor-fold>
-
-        //<editor-fold defaultstate="collapsed" desc="Check field is processed yet? and is type signature">
-        if (!fieldData.getType().getParentType().equals(FieldTypeName.SIGNATURE.getParentName())) {
-            return new InternalResponse(
-                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                    A_FPSConstant.CODE_FIELD,
-                    A_FPSConstant.SUBCODE_THIS_TYPE_OF_FIELD_IS_NOT_VALID_FOR_THIS_PROCESSION
-            ).setUser(user);
-        }
-
-        InternalResponse response_1 = CheckFieldProcessedYet.checkProcessed(fieldData.getFieldValue());
-        if (response_1.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-            return response_1.setUser(user);
-        }
-
-        //</editor-fold>
-        //<editor-fold defaultstate="collapsed" desc="Check Hash of Signature field is existed in Temporal Table?">
-        if (!Utils.isNullOrEmpty(fieldData.getHash())) {
-            InternalResponse response2 = ManagementTemporal.getTemporal(
-                    String.valueOf(document_.getId()),
-                    fieldData.getHash(),
-                    transactionId);
-            if (response2.getStatus() == A_FPSConstant.HTTP_CODE_SUCCESS) {
-                ManagementTemporal.removeTemporal(
-                        String.valueOf(document_.getId()),
-                        transactionId);
-//                return new InternalResponse(
-//                        A_FPSConstant.HTTP_CODE_SUCCESS,
-//                        new ResponseMessageController().writeStringField("hash_value", fieldData.getHash()).build()
-//                ).setUser(user);
-            }
-        }
-        //</editor-fold>
-
-        //<editor-fold defaultstate="collapsed" desc="Mapping into SignatureFieldAttribute">
-        SignatureFieldAttribute signatureField = new SignatureFieldAttribute();
-        signatureField = new ObjectMapper().readValue(fieldData.getDetailValue(), SignatureFieldAttribute.class);
-        signatureField = (SignatureFieldAttribute) fieldData.clone(signatureField, fieldData.getDimension());
-
-        signatureField.setHandSignatureImage(processRequest.getHandSignatureImage());
-        signatureField.setLevelOfAssurance(fieldData.getLevelOfAssurance());
-
-        SimpleDateFormat dateFormat = new SimpleDateFormat(PolicyConfiguration.getInstant().getSystemConfig().getAttributes().get(0).getDateFormat());
-        signatureField.setProcessOn(dateFormat.format(Date.from(Instant.now())));
-        signatureField.setProcessBy(user.getAzp());
-
-        if(signatureField.getVerification() == null){
-            signatureField.setVerification(new Signature());
-        }
-        processRequest.convert(signatureField);
-        
-        if (!Utils.isNullOrEmpty(signatureField.getHandSignatureImage())) {
-            signatureField.getVerification().setImageEnabled(true);
-        }
-        //</editor-fold>
-
-        //<editor-fold defaultstate="collapsed" desc="Processing - Create Form Field">
-        response = ProcessingFactory.createType_Module(ProcessingFactory.TypeProcess.SIGNATURE).createFormField(new Object[]{
-            user,
-            document_,
-            documentIdOriginal,
-            signatureField,
-            signatureField.getLevelOfAssurance() != null ? signatureField.getLevelOfAssurance().contains("ESEAL") : false,
-            transactionId
-        });
-        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-            return response.setUser(user);
-        }
-
-        ExtendedFieldAttribute qrField_ex = null;
-        QRFieldAttribute qrField = null;
-        if (response.getInternalData() != null) {
-            qrField_ex = (ExtendedFieldAttribute) response.getInternalData().getValue();
-            qrField = new ObjectMapper().readValue(qrField_ex.getDetailValue(), QRFieldAttribute.class);
-            qrField = (QRFieldAttribute) qrField_ex.clone(qrField, qrField_ex.getDimension());
-            qrField.setProcessStatus(ProcessStatus.PROCESSED.getName());
-        }
-        //</editor-fold>
-
-        //<editor-fold defaultstate="collapsed" desc="Update hash of the Field">
-        String hash = (String) ((Object[]) response.getData())[1];
-
-        InternalResponse response2
-                = UpdateField.updateHashOfField(
-                        fieldData.getDocumentFieldId(),
-                        user,
-                        hash,
-                        transactionId);
-        if (response2.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-            return response2.setUser(user);
-        }
-        //</editor-fold>
-
-        //<editor-fold defaultstate="collapsed" desc="Set Signature name into SignatureFieldAttribute">
-        signatureField.getVerification().setSignatureId((String) ((Object[]) response.getData())[3]);
-        //</editor-fold>
-
-        //<editor-fold defaultstate="collapsed" desc="Update field details (Value in DB will relative to the input of client)">
-        signatureField.setProcessStatus(ProcessStatus.IN_PROCESS.getName());
-        response2
-                = UpdateField.updateValueOfField(
-                        fieldData.getDocumentFieldId(),
-                        user,
-                        new ObjectMapper().writeValueAsString(signatureField),
-                        transactionId);
-        if (response2.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-            response2.setUser(user);
-            return response2;
-        }
-
-        response2
-                = UpdateField.updateFieldDetails(
-                        fieldData.getDocumentFieldId(),
-                        user,
-                        signatureField,
-                        "hmac",
-                        transactionId);
-        if (response2.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-            response2.setUser(user);
-            return response2;
-        }
-        //</editor-fold>
-
-        //<editor-fold defaultstate="collapsed" desc="Create Thread Pool to handle 3 thread. Upload TemporaData ; Update Status of Document and update Value of QR Field if existed">
-        ExecutorService executors = Executors.newFixedThreadPool(3);
-
-        //Upload temporal data
-        Future<?> uploadTemporalData = executors.submit(new TaskV2(new Object[]{
-            (byte[]) ((Object[]) response.getData())[2],
-            hash,
-            document_.getId()}, transactionId) {
-            @Override
-            public Object call() {
-                InternalResponse response = new InternalResponse();
-                try {
-                    byte[] temporal = (byte[]) this.get()[0];
-                    response = ManagementTemporal.addTemporal(
-                            String.valueOf(this.get()[2]),
-                            (String) this.get()[1],
-                            TemporalObject.Type.TEMPORAL_DATA.getId(),
-                            temporal,
-                            transactionId);
-                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                        response.setUser(user);
-                        return response;
-                    }
-                } catch (Exception ex) {
-                    LogHandler.error(ConnectorDocument.class, transactionId, ex);
-                    response.setStatus(A_FPSConstant.HTTP_CODE_BAD_REQUEST);
-                    response.setException(ex);
-                    response.setMessage(ResponseMessageController
-                            .errorMessageAdvanced(
-                                    "Error while calling in Future",
-                                    "Future 'upload Temporal Data' is made an exception"));
-                }
-                return response;
-            }
-        });
-
-        //Update status of Document
-        Future<?> updateStatusOfDocument = executors.submit(new TaskV2(new Object[]{
-            document_.getId(),
-            user}, transactionId) {
-            @Override
-            public Object call() {
-                InternalResponse response = new InternalResponse();
-                try {
-                    response = UpdateDocument.updateStatusOfDocument(
-                            (long) this.get()[0],
-                            (User) this.get()[1],
-                            DocumentStatus.PROCESSING,
-                            transactionId);
-                } catch (Exception ex) {
-                    LogHandler.error(ConnectorDocument.class, transactionId, ex);
-                    response.setStatus(A_FPSConstant.HTTP_CODE_BAD_REQUEST);
-                    response.setException(ex);
-                    response.setMessage(ResponseMessageController
-                            .errorMessageAdvanced(
-                                    "Error while calling in Future",
-                                    "Future 'upload Temporal Data' is made an exception"));
-                }
-                return response;
-            }
-        });
-
-        //<editor-fold defaultstate="collapsed" desc="Update value of the QRField if existed">
-        if (qrField != null) {
-            Future<?> uploadValueOfQR = executors.submit(new TaskV2(new Object[]{
-                qrField_ex,
-                qrField}, transactionId) {
-                @Override
-                public Object call() {
-                    ExtendedFieldAttribute qrField_ex = (ExtendedFieldAttribute) this.get()[0];
-                    QRFieldAttribute qrField = (QRFieldAttribute) this.get()[1];
-                    InternalResponse response = new InternalResponse();
-                    try {
-                        response
-                                = UpdateField.updateValueOfField(
-                                        qrField_ex.getDocumentFieldId(),
-                                        user,
-                                        new ObjectMapper().writeValueAsString(qrField),
-                                        transactionId);
-                        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                            response.setUser(user);
-                            return response;
-                        }
-                    } catch (Exception ex) {
-                        LogHandler.error(ConnectorDocument.class, transactionId, ex);
-                        response.setStatus(A_FPSConstant.HTTP_CODE_BAD_REQUEST);
-                        response.setException(ex);
-                        response.setMessage(ResponseMessageController
-                                .errorMessageAdvanced(
-                                        "Error while calling in Future",
-                                        "Future 'upload Temporal Data' is made an exception"));
-                    }
-                    return response;
-                }
-            });
-            if (((InternalResponse) uploadValueOfQR.get()).getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                return ((InternalResponse) uploadValueOfQR.get()).setUser(user);
-            }
-        }
-        executors.shutdown();
-        //</editor-fold>
-
-        InternalResponse response1 = (InternalResponse) uploadTemporalData.get();
-        response2 = (InternalResponse) updateStatusOfDocument.get();
-        if (response1.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-            return response1;
-        }
-        if (response2.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-            return response2;
-        }
-        //</editor-fold>
-
-        return new InternalResponse(
-                A_FPSConstant.HTTP_CODE_SUCCESS,
-                new ResponseMessageController().writeStringField("hash_value", hash).build()
-        );
-    }
-    // </editor-fold>
+//    // <editor-fold defaultstate="collapsed" desc="Get Hash of Signature Field">
+//    public static InternalResponse getHashOfSignatureField(
+//            HttpServletRequest request,
+//            String payload,
+//            long packageId,
+//            String transactionId
+//    ) throws Exception {
+//        //<editor-fold defaultstate="collapsed" desc="Verify">
+//        InternalResponse response = Utils.verifyAuthorizationToken(request, transactionId);
+//        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+//            return response;
+//        }
+//        User user = (User) response.getData();
+//        //</editor-fold>
+//
+//        //<editor-fold defaultstate="collapsed" desc="Check input and get header datas">
+//        if (Utils.isNullOrEmpty(payload)) {
+//            return new InternalResponse(
+//                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+//                    A_FPSConstant.CODE_FAIL,
+//                    A_FPSConstant.SUBCODE_NO_PAYLOAD_FOUND
+//            ).setUser(user);
+//        }
+//        //</editor-fold>
+//
+//        //<editor-fold defaultstate="collapsed" desc="Check detail in payload and parse into ProcessRequest Object">
+//        response = CheckPayloadRequest.checkHashRequest(payload, transactionId);
+//        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+//            return response.setUser(user);
+//        }
+//        ProcessingRequest processRequest = (ProcessingRequest) response.getData();
+//        //</editor-fold>
+//
+//        //<editor-fold defaultstate="collapsed" desc="Get Documents">
+//        response = GetDocument.getDocuments(
+//                packageId,
+//                transactionId);
+//
+//        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+//            return response.setUser(user);
+//        }
+//
+//        List<Document> documents = (List<Document>) response.getData();
+//        //</editor-fold>
+//
+//        //<editor-fold defaultstate="collapsed" desc="Get Signature Field based on the name that in payload of the request">
+//        Document document_ = null;
+//        long documentIdOriginal = 0;
+//        for (Document document : documents) {
+//            if (document.getRevision() == 1) {
+//                response = ConnectorField_Internal.getField(
+//                        document.getId(),
+//                        processRequest.getFieldName(),
+//                        transactionId);
+//                documentIdOriginal = document.getId();
+//            }
+//            if (document.getRevision() == documents.size()) {
+//                document_ = document;
+//            }
+//        }
+//        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+//            return response.setUser(user);
+//        }
+//        ExtendedFieldAttribute fieldData = (ExtendedFieldAttribute) response.getData();
+//        //</editor-fold>
+//
+//        //<editor-fold defaultstate="collapsed" desc="Check field is processed yet? and is type signature">
+//        if (!fieldData.getType().getParentType().equals(FieldTypeName.SIGNATURE.getParentName())) {
+//            return new InternalResponse(
+//                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+//                    A_FPSConstant.CODE_FIELD,
+//                    A_FPSConstant.SUBCODE_THIS_TYPE_OF_FIELD_IS_NOT_VALID_FOR_THIS_PROCESSION
+//            ).setUser(user);
+//        }
+//
+//        InternalResponse response_1 = CheckFieldProcessedYet.checkProcessed(fieldData.getFieldValue());
+//        if (response_1.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+//            return response_1.setUser(user);
+//        }
+//
+//        //</editor-fold>
+//        
+//        //<editor-fold defaultstate="collapsed" desc="Check Hash of Signature field is existed in Temporal Table?">
+//        if (!Utils.isNullOrEmpty(fieldData.getHash())) {
+//            InternalResponse response2 = ManagementTemporal.getTemporal(
+//                    String.valueOf(document_.getId()),
+//                    fieldData.getHash(),
+//                    transactionId);
+//            if (response2.getStatus() == A_FPSConstant.HTTP_CODE_SUCCESS) {
+//                ManagementTemporal.removeTemporal(
+//                        String.valueOf(document_.getId()),
+//                        transactionId);
+////                return new InternalResponse(
+////                        A_FPSConstant.HTTP_CODE_SUCCESS,
+////                        new ResponseMessageController().writeStringField("hash_value", fieldData.getHash()).build()
+////                ).setUser(user);
+//            }
+//        }
+//        //</editor-fold>
+//
+//        //<editor-fold defaultstate="collapsed" desc="Mapping into SignatureFieldAttribute">
+//        SignatureFieldAttribute signatureField = new SignatureFieldAttribute();
+//        signatureField = new ObjectMapper().readValue(fieldData.getDetailValue(), SignatureFieldAttribute.class);
+//        signatureField = (SignatureFieldAttribute) fieldData.clone(signatureField, fieldData.getDimension());
+//
+//        signatureField.setHandSignatureImage(processRequest.getHandSignatureImage());
+//        signatureField.setLevelOfAssurance(fieldData.getLevelOfAssurance());
+//
+//        SimpleDateFormat dateFormat = new SimpleDateFormat(PolicyConfiguration.getInstant().getSystemConfig().getAttributes().get(0).getDateFormat());
+//        signatureField.setProcessOn(dateFormat.format(Date.from(Instant.now())));
+//        signatureField.setProcessBy(user.getAzp());
+//
+//        if(signatureField.getVerification() == null){
+//            signatureField.setVerification(new Signature());
+//        }
+//        processRequest.convert(signatureField);
+//        
+//        if (!Utils.isNullOrEmpty(signatureField.getHandSignatureImage())) {
+//            signatureField.getVerification().setImageEnabled(true);
+//        }
+//        //</editor-fold>
+//
+//        //<editor-fold defaultstate="collapsed" desc="Processing - Create Form Field">
+//        response = ProcessingFactory.createType_Module(ProcessingFactory.TypeProcess.SIGNATURE).createFormField(new Object[]{
+//            user,
+//            document_,
+//            documentIdOriginal,
+//            signatureField,
+//            signatureField.getLevelOfAssurance() != null ? signatureField.getLevelOfAssurance().contains("ESEAL") : false,
+//            transactionId
+//        });
+//        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+//            return response.setUser(user);
+//        }
+//
+//        ExtendedFieldAttribute qrField_ex = null;
+//        QRFieldAttribute qrField = null;
+//        if (response.getInternalData() != null) {
+//            qrField_ex = (ExtendedFieldAttribute) response.getInternalData().getValue();
+//            qrField = new ObjectMapper().readValue(qrField_ex.getDetailValue(), QRFieldAttribute.class);
+//            qrField = (QRFieldAttribute) qrField_ex.clone(qrField, qrField_ex.getDimension());
+//            qrField.setProcessStatus(ProcessStatus.PROCESSED.getName());
+//        }
+//        //</editor-fold>
+//
+//        //<editor-fold defaultstate="collapsed" desc="Update hash of the Field">
+//        String hash = (String) ((Object[]) response.getData())[1];
+//
+//        InternalResponse response2
+//                = UpdateField.updateHashOfField(
+//                        fieldData.getDocumentFieldId(),
+//                        user,
+//                        hash,
+//                        transactionId);
+//        if (response2.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+//            return response2.setUser(user);
+//        }
+//        //</editor-fold>
+//
+//        //<editor-fold defaultstate="collapsed" desc="Set Signature name into SignatureFieldAttribute">
+//        signatureField.getVerification().setSignatureId((String) ((Object[]) response.getData())[3]);
+//        //</editor-fold>
+//
+//        //<editor-fold defaultstate="collapsed" desc="Update field details (Value in DB will relative to the input of client)">
+//        signatureField.setProcessStatus(ProcessStatus.IN_PROCESS.getName());
+//        response2
+//                = UpdateField.updateValueOfField(
+//                        fieldData.getDocumentFieldId(),
+//                        user,
+//                        new ObjectMapper().writeValueAsString(signatureField),
+//                        transactionId);
+//        if (response2.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+//            response2.setUser(user);
+//            return response2;
+//        }
+//
+//        response2
+//                = UpdateField.updateFieldDetails(
+//                        fieldData.getDocumentFieldId(),
+//                        user,
+//                        signatureField,
+//                        "hmac",
+//                        transactionId);
+//        if (response2.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+//            response2.setUser(user);
+//            return response2;
+//        }
+//        //</editor-fold>
+//
+//        //<editor-fold defaultstate="collapsed" desc="Create Thread Pool to handle 3 thread. Upload TemporaData ; Update Status of Document and update Value of QR Field if existed">
+//        ExecutorService executors = Executors.newFixedThreadPool(3);
+//
+//        //Upload temporal data
+//        Future<?> uploadTemporalData = executors.submit(new TaskV2(new Object[]{
+//            (byte[]) ((Object[]) response.getData())[2],
+//            hash,
+//            document_.getId()}, transactionId) {
+//            @Override
+//            public Object call() {
+//                InternalResponse response = new InternalResponse();
+//                try {
+//                    byte[] temporal = (byte[]) this.get()[0];
+//                    response = ManagementTemporal.addTemporal(
+//                            String.valueOf(this.get()[2]),
+//                            (String) this.get()[1],
+//                            TemporalObject.Type.TEMPORAL_DATA.getId(),
+//                            temporal,
+//                            transactionId);
+//                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+//                        response.setUser(user);
+//                        return response;
+//                    }
+//                } catch (Exception ex) {
+//                    LogHandler.error(ConnectorDocument.class, transactionId, ex);
+//                    response.setStatus(A_FPSConstant.HTTP_CODE_BAD_REQUEST);
+//                    response.setException(ex);
+//                    response.setMessage(ResponseMessageController
+//                            .errorMessageAdvanced(
+//                                    "Error while calling in Future",
+//                                    "Future 'upload Temporal Data' is made an exception"));
+//                }
+//                return response;
+//            }
+//        });
+//
+//        //Update status of Document
+//        Future<?> updateStatusOfDocument = executors.submit(new TaskV2(new Object[]{
+//            document_.getId(),
+//            user}, transactionId) {
+//            @Override
+//            public Object call() {
+//                InternalResponse response = new InternalResponse();
+//                try {
+//                    response = UpdateDocument.updateStatusOfDocument(
+//                            (long) this.get()[0],
+//                            (User) this.get()[1],
+//                            DocumentStatus.PROCESSING,
+//                            transactionId);
+//                } catch (Exception ex) {
+//                    LogHandler.error(ConnectorDocument.class, transactionId, ex);
+//                    response.setStatus(A_FPSConstant.HTTP_CODE_BAD_REQUEST);
+//                    response.setException(ex);
+//                    response.setMessage(ResponseMessageController
+//                            .errorMessageAdvanced(
+//                                    "Error while calling in Future",
+//                                    "Future 'upload Temporal Data' is made an exception"));
+//                }
+//                return response;
+//            }
+//        });
+//
+//        //<editor-fold defaultstate="collapsed" desc="Update value of the QRField if existed">
+//        if (qrField != null) {
+//            Future<?> uploadValueOfQR = executors.submit(new TaskV2(new Object[]{
+//                qrField_ex,
+//                qrField}, transactionId) {
+//                @Override
+//                public Object call() {
+//                    ExtendedFieldAttribute qrField_ex = (ExtendedFieldAttribute) this.get()[0];
+//                    QRFieldAttribute qrField = (QRFieldAttribute) this.get()[1];
+//                    InternalResponse response = new InternalResponse();
+//                    try {
+//                        response
+//                                = UpdateField.updateValueOfField(
+//                                        qrField_ex.getDocumentFieldId(),
+//                                        user,
+//                                        new ObjectMapper().writeValueAsString(qrField),
+//                                        transactionId);
+//                        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+//                            response.setUser(user);
+//                            return response;
+//                        }
+//                    } catch (Exception ex) {
+//                        LogHandler.error(ConnectorDocument.class, transactionId, ex);
+//                        response.setStatus(A_FPSConstant.HTTP_CODE_BAD_REQUEST);
+//                        response.setException(ex);
+//                        response.setMessage(ResponseMessageController
+//                                .errorMessageAdvanced(
+//                                        "Error while calling in Future",
+//                                        "Future 'upload Temporal Data' is made an exception"));
+//                    }
+//                    return response;
+//                }
+//            });
+//            if (((InternalResponse) uploadValueOfQR.get()).getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+//                return ((InternalResponse) uploadValueOfQR.get()).setUser(user);
+//            }
+//        }
+//        executors.shutdown();
+//        //</editor-fold>
+//
+//        InternalResponse response1 = (InternalResponse) uploadTemporalData.get();
+//        response2 = (InternalResponse) updateStatusOfDocument.get();
+//        if (response1.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+//            return response1;
+//        }
+//        if (response2.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+//            return response2;
+//        }
+//        //</editor-fold>
+//
+//        return new InternalResponse(
+//                A_FPSConstant.HTTP_CODE_SUCCESS,
+//                new ResponseMessageController().writeStringField("hash_value", hash).build()
+//        );
+//    }
+//    // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Synchronized new DocumentID with UUID">
     public static InternalResponse synchronizedUUID(
@@ -1657,6 +1672,130 @@ public class ConnectorDocument {
     }
     // </editor-fold>
 
+    // <editor-fold defaultstate="collapsed" desc="Get Hash of Signature Field">
+    public static InternalResponse getHashOfSignatureField(
+            HttpServletRequest request,
+            String payload,
+            long packageId,
+            String transactionId
+    ) throws Exception {
+        //<editor-fold defaultstate="collapsed" desc="Verify">
+        InternalResponse response = Utils.verifyAuthorizationToken(request, transactionId);
+        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+            return response;
+        }
+        User user = (User) response.getData();
+        //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="Check input and get header datas">
+        if (Utils.isNullOrEmpty(payload)) {
+            return new InternalResponse(
+                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                    A_FPSConstant.CODE_FAIL,
+                    A_FPSConstant.SUBCODE_NO_PAYLOAD_FOUND
+            ).setUser(user);
+        }
+        //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="Check detail in payload and parse into ProcessRequest Object">
+        response = CheckPayloadRequest.checkHashRequest(payload, transactionId);
+        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+            return response.setUser(user);
+        }
+        ProcessingRequest processRequest = (ProcessingRequest) response.getData();
+        //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="Get Documents">
+        response = GetDocument.getDocuments(
+                packageId,
+                transactionId);
+
+        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+            return response.setUser(user);
+        }
+
+        List<Document> documents = (List<Document>) response.getData();
+        //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="Get Signature Field based on the name that in payload of the request">
+        Document document_ = null;
+        long documentIdOriginal = 0;
+        for (Document document : documents) {
+            if (document.getRevision() == 1) {
+                response = ConnectorField_Internal.getField(
+                        document.getId(),
+                        processRequest.getFieldName(),
+                        transactionId);
+                documentIdOriginal = document.getId();
+            }
+            if (document.getRevision() == documents.size()) {
+                document_ = document;
+            }
+        }
+        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+            return response.setUser(user);
+        }
+        ExtendedFieldAttribute fieldData = (ExtendedFieldAttribute) response.getData();
+        //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="Check field is processed yet? and is type signature">
+        if (!fieldData.getType().getParentType().equals(FieldTypeName.SIGNATURE.getParentName())) {
+            return new InternalResponse(
+                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                    A_FPSConstant.CODE_FIELD,
+                    A_FPSConstant.SUBCODE_THIS_TYPE_OF_FIELD_IS_NOT_VALID_FOR_THIS_PROCESSION
+            ).setUser(user);
+        }
+
+        InternalResponse response_1 = CheckFieldProcessedYet.checkProcessed(fieldData.getFieldValue());
+        if (response_1.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+            return response_1.setUser(user);
+        }
+
+        //</editor-fold>
+        
+        //<editor-fold defaultstate="collapsed" desc="Check Hash of Signature field is existed in Temporal Table?">
+        if (!Utils.isNullOrEmpty(fieldData.getHash())) {
+            InternalResponse response2 = ManagementTemporal.getTemporal(
+                    String.valueOf(document_.getId()),
+                    fieldData.getHash(),
+                    transactionId);
+            if (response2.getStatus() == A_FPSConstant.HTTP_CODE_SUCCESS) {
+                ManagementTemporal.removeTemporal(
+                        String.valueOf(document_.getId()),
+                        transactionId);
+//                return new InternalResponse(
+//                        A_FPSConstant.HTTP_CODE_SUCCESS,
+//                        new ResponseMessageController().writeStringField("hash_value", fieldData.getHash()).build()
+//                ).setUser(user);
+            }
+        }
+        //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="Check page Sig is valid?">
+        if(document_.getDocumentPages() < fieldData.getPage()){
+            return new InternalResponse(
+                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                    A_FPSConstant.CODE_FIELD,
+                    A_FPSConstant.SUBCODE_PAGE_IN_FIELD_NEED_TO_BE_LOWER_THAN_DOCUMENT
+            ).setUser(user);
+        }
+        //</editor-fold>
+        
+        response = ProcessingSignatureField.processSignatureField(
+                packageId, 
+                user, 
+                document_, 
+                documentIdOriginal, 
+                fieldData, 
+                processRequest, 
+                transactionId);
+        
+        response.setUser(user);
+        return response;
+    }
+    // </editor-fold>
+    
     //==========================================================================
     //<editor-fold defaultstate="collapsed" desc="Child function Synchonized - create New Document Id ">
     private static InternalResponse child_CreateNew(

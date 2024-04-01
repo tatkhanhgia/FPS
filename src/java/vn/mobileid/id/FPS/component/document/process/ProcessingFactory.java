@@ -29,6 +29,9 @@ public class ProcessingFactory {
             case IMAGE:{
                 return new ImageProcessing();
             }
+            case RADIO:{
+                return new RadioProcessing();
+            }
         }
         throw new IllegalArgumentException();
     }
@@ -57,6 +60,7 @@ public class ProcessingFactory {
         CHECKBOX,
         INITIALS,
         QRYPTO,
-        IMAGE
+        IMAGE,
+        RADIO
     }
 }

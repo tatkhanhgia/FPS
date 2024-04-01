@@ -7,7 +7,10 @@ package vn.mobileid.id.FPS.component.document;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fps_core.objects.ExtendedFieldAttribute;
 import fps_core.objects.TextFieldAttribute;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import vn.mobileid.id.FPS.component.document.process.ProcessingFactory;
 import vn.mobileid.id.FPS.component.enterprise.ProcessModuleForEnterprise;
@@ -19,6 +22,7 @@ import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.InternalResponse.InternalData;
 import vn.mobileid.id.FPS.object.ProcessingRequest;
 import vn.mobileid.id.FPS.object.User;
+import vn.mobileid.id.general.PolicyConfiguration;
 import vn.mobileid.id.utils.Utils;
 
 /**
@@ -52,7 +56,6 @@ public class ProcessingTextFormField {
         List<InternalData> listOfErrorField = new ArrayList<>();
 
         for (ProcessingRequest.ProcessingFormFillRequest field : fields) {
-            System.out.println("Field:"+field.getFieldName());
             InternalData errorField = new InternalData();
             errorField.setName(field.getFieldName());
 
@@ -83,7 +86,7 @@ public class ProcessingTextFormField {
             }
 
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                errorField.setValue(String.valueOf(response.getCode())+String.valueOf(response.getCodeDescription()));
+                errorField.setValue(String.valueOf(response.getCode()) + String.valueOf(response.getCodeDescription()));
                 listOfErrorField.add(errorField);
                 continue;
             }
@@ -91,22 +94,21 @@ public class ProcessingTextFormField {
             ExtendedFieldAttribute fieldData = (ExtendedFieldAttribute) response.getData();
 
             //</editor-fold>
-
             //<editor-fold defaultstate="collapsed" desc="Check data in ExtendedField is sastified">
             if (CheckFieldProcessedYet.checkProcessed(fieldData.getFieldValue()).getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 errorField.setValue(
-                        String.valueOf(A_FPSConstant.CODE_FIELD) +
-                        String.valueOf(A_FPSConstant.SUBCODE_FIELD_ALREADY_PROCESS)
-                        );
+                        String.valueOf(A_FPSConstant.CODE_FIELD)
+                        + String.valueOf(A_FPSConstant.SUBCODE_FIELD_ALREADY_PROCESS)
+                );
                 listOfErrorField.add(errorField);
                 continue;
             }
-            
+
             if (!fieldData.getType().getParentType().equals("TEXTBOX")) {
                 errorField.setValue(
-                        String.valueOf(A_FPSConstant.CODE_FIELD) +
-                        String.valueOf(A_FPSConstant.SUBCODE_THIS_TYPE_OF_FIELD_IS_NOT_VALID_FOR_THIS_PROCESSION)
-                        );
+                        String.valueOf(A_FPSConstant.CODE_FIELD)
+                        + String.valueOf(A_FPSConstant.SUBCODE_THIS_TYPE_OF_FIELD_IS_NOT_VALID_FOR_THIS_PROCESSION)
+                );
                 listOfErrorField.add(errorField);
                 continue;
             }
@@ -115,9 +117,18 @@ public class ProcessingTextFormField {
             //<editor-fold defaultstate="collapsed" desc="Convert ExtendField into TextField">
             TextFieldAttribute textField = null;
             try {
-                textField = convertExtenđIntoTextField(user, fieldData, (String) field.getValue());
+                textField = convertExtendIntoTextField(user, fieldData, (String) field.getValue());
             } catch (Exception ex) {
                 errorField.setValue(Utils.summaryException(ex));
+                listOfErrorField.add(errorField);
+                continue;
+            }
+            //</editor-fold>
+
+            //<editor-fold defaultstate="collapsed" desc="Check page TextFormField is valid?">
+            if (document_.getDocumentPages() < fieldData.getPage()) {
+                errorField.setValue(
+                        String.valueOf(A_FPSConstant.CODE_FIELD) + String.valueOf(A_FPSConstant.SUBCODE_PAGE_IN_FIELD_NEED_TO_BE_LOWER_THAN_DOCUMENT));
                 listOfErrorField.add(errorField);
                 continue;
             }
@@ -130,11 +141,12 @@ public class ProcessingTextFormField {
                     documents.size(),
                     fieldData.getDocumentFieldId(),
                     textField,
+                    fieldData,
                     transactionId);
 
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 errorField.setValue(
-                        String.valueOf(response.getCode())+String.valueOf(response.getCodeDescription()));
+                        String.valueOf(response.getCode()) + String.valueOf(response.getCodeDescription()));
                 listOfErrorField.add(errorField);
                 continue;
             }
@@ -160,27 +172,21 @@ public class ProcessingTextFormField {
 
     //==========================================================================
     //<editor-fold defaultstate="collapsed" desc="Convert ExtendedField into TextField">
-    private static TextFieldAttribute convertExtenđIntoTextField(
+    private static TextFieldAttribute convertExtendIntoTextField(
             User user,
             ExtendedFieldAttribute fieldData,
             String value) throws Exception {
         //Read details
         TextFieldAttribute textField = new ObjectMapper().readValue(fieldData.getDetailValue(), TextFieldAttribute.class);
         textField = (TextFieldAttribute) fieldData.clone(textField, fieldData.getDimension());
-        textField.setValue(value);
+
+        if (value != null) {
+            textField.setValue(value);
+        }
+
         textField.setProcessBy(user.getAzp());
-//        //Read Basic
-//        textField.setFieldName(fieldData.getFieldName());
-//        textField.setPage(fieldData.getPage());
-//        textField.setDimension(fieldData.getDimension());
-//        textField.setVisibleEnabled(fieldData.getVisibleEnabled());
-//        textField.setRequired(fieldData.getRequired());
-//        textField.setType(fieldData.getType());
-//        textField.setProcessBy(user.getAzp());
-//        SimpleDateFormat dateFormat = new SimpleDateFormat(PolicyConfiguration.getInstant().getSystemConfig().getAttributes().get(0).getDateFormat());
-//        textField.setProcessOn(dateFormat.format(Date.from(Instant.now())));
-//        textField.setValue(value);
-//        textField.setRotate(fieldData.getRotate());
+        SimpleDateFormat dateFormat = new SimpleDateFormat(PolicyConfiguration.getInstant().getSystemConfig().getAttributes().get(0).getDateFormat());
+        textField.setProcessOn(dateFormat.format(Date.from(Instant.now())));
 
         return textField;
     }
