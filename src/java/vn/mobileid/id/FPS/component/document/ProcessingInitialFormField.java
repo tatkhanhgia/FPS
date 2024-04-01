@@ -36,14 +36,14 @@ public class ProcessingInitialFormField {
 
     //<editor-fold defaultstate="collapsed" desc="Processing Initial Form Field">
     /**
-     * Processing all Initial Form Field in Payload 
+     * Processing all Initial Form Field in Payload
      * Flow: Have one field need to be append (If want to process more Field, that value will be provide
-     * inside the field) 
-     * => Get Doc Revision, ExtendedFieldAttribute and then check some case 
-     * => Parse into InitialFieldAttribute 
+     * inside the field)
+     * => Get Doc Revision, ExtendedFieldAttribute and then check some case
+     * => Parse into InitialFieldAttribute
      * => Then call sub method to process the field Initial (If have flag process all, the sub
      * method will do it)
-     *<p>
+     * <p>
      * @param packageId
      * @param user
      * @param documents
@@ -154,11 +154,11 @@ public class ProcessingInitialFormField {
 
     //<editor-fold defaultstate="collapsed" desc="Processing Mutiple Initial Form Field">
     /**
-     * Processing all Initial Form Field in Payload 
+     * Processing all Initial Form Field in Payload
      * Flow: already have all ProcessField need to be append value
      * For each ProcessField
-     *   => Get from DB and check some case(valid) then parse into InitialFieldAttribute
-     *   => Call sub method to process that InitialField
+     * => Get from DB and check some case(valid) then parse into InitialFieldAttribute
+     * => Call sub method to process that InitialField
      * <p>
      * @param documents
      * @param user
@@ -182,6 +182,9 @@ public class ProcessingInitialFormField {
                 ""
         );
 
+        if (fields.getInitialFieldNames() == null) {
+            fields.setInitialFieldNames(new ArrayList<>());
+        }
         fields.getInitialFieldNames().add(fields.getFieldName());
 
         //<editor-fold defaultstate="collapsed" desc="Get Original Document and last Document">
@@ -299,13 +302,14 @@ public class ProcessingInitialFormField {
             //</editor-fold>
 
             //Processing
-            response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.IMAGE).processField(
+            response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.INITIALS).processField(
                     user,
                     document_,
+                    documents.size(),
                     fieldData.getDocumentFieldId(),
                     initialField,
                     transactionId,
-                    documents.size());
+                    documentIDOriginal);
 
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 if (response.getCode() == 0 || response.getCodeDescription() == 0) {
@@ -352,46 +356,43 @@ public class ProcessingInitialFormField {
         initialField.setProcessOn(dateFormat.format(Date.from(Instant.now())));
 
         if (processRequest != null) {
-            //<editor-fold defaultstate="collapsed" desc="Check if image is UUID ? => get From FMS">
             if (processRequest.getImage() != null) {
                 initialField.setImage(processRequest.getImage());
-            } else {
-                try {
-                    if (initialField.getImage().length() <= 32) {
-                        InternalResponse response = FMS.downloadDocumentFromFMS(initialField.getImage(), "");
-
-                        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                            return new InternalResponse(
-                                    A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
-                                    0,
-                                    0).setMessage(
-                                    new ResponseMessageController().writeStringField(
-                                            "error",
-                                            "Cannot get Image in Initial from FMS!").build()
-                            );
-                        }
-
-                        byte[] image_ = (byte[]) response.getData();
-                        initialField.setImage(Base64.getEncoder().encodeToString(image_));
-                    }
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                    return new InternalResponse(
-                            A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
-                            0,
-                            0).setMessage(
-                            new ResponseMessageController().writeStringField(
-                                    "error",
-                                    "Cannot get Image in Initial from FMS!").build()
-                    );
-                }
             }
-            //</editor-fold>
-
             if (processRequest.isApplyToAll()) {
                 initialField.setApplyToAll(true);
             } else if (!Utils.isNullOrEmpty(processRequest.getPages())) {
                 initialField.setPages(processRequest.getPages());
+            }
+        } else {
+            try {
+                if (initialField.getImage().length() <= 32) {
+                    InternalResponse response = FMS.downloadDocumentFromFMS(initialField.getImage(), "");
+
+                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                        return new InternalResponse(
+                                A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
+                                0,
+                                0).setMessage(
+                                new ResponseMessageController().writeStringField(
+                                        "error",
+                                        "Cannot get Image in Initial from FMS!").build()
+                        );
+                    }
+
+                    byte[] image_ = (byte[]) response.getData();
+                    initialField.setImage(Base64.getEncoder().encodeToString(image_));
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                return new InternalResponse(
+                        A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
+                        0,
+                        0).setMessage(
+                        new ResponseMessageController().writeStringField(
+                                "error",
+                                "Cannot get Image in Initial from FMS!").build()
+                );
             }
         }
 

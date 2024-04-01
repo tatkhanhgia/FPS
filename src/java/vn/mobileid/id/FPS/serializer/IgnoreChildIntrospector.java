@@ -12,11 +12,11 @@ import fps_core.objects.BasicFieldAttribute;
  *
  * @author GiaTK
  */
-public class IgnoreIngeritedIntrospector extends JacksonAnnotationIntrospector {
+public class IgnoreChildIntrospector extends JacksonAnnotationIntrospector {
 
     @Override
     public boolean hasIgnoreMarker(final AnnotatedMember m) {
-        return m.getDeclaringClass() == BasicFieldAttribute.class || super.hasIgnoreMarker(m);
+        return m.getDeclaringClass() != BasicFieldAttribute.class || super.hasIgnoreMarker(m);
     }
     
 }

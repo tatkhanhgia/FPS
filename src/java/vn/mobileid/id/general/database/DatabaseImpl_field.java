@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.User;
+import vn.mobileid.id.FPS.serializer.IgnoreChildIntrospector;
 import vn.mobileid.id.FPS.serializer.IgnoreIngeritedIntrospector;
 import vn.mobileid.id.general.Configuration;
 import vn.mobileid.id.general.LogHandler;
@@ -239,7 +240,7 @@ class DatabaseImpl_field_ implements DatabaseImpl_field {
         datas.put("pTYPE", field.getType().getTypeId());
         datas.put("pNAME", field.getFieldName());
         datas.put("pVALUE", new ObjectMapper()
-                .setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
+                .setAnnotationIntrospector(new IgnoreChildIntrospector())
                 .writeValueAsString(inputClass));
         datas.put("pPAGE_NUMBER", field.getPage());
         datas.put("pFIELD_WIDTH", field.getDimension().getWidth());
