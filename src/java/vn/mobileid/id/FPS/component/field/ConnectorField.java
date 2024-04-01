@@ -825,6 +825,7 @@ public class ConnectorField {
         List<ImageFieldAttribute> images = new ArrayList<>();
         List<CheckBoxFieldAttribute> checkboxs = new ArrayList<>();
         List<CameraFieldAttribute> cameras = new ArrayList<>();
+        List<RadioFieldAttribute> radios = new ArrayList<>();
 
         for (ExtendedFieldAttribute field : fields) {
             try {
@@ -855,6 +856,10 @@ public class ConnectorField {
                         break;
                     }
                     case 3: {
+                        RadioFieldAttribute radio = new ObjectMapper().readValue(field.getDetailValue(), RadioFieldAttribute.class);
+                        radio.setDimension(ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
+                        radio = (RadioFieldAttribute) field.clone(radio, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
+                        radios.add(radio);
                         break;
                     }
                     case 37: {
@@ -1051,7 +1056,7 @@ public class ConnectorField {
         Object[] array = new Object[12];
         array[0] = textboxs;
         array[1] = checkboxs;
-        array[2] = null;
+        array[2] = radios;
         array[3] = qrs;
         array[4] = initials;
         array[5] = null;
@@ -1538,7 +1543,6 @@ public class ConnectorField {
                     );
                 }
                 if (!Utils.isNullOrEmpty(field.getImage())) {
-
                     //<editor-fold defaultstate="collapsed" desc="Upload into FMS if need">
                     if (field.getImage() != null && field.getImage().length()
                             > PolicyConfiguration.getInstant()

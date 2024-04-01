@@ -654,7 +654,6 @@ public class InitialsProcessing implements ModuleProcessing, DocumentProcessing 
             } catch (Exception ex) {
                 System.err.println("Cannot upload new Image of Initial into FMS! Using default");
             }
-
             //</editor-fold>
             
             field.setProcessStatus(ProcessStatus.PROCESSED.getName());

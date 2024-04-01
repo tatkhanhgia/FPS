@@ -40,8 +40,6 @@ public class ProcessingCameraField {
      * @param packageId
      * @param fieldName
      * @param user
-     * @param documents
-     * @param processRequest
      * @param transactionId
      * @return InternalResponse If the InternalResponse.getStatus() !=
      * HTTP.Success => That InternalResponse have an InternalData satisfied
