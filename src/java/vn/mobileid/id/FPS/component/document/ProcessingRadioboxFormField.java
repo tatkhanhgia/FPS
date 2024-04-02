@@ -138,7 +138,7 @@ public class ProcessingRadioboxFormField {
             //</editor-fold>
 
             //Processing
-            response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.RADIO).processMultipleField(
+            response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.RADIO).processField(
                     user,
                     document_,
                     documents.size(),

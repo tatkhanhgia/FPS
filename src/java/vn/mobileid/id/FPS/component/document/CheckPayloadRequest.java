@@ -240,7 +240,7 @@ public class CheckPayloadRequest {
             );
         }
 
-        if (object.getPage() <= 0 && Utils.isNullOrEmpty(object.getPages()) && !object.isApplyToAll()) {
+        if (object.getPage() <= 0 && !object.isApplyToAll()) {
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                     A_FPSConstant.CODE_FIELD,

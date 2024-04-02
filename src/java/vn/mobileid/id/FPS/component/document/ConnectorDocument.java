@@ -54,6 +54,7 @@ import vn.mobileid.id.utils.ManagementTemporal;
 import vn.mobileid.id.utils.TaskV2;
 import vn.mobileid.id.utils.Utils;
 import fps_core.objects.InitialsFieldAttribute;
+import vn.mobileid.id.FPS.component.document.process.interfaces.IVersion;
 import vn.mobileid.id.FPS.object.ProcessInitialField;
 
 /**
@@ -1500,39 +1501,10 @@ public class ConnectorDocument {
         }
         //</editor-fold>
 
-        //<editor-fold defaultstate="collapsed" desc="Get Documents">
-        response = GetDocument.getDocuments(
-                packageId,
-                transactionId);
-
-        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-            return response.setUser(user);
-        }
-
-        List<Document> documents = (List<Document>) response.getData();
-//        Document document_ = null;
-//        for (Document document : documents) {
-//            if (document.getRevision() == 1) {
-//                response = ConnectorField_Internal.getField(
-//                        document.getId(),
-//                        processRequest.getFieldName(),
-//                        transactionId);
-//            }
-//            if (document.getRevision() == documents.size()) {
-//                document_ = document;
-//            }
-//        }
-//        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-//            return response.setUser(user);
-//        }
-//        ExtendedFieldAttribute fieldData = (ExtendedFieldAttribute) response.getData();
-        //</editor-fold>
-
         //<editor-fold defaultstate="collapsed" desc="Process Initial Form Field">
-        response = ProcessingInitialFormField.processInitialField(
+        response =  ProcessingInitialFormField.genVersion(IVersion.Version.V1).processInitialField(
                 packageId,
                 user,
-                documents,
                 processRequest,
                 transactionId);
 
@@ -1596,21 +1568,9 @@ public class ConnectorDocument {
         }
         //</editor-fold>
 
-        //<editor-fold defaultstate="collapsed" desc="Get Documents">
-        response = GetDocument.getDocuments(
-                packageId,
-                transactionId);
-
-        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-            return response.setUser(user);
-        }
-
-        List<Document> documents = (List<Document>) response.getData();
-        //</editor-fold>
-
         //<editor-fold defaultstate="collapsed" desc="Process Initial Form Field">
-        response = ProcessingInitialFormField.processMultipleInitial_V2(
-                documents,
+        response = ProcessingInitialFormField.genVersion(IVersion.Version.V2).processInitialField_V2(
+                packageId,
                 user,
                 processRequest,
                 transactionId);

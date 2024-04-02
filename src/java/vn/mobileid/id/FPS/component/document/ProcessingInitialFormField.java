@@ -19,11 +19,12 @@ import fps_core.enumration.FieldTypeName;
 import java.util.ArrayList;
 import java.util.Base64;
 import vn.mobileid.id.FMS;
+import vn.mobileid.id.FPS.component.document.process.interfaces.IDocumentProcessing;
+import vn.mobileid.id.FPS.component.document.process.interfaces.IVersion;
 import vn.mobileid.id.FPS.controller.ResponseMessageController;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.ProcessInitialField;
-import vn.mobileid.id.FPS.object.ProcessingRequest;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.general.PolicyConfiguration;
 import vn.mobileid.id.utils.Utils;
@@ -32,8 +33,16 @@ import vn.mobileid.id.utils.Utils;
  *
  * @author GiaTK
  */
-public class ProcessingInitialFormField {
+public class ProcessingInitialFormField extends IVersion{
 
+    ProcessingInitialFormField(Version version) {
+        super(version);
+    }
+    
+    public static ProcessingInitialFormField genVersion(Version version){
+        return new ProcessingInitialFormField(version);
+    }
+    
     //<editor-fold defaultstate="collapsed" desc="Processing Initial Form Field">
     /**
      * Processing all Initial Form Field in Payload
@@ -46,7 +55,6 @@ public class ProcessingInitialFormField {
      * <p>
      * @param packageId
      * @param user
-     * @param documents
      * @param processRequest
      * @param transactionId
      * @return InternalResponse If the InternalResponse.getStatus() !=
@@ -55,17 +63,28 @@ public class ProcessingInitialFormField {
      * error while processed
      * @throws Exception
      */
-    public static InternalResponse processInitialField(
+    public InternalResponse processInitialField(
             long packageId,
             User user,
-            List<Document> documents,
             InitialsFieldAttribute processRequest,
             String transactionId
     ) throws Exception {
+        //<editor-fold defaultstate="collapsed" desc="Get Documents">
+            InternalResponse response = GetDocument.getDocuments(
+                    packageId,
+                    transactionId);
+
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                return response.setUser(user);
+            }
+
+            List<Document> documents = (List<Document>) response.getData();
+            //</editor-fold>
+        
         //<editor-fold defaultstate="collapsed" desc="Get all data of the field">
         Document document_ = null;
         long documentIdOriginal = 0;
-        InternalResponse response = new InternalResponse();
+        response = new InternalResponse();
         for (int i = documents.size() - 1; i >= 0; i--) {
             if (documents.get(i).getRevision() == 1) {
                 documentIdOriginal = documents.get(i).getId();
@@ -106,7 +125,8 @@ public class ProcessingInitialFormField {
             InternalResponse temp = convertExtendIntoInitialField(
                     user,
                     fieldData,
-                    processRequest);
+                    processRequest,
+                    null);
 
             if (temp.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 return temp;
@@ -129,13 +149,16 @@ public class ProcessingInitialFormField {
         //</editor-fold>
 
         //Processing
-        response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.INITIALS).processMultipleField(
-                user,
-                document_,
-                documents.size(),
-                fieldData.getDocumentFieldId(),
-                initField,
-                transactionId,
+        response = ProcessingFactory   
+                .createType(ProcessingFactory.TypeProcess.INITIALS, 
+                        getVersion())
+                .processField(
+                user, //user
+                document_, //Document
+                documents.size(), //Revision
+                fieldData.getDocumentFieldId(), //fieldID
+                initField, //InitField
+                transactionId, //trans
                 documentIdOriginal //flow 2 add this param
         );
 
@@ -160,7 +183,7 @@ public class ProcessingInitialFormField {
      * => Get from DB and check some case(valid) then parse into InitialFieldAttribute
      * => Call sub method to process that InitialField
      * <p>
-     * @param documents
+     * @param packageId
      * @param user
      * @param fields
      * @param transactionId
@@ -170,8 +193,8 @@ public class ProcessingInitialFormField {
      * error while processed
      * @throws Exception
      */
-    public static InternalResponse processMultipleInitial_V2(
-            List<Document> documents,
+    public  InternalResponse processInitialField_V2(
+            long packageId,
             User user,
             ProcessInitialField fields,
             String transactionId
@@ -187,22 +210,34 @@ public class ProcessingInitialFormField {
         }
         fields.getInitialFieldNames().add(fields.getFieldName());
 
-        //<editor-fold defaultstate="collapsed" desc="Get Original Document and last Document">
-        Document document_ = null;
-        long documentIDOriginal = 0;
-        for (int i = documents.size() - 1; i >= 0; i--) {
-            if (documents.get(i).getRevision() == 1) {
-                documentIDOriginal = documents.get(i).getId();
-            }
-            if (documents.get(i).getRevision() == documents.size()) {
-                document_ = documents.get(i);
-            }
-        }
-        //</editor-fold>
-
         for (String field : fields.getInitialFieldNames()) {
             InternalResponse.InternalData errorField = new InternalResponse.InternalData();
             errorField.setName(field);
+
+            //<editor-fold defaultstate="collapsed" desc="Get Documents">
+            InternalResponse response = GetDocument.getDocuments(
+                    packageId,
+                    transactionId);
+
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                return response.setUser(user);
+            }
+
+            List<Document> documents = (List<Document>) response.getData();
+            //</editor-fold>
+
+            //<editor-fold defaultstate="collapsed" desc="Get Original Document and last Document">
+            Document document_ = null;
+            long documentIDOriginal = 0;
+            for (int i = documents.size() - 1; i >= 0; i--) {
+                if (documents.get(i).getRevision() == 1) {
+                    documentIDOriginal = documents.get(i).getId();
+                }
+                if (documents.get(i).getRevision() == documents.size()) {
+                    document_ = documents.get(i);
+                }
+            }
+            //</editor-fold>
 
             //<editor-fold defaultstate="collapsed" desc="Check value is String?">
             if (fields.getValue() != null) {
@@ -218,7 +253,7 @@ public class ProcessingInitialFormField {
             //</editor-fold>
 
             //<editor-fold defaultstate="collapsed" desc="Get Field with the input name">
-            InternalResponse response = ConnectorField_Internal.getField(
+            response = ConnectorField_Internal.getField(
                     documentIDOriginal,
                     field,
                     transactionId);
@@ -259,7 +294,8 @@ public class ProcessingInitialFormField {
                 InternalResponse convertResponse = convertExtendIntoInitialField(
                         user,
                         fieldData,
-                        null
+                        null,
+                        fields
                 );
 
                 if (convertResponse.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
@@ -271,6 +307,7 @@ public class ProcessingInitialFormField {
                 if (fields.getValue() != null) {
                     initialField.setImage(fields.getValue());
                 }
+
             } catch (Exception ex) {
                 errorField.setValue(Utils.summaryException(ex));
                 if (response.getException() != null) {
@@ -302,7 +339,10 @@ public class ProcessingInitialFormField {
             //</editor-fold>
 
             //Processing
-            response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.INITIALS).processField(
+            response = ProcessingFactory.createType(
+                    ProcessingFactory.TypeProcess.INITIALS, 
+                    getVersion())
+                    .processField(
                     user,
                     document_,
                     documents.size(),
@@ -340,12 +380,13 @@ public class ProcessingInitialFormField {
     }
     //</editor-fold>
 
-    //==========================================================================
+    //============================METHOD INTERNAL===============================
     //<editor-fold defaultstate="collapsed" desc="Convert ExtendedField into Initial Field">
     private static InternalResponse convertExtendIntoInitialField(
             User user,
             ExtendedFieldAttribute fieldData,
-            InitialsFieldAttribute processRequest) throws Exception {
+            InitialsFieldAttribute processRequest,
+            ProcessInitialField processRequestV2) throws Exception {
         //Read details
         InitialsFieldAttribute initialField = new ObjectMapper().readValue(fieldData.getDetailValue(), InitialsFieldAttribute.class);
         initialField = (InitialsFieldAttribute) fieldData.clone(initialField, fieldData.getDimension());
@@ -361,39 +402,39 @@ public class ProcessingInitialFormField {
             }
             if (processRequest.isApplyToAll()) {
                 initialField.setApplyToAll(true);
-            } else if (!Utils.isNullOrEmpty(processRequest.getPages())) {
-                initialField.setPages(processRequest.getPages());
-            }
-        } else {
+            } 
+        } else 
             try {
-                if (initialField.getImage().length() <= 32) {
-                    InternalResponse response = FMS.downloadDocumentFromFMS(initialField.getImage(), "");
-
-                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                        return new InternalResponse(
-                                A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
-                                0,
-                                0).setMessage(
-                                new ResponseMessageController().writeStringField(
-                                        "error",
-                                        "Cannot get Image in Initial from FMS!").build()
-                        );
-                    }
-
-                    byte[] image_ = (byte[]) response.getData();
-                    initialField.setImage(Base64.getEncoder().encodeToString(image_));
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                return new InternalResponse(
-                        A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
-                        0,
-                        0).setMessage(
-                        new ResponseMessageController().writeStringField(
-                                "error",
-                                "Cannot get Image in Initial from FMS!").build()
-                );
+            if (processRequestV2 != null && !Utils.isNullOrEmpty(processRequestV2.getValue())) {
+                initialField.setImage(processRequestV2.getValue());
             }
+            if (initialField.getImage().length() <= 32) {
+                InternalResponse response = FMS.downloadDocumentFromFMS(initialField.getImage(), "");
+
+                if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                    return new InternalResponse(
+                            A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
+                            0,
+                            0).setMessage(
+                            new ResponseMessageController().writeStringField(
+                                    "error",
+                                    "Cannot get Image in Initial from FMS!").build()
+                    );
+                }
+
+                byte[] image_ = (byte[]) response.getData();
+                initialField.setImage(Base64.getEncoder().encodeToString(image_));
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return new InternalResponse(
+                    A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
+                    0,
+                    0).setMessage(
+                    new ResponseMessageController().writeStringField(
+                            "error",
+                            "Cannot get Image in Initial from FMS!").build()
+            );
         }
 
         return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, initialField);

@@ -124,7 +124,7 @@ public class ProcessingQRQryptoField {
         //</editor-fold>
 
         //Processing
-        response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.QRYPTO).processMultipleField(
+        response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.QRYPTO).processField(
                 user,
                 document_,
                 documents.size(),
@@ -243,7 +243,7 @@ public class ProcessingQRQryptoField {
         //</editor-fold>
         
         //Processing
-        response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.QRYPTO).processMultipleField(
+        response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.QRYPTO).processField(
                 user,
                 document_,
                 documents.size(),

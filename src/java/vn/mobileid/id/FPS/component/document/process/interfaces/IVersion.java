@@ -4,13 +4,23 @@
  */
 package vn.mobileid.id.FPS.component.document.process.interfaces;
 
-import vn.mobileid.id.FPS.object.InternalResponse;
-
 /**
  *
  * @author GiaTK
  */
-public interface IDocumentProcessing {
-    public InternalResponse processField(Object... object)throws Exception;
-    
+public class IVersion {
+    private Version version;
+
+    public IVersion(Version version) {
+        this.version = version;
+    }
+
+    public Version getVersion() {
+        return version;
+    }
+
+    public static enum Version {
+        V1,
+        V2
+    }
 }

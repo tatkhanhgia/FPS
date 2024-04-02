@@ -49,7 +49,7 @@ import vn.mobileid.id.FPS.component.document.process.interfaces.IDocumentProcess
 class QryptoProcessing implements IDocumentProcessing {
 
     @Override
-    public InternalResponse processMultipleField(Object... objects) throws Exception {
+    public InternalResponse processField(Object... objects) throws Exception {
         //Variable
         User user = (User) objects[0];
         Document document = (Document) objects[1];
@@ -317,11 +317,6 @@ class QryptoProcessing implements IDocumentProcessing {
                 A_FPSConstant.HTTP_CODE_SUCCESS,
                 ""
         );
-    }
-
-    @Override
-    public InternalResponse processField(Object... object) throws Exception {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
 }

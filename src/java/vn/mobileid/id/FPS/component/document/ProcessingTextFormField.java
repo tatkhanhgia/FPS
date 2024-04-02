@@ -134,7 +134,7 @@ public class ProcessingTextFormField {
             //</editor-fold>
 
             //Processing
-            response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.TEXTFIELD).processMultipleField(
+            response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.TEXTFIELD).processField(
                     user,
                     document_,
                     documents.size(),

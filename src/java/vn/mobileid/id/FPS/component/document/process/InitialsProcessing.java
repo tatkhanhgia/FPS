@@ -5,6 +5,7 @@
 package vn.mobileid.id.FPS.component.document.process;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.groupdocs.conversion.internal.c.a.s.IVbaModule;
 import fps_core.enumration.DocumentStatus;
 import fps_core.enumration.FieldTypeName;
 import fps_core.enumration.ProcessStatus;
@@ -36,12 +37,19 @@ import vn.mobileid.id.utils.Crypto;
 import vn.mobileid.id.utils.TaskV2;
 import vn.mobileid.id.FPS.component.document.process.interfaces.IDocumentProcessing;
 import vn.mobileid.id.FPS.component.document.process.interfaces.IModuleProcessing;
+import vn.mobileid.id.FPS.component.document.process.interfaces.IVersion;
+import static vn.mobileid.id.FPS.component.document.process.interfaces.IVersion.Version.V1;
+import static vn.mobileid.id.FPS.component.document.process.interfaces.IVersion.Version.V2;
 
 /**
  *
  * @author GiaTK
  */
-class InitialsProcessing implements IModuleProcessing, IDocumentProcessing {
+class InitialsProcessing extends IVersion implements IModuleProcessing, IDocumentProcessing {
+
+    public InitialsProcessing(Version version) {
+        super(version);
+    }
 
     //<editor-fold defaultstate="collapsed" desc="Create Form Field">
     @Override
@@ -166,7 +174,7 @@ class InitialsProcessing implements IModuleProcessing, IDocumentProcessing {
         }
     }
     //</editor-fold>
-    
+
     //<editor-fold defaultstate="collapsed" desc="Fill Form Field">
     @Override
     public InternalResponse fillFormField(Object... objects) throws Exception {
@@ -298,22 +306,28 @@ class InitialsProcessing implements IModuleProcessing, IDocumentProcessing {
     }
 
     @Override
-    public InternalResponse processMultipleField(Object... objects) throws Exception {
-        return flow2(objects);
+    public InternalResponse processField(Object... objects) throws Exception {
+        switch (getVersion()) {
+            case V1: {
+                return flow2(objects);
+            }
+            case V2: {
+                return flow3(objects);
+            }
+            default: {
+                return flow2(objects);
+            }
+        }
     }
 
-    @Override
-    public InternalResponse processField(Object... object) throws Exception {
-        return flow2(object);
-    }
-    
     //==========================================================================
     //<editor-fold defaultstate="collapsed" desc="Flow create Intial 1">
     /**
      * I don't know this :))) I forgot it
+     *
      * @param objects
      * @return
-     * @throws Exception 
+     * @throws Exception
      */
     private static InternalResponse flow1(
             Object... objects) throws Exception {
@@ -471,15 +485,15 @@ class InitialsProcessing implements IModuleProcessing, IDocumentProcessing {
 
     //<editor-fold defaultstate="collapsed" desc="Flow create Intial 2">
     /**
-     * If the field is have param "apply_to_all" 
-     *  => Get all Initial from DB and store into a List
-     *  => Then call DocumentUtils_i7 to process all Initial field in the List
+     * If the field is have param "apply_to_all"
+     * => Get all Initial from DB and store into a List
+     * => Then call DocumentUtils_i7 to process all Initial field in the List
      * <p>
      * Otherwise call DocumentUtil_i7 to process one initial field
      * <p>
      * @param objects
      * @return
-     * @throws Exception 
+     * @throws Exception
      */
     private static InternalResponse flow2(Object... objects) throws Exception {
         //Variable
@@ -532,75 +546,79 @@ class InitialsProcessing implements IModuleProcessing, IDocumentProcessing {
 
             //<editor-fold defaultstate="collapsed" desc="Check if Field is apply to all => create Multiple Initial">
             if (field.isApplyToAll()) {
-                if(!ProcessModuleForEnterprise.getInstance(user).getEnterprise().equals(
-                        ProcessModuleForEnterprise.Enterprise.DOKOBIT_GATEWAY)){
-                InternalResponse temp = GetField.getFieldsData(documentIDOriginal, transactionId);
-                if (temp.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                    return temp;
-                }
-                List<ExtendedFieldAttribute> fields = (List<ExtendedFieldAttribute>) temp.getData();
-                List<InitialsFieldAttribute> initFields = new ArrayList<>();
-                HashMap<String, Long> map = new HashMap<>();
-                for (ExtendedFieldAttribute initChild : fields) {
-                    if (initChild.getType() != null 
-                            && initChild.getType().getParentType().equalsIgnoreCase(FieldTypeName.INITIAL.getParentName())) {
-                        InitialsFieldAttribute fieldChild = new ObjectMapper().readValue(
-                                initChild.getFieldValue(),
-                                InitialsFieldAttribute.class);
-                        fieldChild = (InitialsFieldAttribute) initChild.clone(fieldChild, initChild.getDimension());
+                if (!ProcessModuleForEnterprise.getInstance(user).getEnterprise().equals(
+                        ProcessModuleForEnterprise.Enterprise.DOKOBIT_GATEWAY)) {
+                    InternalResponse temp = GetField.getFieldsData(documentIDOriginal, transactionId);
+                    if (temp.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                        return temp;
+                    }
+                    List<ExtendedFieldAttribute> fields = (List<ExtendedFieldAttribute>) temp.getData();
+                    List<InitialsFieldAttribute> initFields = new ArrayList<>();
+                    HashMap<String, Long> map = new HashMap<>();
+                    for (ExtendedFieldAttribute initChild : fields) {
+                        if (initChild.getType() != null
+                                && initChild.getType().getParentType().equalsIgnoreCase(FieldTypeName.INITIAL.getParentName())) {
+                            InitialsFieldAttribute fieldChild = new ObjectMapper().readValue(
+                                    initChild.getFieldValue(),
+                                    InitialsFieldAttribute.class);
+                            fieldChild = (InitialsFieldAttribute) initChild.clone(fieldChild, initChild.getDimension());
 
-                        if (fieldChild.getImage() == null
-                                || fieldChild.getImage().isEmpty()
-                                || fieldChild.getImage().length() <= 32) {
-                            fieldChild.setImage(field.getImage());
+                            if (fieldChild.getImage() == null
+                                    || fieldChild.getImage().isEmpty()
+                                    || fieldChild.getImage().length() <= 32) {
+                                fieldChild.setImage(field.getImage());
+                            }
+
+                            initFields.add(fieldChild);
+                            map.put(fieldChild.getFieldName(), initChild.getDocumentFieldId());
+                        }
+                    }
+
+                    appendedFile = DocumentUtils_itext7.createMultipleInitialsForm(
+                            file,
+                            field.getImage(),
+                            initFields,
+                            transactionId);
+
+                    //<editor-fold defaultstate="collapsed" desc="Update all Initial Field">
+                    for (InitialsFieldAttribute initChild : initFields) {
+                        //Update field after processing
+                        initChild.setProcessStatus(ProcessStatus.PROCESSED.getName());
+                        ObjectMapper ob = new ObjectMapper();
+                        response = ConnectorField_Internal.updateValueOfField(
+                                map.get(initChild.getFieldName()),
+                                user,
+                                ob.writeValueAsString(initChild),
+                                transactionId);
+                        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                            return new InternalResponse(
+                                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                                    A_FPSConstant.CODE_DOCUMENT,
+                                    A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD
+                            );
                         }
 
-                        initFields.add(fieldChild);
-                        map.put(fieldChild.getFieldName(), initChild.getDocumentFieldId());
+                        //Update new data of CheckboxField
+                        response = ConnectorField_Internal.updateFieldDetail(
+                                map.get(initChild.getFieldName()),
+                                user,
+                                ob.writeValueAsString(initChild),
+                                "hmac",
+                                transactionId);
+                        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                            return new InternalResponse(
+                                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                                    A_FPSConstant.CODE_DOCUMENT,
+                                    A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD_DETAILS
+                            );
+                        }
                     }
+                    //</editor-fold>
                 }
-
-                appendedFile = DocumentUtils_itext7.createMultipleInitialsForm(
+                appendedFile = DocumentUtils_itext7.createInitialsForm(
                         file,
-                        field.getImage(),
-                        initFields,
+                        field,
                         transactionId);
-
-                //<editor-fold defaultstate="collapsed" desc="Update all Initial Field">
-                for (InitialsFieldAttribute initChild : initFields) {
-                    //Update field after processing
-                    initChild.setProcessStatus(ProcessStatus.PROCESSED.getName());
-                    ObjectMapper ob = new ObjectMapper();
-                    response = ConnectorField_Internal.updateValueOfField(
-                            map.get(initChild.getFieldName()),
-                            user,
-                            ob.writeValueAsString(initChild),
-                            transactionId);
-                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                        return new InternalResponse(
-                                A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                                A_FPSConstant.CODE_DOCUMENT,
-                                A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD
-                        );
-                    }
-
-                    //Update new data of CheckboxField
-                    response = ConnectorField_Internal.updateFieldDetail(
-                            map.get(initChild.getFieldName()),
-                            user,
-                            ob.writeValueAsString(initChild),
-                            "hmac",
-                            transactionId);
-                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                        return new InternalResponse(
-                                A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                                A_FPSConstant.CODE_DOCUMENT,
-                                A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD_DETAILS
-                        );
-                    }
-                }
-                //</editor-fold>
-            }
             } else {
                 appendedFile = DocumentUtils_itext7.createInitialsForm(
                         file,
@@ -666,26 +684,25 @@ class InitialsProcessing implements IModuleProcessing, IDocumentProcessing {
                 return response;
             }
             //</editor-fold>
-    
-            //<editor-fold defaultstate="collapsed" desc="Update Field after processing">
 
+            //<editor-fold defaultstate="collapsed" desc="Update Field after processing">
             //<editor-fold defaultstate="collapsed" desc="Upload Image of Fill (field) into FMS and update new UUID into initField">
             try {
                 InternalResponse callFMS = FMS.uploadToFMS(
                         Base64.getDecoder().decode(field.getImage()),
                         "png",
                         transactionId);
-                if(callFMS.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS){
+                if (callFMS.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                     System.err.println("Cannot upload new Image of Initial into FMS! Using default");
                 } else {
-                    String uuid_ = (String)callFMS.getData();
+                    String uuid_ = (String) callFMS.getData();
                     field.setImage(uuid_);
                 }
             } catch (Exception ex) {
                 System.err.println("Cannot upload new Image of Initial into FMS! Using default");
             }
             //</editor-fold>
-            
+
             field.setProcessStatus(ProcessStatus.PROCESSED.getName());
 
             ObjectMapper ob = new ObjectMapper();
@@ -741,17 +758,13 @@ class InitialsProcessing implements IModuleProcessing, IDocumentProcessing {
     }
     //</editor-fold>
 
-    //<editor-fold defaultstate="collapsed" desc="Flow create Initial 3">
+    //<editor-fold defaultstate="collapsed" desc="Flow create Initial 2 Version 2">
     /**
-     * If the field is have param "apply_to_all" 
-     *  => Get all Initial from DB and store into a List
-     *  => Then call DocumentUtils_i7 to Process all Initial field in the List
-     * <p>
-     * Otherwise call DocumentUtil_i7 to process one initial field
-     * <p>
+     * Like flow 2 but have the update that call new create InitialField Version2
+     *
      * @param objects
      * @return
-     * @throws Exception 
+     * @throws Exception
      */
     private static InternalResponse flow3(Object... objects) throws Exception {
         //Variable
@@ -804,77 +817,77 @@ class InitialsProcessing implements IModuleProcessing, IDocumentProcessing {
 
             //<editor-fold defaultstate="collapsed" desc="Check if Field is apply to all => create Multiple Initial">
             if (field.isApplyToAll()) {
-                if(!ProcessModuleForEnterprise.getInstance(user).getEnterprise().equals(
-                        ProcessModuleForEnterprise.Enterprise.DOKOBIT_GATEWAY)){
-                InternalResponse temp = GetField.getFieldsData(documentIDOriginal, transactionId);
-                if (temp.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                    return temp;
-                }
-                List<ExtendedFieldAttribute> fields = (List<ExtendedFieldAttribute>) temp.getData();
-                List<InitialsFieldAttribute> initFields = new ArrayList<>();
-                HashMap<String, Long> map = new HashMap<>();
-                for (ExtendedFieldAttribute initChild : fields) {
-                    if (initChild.getType() != null 
-                            && initChild.getType().getParentType().equalsIgnoreCase(FieldTypeName.INITIAL.getParentName())) {
-                        InitialsFieldAttribute fieldChild = new ObjectMapper().readValue(
-                                initChild.getFieldValue(),
-                                InitialsFieldAttribute.class);
-                        fieldChild = (InitialsFieldAttribute) initChild.clone(fieldChild, initChild.getDimension());
-
-                        if (fieldChild.getImage() == null
-                                || fieldChild.getImage().isEmpty()
-                                || fieldChild.getImage().length() <= 32) {
-                            fieldChild.setImage(field.getImage());
-                        }
-
-                        initFields.add(fieldChild);
-                        map.put(fieldChild.getFieldName(), initChild.getDocumentFieldId());
-                    }
-                }
-
-                appendedFile = DocumentUtils_itext7.createMultipleInitialsForm(
-                        file,
-                        field.getImage(),
-                        initFields,
-                        transactionId);
-
-                //<editor-fold defaultstate="collapsed" desc="Update all Initial Field">
-                for (InitialsFieldAttribute initChild : initFields) {
-                    //Update field after processing
-                    initChild.setProcessStatus(ProcessStatus.PROCESSED.getName());
-                    ObjectMapper ob = new ObjectMapper();
-                    response = ConnectorField_Internal.updateValueOfField(
-                            map.get(initChild.getFieldName()),
-                            user,
-                            ob.writeValueAsString(initChild),
-                            transactionId);
-                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                        return new InternalResponse(
-                                A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                                A_FPSConstant.CODE_DOCUMENT,
-                                A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD
-                        );
-                    }
-
-                    //Update new data of CheckboxField
-                    response = ConnectorField_Internal.updateFieldDetail(
-                            map.get(initChild.getFieldName()),
-                            user,
-                            ob.writeValueAsString(initChild),
-                            "hmac",
-                            transactionId);
-                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                        return new InternalResponse(
-                                A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                                A_FPSConstant.CODE_DOCUMENT,
-                                A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD_DETAILS
-                        );
-                    }
-                }
-                //</editor-fold>
-            }
+//                if(!ProcessModuleForEnterprise.getInstance(user).getEnterprise().equals(
+//                        ProcessModuleForEnterprise.Enterprise.DOKOBIT_GATEWAY)){
+//                InternalResponse temp = GetField.getFieldsData(documentIDOriginal, transactionId);
+//                if (temp.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+//                    return temp;
+//                }
+//                List<ExtendedFieldAttribute> fields = (List<ExtendedFieldAttribute>) temp.getData();
+//                List<InitialsFieldAttribute> initFields = new ArrayList<>();
+//                HashMap<String, Long> map = new HashMap<>();
+//                for (ExtendedFieldAttribute initChild : fields) {
+//                    if (initChild.getType() != null 
+//                            && initChild.getType().getParentType().equalsIgnoreCase(FieldTypeName.INITIAL.getParentName())) {
+//                        InitialsFieldAttribute fieldChild = new ObjectMapper().readValue(
+//                                initChild.getFieldValue(),
+//                                InitialsFieldAttribute.class);
+//                        fieldChild = (InitialsFieldAttribute) initChild.clone(fieldChild, initChild.getDimension());
+//
+//                        if (fieldChild.getImage() == null
+//                                || fieldChild.getImage().isEmpty()
+//                                || fieldChild.getImage().length() <= 32) {
+//                            fieldChild.setImage(field.getImage());
+//                        }
+//
+//                        initFields.add(fieldChild);
+//                        map.put(fieldChild.getFieldName(), initChild.getDocumentFieldId());
+//                    }
+//                }
+//
+//                appendedFile = DocumentUtils_itext7.createMultipleInitialsFormV2(
+//                        file,
+//                        field.getImage(),
+//                        initFields,
+//                        transactionId);
+//
+//                //<editor-fold defaultstate="collapsed" desc="Update all Initial Field">
+//                for (InitialsFieldAttribute initChild : initFields) {
+//                    //Update field after processing
+//                    initChild.setProcessStatus(ProcessStatus.PROCESSED.getName());
+//                    ObjectMapper ob = new ObjectMapper();
+//                    response = ConnectorField_Internal.updateValueOfField(
+//                            map.get(initChild.getFieldName()),
+//                            user,
+//                            ob.writeValueAsString(initChild),
+//                            transactionId);
+//                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+//                        return new InternalResponse(
+//                                A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+//                                A_FPSConstant.CODE_DOCUMENT,
+//                                A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD
+//                        );
+//                    }
+//
+//                    //Update new data of CheckboxField
+//                    response = ConnectorField_Internal.updateFieldDetail(
+//                            map.get(initChild.getFieldName()),
+//                            user,
+//                            ob.writeValueAsString(initChild),
+//                            "hmac",
+//                            transactionId);
+//                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+//                        return new InternalResponse(
+//                                A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+//                                A_FPSConstant.CODE_DOCUMENT,
+//                                A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD_DETAILS
+//                        );
+//                    }
+//                }
+//                //</editor-fold>
+//            }
             } else {
-                appendedFile = DocumentUtils_itext7.createInitialsForm(
+                appendedFile = DocumentUtils_itext7.createInitialsFormV2(
                         file,
                         field,
                         transactionId);
@@ -938,26 +951,25 @@ class InitialsProcessing implements IModuleProcessing, IDocumentProcessing {
                 return response;
             }
             //</editor-fold>
-    
-            //<editor-fold defaultstate="collapsed" desc="Update Field after processing">
 
+            //<editor-fold defaultstate="collapsed" desc="Update Field after processing">
             //<editor-fold defaultstate="collapsed" desc="Upload Image of Fill (field) into FMS and update new UUID into initField">
             try {
                 InternalResponse callFMS = FMS.uploadToFMS(
                         Base64.getDecoder().decode(field.getImage()),
                         "png",
                         transactionId);
-                if(callFMS.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS){
+                if (callFMS.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                     System.err.println("Cannot upload new Image of Initial into FMS! Using default");
                 } else {
-                    String uuid_ = (String)callFMS.getData();
+                    String uuid_ = (String) callFMS.getData();
                     field.setImage(uuid_);
                 }
             } catch (Exception ex) {
                 System.err.println("Cannot upload new Image of Initial into FMS! Using default");
             }
             //</editor-fold>
-            
+
             field.setProcessStatus(ProcessStatus.PROCESSED.getName());
 
             ObjectMapper ob = new ObjectMapper();
