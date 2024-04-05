@@ -31,6 +31,13 @@ public class CheckStatusOfDocument {
 //                    A_FPSConstant.SUBCODE_THE_DOCUMENT_STATUS_IS_PROCESSING
 //            );
 //        }
+        if (document.getStatus().equals(DocumentStatus.PROCESSED)) {
+            return new InternalResponse(
+                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                    A_FPSConstant.CODE_DOCUMENT,
+                    A_FPSConstant.SUBCODE_THE_DOCUMENT_STATUS_IS_PROCESSING
+            );
+        }
         if (document.getStatus().equals(DocumentStatus.DELETED)) {
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,

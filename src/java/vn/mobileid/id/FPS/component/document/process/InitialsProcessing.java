@@ -5,15 +5,14 @@
 package vn.mobileid.id.FPS.component.document.process;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.groupdocs.conversion.internal.c.a.s.IVbaModule;
 import fps_core.enumration.DocumentStatus;
 import fps_core.enumration.FieldTypeName;
 import fps_core.enumration.ProcessStatus;
 import fps_core.module.DocumentUtils_itext7;
-import fps_core.objects.CheckBoxFieldAttribute;
-import fps_core.objects.ExtendedFieldAttribute;
+import fps_core.objects.core.CheckBoxFieldAttribute;
+import fps_core.objects.core.ExtendedFieldAttribute;
 import fps_core.objects.FileManagement;
-import fps_core.objects.InitialsFieldAttribute;
+import fps_core.objects.core.InitialsFieldAttribute;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;

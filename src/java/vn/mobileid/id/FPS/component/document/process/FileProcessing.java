@@ -9,7 +9,7 @@ import fps_core.enumration.DocumentStatus;
 import fps_core.enumration.ProcessStatus;
 import fps_core.module.DocumentUtils_itext7;
 import fps_core.objects.FileManagement;
-import fps_core.objects.ImageFieldAttribute;
+import fps_core.objects.core.FileFieldAttribute;
 import java.util.Base64;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -32,17 +32,18 @@ import vn.mobileid.id.FPS.component.document.process.interfaces.IDocumentProcess
  *
  * @author GiaTK
  */
-class ImageProcessing implements IDocumentProcessing {
+class FileProcessing implements IDocumentProcessing {
 
     @Override
     public InternalResponse processField(Object... objects) throws Exception {
         //Variable
         User user = (User) objects[0];
         Document document = (Document) objects[1];
-        long documentFieldId = (long) objects[2];
-        ImageFieldAttribute field = (ImageFieldAttribute) objects[3];
+        int revision = (int) objects[2];
+        long documentFieldId = (long) objects[3];
+        FileFieldAttribute field = (FileFieldAttribute) objects[4];
         String transactionId = (String) objects[5];
-        int revision = (int) objects[6];
+        long documentIDOriginal = (long) objects[6];
         byte[] file;
 
         //Check status document
@@ -65,17 +66,11 @@ class ImageProcessing implements IDocumentProcessing {
         //</editor-fold>
         
         try {
-            //<editor-fold defaultstate="collapsed" desc="Add Image into File">
-            byte[] image = Base64.getDecoder().decode(field.getImage());
-
-            byte[] resultODF = DocumentUtils_itext7.addImage(
+            //<editor-fold defaultstate="collapsed" desc="Add FileField/Stamp into File">
+            byte[] resultODF = DocumentUtils_itext7.stamp(
                     file,
-                    image,
-                    field.getPage(),
-                    field.getDimension().getX(),
-                    field.getDimension().getY(),
-                    field.getDimension().getWidth(),
-                    field.getDimension().getHeight());
+                    field,
+                    transactionId);
             //</editor-fold>
             
             //<editor-fold defaultstate="collapsed" desc="Analysis file">
@@ -156,18 +151,17 @@ class ImageProcessing implements IDocumentProcessing {
             //<editor-fold defaultstate="collapsed" desc="Upload Image of Fill (field) into FMS and update new UUID into initField">
             try {
                 InternalResponse callFMS = FMS.uploadToFMS(
-                        Base64.getDecoder().decode(field.getImage()),
+                        Base64.getDecoder().decode(field.getFile()),
                         "png",
                         transactionId);
                 if(callFMS.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS){
                     System.err.println("Cannot upload new Image of Initial into FMS! Using default");
                 } else {
                     String uuid_ = (String)callFMS.getData();
-                    field.setImage(uuid_);
+                    field.setFile(uuid_);
                 }
             } catch (Exception ex) {
-                LogHandler.error(
-                        ImageProcessing.class, 
+                LogHandler.error(FileProcessing.class, 
                         transactionId, 
                         "Cannot upload new Image of Initial into FMS! Using default");
             }

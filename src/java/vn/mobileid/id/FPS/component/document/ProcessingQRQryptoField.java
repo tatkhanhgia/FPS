@@ -5,7 +5,7 @@
 package vn.mobileid.id.FPS.component.document;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fps_core.objects.ExtendedFieldAttribute;
+import fps_core.objects.core.ExtendedFieldAttribute;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
@@ -233,7 +233,7 @@ public class ProcessingQRQryptoField {
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Check page Sig is valid?">
-        if(document_.getDocumentPages() < fieldData.getPage()){
+        if (document_.getDocumentPages() < fieldData.getPage()) {
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                     A_FPSConstant.CODE_FIELD,
@@ -241,7 +241,7 @@ public class ProcessingQRQryptoField {
             );
         }
         //</editor-fold>
-        
+
         //Processing
         response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.QRYPTO).processField(
                 user,
@@ -302,12 +302,8 @@ public class ProcessingQRQryptoField {
                             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                                 return new InternalResponse(
                                         A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
-                                        0,
-                                        0).setMessage(
-                                        new ResponseMessageController().writeStringField(
-                                                "error",
-                                                "Cannot get Image in Qrypto from FMS!").build()
-                                );
+                                        A_FPSConstant.CODE_FMS,
+                                        A_FPSConstant.SUBCODE_ERROR_WHILE_DOWNLOAD_FMS);
                             }
 
                             byte[] image_ = (byte[]) response.getData();
@@ -317,12 +313,8 @@ public class ProcessingQRQryptoField {
                             ex.printStackTrace();
                             return new InternalResponse(
                                     A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
-                                    0,
-                                    0).setMessage(
-                                    new ResponseMessageController().writeStringField(
-                                            "error",
-                                            "Cannot get Image in Qrypto  from FMS!").build()
-                            );
+                                    A_FPSConstant.CODE_FMS,
+                                    A_FPSConstant.SUBCODE_ERROR_WHILE_DOWNLOAD_FMS);
                         }
 
                     }

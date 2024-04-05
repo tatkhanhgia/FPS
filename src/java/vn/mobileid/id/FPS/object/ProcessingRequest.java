@@ -7,7 +7,7 @@ package vn.mobileid.id.FPS.object;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import fps_core.objects.SignatureFieldAttribute;
+import fps_core.objects.core.SignatureFieldAttribute;
 import java.util.ArrayList;
 import java.util.List;
 import vn.mobileid.id.FPS.QryptoService.object.ItemDetails;
@@ -39,8 +39,9 @@ public class ProcessingRequest {
     private List<ProcessingFormFillRequest> checkbox=new ArrayList<>();
     private List<ProcessingFormFillRequest> dropdown=new ArrayList<>();
     private List<ProcessingFormFillRequest> listbox=new ArrayList<>();
-    private List<ProcessingFormFillRequest> images=new ArrayList<>();
+    private List<ProcessingFormFillRequest> stamp=new ArrayList<>();
     private List<ProcessingFormFillRequest> cameras=new ArrayList<>();
+    private List<ProcessingFormFillRequest> attachment=new ArrayList<>();
     
     //Data for fill QR Qrypto Field
     private List<ItemDetails> item;
@@ -218,11 +219,16 @@ public class ProcessingRequest {
         return listbox;
     }
     
-    @JsonProperty("image")
-    public List<ProcessingFormFillRequest> getImages() {
-        return images;
+    @JsonProperty("stamp")
+    public List<ProcessingFormFillRequest> getStamp() {
+        return stamp;
     }
 
+    @JsonProperty("attachment")
+    public List<ProcessingFormFillRequest> getAttachment() {
+        return attachment;
+    }
+    
     @JsonProperty("hand_signature_image")
     public String getHandSignatureImage() {
         return handSignatureImage;
@@ -240,6 +246,9 @@ public class ProcessingRequest {
         private String fieldName;
         private Object value;
         private String radioGroupName;
+        
+        //For Attachment 
+        private String fileName;
 
         public ProcessingFormFillRequest() {
         }
@@ -271,5 +280,13 @@ public class ProcessingRequest {
             return radioGroupName;
         }
 
+        @JsonProperty("file_name")
+        public String getFileName() {
+            return fileName;
+        }
+
+        public void setFileName(String fileName) {
+            this.fileName = fileName;
+        }
     }
 }

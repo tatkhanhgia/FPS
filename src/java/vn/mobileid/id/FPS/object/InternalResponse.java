@@ -6,6 +6,7 @@
 package vn.mobileid.id.FPS.object;
 
 import java.util.HashMap;
+import vn.mobileid.id.FPS.controller.A_FPSConstant;
 
 /**
  *
@@ -61,6 +62,10 @@ public class InternalResponse {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+    
+    public boolean isValid(){
+        return this.status == A_FPSConstant.HTTP_CODE_SUCCESS;
     }
 
     public String getMessage() {

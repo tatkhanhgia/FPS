@@ -5,8 +5,8 @@
 package vn.mobileid.id.FPS.component.document;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fps_core.objects.ExtendedFieldAttribute;
-import fps_core.objects.InitialsFieldAttribute;
+import fps_core.objects.core.ExtendedFieldAttribute;
+import fps_core.objects.core.InitialsFieldAttribute;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
@@ -208,7 +208,10 @@ public class ProcessingInitialFormField extends IVersion{
         if (fields.getInitialFieldNames() == null) {
             fields.setInitialFieldNames(new ArrayList<>());
         }
-        fields.getInitialFieldNames().add(fields.getFieldName());
+        
+        if(!fields.getInitialFieldNames().contains(fields.getFieldName())){
+            fields.getInitialFieldNames().add(fields.getFieldName());
+        }
 
         for (String field : fields.getInitialFieldNames()) {
             InternalResponse.InternalData errorField = new InternalResponse.InternalData();
@@ -243,7 +246,7 @@ public class ProcessingInitialFormField extends IVersion{
             if (fields.getValue() != null) {
                 if (!(fields.getValue() instanceof String)) {
                     errorField.setValue(
-                            String.valueOf(A_FPSConstant.CODE_FIELD_IMAGE)
+                            String.valueOf(A_FPSConstant.CODE_FIELD_STAMP)
                             + String.valueOf(A_FPSConstant.SUBCODE_VALUE_MUST_BE_ENCODE_BASE64_FORMAT)
                     );
                     listOfErrorField.add(errorField);
@@ -321,7 +324,7 @@ public class ProcessingInitialFormField extends IVersion{
             //<editor-fold defaultstate="collapsed" desc="Check ImageField is have image data ?">
             if (Utils.isNullOrEmpty(initialField.getImage())) {
                 errorField.setValue(
-                        String.valueOf(A_FPSConstant.CODE_FIELD_IMAGE)
+                        String.valueOf(A_FPSConstant.CODE_FIELD_STAMP)
                         + String.valueOf(A_FPSConstant.SUBCODE_MISSING_IMAGE)
                 );
                 listOfErrorField.add(errorField);

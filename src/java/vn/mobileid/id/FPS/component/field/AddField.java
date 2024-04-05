@@ -5,7 +5,7 @@
 package vn.mobileid.id.FPS.component.field;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import fps_core.objects.Signature;
+import fps_core.objects.core.Signature;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;

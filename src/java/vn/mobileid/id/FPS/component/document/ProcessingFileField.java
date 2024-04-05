@@ -19,9 +19,12 @@ import fps_core.objects.core.FileFieldAttribute;
 import java.util.ArrayList;
 import java.util.Base64;
 import vn.mobileid.id.FMS;
+import vn.mobileid.id.FPS.component.enterprise.ProcessModuleForEnterprise;
 import vn.mobileid.id.FPS.controller.ResponseMessageController;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
+import vn.mobileid.id.FPS.object.InternalResponse.InternalData;
+import vn.mobileid.id.FPS.object.ProcessFileField;
 import vn.mobileid.id.FPS.object.ProcessingRequest;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.general.PolicyConfiguration;
@@ -31,9 +34,9 @@ import vn.mobileid.id.utils.Utils;
  *
  * @author GiaTK
  */
-public class ProcessingCameraField {
+public class ProcessingFileField {
 
-    //<editor-fold defaultstate="collapsed" desc="Processing Camera Form Field">
+    //<editor-fold defaultstate="collapsed" desc="Processing File Form Field">
     /**
      * Processing Image Form Field in Payload
      *
@@ -47,7 +50,7 @@ public class ProcessingCameraField {
      * error while processed
      * @throws Exception
      */
-    public static InternalResponse processCameraField(
+    public static InternalResponse processFileFormField(
             long packageId,
             String fieldName,
             User user,
@@ -104,7 +107,7 @@ public class ProcessingCameraField {
         //<editor-fold defaultstate="collapsed" desc="Convert ExtendField into ImageField">
         FileFieldAttribute imageField = null;
         try {
-            InternalResponse convertResponse = convertExtendIntoImageField(
+            InternalResponse convertResponse = convertExtendIntoFileField(
                     user,
                     fieldData
             );
@@ -140,7 +143,7 @@ public class ProcessingCameraField {
     }
     //</editor-fold>
 
-    //<editor-fold defaultstate="collapsed" desc="Processing Multiple Camera Form Field">
+    //<editor-fold defaultstate="collapsed" desc="Processing Multiple File Form Field Version2">
     /**
      * Processing all ImageField in Payload
      *
@@ -154,10 +157,10 @@ public class ProcessingCameraField {
      * error while processed
      * @throws Exception
      */
-    public static InternalResponse processCameraField(
+    public static InternalResponse processMultipleFileFormField(
             long packageId,
             User user,
-            List<ProcessingRequest.ProcessingFormFillRequest> fields,
+            ProcessFileField fields,
             String transactionId
     ) throws Exception {
         List<InternalResponse.InternalData> listOfErrorField = new ArrayList<>();
@@ -166,8 +169,218 @@ public class ProcessingCameraField {
                 ""
         );
 
-        for (ProcessingRequest.ProcessingFormFillRequest field : fields) {
+        if (fields.getFields() == null) {
+            fields.setFields(new ArrayList<>());
+        }
+
+        if (!fields.getFields().contains(fields.getFieldName())) {
+            fields.getFields().add(fields.getFieldName());
+        }
+
+        for (String field : fields.getFields()) {
             InternalResponse.InternalData errorField = new InternalResponse.InternalData();
+            errorField.setName(field);
+
+            //<editor-fold defaultstate="collapsed" desc="Get Documents">
+            InternalResponse response = GetDocument.getDocuments(
+                    packageId,
+                    transactionId);
+
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                return response.setUser(user);
+            }
+
+            List<Document> documents = (List<Document>) response.getData();
+            //</editor-fold>
+
+            //<editor-fold defaultstate="collapsed" desc="Get Original Document and last Document">
+            Document document_ = null;
+            long documentIDOriginal = 0;
+            for (int i = documents.size() - 1; i >= 0; i--) {
+                if (documents.get(i).getRevision() == 1) {
+                    documentIDOriginal = documents.get(i).getId();
+                }
+                if (documents.get(i).getRevision() == documents.size()) {
+                    document_ = documents.get(i);
+                }
+            }
+            //</editor-fold>
+
+            //<editor-fold defaultstate="collapsed" desc="Check value is String?">
+            if (fields.getValue() != null) {
+                if (!(fields.getValue() instanceof String)) {
+                    errorField.setValue(
+                            String.valueOf(A_FPSConstant.CODE_FIELD_STAMP)
+                            + String.valueOf(A_FPSConstant.SUBCODE_VALUE_MUST_BE_ENCODE_BASE64_FORMAT)
+                    );
+                    listOfErrorField.add(errorField);
+                    continue;
+                }
+            }
+            //</editor-fold>
+
+            //<editor-fold defaultstate="collapsed" desc="Get Field with the input name">
+            response = ConnectorField_Internal.getField(
+                    documentIDOriginal,
+                    field,
+                    transactionId);
+
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                errorField.setValue(String.valueOf(response.getCode()) + String.valueOf(response.getCodeDescription()));
+                listOfErrorField.add(errorField);
+                continue;
+            }
+
+            ExtendedFieldAttribute fieldData = (ExtendedFieldAttribute) response.getData();
+            //</editor-fold>
+
+            //<editor-fold defaultstate="collapsed" desc="Check data in ExtendedField is sastified">
+            if (CheckFieldProcessedYet.checkProcessed(fieldData.getFieldValue()).getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                errorField.setValue(
+                        String.valueOf(A_FPSConstant.CODE_FIELD)
+                        + String.valueOf(A_FPSConstant.SUBCODE_FIELD_ALREADY_PROCESS)
+                );
+                listOfErrorField.add(errorField);
+                continue;
+            }
+
+            if (!fieldData.getType().getParentType().equals(FieldTypeName.STAMP.getParentName())) {
+                errorField.setValue(
+                        String.valueOf(A_FPSConstant.CODE_FIELD)
+                        + String.valueOf(A_FPSConstant.SUBCODE_THIS_TYPE_OF_FIELD_IS_NOT_VALID_FOR_THIS_PROCESSION)
+                );
+                listOfErrorField.add(errorField);
+                continue;
+            }
+            //</editor-fold>
+
+            //<editor-fold defaultstate="collapsed" desc="Convert ExtendField into ImageField">
+            FileFieldAttribute initialField = null;
+            try {
+                InternalResponse convertResponse = convertExtendIntoFileField(
+                        user,
+                        fieldData
+                );
+
+                if (convertResponse.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                    if (response.getCode() == 0 || response.getCodeDescription() == 0) {
+                        errorField.setValue(response.getMessage());
+                    } else {
+                        errorField.setValue(
+                                String.valueOf(response.getCode()) + String.valueOf(response.getCodeDescription()));
+                    }
+                    listOfErrorField.add(errorField);
+                    if (response.getException() != null) {
+                        responseFinal.setException(response.getException());
+                    }
+                    continue;
+                }
+
+                initialField = (FileFieldAttribute) convertResponse.getData();
+
+                if (fields.getValue() != null) {
+                    initialField.setFile(fields.getValue());
+                }
+
+            } catch (Exception ex) {
+                errorField.setValue(Utils.summaryException(ex));
+                if (response.getException() != null) {
+                    responseFinal.setException(response.getException());
+                }
+                listOfErrorField.add(errorField);
+                continue;
+            }
+            //</editor-fold>
+
+            //<editor-fold defaultstate="collapsed" desc="Check ImageField is have image data ?">
+            if (Utils.isNullOrEmpty(initialField.getFile())) {
+                errorField.setValue(
+                        String.valueOf(A_FPSConstant.CODE_FIELD_STAMP)
+                        + String.valueOf(A_FPSConstant.SUBCODE_MISSING_IMAGE)
+                );
+                listOfErrorField.add(errorField);
+                continue;
+            }
+            //</editor-fold>
+
+            //<editor-fold defaultstate="collapsed" desc="Check page Image Field is valid?">
+            if (document_.getDocumentPages() < fieldData.getPage()) {
+                errorField.setValue(
+                        String.valueOf(A_FPSConstant.CODE_FIELD) + String.valueOf(A_FPSConstant.SUBCODE_PAGE_IN_FIELD_NEED_TO_BE_LOWER_THAN_DOCUMENT));
+                listOfErrorField.add(errorField);
+                continue;
+            }
+            //</editor-fold>
+
+            //Processing
+            response = ProcessingFactory.createType(
+                    ProcessingFactory.TypeProcess.IMAGE)
+                    .processField(
+                            user,
+                            document_,
+                            documents.size(),
+                            fieldData.getDocumentFieldId(),
+                            initialField,
+                            transactionId,
+                            documentIDOriginal);
+
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                if (response.getCode() == 0 || response.getCodeDescription() == 0) {
+                    errorField.setValue(response.getMessage());
+                } else {
+                    errorField.setValue(
+                            String.valueOf(response.getCode()) + String.valueOf(response.getCodeDescription()));
+                }
+                listOfErrorField.add(errorField);
+                if (response.getException() != null) {
+                    responseFinal.setException(response.getException());
+                }
+                continue;
+            }
+        }
+
+        if (listOfErrorField.isEmpty()) {
+            return new InternalResponse(
+                    A_FPSConstant.HTTP_CODE_SUCCESS,
+                    ""
+            );
+        }
+
+        InternalResponse.InternalData data = new InternalResponse.InternalData();
+        data.setValue(listOfErrorField);
+        responseFinal.setInternalData(data);
+        return responseFinal;
+    }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="Processing Multiple File Form Field Version1">
+    /**
+     * Processing all ImageField in Payload
+     *
+     * @param packageId
+     * @param user
+     * @param fields
+     * @param transactionId
+     * @return InternalResponse If the InternalResponse.getStatus() !=
+     * HTTP.Success => That InternalResponse have an InternalData satisfied
+     * format InternalData(null,List<InternalData>) - All fields that have an
+     * error while processed
+     * @throws Exception
+     */
+    public static InternalResponse processMultipleFileFormField(
+            long packageId,
+            User user,
+            List<ProcessingRequest.ProcessingFormFillRequest> fields,
+            String transactionId
+    ) throws Exception {
+        List<InternalData> listOfErrorField = new ArrayList<>();
+        InternalResponse responseFinal = new InternalResponse(
+                A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                ""
+        );
+
+        for (ProcessingRequest.ProcessingFormFillRequest field : fields) {
+            InternalData errorField = new InternalData();
             errorField.setName(field.getFieldName());
 
             //<editor-fold defaultstate="collapsed" desc="Check value is String?">
@@ -182,7 +395,7 @@ public class ProcessingCameraField {
                 }
             }
             //</editor-fold>
-
+            
             //<editor-fold defaultstate="collapsed" desc="Get Documents">
             InternalResponse response = GetDocument.getDocuments(
                     packageId,
@@ -216,9 +429,8 @@ public class ProcessingCameraField {
             }
 
             ExtendedFieldAttribute fieldData = (ExtendedFieldAttribute) response.getData();
-
             //</editor-fold>
-            
+
             //<editor-fold defaultstate="collapsed" desc="Check data in ExtendedField is sastified">
             if (CheckFieldProcessedYet.checkProcessed(fieldData.getFieldValue()).getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 errorField.setValue(
@@ -229,8 +441,7 @@ public class ProcessingCameraField {
                 continue;
             }
 
-            if (!fieldData.getType().getParentType().equals(FieldTypeName.INITIAL.getParentName()) && 
-                    !fieldData.getType().getParentType().equals(FieldTypeName.CAMERA.getParentName())) {
+            if (!fieldData.getType().getParentType().equals("TEXTBOX")) {
                 errorField.setValue(
                         String.valueOf(A_FPSConstant.CODE_FIELD)
                         + String.valueOf(A_FPSConstant.SUBCODE_THIS_TYPE_OF_FIELD_IS_NOT_VALID_FOR_THIS_PROCESSION)
@@ -240,45 +451,35 @@ public class ProcessingCameraField {
             }
             //</editor-fold>
 
-            //<editor-fold defaultstate="collapsed" desc="Convert ExtendField into ImageField">
-            FileFieldAttribute imageField = null;
+            //<editor-fold defaultstate="collapsed" desc="Convert ExtendField into File Field">
+            FileFieldAttribute fileField = null;
             try {
-                InternalResponse convertResponse = convertExtendIntoImageField(
-                        user,
-                        fieldData
-                );
+                InternalResponse convert = convertExtendIntoFileField(user, fieldData);
 
-                if (convertResponse.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                    return convertResponse;
+                if (!convert.isValid()) {
+                    if (response.getCode() == 0 || response.getCodeDescription() == 0) {
+                        errorField.setValue(response.getMessage());
+                    } else {
+                        errorField.setValue(
+                                String.valueOf(response.getCode()) + String.valueOf(response.getCodeDescription()));
+                    }
+                    listOfErrorField.add(errorField);
+                    if (response.getException() != null) {
+                        responseFinal.setException(response.getException());
+                    }
+                    continue;
                 }
+                
+                fileField = (FileFieldAttribute)convert.getData();
 
-                imageField = (FileFieldAttribute) convertResponse.getData();
-
-                if (field.getValue() != null) {
-                    imageField.setFile((String) field.getValue());
-                }
             } catch (Exception ex) {
                 errorField.setValue(Utils.summaryException(ex));
-                if (response.getException() != null) {
-                    responseFinal.setException(response.getException());
-                }
                 listOfErrorField.add(errorField);
                 continue;
             }
             //</editor-fold>
 
-            //<editor-fold defaultstate="collapsed" desc="Check ImageField is have image data ?">
-            if (Utils.isNullOrEmpty(imageField.getFile())) {
-                errorField.setValue(
-                        String.valueOf(A_FPSConstant.CODE_FIELD_STAMP)
-                        + String.valueOf(A_FPSConstant.SUBCODE_MISSING_IMAGE)
-                );
-                listOfErrorField.add(errorField);
-                continue;
-            }
-            //</editor-fold>
-
-            //<editor-fold defaultstate="collapsed" desc="Check page Image Field is valid?">
+            //<editor-fold defaultstate="collapsed" desc="Check page FileField is valid?">
             if (document_.getDocumentPages() < fieldData.getPage()) {
                 errorField.setValue(
                         String.valueOf(A_FPSConstant.CODE_FIELD) + String.valueOf(A_FPSConstant.SUBCODE_PAGE_IN_FIELD_NEED_TO_BE_LOWER_THAN_DOCUMENT));
@@ -286,29 +487,21 @@ public class ProcessingCameraField {
                 continue;
             }
             //</editor-fold>
-            
+
             //Processing
             response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.IMAGE).processField(
                     user,
                     document_,
+                    documents.size(),
                     fieldData.getDocumentFieldId(),
-                    imageField,
+                    fileField,
                     fieldData,
-                    transactionId,
-                    documents.size());
+                    transactionId);
 
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                if (response.getCode() == 0 || response.getCodeDescription() == 0) {
-                    errorField.setValue(response.getMessage());
-                } else {
-                    errorField.setValue(
-                            String.valueOf(response.getCode()) + String.valueOf(response.getCodeDescription()));
-                }
+                errorField.setValue(
+                        String.valueOf(response.getCode()) + String.valueOf(response.getCodeDescription()));
                 listOfErrorField.add(errorField);
-                if (response.getException() != null) {
-                    responseFinal.setException(response.getException());
-                }
-                continue;
             }
         }
 
@@ -318,17 +511,21 @@ public class ProcessingCameraField {
                     ""
             );
         }
+        InternalResponse response = new InternalResponse(
+                ProcessModuleForEnterprise.getInstance(user).getStatusCodeFillFormField(listOfErrorField),
+                ""
+        );
 
-        InternalResponse.InternalData data = new InternalResponse.InternalData();
+        InternalData data = new InternalData();
         data.setValue(listOfErrorField);
-        responseFinal.setInternalData(data);
-        return responseFinal;
+        response.setInternalData(data);
+        return response;
     }
     //</editor-fold>
 
     //==========================================================================
-    //<editor-fold defaultstate="collapsed" desc="Convert ExtendedField into ImageField">
-    private static InternalResponse convertExtendIntoImageField(
+    //<editor-fold defaultstate="collapsed" desc="Convert ExtendedField into FileField">
+    private static InternalResponse convertExtendIntoFileField(
             User user,
             ExtendedFieldAttribute fieldData) throws Exception {
         //Read details
@@ -374,4 +571,5 @@ public class ProcessingCameraField {
                 imageField);
     }
     //</editor-fold>
+
 }

@@ -15,13 +15,12 @@ import java.util.List;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ProcessInitialField {
-
+public class ProcessFileField {
     private String fieldName;
     private String value;
-    private List<String> initialFieldNames;
+    private List<String> fields;
 
-    public ProcessInitialField() {
+    public ProcessFileField() {
     }
 
     public void setFieldName(String fieldName) {
@@ -32,8 +31,8 @@ public class ProcessInitialField {
         this.value = value;
     }
 
-    public void setInitialFieldNames(List<String> initialFieldNames) {
-        this.initialFieldNames = initialFieldNames;
+    public void setFields(List<String> replicateFieldName) {
+        this.fields = replicateFieldName;
     }
 
     @JsonProperty("field_name")
@@ -46,8 +45,8 @@ public class ProcessInitialField {
         return value;
     }
 
-    @JsonProperty("initial_field")
-    public List<String> getInitialFieldNames() {
-        return initialFieldNames;
+    @JsonProperty("fill_fields")
+    public List<String> getFields() {
+        return fields;
     }
 }

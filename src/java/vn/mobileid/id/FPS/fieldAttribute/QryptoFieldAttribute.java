@@ -7,7 +7,7 @@ package vn.mobileid.id.FPS.fieldAttribute;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import fps_core.objects.BasicFieldAttribute;
+import fps_core.objects.core.BasicFieldAttribute;
 import java.util.List;
 import vn.mobileid.id.FPS.QryptoService.object.ItemDetails;
 

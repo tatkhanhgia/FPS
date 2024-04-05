@@ -6,8 +6,8 @@ package vn.mobileid.id.FPS.component.document;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fps_core.enumration.FieldTypeName;
-import fps_core.objects.CheckBoxFieldAttribute;
-import fps_core.objects.ExtendedFieldAttribute;
+import fps_core.objects.core.CheckBoxFieldAttribute;
+import fps_core.objects.core.ExtendedFieldAttribute;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;

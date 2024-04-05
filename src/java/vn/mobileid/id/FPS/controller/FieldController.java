@@ -236,6 +236,52 @@ public class FieldController extends HttpServlet {
                 return;
             } //</editor-fold>
 
+            //<editor-fold defaultstate="collapsed" desc="Fill Stamp Field Version2">
+            if (req.getRequestURI().matches("^/fps/v2/documents/[0-9]+/stamp$")) {
+                String transactionId = Utils.getTransactionId(req, payload);
+                long packageId = Utils.getIdFromURL(req.getRequestURI());
+                LogHandler.request(
+                        FieldController.class,
+                        Utils.getDataRequestToLog(req, transactionId, "Fill Stamp Field", ""));
+                if (!Utils.isNullOrEmpty(req.getContentType()) && req.getContentType().contains("application/json")) {
+
+                    InternalResponse response = ConnectorDocument
+                            .fillFileField_V2(req, packageId, payload, transactionId);
+
+                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                        String message = ResponseMessageController.getErrorMessageAdvanced(
+                                response.getCode(),
+                                response.getCodeDescription(),
+                                response.getMessage(),
+                                language,
+                                transactionId);
+                        response.setMessage(message);
+                    }
+
+                    Utils.createAPILog(req,
+                            payload,
+                            (int) packageId,
+                            response,
+                            response.getException(),
+                            transactionId);
+
+                    Utils.sendMessage(
+                            res,
+                            response.getStatus(),
+                            "application/json",
+                            response.getMessage(),
+                            transactionId);
+                } else {
+                    Utils.sendMessage(
+                            res,
+                            HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
+                            "application/json",
+                            null,
+                            transactionId);
+                }
+                return;
+            } //</editor-fold>
+            
             //<editor-fold defaultstate="collapsed" desc="Fill QR Qrypto Field">
             if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/qrcode-qrypto$")) {
                 System.out.println("Hello");

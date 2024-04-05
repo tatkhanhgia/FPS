@@ -27,7 +27,7 @@
         </init-param>
         <init-param>
             <param-name>fieldPattern</param-name>
-            <param-value>^/fps/(v1|v2)/documents/[0-9]+/(fields|initial|qrcode-qrypto|image|checkbox|camera|radio).*$</param-value>
+            <param-value>^/fps/(v1|v2)/documents/[0-9]+/(fields|initial|qrcode-qrypto|stamp|checkbox|camera|radio).*$</param-value>
         </init-param>
         <init-param>
             <param-name>authorizePattern</param-name>

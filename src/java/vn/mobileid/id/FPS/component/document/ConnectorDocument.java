@@ -11,12 +11,12 @@ import fps_core.enumration.DocumentStatus;
 import fps_core.enumration.DocumentType;
 import fps_core.enumration.ProcessStatus;
 import fps_core.module.DocumentUtils_itext7;
-import fps_core.objects.BasicFieldAttribute;
-import fps_core.objects.ExtendedFieldAttribute;
+import fps_core.objects.core.BasicFieldAttribute;
+import fps_core.objects.core.ExtendedFieldAttribute;
 import fps_core.objects.FileManagement;
-import fps_core.objects.QRFieldAttribute;
-import fps_core.objects.Signature;
-import fps_core.objects.SignatureFieldAttribute;
+import fps_core.objects.core.QRFieldAttribute;
+import fps_core.objects.core.Signature;
+import fps_core.objects.core.SignatureFieldAttribute;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -38,6 +38,7 @@ import vn.mobileid.id.FPS.component.field.UpdateField;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.controller.ResponseMessageController;
 import fps_core.enumration.FieldTypeName;
+import fps_core.mixin.InitialsFieldAttributeMixIn;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.ProcessingRequest;
@@ -53,8 +54,9 @@ import vn.mobileid.id.general.Resources;
 import vn.mobileid.id.utils.ManagementTemporal;
 import vn.mobileid.id.utils.TaskV2;
 import vn.mobileid.id.utils.Utils;
-import fps_core.objects.InitialsFieldAttribute;
+import fps_core.objects.core.InitialsFieldAttribute;
 import vn.mobileid.id.FPS.component.document.process.interfaces.IVersion;
+import vn.mobileid.id.FPS.object.ProcessFileField;
 import vn.mobileid.id.FPS.object.ProcessInitialField;
 
 /**
@@ -878,13 +880,13 @@ public class ConnectorDocument {
         }
         //</editor-fold>
 
-        //<editor-fold defaultstate="collapsed" desc="Process Image Form Field">
-        if (!Utils.isNullOrEmpty(processRequest.getImages())) {
-            response = ProcessingImageField.processImageFields(
+        //<editor-fold defaultstate="collapsed" desc="Process Stamp Form Field">
+        if (!Utils.isNullOrEmpty(processRequest.getStamp())) {
+            response = ProcessingFileField.processMultipleFileFormField(
                     Utils.getIdFromURL(request.getRequestURI()),
                     user,
-                    processRequest.getImages(),
-                    transactionId);
+                    processRequest.getStamp(),
+                transactionId);
 
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 return response;
@@ -898,6 +900,20 @@ public class ConnectorDocument {
                     Utils.getIdFromURL(request.getRequestURI()),
                     user,
                     processRequest.getCameras(),
+                    transactionId);
+
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                return response;
+            }
+        }
+        //</editor-fold>
+        
+        //<editor-fold defaultstate="collapsed" desc="Process Attachment Form Field">
+        if (!Utils.isNullOrEmpty(processRequest.getAttachment())) {
+            response = ProcessingAttachmentField.processMultipleFileFormField(
+                    Utils.getIdFromURL(request.getRequestURI()),
+                    user,
+                    processRequest.getAttachment(),
                     transactionId);
 
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
@@ -1478,7 +1494,9 @@ public class ConnectorDocument {
         //<editor-fold defaultstate="collapsed" desc="Parse Payload">
         InitialsFieldAttribute processRequest = null;
         try {
-            processRequest = new ObjectMapper().readValue(payload, InitialsFieldAttribute.class);
+            processRequest = new ObjectMapper()
+                    .addMixIn(InitialsFieldAttribute.class, InitialsFieldAttributeMixIn.class)
+                    .readValue(payload, InitialsFieldAttribute.class);
 //            response = CheckPayloadRequest.checkAddInitialField(processRequest, transactionId);
 //            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
 //                response.setUser(user);
@@ -1570,6 +1588,73 @@ public class ConnectorDocument {
 
         //<editor-fold defaultstate="collapsed" desc="Process Initial Form Field">
         response = ProcessingInitialFormField.genVersion(IVersion.Version.V2).processInitialField_V2(
+                packageId,
+                user,
+                processRequest,
+                transactionId);
+
+        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+            response.setUser(user);
+            return response;
+        }
+        //</editor-fold>
+
+        response = new InternalResponse(
+                A_FPSConstant.HTTP_CODE_SUCCESS,
+                ""
+        );
+        response.setUser(user);
+        return response;
+    }
+    // </editor-fold>
+    
+    // <editor-fold defaultstate="collapsed" desc="Fill File Field Version2">
+    public static InternalResponse fillFileField_V2(
+            HttpServletRequest request,
+            long packageId,
+            String payload,
+            String transactionId) throws Exception {
+        //<editor-fold defaultstate="collapsed" desc="Verify Token">
+        InternalResponse response = Utils.verifyAuthorizationToken(request, transactionId);
+        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+            return response;
+        }
+        User user = (User) response.getData();
+        //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="Check payload">
+        if (Utils.isNullOrEmpty(payload)) {
+            return new InternalResponse(
+                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                    A_FPSConstant.CODE_FAIL,
+                    A_FPSConstant.SUBCODE_NO_PAYLOAD_FOUND
+            ).setUser(user);
+        }
+        //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="Parse Payload">
+        ProcessFileField processRequest = null;
+        try {
+            processRequest = new ObjectMapper().readValue(payload, ProcessFileField.class);
+
+            response = CheckPayloadRequest.checkFillField(processRequest, transactionId);
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                response.setUser(user);
+                return response;
+            }
+        } catch (JsonProcessingException ex) {
+            response = new InternalResponse(
+                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                    A_FPSConstant.CODE_FAIL,
+                    A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE
+            );
+            response.setException(ex).setUser(user);
+            return response;
+        }
+        //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="Process File Form Field">
+        response = ProcessingFileField.processMultipleFileFormField(
                 packageId,
                 user,
                 processRequest,

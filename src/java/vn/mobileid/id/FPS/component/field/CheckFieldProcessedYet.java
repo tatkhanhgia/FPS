@@ -6,8 +6,8 @@ package vn.mobileid.id.FPS.component.field;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fps_core.enumration.ProcessStatus;
-import fps_core.objects.BasicFieldAttribute;
-import fps_core.objects.ExtendedFieldAttribute;
+import fps_core.objects.core.BasicFieldAttribute;
+import fps_core.objects.core.ExtendedFieldAttribute;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.utils.Utils;

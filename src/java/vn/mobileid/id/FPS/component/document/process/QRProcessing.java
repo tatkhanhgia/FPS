@@ -7,7 +7,7 @@ package vn.mobileid.id.FPS.component.document.process;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fps_core.enumration.ProcessStatus;
 import fps_core.module.DocumentUtils_itext7;
-import fps_core.objects.QRFieldAttribute;
+import fps_core.objects.core.QRFieldAttribute;
 import vn.mobileid.id.FMS;
 import vn.mobileid.id.FPS.component.document.module.QRGenerator;
 import vn.mobileid.id.FPS.component.field.ConnectorField_Internal;

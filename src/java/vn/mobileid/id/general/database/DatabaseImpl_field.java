@@ -6,11 +6,11 @@ package vn.mobileid.id.general.database;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fps_core.enumration.RotateDegree;
-import fps_core.objects.BasicFieldAttribute;
+import fps_core.objects.core.BasicFieldAttribute;
 import fps_core.objects.Dimension;
-import fps_core.objects.ExtendedFieldAttribute;
+import fps_core.objects.core.ExtendedFieldAttribute;
 import fps_core.objects.FieldType;
-import fps_core.objects.SignatureFieldAttribute;
+import fps_core.objects.core.SignatureFieldAttribute;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;

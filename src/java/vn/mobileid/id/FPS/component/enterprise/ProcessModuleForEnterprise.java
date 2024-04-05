@@ -7,7 +7,7 @@ package vn.mobileid.id.FPS.component.enterprise;
 import fps_core.module.DocumentUtils_itext7;
 import fps_core.objects.Dimension;
 import fps_core.objects.FileManagement;
-import fps_core.objects.Signature;
+import fps_core.objects.core.Signature;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Base64;

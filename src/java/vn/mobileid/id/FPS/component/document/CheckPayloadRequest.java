@@ -5,12 +5,13 @@
 package vn.mobileid.id.FPS.component.document;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fps_core.objects.BasicFieldAttribute;
-import fps_core.objects.InitialsFieldAttribute;
+import fps_core.objects.core.BasicFieldAttribute;
+import fps_core.objects.core.InitialsFieldAttribute;
 import java.util.Base64;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import fps_core.enumration.FieldTypeName;
 import vn.mobileid.id.FPS.object.InternalResponse;
+import vn.mobileid.id.FPS.object.ProcessFileField;
 import vn.mobileid.id.FPS.object.ProcessInitialField;
 import vn.mobileid.id.FPS.object.ProcessingRequest;
 import vn.mobileid.id.general.Resources;
@@ -150,7 +151,7 @@ public class CheckPayloadRequest {
     /**
      * Kiểm tra dữ liệu bắt buộc phải có của field (name, ...) 
      * Check the mandatory variables in field.
-     *
+     *<p>
      * @param object
      * @param transactionId
      * @return
@@ -184,6 +185,44 @@ public class CheckPayloadRequest {
     }
     //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="CheckBasicField with T type">
+    /**
+     * Kiểm tra dữ liệu bắt buộc phải có của field (name, ...) 
+     * Check the mandatory variables in field.
+     *<p>
+     * @param object
+     * @param transactionId
+     * @return
+     */
+    public static <T> InternalResponse checkBasicFieldT(BasicFieldAttribute<T> object, String transactionId) {
+        if (object.getFieldName() == null) {
+            return new InternalResponse(
+                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                    A_FPSConstant.CODE_FIELD,
+                    A_FPSConstant.SUBCODE_MISSING_FIELD_NAME
+            );
+        }
+        if (object.getPage() <= 0) {
+            return new InternalResponse(
+                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                    A_FPSConstant.CODE_FIELD,
+                    A_FPSConstant.SUBCODE_MISSING_PAGE
+            );
+        }
+        if (object.getDimension() == null) {
+            return new InternalResponse(
+                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                    A_FPSConstant.CODE_FIELD,
+                    A_FPSConstant.SUBCODE_MISSING_DIMENSION
+            );
+        }
+        return new InternalResponse(
+                A_FPSConstant.HTTP_CODE_SUCCESS,
+                object
+        );
+    }
+    //</editor-fold>
+    
     //<editor-fold defaultstate="collapsed" desc="Check Field based on String">
     /**
      * Dùng để kiểm tra dữ liệu xem là Field nhập vào có tồn tại parentType và
@@ -313,6 +352,45 @@ public class CheckPayloadRequest {
      * @return
      */
     public static InternalResponse checkFillInitialField(ProcessInitialField object, String transactionId) {
+        if (object.getFieldName() == null) {
+            return new InternalResponse(
+                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                    A_FPSConstant.CODE_FIELD,
+                    A_FPSConstant.SUBCODE_MISSING_FIELD_NAME
+            );
+        }
+
+//        if (object.getPage() <= 0 && Utils.isNullOrEmpty(object.getPages()) && !object.isApplyToAll()) {
+//            return new InternalResponse(
+//                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+//                            A_FPSConstant.CODE_FIELD,
+//                            A_FPSConstant.SUBCODE_MISSING_PAGE
+//            );
+//        }
+//        if (Utils.isNullOrEmpty(object.getImage())) {
+//            return new InternalResponse(
+//                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+//                            A_FPSConstant.CODE_FIELD_INITIAL,
+//                            A_FPSConstant.SUBCODE_MISSING_OR_EMPTY_IMAGE_OF_INITIAL
+//            );
+//        }
+        return new InternalResponse(
+                A_FPSConstant.HTTP_CODE_SUCCESS,
+                object
+        );
+    }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="Check File Field based on ProcessFileField">
+    /**
+     * Kiểm tra dữ liệu bắt buộc phải có của field (name, ...)
+     * Check the mandatory variables in field.
+     *
+     * @param object
+     * @param transactionId
+     * @return
+     */
+    public static InternalResponse checkFillField(ProcessFileField object, String transactionId) {
         if (object.getFieldName() == null) {
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,

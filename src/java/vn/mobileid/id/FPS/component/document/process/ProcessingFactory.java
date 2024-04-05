@@ -36,10 +36,13 @@ public class ProcessingFactory {
                 return new QryptoProcessing();
             }
             case IMAGE:{
-                return new ImageProcessing();
+                return new FileProcessing();
             }
             case RADIO:{
                 return new RadioProcessing();
+            }
+            case ATTACHMENT:{
+                return new AttachmentProcessing();
             }
         }
         throw new IllegalArgumentException();
@@ -74,6 +77,7 @@ public class ProcessingFactory {
         INITIALS,
         QRYPTO,
         IMAGE,
-        RADIO
+        RADIO,
+        ATTACHMENT
     }
 }

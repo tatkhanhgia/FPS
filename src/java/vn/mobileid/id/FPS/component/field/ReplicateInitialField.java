@@ -4,9 +4,9 @@
  */
 package vn.mobileid.id.FPS.component.field;
 
-import fps_core.objects.InitialsFieldAttribute;
+import fps_core.objects.core.BasicFieldAttribute;
+import fps_core.objects.interfaces.AbstractReplicateField;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -30,15 +30,16 @@ public class ReplicateInitialField {
     /**
      * Replicate the InitialField if that Object existed param replicate
      * <p>
-     * @param initParent
+     * @param <T>
+     * @param parent
      * @param document
      * @param user
      * @param transactionId
      * @return
      * @throws Exception 
      */
-    public static InternalResponse replicateField(
-            InitialsFieldAttribute initParent,
+    public static <T extends AbstractReplicateField> InternalResponse replicateField(
+            T parent,
             Document document,
             User user,
             String transactionId
@@ -47,49 +48,49 @@ public class ReplicateInitialField {
 
         //<editor-fold defaultstate="collapsed" desc="Delete duplicate page existed in field.replicatePages">
         List<Integer> replicatePages = new ArrayList<>();
-        if (!Utils.isNullOrEmpty(initParent.getReplicatePages())) {
-            for (int i = 0; i < initParent.getReplicatePages().size(); i++) {
-                int p = initParent.getPage();
-                int pp = initParent.getReplicatePages().get(i);
-                if (!replicatePages.contains(initParent.getReplicatePages().get(i))
-                        && (initParent.getReplicatePages().get(i) != initParent.getPage())) {
-                    replicatePages.add(initParent.getReplicatePages().get(i));
+        if (!Utils.isNullOrEmpty(parent.getReplicatePages())) {
+            for (int i = 0; i < parent.getReplicatePages().size(); i++) {
+                int p = parent.getPage();
+                int pp = parent.getReplicatePages().get(i);
+                if (!replicatePages.contains(parent.getReplicatePages().get(i))
+                        && (parent.getReplicatePages().get(i) != parent.getPage())) {
+                    replicatePages.add(parent.getReplicatePages().get(i));
                 }
             }
         }
         if (replicatePages.isEmpty()) {
-            replicatePages = initParent.getReplicatePages();
+            replicatePages = parent.getReplicatePages();
         }
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Create list child field">
-        List<InitialsFieldAttribute> childs = new ArrayList<>();
-        if (initParent.isReplicateAllPages()) {
+        List<T> childs = new ArrayList<>();
+        if (parent.isReplicateAllPages()) {
             long root = System.currentTimeMillis();
             for (int i = 1; i <= document.getDocumentPages(); i++) {
-                if (i == initParent.getPage()) {
+                if (i == parent.getPage()) {
                     continue;
                 }
-                InitialsFieldAttribute child = new InitialsFieldAttribute();
+                T child = (T) parent.getClass().newInstance();
                 child.setApplyToAll(false);
                 child.setPage(i);
-                child.setDimension(initParent.getDimension());
-                child.setType(initParent.getType());
+                child.setDimension(parent.getDimension());
+                child.setType(parent.getType());
                 child.setVisibleEnabled(true);
-                child.setRemark(initParent.getRemark());
+                child.setRemark(parent.getRemark());
                 child.setRequired(true);
 
-                int position = initParent.getFieldName().lastIndexOf("_") == -1
-                        ? initParent.getFieldName().length() - 1
-                        : initParent.getFieldName().lastIndexOf("_");
-                String buffer = initParent.getFieldName().lastIndexOf("_") == -1
+                int position = parent.getFieldName().lastIndexOf("_") == -1
+                        ? parent.getFieldName().length() - 1
+                        : parent.getFieldName().lastIndexOf("_");
+                String buffer = parent.getFieldName().lastIndexOf("_") == -1
                         ? "_"
                         : "";
                 try {
                     String suffix = Utils.hashAndExtractMiddleSixChars("SIGNATURE-" + String.valueOf(root));
                     child.setSuffix(suffix);
                     child.setFieldName(
-                            initParent.getFieldName()
+                            parent.getFieldName()
                                     .substring(0,
                                             position + 1)
                             + buffer
@@ -97,7 +98,7 @@ public class ReplicateInitialField {
                     root++;
                 } catch (Exception ex) {
                     System.err.println("Invalid hash algorithm!!");
-                    child.setFieldName(initParent.getFieldName()
+                    child.setFieldName(parent.getFieldName()
                             .substring(0,
                                     position + 1)
                             + buffer
@@ -111,18 +112,18 @@ public class ReplicateInitialField {
             Iterator<Integer> temp = replicatePages.iterator();
             while (temp.hasNext()) {
                 int page = temp.next();
-                InitialsFieldAttribute child = new InitialsFieldAttribute();
+                T child = (T)parent.getClass().newInstance();
                 child.setApplyToAll(false);
                 child.setPage(page);
-                child.setDimension(initParent.getDimension());
-                child.setType(initParent.getType());
+                child.setDimension(parent.getDimension());
+                child.setType(parent.getType());
                 child.setVisibleEnabled(true);
-                child.setRemark(initParent.getRemark());
+                child.setRemark(parent.getRemark());
                 child.setRequired(true);
-                int position = initParent.getFieldName().lastIndexOf("_") == -1
-                        ? initParent.getFieldName().length() - 1
-                        : initParent.getFieldName().lastIndexOf("_");
-                String buffer = initParent.getFieldName().lastIndexOf("_") == -1
+                int position = parent.getFieldName().lastIndexOf("_") == -1
+                        ? parent.getFieldName().length() - 1
+                        : parent.getFieldName().lastIndexOf("_");
+                String buffer = parent.getFieldName().lastIndexOf("_") == -1
                         ? "_"
                         : "";
                 try {
@@ -131,14 +132,14 @@ public class ReplicateInitialField {
                     ));
                     child.setSuffix(suffix);
                     child.setFieldName(
-                            initParent.getFieldName()
+                            parent.getFieldName()
                                     .substring(0,
                                             position + 1)
                             + buffer
                             + suffix);
                 } catch (Exception ex) {
                     System.err.println("Invalid hash algorithm!!");
-                    child.setFieldName(initParent.getFieldName()
+                    child.setFieldName(parent.getFieldName()
                             .substring(0,
                                     position + 1)
                             + buffer
@@ -164,7 +165,7 @@ public class ReplicateInitialField {
             );
         }
 
-        //<editor-fold defaultstate="collapsed" desc="Create Initial Child Field">
+        //<editor-fold defaultstate="collapsed" desc="Create Child Field">
         ExecutorService executors = Executors.newFixedThreadPool(2);
         final List<InternalResponse.InternalData> problemOccur = new ArrayList<>();
 
@@ -183,9 +184,10 @@ public class ReplicateInitialField {
             public Object call() {
                 try {
                     User user = (User) this.get()[2];
-                    List<InitialsFieldAttribute> group_a = (List<InitialsFieldAttribute>) this.get()[1];
+                    List<Object> group_a = (List<Object>) this.get()[1];
 
-                    for (InitialsFieldAttribute child : group_a) {
+                    for (Object child : group_a) {
+                        BasicFieldAttribute temp = (BasicFieldAttribute) child;
                         try {
                             //<editor-fold defaultstate="collapsed" desc="Add Field">
                             InternalResponse response = AddField.addField(
@@ -198,7 +200,7 @@ public class ReplicateInitialField {
                             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                                 synchronized (this) {
                                     InternalData error = new InternalResponse.InternalData();
-                                    error.setName(child.getFieldName());
+                                    error.setName(temp.getFieldName());
                                     error.setValue(response);
                                     problemOccur.add(error);
                                 }
@@ -208,9 +210,10 @@ public class ReplicateInitialField {
                             //</editor-fold>
 
                             //<editor-fold defaultstate="collapsed" desc="Add Field Details">
+                            
                             response = AddField.addDetailField(
                                     documentFieldId,
-                                    child.getType().getTypeId(),
+                                    temp.getType().getTypeId(),
                                     child,
                                     "hmac",
                                     user.getAzp(),
@@ -218,7 +221,7 @@ public class ReplicateInitialField {
                             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                                 synchronized (this) {
                                     InternalData error = new InternalResponse.InternalData();
-                                    error.setName(child.getFieldName());
+                                    error.setName(temp.getFieldName());
                                     error.setValue(response);
                                     problemOccur.add(error);
                                 }
@@ -228,7 +231,7 @@ public class ReplicateInitialField {
                             ex.printStackTrace();
                             synchronized (this) {
                                 InternalData error = new InternalResponse.InternalData();
-                                error.setName(child.getFieldName());
+                                error.setName(temp.getFieldName());
                                 error.setValue(new InternalResponse(
                                         A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
                                         ""
@@ -264,9 +267,10 @@ public class ReplicateInitialField {
             public Object call() {
                 try {
                     User user = (User) this.get()[2];
-                    List<InitialsFieldAttribute> group_a = (List<InitialsFieldAttribute>) this.get()[1];
+                    List<Object> group_a = (List<Object>) this.get()[1];
 
-                    for (InitialsFieldAttribute child : group_a) {
+                    for (Object child : group_a) {
+                        BasicFieldAttribute temp = (BasicFieldAttribute) child;
                         try {
                             //<editor-fold defaultstate="collapsed" desc="Add Field">
                             InternalResponse response = AddField.addField(
@@ -279,7 +283,7 @@ public class ReplicateInitialField {
                             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                                 synchronized (this) {
                                     InternalData error = new InternalResponse.InternalData();
-                                    error.setName(child.getFieldName());
+                                    error.setName(temp.getFieldName());
                                     error.setValue(response);
                                     problemOccur.add(error);
                                 }
@@ -291,7 +295,7 @@ public class ReplicateInitialField {
                             //<editor-fold defaultstate="collapsed" desc="Add Field Details">
                             response = AddField.addDetailField(
                                     documentFieldId,
-                                    child.getType().getTypeId(),
+                                    temp.getType().getTypeId(),
                                     child,
                                     "hmac",
                                     user.getAzp(),
@@ -299,7 +303,7 @@ public class ReplicateInitialField {
                             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                                 synchronized (this) {
                                     InternalData error = new InternalResponse.InternalData();
-                                    error.setName(child.getFieldName());
+                                    error.setName(temp.getFieldName());
                                     error.setValue(response);
                                     problemOccur.add(error);
                                 }
@@ -309,7 +313,7 @@ public class ReplicateInitialField {
                             ex.printStackTrace();
                             synchronized (this) {
                                 InternalData error = new InternalResponse.InternalData();
-                                error.setName(child.getFieldName());
+                                error.setName(temp.getFieldName());
                                 error.setValue(new InternalResponse(
                                         A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
                                         ""
