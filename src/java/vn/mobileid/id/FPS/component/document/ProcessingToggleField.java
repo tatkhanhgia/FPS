@@ -6,15 +6,13 @@ package vn.mobileid.id.FPS.component.document;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fps_core.enumration.FieldTypeName;
-import fps_core.objects.child.ComboBoxFieldAttribute;
+import fps_core.objects.child.ToggleFieldAttribute;
 import fps_core.objects.core.ExtendedFieldAttribute;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
-import java.util.List;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.InternalResponse;
-import vn.mobileid.id.FPS.object.ProcessingRequest;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.general.PolicyConfiguration;
 import vn.mobileid.id.utils.Utils;
@@ -23,39 +21,39 @@ import vn.mobileid.id.utils.Utils;
  *
  * @author GiaTK
  */
-public class ProcessingComboBoxField extends ProcessingTextFormField<ComboBoxFieldAttribute> {
+public class ProcessingToggleField extends ProcessingTextFormField<ToggleFieldAttribute> {
 
-    public ProcessingComboBoxField() {
-        super(new ComboBoxFieldAttribute());
+    public ProcessingToggleField() {
+        super(new ToggleFieldAttribute());
     }
-    
+
     @Override
-    public FieldTypeName getFieldTypeName(){
-        return FieldTypeName.COMBOBOX;
+    public FieldTypeName getFieldTypeName() {
+        return FieldTypeName.TOGGLE;
     }
-    
+
     @Override
     public InternalResponse convert(
             User user,
             ExtendedFieldAttribute fieldData,
             String value) throws Exception {
-        ComboBoxFieldAttribute comboField = new ObjectMapper().readValue(fieldData.getDetailValue(), ComboBoxFieldAttribute.class);
-        comboField = (ComboBoxFieldAttribute) fieldData.clone(comboField, fieldData.getDimension());
+        ToggleFieldAttribute toggle = new ObjectMapper().readValue(fieldData.getDetailValue(), ToggleFieldAttribute.class);
+        toggle = (ToggleFieldAttribute) fieldData.clone(toggle, fieldData.getDimension());
 
         if (value != null) {
-            comboField.setValue(value);
+            toggle.setValue(value);
         }
 
-        comboField.setProcessBy(user.getAzp());
+        toggle.setProcessBy(user.getAzp());
         SimpleDateFormat dateFormat = new SimpleDateFormat(PolicyConfiguration.getInstant().getSystemConfig().getAttributes().get(0).getDateFormat());
-        comboField.setProcessOn(dateFormat.format(Date.from(Instant.now())));
+        toggle.setProcessOn(dateFormat.format(Date.from(Instant.now())));
 
         if (!Utils.isNullOrEmpty(value)) {
-            comboField.setValue(value);
+            toggle.setValue(value);
         } else {
             try {
-                if (Utils.isNullOrEmpty(comboField.getValue())) {
-                    comboField.setValue(comboField.getCombo().getDefaultItem());
+                if (Utils.isNullOrEmpty(toggle.getValue())) {
+                    toggle.setValue(toggle.getCombo().getDefaultItem());
                 }
             } catch (Exception ex) {
                 return new InternalResponse(
@@ -66,6 +64,6 @@ public class ProcessingComboBoxField extends ProcessingTextFormField<ComboBoxFie
             }
         }
 
-        return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, comboField);
+        return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, toggle);
     }
 }

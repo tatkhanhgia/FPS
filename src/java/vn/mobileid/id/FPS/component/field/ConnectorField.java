@@ -4,11 +4,9 @@
  */
 package vn.mobileid.id.FPS.component.field;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import fps_core.enumration.DocumentStatus;
 import fps_core.enumration.FPSTextAlign;
 import fps_core.enumration.FieldTypeName;
@@ -27,6 +25,7 @@ import fps_core.objects.core.FileFieldAttribute;
 import fps_core.objects.core.InitialsFieldAttribute;
 import fps_core.objects.core.QRFieldAttribute;
 import fps_core.objects.child.RadioFieldAttribute;
+import fps_core.objects.child.ToggleFieldAttribute;
 import fps_core.objects.core.SignatureFieldAttribute;
 import fps_core.objects.core.TextFieldAttribute;
 import fps_core.objects.interfaces.AbstractReplicateField;
@@ -43,7 +42,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.bouncycastle.util.encoders.Base64;
 import vn.mobileid.id.FMS;
 import vn.mobileid.id.FPS.QryptoService.object.ItemDetails;
-import vn.mobileid.id.FPS.QryptoService.object.Item_IDPicture4Label;
 import vn.mobileid.id.FPS.QryptoService.object.Item_IDPicture4Label.IDPicture4Label;
 import vn.mobileid.id.FPS.QryptoService.object.ItemsType;
 import static vn.mobileid.id.FPS.QryptoService.object.ItemsType.Binary;
@@ -837,6 +835,7 @@ public class ConnectorField {
         List<AttachmentFieldAttribute> attachments = new ArrayList<>();
         List<HyperLinkFieldAttribute> hypers = new ArrayList<>();
         List<ComboBoxFieldAttribute> combos = new ArrayList<>();
+        List<ToggleFieldAttribute> toogles = new ArrayList<>();
 
         for (ExtendedFieldAttribute field : fields) {
             try {
@@ -850,7 +849,7 @@ public class ConnectorField {
                     case 20:
                     case 21:
                     case 26:
-                    case 1: {
+                    case 1: { 
                         TextFieldAttribute text = new TextFieldAttribute();
                         text = new ObjectMapper().readValue(field.getDetailValue(), TextFieldAttribute.class);
                         text = (TextFieldAttribute) field.clone(text, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
@@ -862,6 +861,13 @@ public class ConnectorField {
                         combo = new ObjectMapper().readValue(field.getDetailValue(), ComboBoxFieldAttribute.class);
                         combo = (ComboBoxFieldAttribute) field.clone(combo, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
                         combos.add(combo);
+                        break;
+                    }
+                    case 23: {
+                        ToggleFieldAttribute toogle = new ToggleFieldAttribute();
+                        toogle = new ObjectMapper().readValue(field.getDetailValue(), ToggleFieldAttribute.class);
+                        toogle = (ToggleFieldAttribute) field.clone(toogle, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
+                        toogles.add(toogle);
                         break;
                     }
                     case 27: {
@@ -1097,7 +1103,7 @@ public class ConnectorField {
                 return null;
             }
         }
-        Object[] array = new Object[14];
+        Object[] array = new Object[15];
         array[0] = textboxs;
         array[1] = checkboxs;
         array[2] = radios;
@@ -1112,6 +1118,7 @@ public class ConnectorField {
         array[11] = cameras;
         array[12] = attachments;
         array[13] = hypers;
+        array[14] = toogles;
         return array;
     }
     //</editor-fold>
@@ -1723,7 +1730,7 @@ public class ConnectorField {
                 try {
                     field = new ObjectMapper().readValue(payload, HyperLinkFieldAttribute.class);
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    LogHandler.error(ConnectorField.class, transactionId, ex);
                     return new InternalResponse(
                             A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                             A_FPSConstant.CODE_FAIL,
@@ -1739,7 +1746,6 @@ public class ConnectorField {
 
                 if (!Utils.isNullOrEmpty(field.getTypeName())) {
                     boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.HYPERLINK);
-
                     if (!check) {
                         return new InternalResponse(
                                 A_FPSConstant.HTTP_CODE_BAD_REQUEST,
@@ -1752,6 +1758,7 @@ public class ConnectorField {
                     System.err.println("Transaction:" + transactionId + "\nCannot parse type of HyperLink => Using default HyperLink");
                     field.setType(Resources.getFieldTypes().get(FieldTypeName.HYPERLINK.getParentName()));
                 }
+                
 
                 if (!isUpdate) {
                     if (field.getAlign() == null) {
@@ -1770,8 +1777,8 @@ public class ConnectorField {
                 ComboBoxFieldAttribute field = null;
                 try {
                     field = new ObjectMapper().readValue(payload, ComboBoxFieldAttribute.class);
-                } catch (JsonProcessingException ex) {
-                    ex.printStackTrace();
+                } catch (Exception ex) {
+                    LogHandler.error(ConnectorField.class, transactionId, ex);
                     return new InternalResponse(
                             A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                             A_FPSConstant.CODE_FAIL,
@@ -1787,6 +1794,47 @@ public class ConnectorField {
 
                 if (!Utils.isNullOrEmpty(field.getTypeName())) {
                     boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.COMBOBOX);
+                    if (!check) {
+                        return new InternalResponse(
+                                A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                                A_FPSConstant.CODE_FIELD_COMBOBOX,
+                                A_FPSConstant.SUBCODE_INVALID_COMBOBOX_FIELD_TYPE
+                        );
+                    }
+                } else if (!isUpdate) {
+                    return new InternalResponse(
+                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                            A_FPSConstant.CODE_FIELD_COMBOBOX,
+                            A_FPSConstant.SUBCODE_INVALID_COMBOBOX_FIELD_TYPE
+                    );
+                }
+                field.setType(Resources.getFieldTypes().get(FieldTypeName.COMBOBOX.getParentName()));
+
+                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
+                //</editor-fold>
+            }
+            case "toggle": {
+                //<editor-fold defaultstate="collapsed" desc="Generate Toogle Field from Payload">
+                ToggleFieldAttribute field = null;
+                try {
+                    field = new ObjectMapper().readValue(payload, ToggleFieldAttribute.class);
+                } catch (Exception ex) {
+                    LogHandler.error(ConnectorField.class, transactionId, ex);
+                    return new InternalResponse(
+                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                            A_FPSConstant.CODE_FAIL,
+                            A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE
+                    );
+                }
+                if (isCheckBasicField) {
+                    InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
+                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                        return response;
+                    }
+                }
+
+                if (!Utils.isNullOrEmpty(field.getTypeName())) {
+                    boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.TOGGLE);
 
                     if (!check) {
                         return new InternalResponse(
@@ -1795,14 +1843,14 @@ public class ConnectorField {
                                 A_FPSConstant.SUBCODE_INVALID_COMBOBOX_FIELD_TYPE
                         );
                     }
-                    field.setType(Resources.getFieldTypes().get(field.getTypeName()));
                 } else if (!isUpdate) {
                     return new InternalResponse(
                             A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                             A_FPSConstant.CODE_FIELD_COMBOBOX,
                             A_FPSConstant.SUBCODE_INVALID_COMBOBOX_FIELD_TYPE
                     );
-                }
+                } 
+                field.setType(Resources.getFieldTypes().get(FieldTypeName.TOGGLE.getParentName()));
 
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
                 //</editor-fold>

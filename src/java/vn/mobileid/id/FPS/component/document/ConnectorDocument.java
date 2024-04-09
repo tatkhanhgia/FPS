@@ -950,6 +950,20 @@ public class ConnectorDocument {
         }
         //</editor-fold>
         
+        //<editor-fold defaultstate="collapsed" desc="Process Toggle Form Field">
+        if (!Utils.isNullOrEmpty(processRequest.getToggles())) {
+            response = new ProcessingToggleField().processMultipleTextField(
+                    Utils.getIdFromURL(request.getRequestURI()),
+                    user,
+                    processRequest.getToggles(),
+                    transactionId);
+
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                return response;
+            }
+        }
+        //</editor-fold>
+        
         response = new InternalResponse(
                 A_FPSConstant.HTTP_CODE_SUCCESS,
                 ""

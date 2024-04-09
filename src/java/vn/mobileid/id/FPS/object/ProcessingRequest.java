@@ -44,6 +44,7 @@ public class ProcessingRequest {
     private List<ProcessingFormFillRequest> attachment = new ArrayList<>();
     private List<ProcessingFormFillRequest> hypers = new ArrayList<>();
     private List<ProcessingFormFillRequest> combos = new ArrayList<>();
+    private List<ProcessingFormFillRequest> toggles = new ArrayList<>();
 
     //Data for fill QR Qrypto Field
     private List<ItemDetails> item;
@@ -257,6 +258,15 @@ public class ProcessingRequest {
 
     public void setCombos(List<ProcessingFormFillRequest> combos) {
         this.combos = combos;
+    }
+
+    @JsonProperty("toggle")
+    public List<ProcessingFormFillRequest> getToggles() {
+        return toggles;
+    }
+
+    public void setToggles(List<ProcessingFormFillRequest> toggles) {
+        this.toggles = toggles;
     }
     
     
