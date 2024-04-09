@@ -100,6 +100,7 @@ public class A_FPSConstant {
     final public static int CODE_FIELD_RADIO_BOX = 15;
     final public static int CODE_FIELD_ATTACHMENT = 16;
     final public static int CODE_FIELD_HYPERLINK = 17;
+    final public static int CODE_FIELD_COMBOBOX = 18;
     
     //SubCode
     final public static int SUBCODE_NO_PAYLOAD_FOUND = 1;
@@ -208,4 +209,8 @@ public class A_FPSConstant {
     //Subcode hyperlink - 17
     final public static int SUBCODE_INVALID_HYPERLINK_TYPE = 1;
     final public static int SUBCODE_VALUE_MUST_BE_A_STRING = 2;
+    
+    //Subcode ComboBox - 18
+    final public static int SUBCODE_INVALID_COMBOBOX_FIELD_TYPE = 1;
+    final public static int SUBCODE_MISSING_DEFAULT_ITEMS_FOR_PROCESS = 2;
 }

@@ -149,7 +149,7 @@ public class ProcessingHyperLinkField {
             //</editor-fold>
 
             //Processing
-            response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.TEXTFIELD).processField(
+            response = new ProcessingFactory().createType(ProcessingFactory.TypeProcess.TEXTFIELD).processField(
                     user,
                     document_,
                     documents.size(),

@@ -26,7 +26,7 @@ public class FieldsSerializer implements JsonSerializable {
         "initial",
         "inperson", 
         "signature", 
-        "dropdown", 
+        "combobox", 
         "listbox",
         "qrypto",
         "stamp",

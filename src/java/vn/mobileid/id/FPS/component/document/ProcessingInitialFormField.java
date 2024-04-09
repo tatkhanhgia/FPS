@@ -149,7 +149,7 @@ public class ProcessingInitialFormField extends IVersion{
         //</editor-fold>
 
         //Processing
-        response = ProcessingFactory   
+        response = new ProcessingFactory()   
                 .createType(ProcessingFactory.TypeProcess.INITIALS, 
                         getVersion())
                 .processField(
@@ -342,7 +342,7 @@ public class ProcessingInitialFormField extends IVersion{
             //</editor-fold>
 
             //Processing
-            response = ProcessingFactory.createType(
+            response = new ProcessingFactory().createType(
                     ProcessingFactory.TypeProcess.INITIALS, 
                     getVersion())
                     .processField(

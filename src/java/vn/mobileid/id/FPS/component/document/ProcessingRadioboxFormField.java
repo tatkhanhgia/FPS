@@ -5,9 +5,7 @@
 package vn.mobileid.id.FPS.component.document;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.itextpdf.forms.fields.RadioFormFieldBuilder;
 import fps_core.enumration.FieldTypeName;
-import fps_core.objects.core.CheckBoxFieldAttribute;
 import fps_core.objects.core.ExtendedFieldAttribute;
 import fps_core.objects.child.RadioFieldAttribute;
 import java.text.SimpleDateFormat;
@@ -93,8 +91,8 @@ public class ProcessingRadioboxFormField {
             }
 
             ExtendedFieldAttribute fieldData = (ExtendedFieldAttribute) response.getData();
-
             //</editor-fold>
+            
             //<editor-fold defaultstate="collapsed" desc="Check data in ExtendedField is sastified">
             if (CheckFieldProcessedYet.checkProcessed(fieldData.getFieldValue()).getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 errorField.setValue(
@@ -138,7 +136,7 @@ public class ProcessingRadioboxFormField {
             //</editor-fold>
 
             //Processing
-            response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.RADIO).processField(
+            response = new ProcessingFactory().createType(ProcessingFactory.TypeProcess.RADIO).processField(
                     user,
                     document_,
                     documents.size(),

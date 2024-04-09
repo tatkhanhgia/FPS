@@ -5,6 +5,8 @@
 package vn.mobileid.id.FPS.component.document;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fps_core.enumration.FieldTypeName;
+import fps_core.objects.core.BasicFieldAttribute;
 import fps_core.objects.core.ExtendedFieldAttribute;
 import fps_core.objects.core.TextFieldAttribute;
 import java.text.SimpleDateFormat;
@@ -28,9 +30,18 @@ import vn.mobileid.id.utils.Utils;
 /**
  *
  * @author GiaTK
+ * @param <T>
  */
-public class ProcessingTextFormField {
+public class ProcessingTextFormField<T extends TextFieldAttribute>{
+    private T type;
 
+    public ProcessingTextFormField(T type) {
+        this.type = type;
+    }
+
+    public ProcessingTextFormField() {
+    }
+    
     //<editor-fold defaultstate="collapsed" desc="Processing Text Form Field">
     /**
      * Processing all TextField in Payload
@@ -45,7 +56,7 @@ public class ProcessingTextFormField {
      * error while processed
      * @throws Exception
      */
-    public static InternalResponse processMultipleTextField(
+    public InternalResponse processMultipleTextField(
             long packageId,
             User user,
             List<ProcessingRequest.ProcessingFormFillRequest> fields,
@@ -56,6 +67,19 @@ public class ProcessingTextFormField {
         for (ProcessingRequest.ProcessingFormFillRequest field : fields) {
             InternalData errorField = new InternalData();
             errorField.setName(field.getFieldName());
+
+            //<editor-fold defaultstate="collapsed" desc="Check value is String?">
+            if (field.getValue() != null) {
+                if (!(field.getValue() instanceof String)) {
+                    errorField.setValue(
+                            String.valueOf(A_FPSConstant.CODE_FIELD_STAMP)
+                            + String.valueOf(A_FPSConstant.SUBCODE_VALUE_MUST_BE_ENCODE_BASE64_FORMAT)
+                    );
+                    listOfErrorField.add(errorField);
+                    continue;
+                }
+            }
+            //</editor-fold>
 
             //<editor-fold defaultstate="collapsed" desc="Get Documents">
             InternalResponse response = GetDocument.getDocuments(
@@ -90,7 +114,6 @@ public class ProcessingTextFormField {
             }
 
             ExtendedFieldAttribute fieldData = (ExtendedFieldAttribute) response.getData();
-
             //</editor-fold>
             
             //<editor-fold defaultstate="collapsed" desc="Check data in ExtendedField is sastified">
@@ -103,7 +126,7 @@ public class ProcessingTextFormField {
                 continue;
             }
 
-            if (!fieldData.getType().getParentType().equals("TEXTBOX")) {
+            if (!fieldData.getType().getParentType().equals(getFieldTypeName().getParentName())) {
                 errorField.setValue(
                         String.valueOf(A_FPSConstant.CODE_FIELD)
                         + String.valueOf(A_FPSConstant.SUBCODE_THIS_TYPE_OF_FIELD_IS_NOT_VALID_FOR_THIS_PROCESSION)
@@ -116,7 +139,11 @@ public class ProcessingTextFormField {
             //<editor-fold defaultstate="collapsed" desc="Convert ExtendField into TextField">
             TextFieldAttribute textField = null;
             try {
-                textField = convertExtendIntoTextField(user, fieldData, (String) field.getValue());
+                InternalResponse temp = convert(user, fieldData, (String)field.getValue());
+                if(!temp.isValid()){
+                    return temp;
+                }
+                textField = (TextFieldAttribute)temp.getData();
             } catch (Exception ex) {
                 errorField.setValue(Utils.summaryException(ex));
                 listOfErrorField.add(errorField);
@@ -132,9 +159,9 @@ public class ProcessingTextFormField {
                 continue;
             }
             //</editor-fold>
-
+            
             //Processing
-            response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.TEXTFIELD).processField(
+            response = new ProcessingFactory(type).createType(ProcessingFactory.TypeProcess.TEXTFIELD).processField(
                     user,
                     document_,
                     documents.size(),
@@ -190,4 +217,25 @@ public class ProcessingTextFormField {
         return textField;
     }
     //</editor-fold>
+
+    //===============================Version 2 =================================
+    public FieldTypeName getFieldTypeName(){
+        return FieldTypeName.TEXTBOX;
+    }
+    
+    public InternalResponse convert(User user, ExtendedFieldAttribute fieldData, String value) throws Exception{
+        //Read details
+        T textField = (T) new ObjectMapper().readValue(fieldData.getDetailValue(), type.getClass());
+        textField = (T) fieldData.clone(textField, fieldData.getDimension());
+
+        if (value != null) {
+            textField.setValue(value);
+        }
+
+        textField.setProcessBy(user.getAzp());
+        SimpleDateFormat dateFormat = new SimpleDateFormat(PolicyConfiguration.getInstant().getSystemConfig().getAttributes().get(0).getDateFormat());
+        textField.setProcessOn(dateFormat.format(Date.from(Instant.now())));
+
+        return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, textField);
+    }
 }

@@ -189,7 +189,7 @@ public class ProcessingAttachmentField {
             //</editor-fold>
 
             //Processing
-            response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.ATTACHMENT).processField(
+            response = new ProcessingFactory().createType(ProcessingFactory.TypeProcess.ATTACHMENT).processField(
                     user,
                     document_,
                     documents.size(),

@@ -120,7 +120,7 @@ public class ProcessingCameraField {
         //</editor-fold>
 
         //Processing
-        response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.IMAGE).processField(
+        response = new ProcessingFactory().createType(ProcessingFactory.TypeProcess.IMAGE).processField(
                 user,
                 document_,
                 fieldData.getDocumentFieldId(),
@@ -288,7 +288,7 @@ public class ProcessingCameraField {
             //</editor-fold>
             
             //Processing
-            response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.IMAGE).processField(
+            response = new ProcessingFactory().createType(ProcessingFactory.TypeProcess.IMAGE).processField(
                     user,
                     document_,
                     fieldData.getDocumentFieldId(),

@@ -20,6 +20,7 @@ import fps_core.objects.core.CheckBoxFieldAttribute;
 import fps_core.objects.Dimension;
 import fps_core.objects.core.ExtendedFieldAttribute;
 import fps_core.objects.FieldType;
+import fps_core.objects.child.ComboBoxFieldAttribute;
 import fps_core.objects.child.DateTimeFieldAttribute;
 import fps_core.objects.child.HyperLinkFieldAttribute;
 import fps_core.objects.core.FileFieldAttribute;
@@ -311,7 +312,7 @@ public class ConnectorField {
                 InternalResponse response = null;
                 try {
                     if (this.get()[3] instanceof TextFieldAttribute) {
-                        response = ProcessingFactory.createType_Module(ProcessingFactory.TypeProcess.TEXTFIELD).createFormField(
+                        response = new ProcessingFactory().createType_Module(ProcessingFactory.TypeProcess.TEXTFIELD).createFormField(
                                 this.get());
                     }
                 } catch (Exception ex) {
@@ -835,6 +836,7 @@ public class ConnectorField {
         List<RadioFieldAttribute> radios = new ArrayList<>();
         List<AttachmentFieldAttribute> attachments = new ArrayList<>();
         List<HyperLinkFieldAttribute> hypers = new ArrayList<>();
+        List<ComboBoxFieldAttribute> combos = new ArrayList<>();
 
         for (ExtendedFieldAttribute field : fields) {
             try {
@@ -853,6 +855,13 @@ public class ConnectorField {
                         text = new ObjectMapper().readValue(field.getDetailValue(), TextFieldAttribute.class);
                         text = (TextFieldAttribute) field.clone(text, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
                         textboxs.add(text);
+                        break;
+                    }
+                    case 22: {
+                        ComboBoxFieldAttribute combo = new ComboBoxFieldAttribute();
+                        combo = new ObjectMapper().readValue(field.getDetailValue(), ComboBoxFieldAttribute.class);
+                        combo = (ComboBoxFieldAttribute) field.clone(combo, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
+                        combos.add(combo);
                         break;
                     }
                     case 27: {
@@ -990,7 +999,7 @@ public class ConnectorField {
                         break;
                     }
                     case 7: {
-                        //Mapping into SignatureFieldAttribute
+                        //<editor-fold defaultstate="collapsed" desc="Mapping all date into SignatureField">
                         String json1 = field.getDetailValue();
                         String json2 = field.getFieldValue();
                         SignatureFieldAttribute signatureField = null;
@@ -1010,6 +1019,7 @@ public class ConnectorField {
                         signatureField.setLevelOfAssurance(field.getLevelOfAssurance());
                         signatures.add(signatureField);
                         break;
+                        //</editor-fold>
                     }
                     case 38: {
                         FileFieldAttribute image = new ObjectMapper().readValue(field.getDetailValue(), FileFieldAttribute.class);
@@ -1095,7 +1105,7 @@ public class ConnectorField {
         array[4] = initials;
         array[5] = null;
         array[6] = signatures;
-        array[7] = null;
+        array[7] = combos;
         array[8] = null;
         array[9] = qryptos;
         array[10] = images;
@@ -1750,6 +1760,48 @@ public class ConnectorField {
                     if (field.getColor() == null) {
                         field.setColor("BLACK");
                     }
+                }
+
+                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
+                //</editor-fold>
+            }
+            case "combo": {
+                //<editor-fold defaultstate="collapsed" desc="Generate ComboBox Field from Payload">
+                ComboBoxFieldAttribute field = null;
+                try {
+                    field = new ObjectMapper().readValue(payload, ComboBoxFieldAttribute.class);
+                } catch (JsonProcessingException ex) {
+                    ex.printStackTrace();
+                    return new InternalResponse(
+                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                            A_FPSConstant.CODE_FAIL,
+                            A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE
+                    );
+                }
+                if (isCheckBasicField) {
+                    InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
+                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                        return response;
+                    }
+                }
+
+                if (!Utils.isNullOrEmpty(field.getTypeName())) {
+                    boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.COMBOBOX);
+
+                    if (!check) {
+                        return new InternalResponse(
+                                A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                                A_FPSConstant.CODE_FIELD_COMBOBOX,
+                                A_FPSConstant.SUBCODE_INVALID_COMBOBOX_FIELD_TYPE
+                        );
+                    }
+                    field.setType(Resources.getFieldTypes().get(field.getTypeName()));
+                } else if (!isUpdate) {
+                    return new InternalResponse(
+                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                            A_FPSConstant.CODE_FIELD_COMBOBOX,
+                            A_FPSConstant.SUBCODE_INVALID_COMBOBOX_FIELD_TYPE
+                    );
                 }
 
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);

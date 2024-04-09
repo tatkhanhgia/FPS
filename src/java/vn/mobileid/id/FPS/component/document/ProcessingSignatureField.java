@@ -108,7 +108,7 @@ public class ProcessingSignatureField {
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Processing - Create Form Field">
-        InternalResponse response = ProcessingFactory.createType_Module(ProcessingFactory.TypeProcess.SIGNATURE).createFormField(new Object[]{
+        InternalResponse response = new ProcessingFactory().createType_Module(ProcessingFactory.TypeProcess.SIGNATURE).createFormField(new Object[]{
             user,
             document_,
             documentIdOriginal,

@@ -592,7 +592,7 @@ public class ConnectorDocument {
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Process Fill Signature">
-        response = ProcessingFactory.createType_Module(ProcessingFactory.TypeProcess.SIGNATURE).fillFormField(
+        response = new ProcessingFactory().createType_Module(ProcessingFactory.TypeProcess.SIGNATURE).fillFormField(
                 user,
                 processRequest.isSkipVerification(),
                 document_,
@@ -721,7 +721,7 @@ public class ConnectorDocument {
             ).setException(ex).setUser(user);
         }
 
-        return ProcessingTextFormField.processMultipleTextField(
+        return new ProcessingTextFormField().processMultipleTextField(
                 Utils.getIdFromURL(request.getRequestURI()),
                 user,
                 processRequest.getText(),
@@ -854,7 +854,7 @@ public class ConnectorDocument {
 
         //<editor-fold defaultstate="collapsed" desc="Process Text Form Field">
         if (!Utils.isNullOrEmpty(processRequest.getText())) {
-            response = ProcessingTextFormField.processMultipleTextField(
+            response = new ProcessingTextFormField().processMultipleTextField(
                     Utils.getIdFromURL(request.getRequestURI()),
                     user,
                     processRequest.getText(),
@@ -928,6 +928,20 @@ public class ConnectorDocument {
                     Utils.getIdFromURL(request.getRequestURI()),
                     user,
                     processRequest.getHyperlinks(),
+                    transactionId);
+
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                return response;
+            }
+        }
+        //</editor-fold>
+        
+        //<editor-fold defaultstate="collapsed" desc="Process ComboBox Form Field">
+        if (!Utils.isNullOrEmpty(processRequest.getCombos())) {
+            response = new ProcessingComboBoxField().processMultipleTextField(
+                    Utils.getIdFromURL(request.getRequestURI()),
+                    user,
+                    processRequest.getCombos(),
                     transactionId);
 
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {

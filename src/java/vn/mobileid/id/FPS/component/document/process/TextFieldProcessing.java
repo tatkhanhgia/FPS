@@ -11,6 +11,7 @@ import fps_core.enumration.ProcessStatus;
 import fps_core.module.DocumentUtils_itext7;
 import fps_core.objects.core.ExtendedFieldAttribute;
 import fps_core.objects.FileManagement;
+import fps_core.objects.core.BasicFieldAttribute;
 import fps_core.objects.core.TextFieldAttribute;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -34,8 +35,13 @@ import vn.mobileid.id.FPS.component.document.process.interfaces.IModuleProcessin
  *
  * @author GIATK
  */
-class TextFieldProcessing implements IDocumentProcessing, IModuleProcessing {
-
+class TextFieldProcessing<T extends BasicFieldAttribute>  implements IDocumentProcessing, IModuleProcessing {
+    public T type;
+    
+    public TextFieldProcessing(T type){
+        this.type = type;
+    }
+    
     /*
     Thực hiện luồng V1 => Tạo form field + append cùng 1 lúc tại thời điểm processMultipleField
      */
@@ -149,8 +155,8 @@ class TextFieldProcessing implements IDocumentProcessing, IModuleProcessing {
             }
 
             //Update field after processing
-            TextFieldAttribute textField = new ObjectMapper().readValue(extendField.getDetailValue(), TextFieldAttribute.class);
-            textField = (TextFieldAttribute) extendField.clone(textField, extendField.getDimension());
+            T textField = (T)new ObjectMapper().readValue(extendField.getDetailValue(), type.getClass());
+            textField = (T) extendField.clone(textField, extendField.getDimension());
             
             textField.setProcessStatus(ProcessStatus.PROCESSED.getName());
             textField.setProcessBy(field.getProcessBy());

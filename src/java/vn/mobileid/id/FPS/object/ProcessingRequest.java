@@ -43,6 +43,7 @@ public class ProcessingRequest {
     private List<ProcessingFormFillRequest> cameras = new ArrayList<>();
     private List<ProcessingFormFillRequest> attachment = new ArrayList<>();
     private List<ProcessingFormFillRequest> hypers = new ArrayList<>();
+    private List<ProcessingFormFillRequest> combos = new ArrayList<>();
 
     //Data for fill QR Qrypto Field
     private List<ItemDetails> item;
@@ -248,6 +249,17 @@ public class ProcessingRequest {
     public void setHyperlink(List<ProcessingFormFillRequest> hyperlinks) {
         this.hypers = hyperlinks;
     }
+
+    @JsonProperty("combo")
+    public List<ProcessingFormFillRequest> getCombos() {
+        return combos;
+    }
+
+    public void setCombos(List<ProcessingFormFillRequest> combos) {
+        this.combos = combos;
+    }
+    
+    
     
     @JsonIgnoreProperties(ignoreUnknown = true)
     @JsonInclude(JsonInclude.Include.NON_NULL)
