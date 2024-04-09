@@ -31,7 +31,8 @@ public class FieldsSerializer implements JsonSerializable {
         "qrypto",
         "stamp",
         "camera",
-        "attachment"};
+        "attachment",
+        "hyperlink"};
 
     @Override
     public void serialize(JsonGenerator jg, SerializerProvider sp) throws IOException {

@@ -462,7 +462,7 @@ public class Utils {
                         return object.getValue().asToken().asByteArray();
                     }
                     if (object.getValue().isContainerNode()) {
-                        return getFromJson_(name, object.getValue().toPrettyString());
+                        return object.getValue().toPrettyString();
                     }
                     if (object.getValue().isDouble()) {
                         return object.getValue().asDouble();

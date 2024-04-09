@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import fps_core.enumration.DocumentStatus;
+import fps_core.enumration.FPSTextAlign;
 import fps_core.enumration.FieldTypeName;
 import fps_core.enumration.RotateDegree;
 import fps_core.objects.child.AttachmentFieldAttribute;
@@ -19,6 +20,8 @@ import fps_core.objects.core.CheckBoxFieldAttribute;
 import fps_core.objects.Dimension;
 import fps_core.objects.core.ExtendedFieldAttribute;
 import fps_core.objects.FieldType;
+import fps_core.objects.child.DateTimeFieldAttribute;
+import fps_core.objects.child.HyperLinkFieldAttribute;
 import fps_core.objects.core.FileFieldAttribute;
 import fps_core.objects.core.InitialsFieldAttribute;
 import fps_core.objects.core.QRFieldAttribute;
@@ -489,7 +492,6 @@ public class ConnectorField {
 //        });
 //        executors.shutdown();
 //        //</editor-fold>
-        
         //<editor-fold defaultstate="collapsed" desc="Check Process Status of Field">
         InternalResponse checking = CheckFieldProcessedYet.checkProcessed(fieldOld);
         if (checking.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
@@ -665,7 +667,7 @@ public class ConnectorField {
             }
             field.setRemark(fieldOld.getRemark());
             return ReplicateInitialField.replicateField(
-                    (AbstractReplicateField)field,
+                    (AbstractReplicateField) field,
                     document_,
                     user,
                     transactionId).setUser(user);
@@ -832,7 +834,8 @@ public class ConnectorField {
         List<CameraFieldAttribute> cameras = new ArrayList<>();
         List<RadioFieldAttribute> radios = new ArrayList<>();
         List<AttachmentFieldAttribute> attachments = new ArrayList<>();
-        
+        List<HyperLinkFieldAttribute> hypers = new ArrayList<>();
+
         for (ExtendedFieldAttribute field : fields) {
             try {
                 switch (field.getType().getTypeId()) {
@@ -840,19 +843,31 @@ public class ConnectorField {
                     case 11:
                     case 12:
                     case 13:
-                    case 14:
                     case 15:
                     case 16:
                     case 20:
                     case 21:
-                    case 24:
                     case 26:
-                    case 27:
                     case 1: {
                         TextFieldAttribute text = new TextFieldAttribute();
                         text = new ObjectMapper().readValue(field.getDetailValue(), TextFieldAttribute.class);
                         text = (TextFieldAttribute) field.clone(text, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
                         textboxs.add(text);
+                        break;
+                    }
+                    case 27: {
+                        HyperLinkFieldAttribute hyper = new HyperLinkFieldAttribute();
+                        hyper = new ObjectMapper().readValue(field.getDetailValue(), HyperLinkFieldAttribute.class);
+                        hyper = (HyperLinkFieldAttribute) field.clone(hyper, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
+                        hypers.add(hyper);
+                        break;
+                    }
+                    case 14:
+                    case 24: {
+                        DateTimeFieldAttribute dateTime = new DateTimeFieldAttribute();
+                        dateTime = new ObjectMapper().readValue(field.getDetailValue(), DateTimeFieldAttribute.class);
+                        dateTime = (DateTimeFieldAttribute) field.clone(dateTime, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
+                        textboxs.add(dateTime);
                         break;
                     }
                     case 2: {
@@ -1041,18 +1056,17 @@ public class ConnectorField {
 
                         cameras.add(camera);
                         break;
-                    } 
+                    }
                     case 41: {
                         AttachmentFieldAttribute attach = new ObjectMapper().readValue(field.getDetailValue(), AttachmentFieldAttribute.class);
                         attach = (AttachmentFieldAttribute) field.clone(attach, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
                         //<editor-fold defaultstate="collapsed" desc="Download File from FMS if need">
-                        if (
-                                attach.getFileData() != null &&
-                                !Utils.isNullOrEmpty(attach.getFileData().getFileData()) &&
-                                attach.getFileData().getFileData().length() <= 32) {
+                        if (attach.getFileData() != null
+                                && !Utils.isNullOrEmpty(attach.getFile())
+                                && attach.getFile().length() <= 32) {
                             try {
                                 InternalResponse response = vn.mobileid.id.FMS.downloadDocumentFromFMS(
-                                        attach.getFileData().getFileData(),
+                                        attach.getFile(),
                                         "");
                                 if (response.getStatus() == A_FPSConstant.HTTP_CODE_SUCCESS) {
                                     byte[] file = (byte[]) response.getData();
@@ -1063,7 +1077,7 @@ public class ConnectorField {
                             }
                         }
                         //</editor-fold>
-                    
+
                         attachments.add(attach);
                         break;
                     }
@@ -1073,7 +1087,7 @@ public class ConnectorField {
                 return null;
             }
         }
-        Object[] array = new Object[13];
+        Object[] array = new Object[14];
         array[0] = textboxs;
         array[1] = checkboxs;
         array[2] = radios;
@@ -1087,6 +1101,7 @@ public class ConnectorField {
         array[10] = images;
         array[11] = cameras;
         array[12] = attachments;
+        array[13] = hypers;
         return array;
     }
     //</editor-fold>
@@ -1101,7 +1116,7 @@ public class ConnectorField {
      * @param transactionId
      * @return
      */
-    private static InternalResponse parseToField(
+    private static <T> InternalResponse parseToField(
             String url,
             String payload,
             Boolean isCheckBasicField,
@@ -1135,10 +1150,32 @@ public class ConnectorField {
             }
             case "text": {
                 //<editor-fold defaultstate="collapsed" desc="Generate TextFieldAttribute from Payload">
+
+                //<editor-fold defaultstate="collapsed" desc="Check type of TextField">
+                String type = Utils.getFromJson("type", payload);
+                Object checkDate = Utils.getFromJson_("date", payload);
+                Object checkAddress = Utils.getFromJson_("address", payload);
+
+                if (Utils.isNullOrEmpty(type) && !isUpdate) {
+                    return new InternalResponse(
+                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                            A_FPSConstant.CODE_FIELD_TEXT,
+                            A_FPSConstant.SUBCODE_MISSING_TEXT_FIELD_TYPE
+                    );
+                }
+                //</editor-fold>
+
                 TextFieldAttribute field = null;
                 try {
-                    field = new ObjectMapper().readValue(payload, TextFieldAttribute.class);
-                } catch (JsonProcessingException ex) {
+                    if (checkDate != null || type.equalsIgnoreCase("datetime") || type.equalsIgnoreCase("date")) {
+                        field = new ObjectMapper().readValue(payload, DateTimeFieldAttribute.class);
+                    } else if (checkAddress != null || type.equalsIgnoreCase("hyperlink")) {
+                        field = new ObjectMapper().readValue(payload, HyperLinkFieldAttribute.class);
+                    } else {
+                        field = new ObjectMapper().readValue(payload, TextFieldAttribute.class);
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
                     return new InternalResponse(
                             A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                             A_FPSConstant.CODE_FAIL,
@@ -1163,10 +1200,14 @@ public class ConnectorField {
                         );
                     }
                     field.setType(Resources.getFieldTypes().get(field.getTypeName()));
+                } else {
+                    System.err.println("Transaction:" + transactionId + "\nCannot parse type of TextField => Using default TextBox");
+                    field.setType(Resources.getFieldTypes().get(FieldTypeName.TEXTBOX.getParentName()));
                 }
+
                 if (!isUpdate) {
                     if (field.getAlign() == null) {
-                        field.setAlign(TextFieldAttribute.Align.LEFT);
+                        field.setAlign(FPSTextAlign.LEFT);
                     }
                     if (field.getColor() == null) {
                         field.setColor("BLACK");
@@ -1177,6 +1218,7 @@ public class ConnectorField {
                     } catch (Exception ex) {
                     }
                 }
+
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
                 //</editor-fold>
             }
@@ -1237,7 +1279,7 @@ public class ConnectorField {
                 if (!check) {
                     return new InternalResponse(
                             A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                            A_FPSConstant.CODE_RADIO_BOX,
+                            A_FPSConstant.CODE_FIELD_RADIO_BOX,
                             A_FPSConstant.SUBCODE_INVALID_TYPE_OF_RADIO
                     );
                 }
@@ -1544,7 +1586,7 @@ public class ConnectorField {
                     if (!check) {
                         return new InternalResponse(
                                 A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                                A_FPSConstant.CODE_CAMERA,
+                                A_FPSConstant.CODE_FIELD_CAMERA,
                                 A_FPSConstant.SUBCODE_INVALID_CAMERA_FIELD_TYPE
                         );
                     }
@@ -1608,7 +1650,7 @@ public class ConnectorField {
                     if (!check) {
                         return new InternalResponse(
                                 A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                                A_FPSConstant.CODE_ATTACHMENT,
+                                A_FPSConstant.CODE_FIELD_ATTACHMENT,
                                 A_FPSConstant.SUBCODE_INVALID_ATTACHMENT_FIELD_TYPE
                         );
                     }
@@ -1616,31 +1658,31 @@ public class ConnectorField {
                 } else if (!isUpdate) {
                     return new InternalResponse(
                             A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                            A_FPSConstant.CODE_ATTACHMENT,
+                            A_FPSConstant.CODE_FIELD_ATTACHMENT,
                             A_FPSConstant.SUBCODE_INVALID_ATTACHMENT_FIELD_TYPE
                     );
                 }
                 if (field.getFileData() != null) {
                     //<editor-fold defaultstate="collapsed" desc="Check data of File">
-                    if (Utils.isNullOrEmpty(field.getFileData().getExtension())) {
+                    if (Utils.isNullOrEmpty(field.getFileExtension())) {
                         return new InternalResponse(
                                 A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                                A_FPSConstant.CODE_ATTACHMENT,
+                                A_FPSConstant.CODE_FIELD_ATTACHMENT,
                                 A_FPSConstant.SUBCODE_MISSING_EXTENSION
                         );
                     }
 
-                    if (Utils.isNullOrEmpty(field.getFileData().getFileData())) {
+                    if (Utils.isNullOrEmpty(field.getFile())) {
                         return new InternalResponse(
                                 A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                                A_FPSConstant.CODE_ATTACHMENT,
+                                A_FPSConstant.CODE_FIELD_ATTACHMENT,
                                 A_FPSConstant.SUBCODE_MISSING_FILE_DATA_OF_ATTACHMENT
                         );
                     }
                     //</editor-fold>
 
                     //<editor-fold defaultstate="collapsed" desc="Upload into FMS if need">
-                    if (field.getFileData().getFileData() != null && field.getFileData().getFileData().length()
+                    if (field.getFile() != null && field.getFile().length()
                             > PolicyConfiguration.getInstant()
                                     .getSystemConfig()
                                     .getAttributes()
@@ -1648,18 +1690,66 @@ public class ConnectorField {
                                     .getMaximumFile()) {
                         try {
                             InternalResponse response = vn.mobileid.id.FMS.uploadToFMS(
-                                    Base64.decode(field.getFileData().getFileData()),
-                                    field.getFileData().getExtension(),
+                                    Base64.decode(field.getFile()),
+                                    field.getFileExtension(),
                                     transactionId);
                             if (response.getStatus() == A_FPSConstant.HTTP_CODE_SUCCESS) {
                                 String uuid = (String) response.getData();
-                                field.getFileData().setFileData(uuid);
+                                field.setFile(uuid);
                             }
                         } catch (Exception ex) {
                             System.err.println("Cannot upload image from ImageField to FMS!. Using default");
                         }
                     }
                     //</editor-fold>
+                }
+
+                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
+                //</editor-fold>
+            }
+            case "hyperlink": {
+                //<editor-fold defaultstate="collapsed" desc="Generate HyperLinkFieldAttribute from Payload">
+                HyperLinkFieldAttribute field = null;
+                try {
+                    field = new ObjectMapper().readValue(payload, HyperLinkFieldAttribute.class);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    return new InternalResponse(
+                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                            A_FPSConstant.CODE_FAIL,
+                            A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE
+                    );
+                }
+                if (isCheckBasicField) {
+                    InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
+                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                        return response;
+                    }
+                }
+
+                if (!Utils.isNullOrEmpty(field.getTypeName())) {
+                    boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.HYPERLINK);
+
+                    if (!check) {
+                        return new InternalResponse(
+                                A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                                A_FPSConstant.CODE_FIELD_HYPERLINK,
+                                A_FPSConstant.SUBCODE_INVALID_HYPERLINK_TYPE
+                        );
+                    }
+                    field.setType(Resources.getFieldTypes().get(field.getTypeName()));
+                } else {
+                    System.err.println("Transaction:" + transactionId + "\nCannot parse type of HyperLink => Using default HyperLink");
+                    field.setType(Resources.getFieldTypes().get(FieldTypeName.HYPERLINK.getParentName()));
+                }
+
+                if (!isUpdate) {
+                    if (field.getAlign() == null) {
+                        field.setAlign(FPSTextAlign.LEFT);
+                    }
+                    if (field.getColor() == null) {
+                        field.setColor("BLACK");
+                    }
                 }
 
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
@@ -1716,10 +1806,10 @@ public class ConnectorField {
             case "text": {
                 //<editor-fold defaultstate="collapsed" desc="Generate TextFieldAttribute from Payload">
                 InternalResponse response = parseForAllType(TextFieldAttribute.class, payload, true, transactionId);
-                if(!response.isValid()){
+                if (!response.isValid()) {
                     return response;
                 }
-                TextFieldAttribute field = (TextFieldAttribute)response.getData();
+                TextFieldAttribute field = (TextFieldAttribute) response.getData();
 
                 if (!Utils.isNullOrEmpty(field.getTypeName())) {
                     boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.TEXTBOX);
@@ -1732,17 +1822,17 @@ public class ConnectorField {
                         );
                     }
                     field.setType(Resources.getFieldTypes().get(field.getTypeName()));
-                } else if(!isUpdate){
+                } else if (!isUpdate) {
                     return new InternalResponse(
-                                A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                                A_FPSConstant.CODE_FIELD_TEXT,
-                                A_FPSConstant.SUBCODE_MISSING_TEXT_FIELD_TYPE
-                        );
+                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                            A_FPSConstant.CODE_FIELD_TEXT,
+                            A_FPSConstant.SUBCODE_MISSING_TEXT_FIELD_TYPE
+                    );
                 }
-                
+
                 if (!isUpdate) {
                     if (field.getAlign() == null) {
-                        field.setAlign(TextFieldAttribute.Align.LEFT);
+                        field.setAlign(FPSTextAlign.LEFT);
                     }
                     if (field.getColor() == null) {
                         field.setColor("BLACK");
@@ -1813,7 +1903,7 @@ public class ConnectorField {
                 if (!check) {
                     return new InternalResponse(
                             A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                            A_FPSConstant.CODE_RADIO_BOX,
+                            A_FPSConstant.CODE_FIELD_RADIO_BOX,
                             A_FPSConstant.SUBCODE_INVALID_TYPE_OF_RADIO
                     );
                 }
@@ -2127,7 +2217,7 @@ public class ConnectorField {
                     if (!check) {
                         return new InternalResponse(
                                 A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                                A_FPSConstant.CODE_CAMERA,
+                                A_FPSConstant.CODE_FIELD_CAMERA,
                                 A_FPSConstant.SUBCODE_INVALID_CAMERA_FIELD_TYPE
                         );
                     }
@@ -2191,7 +2281,7 @@ public class ConnectorField {
                     if (!check) {
                         return new InternalResponse(
                                 A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                                A_FPSConstant.CODE_ATTACHMENT,
+                                A_FPSConstant.CODE_FIELD_ATTACHMENT,
                                 A_FPSConstant.SUBCODE_INVALID_ATTACHMENT_FIELD_TYPE
                         );
                     }
@@ -2199,31 +2289,31 @@ public class ConnectorField {
                 } else if (!isUpdate) {
                     return new InternalResponse(
                             A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                            A_FPSConstant.CODE_ATTACHMENT,
+                            A_FPSConstant.CODE_FIELD_ATTACHMENT,
                             A_FPSConstant.SUBCODE_INVALID_ATTACHMENT_FIELD_TYPE
                     );
                 }
                 if (field.getFileData() != null) {
                     //<editor-fold defaultstate="collapsed" desc="Check data of File">
-                    if (!Utils.isNullOrEmpty(field.getFileData().getExtension())) {
+                    if (!Utils.isNullOrEmpty(field.getFileExtension())) {
                         return new InternalResponse(
                                 A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                                A_FPSConstant.CODE_ATTACHMENT,
+                                A_FPSConstant.CODE_FIELD_ATTACHMENT,
                                 A_FPSConstant.SUBCODE_MISSING_EXTENSION
                         );
                     }
 
-                    if (!Utils.isNullOrEmpty(field.getFileData().getFileData())) {
+                    if (!Utils.isNullOrEmpty(field.getFile())) {
                         return new InternalResponse(
                                 A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                                A_FPSConstant.CODE_ATTACHMENT,
+                                A_FPSConstant.CODE_FIELD_ATTACHMENT,
                                 A_FPSConstant.SUBCODE_MISSING_FILE_DATA_OF_ATTACHMENT
                         );
                     }
                     //</editor-fold>
 
                     //<editor-fold defaultstate="collapsed" desc="Upload into FMS if need">
-                    if (field.getFileData().getFileData() != null && field.getFileData().getFileData().length()
+                    if (field.getFile() != null && field.getFile().length()
                             > PolicyConfiguration.getInstant()
                                     .getSystemConfig()
                                     .getAttributes()
@@ -2231,12 +2321,12 @@ public class ConnectorField {
                                     .getMaximumFile()) {
                         try {
                             InternalResponse response = vn.mobileid.id.FMS.uploadToFMS(
-                                    Base64.decode(field.getFileData().getFileData()),
-                                    field.getFileData().getExtension(),
+                                    Base64.decode(field.getFile()),
+                                    field.getFileExtension(),
                                     transactionId);
                             if (response.getStatus() == A_FPSConstant.HTTP_CODE_SUCCESS) {
                                 String uuid = (String) response.getData();
-                                field.getFileData().setFileData(uuid);
+                                field.setFile(uuid);
                             }
                         } catch (Exception ex) {
                             System.err.println("Cannot upload image from ImageField to FMS!. Using default");
@@ -2253,7 +2343,7 @@ public class ConnectorField {
                 new ResponseMessageController().writeStringField("error", "This type of Field not provide yet"));
     }
     //</editor-fold>
-    
+
     //<editor-fold defaultstate="collapsed" desc="DistributeFlowDelete">
     /**
      * Dùng để phân phối kênh "Delete" phụ thuộc vào ParentType của Field
@@ -2361,13 +2451,13 @@ public class ConnectorField {
         }
         if (isCheckBasicField) {
             InternalResponse response = CheckPayloadRequest.checkBasicField(
-                    (BasicFieldAttribute)newType,
+                    (BasicFieldAttribute) newType,
                     transactionId);
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 return response;
             }
         }
-        
+
         return new InternalResponse(
                 A_FPSConstant.HTTP_CODE_SUCCESS,
                 newType

@@ -19,7 +19,7 @@ import vn.mobileid.id.utils.Utils;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ProcessingRequest { 
+public class ProcessingRequest {
 
     //Data for sign
     private String fieldName;
@@ -30,22 +30,23 @@ public class ProcessingRequest {
     private String hashValue;
     private List<String> certificateChain;
     private String signatureAlgorithm;
-    private String signedHash;  
+    private String signedHash;
     private String handSignatureImage;
 
     //Data for fillFormField
     private List<ProcessingFormFillRequest> text = new ArrayList<>();
-    private List<ProcessingFormFillRequest> radio=new ArrayList<>();
-    private List<ProcessingFormFillRequest> checkbox=new ArrayList<>();
-    private List<ProcessingFormFillRequest> dropdown=new ArrayList<>();
-    private List<ProcessingFormFillRequest> listbox=new ArrayList<>();
-    private List<ProcessingFormFillRequest> stamp=new ArrayList<>();
-    private List<ProcessingFormFillRequest> cameras=new ArrayList<>();
-    private List<ProcessingFormFillRequest> attachment=new ArrayList<>();
-    
+    private List<ProcessingFormFillRequest> radio = new ArrayList<>();
+    private List<ProcessingFormFillRequest> checkbox = new ArrayList<>();
+    private List<ProcessingFormFillRequest> dropdown = new ArrayList<>();
+    private List<ProcessingFormFillRequest> listbox = new ArrayList<>();
+    private List<ProcessingFormFillRequest> stamp = new ArrayList<>();
+    private List<ProcessingFormFillRequest> cameras = new ArrayList<>();
+    private List<ProcessingFormFillRequest> attachment = new ArrayList<>();
+    private List<ProcessingFormFillRequest> hypers = new ArrayList<>();
+
     //Data for fill QR Qrypto Field
     private List<ItemDetails> item;
-    
+
     public ProcessingRequest() {
     }
 
@@ -148,12 +149,12 @@ public class ProcessingRequest {
     public String getSignedHash() {
         return signedHash;
     }
-    
+
     @JsonProperty("hash_value")
     public String getHashValue() {
         return hashValue;
     }
-    
+
     public void setHashValue(String hashValue) {
         this.hashValue = hashValue;
     }
@@ -167,33 +168,33 @@ public class ProcessingRequest {
         this.cameras = cameras;
     }
 
-    public void convert(SignatureFieldAttribute original){
-        if(original.getVerification() == null){
+    public void convert(SignatureFieldAttribute original) {
+        if (original.getVerification() == null) {
             return;
         }
-        if(!Utils.isNullOrEmpty(this.certificateChain)){
+        if (!Utils.isNullOrEmpty(this.certificateChain)) {
             original.getVerification().setCertificateChain(certificateChain);
         }
-        if(!Utils.isNullOrEmpty(this.handSignatureImage)){
+        if (!Utils.isNullOrEmpty(this.handSignatureImage)) {
             original.setHandSignatureImage(handSignatureImage);
         }
-        if(!Utils.isNullOrEmpty(this.signatureAlgorithm)){
+        if (!Utils.isNullOrEmpty(this.signatureAlgorithm)) {
             original.getVerification().setSignatureAlgorithm(signatureAlgorithm);
         }
-        if(!Utils.isNullOrEmpty(this.signatureValue)){
+        if (!Utils.isNullOrEmpty(this.signatureValue)) {
             original.getVerification().setSignatureValue(signatureValue);
         }
-        if(!Utils.isNullOrEmpty(this.signedHash)){
+        if (!Utils.isNullOrEmpty(this.signedHash)) {
             original.getVerification().setSignedHash(signedHash);
         }
-        if(!Utils.isNullOrEmpty(this.signingLocation)){
+        if (!Utils.isNullOrEmpty(this.signingLocation)) {
             original.getVerification().setSigningLocation(signingLocation);
         }
-        if(!Utils.isNullOrEmpty(this.signingReason)){
+        if (!Utils.isNullOrEmpty(this.signingReason)) {
             original.getVerification().setSigningReason(signingReason);
         }
     }
-    
+
     @JsonProperty("text")
     public List<ProcessingFormFillRequest> getText() {
         return text;
@@ -218,7 +219,7 @@ public class ProcessingRequest {
     public List<ProcessingFormFillRequest> getListbox() {
         return listbox;
     }
-    
+
     @JsonProperty("stamp")
     public List<ProcessingFormFillRequest> getStamp() {
         return stamp;
@@ -228,15 +229,24 @@ public class ProcessingRequest {
     public List<ProcessingFormFillRequest> getAttachment() {
         return attachment;
     }
-    
+
     @JsonProperty("hand_signature_image")
     public String getHandSignatureImage() {
         return handSignatureImage;
     }
-    
+
     @JsonProperty("items")
     public List<ItemDetails> getItem() {
         return item;
+    }
+
+    @JsonProperty("hyperlink")
+    public List<ProcessingFormFillRequest> getHyperlinks() {
+        return hypers;
+    }
+
+    public void setHyperlink(List<ProcessingFormFillRequest> hyperlinks) {
+        this.hypers = hyperlinks;
     }
     
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -246,7 +256,7 @@ public class ProcessingRequest {
         private String fieldName;
         private Object value;
         private String radioGroupName;
-        
+
         //For Attachment 
         private String fileName;
 

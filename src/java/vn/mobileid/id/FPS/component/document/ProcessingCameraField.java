@@ -154,7 +154,7 @@ public class ProcessingCameraField {
      * error while processed
      * @throws Exception
      */
-    public static InternalResponse processCameraField(
+    public static InternalResponse processMultipleCameraField(
             long packageId,
             User user,
             List<ProcessingRequest.ProcessingFormFillRequest> fields,

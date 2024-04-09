@@ -6,15 +6,14 @@ package vn.mobileid.id.FPS.component.document;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fps_core.enumration.FieldTypeName;
-import fps_core.objects.child.AttachmentFieldAttribute;
+import fps_core.objects.child.HyperLinkFieldAttribute;
 import fps_core.objects.core.ExtendedFieldAttribute;
+import fps_core.objects.core.TextFieldAttribute;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Date;
 import java.util.List;
-import vn.mobileid.id.FMS;
 import vn.mobileid.id.FPS.component.document.process.ProcessingFactory;
 import vn.mobileid.id.FPS.component.enterprise.ProcessModuleForEnterprise;
 import vn.mobileid.id.FPS.component.field.CheckFieldProcessedYet;
@@ -22,6 +21,7 @@ import vn.mobileid.id.FPS.component.field.ConnectorField_Internal;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
+import vn.mobileid.id.FPS.object.InternalResponse.InternalData;
 import vn.mobileid.id.FPS.object.ProcessingRequest;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.general.PolicyConfiguration;
@@ -31,11 +31,11 @@ import vn.mobileid.id.utils.Utils;
  *
  * @author GiaTK
  */
-public class ProcessingAttachmentField {
+public class ProcessingHyperLinkField {
 
-    //<editor-fold defaultstate="collapsed" desc="Processing Multiple File Form Field Version1">
+    //<editor-fold defaultstate="collapsed" desc="Processing Hyperlink Form Field">
     /**
-     * Processing all ImageField in Payload
+     * Processing all Hyperlink in Payload
      *
      * @param packageId
      * @param user
@@ -47,35 +47,31 @@ public class ProcessingAttachmentField {
      * error while processed
      * @throws Exception
      */
-    public static InternalResponse processMultipleFileFormField(
+    public static InternalResponse processMultipleHyperLinkField(
             long packageId,
             User user,
             List<ProcessingRequest.ProcessingFormFillRequest> fields,
             String transactionId
     ) throws Exception {
-        List<InternalResponse.InternalData> listOfErrorField = new ArrayList<>();
-        InternalResponse responseFinal = new InternalResponse(
-                A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                ""
-        );
+        List<InternalData> listOfErrorField = new ArrayList<>();
 
         for (ProcessingRequest.ProcessingFormFillRequest field : fields) {
-            InternalResponse.InternalData errorField = new InternalResponse.InternalData();
+            InternalData errorField = new InternalData();
             errorField.setName(field.getFieldName());
 
             //<editor-fold defaultstate="collapsed" desc="Check value is String?">
             if (field.getValue() != null) {
                 if (!(field.getValue() instanceof String)) {
                     errorField.setValue(
-                            String.valueOf(A_FPSConstant.CODE_FIELD_STAMP)
-                            + String.valueOf(A_FPSConstant.SUBCODE_VALUE_MUST_BE_ENCODE_BASE64_FORMAT)
+                            String.valueOf(A_FPSConstant.CODE_FIELD_HYPERLINK)
+                            + String.valueOf(A_FPSConstant.SUBCODE_VALUE_MUST_BE_A_STRING)
                     );
                     listOfErrorField.add(errorField);
                     continue;
                 }
             }
             //</editor-fold>
-
+            
             //<editor-fold defaultstate="collapsed" desc="Get Documents">
             InternalResponse response = GetDocument.getDocuments(
                     packageId,
@@ -109,8 +105,9 @@ public class ProcessingAttachmentField {
             }
 
             ExtendedFieldAttribute fieldData = (ExtendedFieldAttribute) response.getData();
-            //</editor-fold>
 
+            //</editor-fold>
+            
             //<editor-fold defaultstate="collapsed" desc="Check data in ExtendedField is sastified">
             if (CheckFieldProcessedYet.checkProcessed(fieldData.getFieldValue()).getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 errorField.setValue(
@@ -121,7 +118,7 @@ public class ProcessingAttachmentField {
                 continue;
             }
 
-            if (!fieldData.getType().getParentType().equals(FieldTypeName.ATTACHMENT.getParentName())) {
+            if (!fieldData.getType().getParentType().equals(FieldTypeName.HYPERLINK.getParentName())) {
                 errorField.setValue(
                         String.valueOf(A_FPSConstant.CODE_FIELD)
                         + String.valueOf(A_FPSConstant.SUBCODE_THIS_TYPE_OF_FIELD_IS_NOT_VALID_FOR_THIS_PROCESSION)
@@ -131,29 +128,10 @@ public class ProcessingAttachmentField {
             }
             //</editor-fold>
 
-            //<editor-fold defaultstate="collapsed" desc="Convert ExtendField into File Field">
-            AttachmentFieldAttribute fileField = null;
+            //<editor-fold defaultstate="collapsed" desc="Convert ExtendField into TextField">
+            TextFieldAttribute textField = null;
             try {
-                InternalResponse convert = convertExtendIntoFileField(
-                        user,
-                        fieldData,
-                        field);
-
-                if (!convert.isValid()) {
-                    if (convert.getCode() == 0 || convert.getCodeDescription() == 0) {
-                        errorField.setValue(convert.getMessage());
-                    } else {
-                        errorField.setValue(
-                                String.valueOf(convert.getCode()) + String.valueOf(convert.getCodeDescription()));
-                    }
-                    listOfErrorField.add(errorField);
-                    if (response.getException() != null) {
-                        responseFinal.setException(response.getException());
-                    }
-                    continue;
-                }
-                fileField = (AttachmentFieldAttribute) convert.getData();
-
+                textField = convertExtendIntoHyperLink(user, fieldData, (String) field.getValue());
             } catch (Exception ex) {
                 errorField.setValue(Utils.summaryException(ex));
                 listOfErrorField.add(errorField);
@@ -161,25 +139,7 @@ public class ProcessingAttachmentField {
             }
             //</editor-fold>
 
-            //<editor-fold defaultstate="collapsed" desc="Check data is valid?">
-            if (Utils.isNullOrEmpty(fileField.getFile())) {
-                errorField.setValue(
-                        String.valueOf(A_FPSConstant.CODE_FIELD_ATTACHMENT)
-                        + String.valueOf(A_FPSConstant.SUBCODE_MISSING_FILE_DATA_OF_ATTACHMENT));
-                listOfErrorField.add(errorField);
-                continue;
-            }
-
-            if (Utils.isNullOrEmpty(fileField.getFileExtension())) {
-                errorField.setValue(
-                        String.valueOf(A_FPSConstant.CODE_FIELD_ATTACHMENT)
-                        + String.valueOf(A_FPSConstant.SUBCODE_MISSING_EXTENSION));
-                listOfErrorField.add(errorField);
-                continue;
-            }
-            //</editor-fold>
-
-            //<editor-fold defaultstate="collapsed" desc="Check page FileField is valid?">
+            //<editor-fold defaultstate="collapsed" desc="Check page Hyperlink is valid?">
             if (document_.getDocumentPages() < fieldData.getPage()) {
                 errorField.setValue(
                         String.valueOf(A_FPSConstant.CODE_FIELD) + String.valueOf(A_FPSConstant.SUBCODE_PAGE_IN_FIELD_NEED_TO_BE_LOWER_THAN_DOCUMENT));
@@ -189,19 +149,20 @@ public class ProcessingAttachmentField {
             //</editor-fold>
 
             //Processing
-            response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.ATTACHMENT).processField(
+            response = ProcessingFactory.createType(ProcessingFactory.TypeProcess.TEXTFIELD).processField(
                     user,
                     document_,
                     documents.size(),
                     fieldData.getDocumentFieldId(),
-                    fileField,
-                    transactionId,
-                    0L);
+                    textField,
+                    fieldData,
+                    transactionId);
 
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 errorField.setValue(
                         String.valueOf(response.getCode()) + String.valueOf(response.getCodeDescription()));
                 listOfErrorField.add(errorField);
+                continue;
             }
         }
 
@@ -216,7 +177,7 @@ public class ProcessingAttachmentField {
                 ""
         );
 
-        InternalResponse.InternalData data = new InternalResponse.InternalData();
+        InternalData data = new InternalData();
         data.setValue(listOfErrorField);
         response.setInternalData(data);
         return response;
@@ -224,65 +185,28 @@ public class ProcessingAttachmentField {
     //</editor-fold>
 
     //==========================================================================
-    //<editor-fold defaultstate="collapsed" desc="Convert ExtendedField into Attachment Field">
-    private static InternalResponse convertExtendIntoFileField(
+    //<editor-fold defaultstate="collapsed" desc="Convert ExtendedField into HyperLink">
+    private static TextFieldAttribute convertExtendIntoHyperLink(
             User user,
             ExtendedFieldAttribute fieldData,
-            ProcessingRequest.ProcessingFormFillRequest processField) throws Exception {
+            String value) throws Exception {
         //Read details
-        AttachmentFieldAttribute imageField = new ObjectMapper().readValue(fieldData.getDetailValue(), AttachmentFieldAttribute.class);
-        imageField = (AttachmentFieldAttribute) fieldData.clone(imageField, fieldData.getDimension());
+        HyperLinkFieldAttribute hyperLink = new ObjectMapper().readValue(fieldData.getDetailValue(), HyperLinkFieldAttribute.class);
+        hyperLink = (HyperLinkFieldAttribute) fieldData.clone(hyperLink, fieldData.getDimension());
 
-        imageField.setProcessBy(user.getAzp());
-        SimpleDateFormat dateFormat = new SimpleDateFormat(
-                PolicyConfiguration
-                        .getInstant()
-                        .getSystemConfig()
-                        .getAttributes()
-                        .get(0)
-                        .getDateFormat());
-        imageField.setProcessOn(dateFormat.format(Date.from(Instant.now())));
+        if (value != null) {
+            hyperLink.setValue(value);
+        }
 
-        if (!Utils.isNullOrEmpty(processField.getFileName())){
-            String[] split = processField.getFileName().split("\\.");
-            String extension = split[split.length - 1];
-            imageField.setFileExtension(extension);
-            imageField.setFileName(processField.getFileName());
-            imageField.setFile((String)processField.getValue());
-        } 
+        hyperLink.setProcessBy(user.getAzp());
+        SimpleDateFormat dateFormat = new SimpleDateFormat(PolicyConfiguration.getInstant().getSystemConfig().getAttributes().get(0).getDateFormat());
+        hyperLink.setProcessOn(dateFormat.format(Date.from(Instant.now())));
+
+        if(!Utils.isNullOrEmpty(value)){
+            hyperLink.setAddress(value);
+        }
         
-        if (!Utils.isNullOrEmpty((String)processField.getValue())) {
-            imageField.setFile((String)processField.getValue());
-        }
-
-        //<editor-fold defaultstate="collapsed" desc="Download Image from FMS if need">
-        if (!Utils.isNullOrEmpty(imageField.getFile()) && imageField.getFile().length() <= 32) {
-            try {
-                InternalResponse response = FMS.downloadDocumentFromFMS(imageField.getFile(), "");
-
-                if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                    return new InternalResponse(
-                            A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
-                            A_FPSConstant.CODE_FMS,
-                            A_FPSConstant.SUBCODE_ERROR_WHILE_DOWNLOAD_FMS);
-                }
-
-                byte[] image_ = (byte[]) response.getData();
-                imageField.setFile(Base64.getEncoder().encodeToString(image_));
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                return new InternalResponse(
-                        A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
-                        A_FPSConstant.CODE_FMS,
-                        A_FPSConstant.SUBCODE_ERROR_WHILE_DOWNLOAD_FMS);
-            }
-        }
-        //</editor-fold>
-
-        return new InternalResponse(
-                A_FPSConstant.HTTP_CODE_SUCCESS,
-                imageField);
+        return hyperLink;
     }
     //</editor-fold>
-
 }

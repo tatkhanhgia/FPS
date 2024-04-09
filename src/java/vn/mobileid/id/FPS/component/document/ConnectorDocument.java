@@ -896,7 +896,7 @@ public class ConnectorDocument {
         
         //<editor-fold defaultstate="collapsed" desc="Process Camera Form Field">
         if (!Utils.isNullOrEmpty(processRequest.getCameras())) {
-            response = ProcessingCameraField.processCameraField(
+            response = ProcessingCameraField.processMultipleCameraField(
                     Utils.getIdFromURL(request.getRequestURI()),
                     user,
                     processRequest.getCameras(),
@@ -914,6 +914,20 @@ public class ConnectorDocument {
                     Utils.getIdFromURL(request.getRequestURI()),
                     user,
                     processRequest.getAttachment(),
+                    transactionId);
+
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                return response;
+            }
+        }
+        //</editor-fold>
+        
+        //<editor-fold defaultstate="collapsed" desc="Process Hyperlink Form Field">
+        if (!Utils.isNullOrEmpty(processRequest.getHyperlinks())) {
+            response = ProcessingHyperLinkField.processMultipleHyperLinkField(
+                    Utils.getIdFromURL(request.getRequestURI()),
+                    user,
+                    processRequest.getHyperlinks(),
                     transactionId);
 
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
