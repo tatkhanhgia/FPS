@@ -866,6 +866,20 @@ public class ConnectorDocument {
         }
         //</editor-fold>
 
+        //<editor-fold defaultstate="collapsed" desc="Process DateTime Field">
+        if (!Utils.isNullOrEmpty(processRequest.getDateTimes())) {
+            response = new ProcessingDateTimeField().processMultipleTextField(
+                    Utils.getIdFromURL(request.getRequestURI()),
+                    user,
+                    processRequest.getDateTimes(),
+                    transactionId);
+
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                return response;
+            }
+        }
+        //</editor-fold>
+        
         //<editor-fold defaultstate="collapsed" desc="Process Checkbox Form Field">
         if (!Utils.isNullOrEmpty(processRequest.getCheckbox())) {
             response = ProcessingCheckboxFormField.processCheckboxField(
@@ -1920,7 +1934,8 @@ public class ConnectorDocument {
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Check field is processed yet? and is type signature">
-        if (!fieldData.getType().getParentType().equals(FieldTypeName.SIGNATURE.getParentName())) {
+        if (!fieldData.getType().getParentType().equals(FieldTypeName.SIGNATURE.getParentName()) &&
+                !fieldData.getType().getParentType().equals(FieldTypeName.INPERSON.getParentName())) {
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                     A_FPSConstant.CODE_FIELD,

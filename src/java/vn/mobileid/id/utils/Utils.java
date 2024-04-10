@@ -667,7 +667,7 @@ public class Utils {
                 req.getRequestURI(),
                 req.getMethod(),
                 response.getStatus(),
-                summary.toPrettyString(),
+                summary == null ? null : summary.toPrettyString(),
                 response.getMessage(),
                 exceptionSummary,
                 "HMAC",

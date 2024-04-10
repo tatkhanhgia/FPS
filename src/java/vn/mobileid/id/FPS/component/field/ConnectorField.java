@@ -825,7 +825,9 @@ public class ConnectorField {
             Document document,
             List<ExtendedFieldAttribute> fields) {
         List<SignatureFieldAttribute> signatures = new ArrayList<>();
+        List<SignatureFieldAttribute> inpersons = new ArrayList<>();
         List<TextFieldAttribute> textboxs = new ArrayList<>();
+        List<TextFieldAttribute> datetimes = new ArrayList<>();
         List<InitialsFieldAttribute> initials = new ArrayList<>();
         List<QRFieldAttribute> qrs = new ArrayList<>();
         List<QryptoFieldAttribute> qryptos = new ArrayList<>();
@@ -851,7 +853,7 @@ public class ConnectorField {
                     case 20:
                     case 21:
                     case 26:
-                    case 1: { 
+                    case 1: {
                         TextFieldAttribute text = new TextFieldAttribute();
                         text = new ObjectMapper().readValue(field.getDetailValue(), TextFieldAttribute.class);
                         text = (TextFieldAttribute) field.clone(text, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
@@ -891,7 +893,7 @@ public class ConnectorField {
                         DateTimeFieldAttribute dateTime = new DateTimeFieldAttribute();
                         dateTime = new ObjectMapper().readValue(field.getDetailValue(), DateTimeFieldAttribute.class);
                         dateTime = (DateTimeFieldAttribute) field.clone(dateTime, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
-                        textboxs.add(dateTime);
+                        datetimes.add(dateTime);
                         break;
                     }
                     case 2: {
@@ -1011,7 +1013,27 @@ public class ConnectorField {
                         break;
                     }
                     case 6: {
+                        //<editor-fold defaultstate="collapsed" desc="Mapping all date into SignatureField">
+                        String json1 = field.getDetailValue();
+                        String json2 = field.getFieldValue();
+                        SignatureFieldAttribute signatureField = null;
+                        if (Utils.getFromJson_("verification", json1) != null) {
+                            if (Utils.isNullOrEmpty(json2)) {
+                                json2 = json1;
+                            } else {
+                                JsonNode node = Utils.merge(json2, json1);
+                                json2 = node.toPrettyString();
+                            }
+                        } else {
+                            json2 = json1;
+                        }
+                        signatureField = new ObjectMapper().readValue(json2, SignatureFieldAttribute.class);
+                        signatureField = (SignatureFieldAttribute) field.clone(signatureField, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
+
+                        signatureField.setLevelOfAssurance(field.getLevelOfAssurance());
+                        inpersons.add(signatureField);
                         break;
+                        //</editor-fold>
                     }
                     case 7: {
                         //<editor-fold defaultstate="collapsed" desc="Mapping all date into SignatureField">
@@ -1118,10 +1140,10 @@ public class ConnectorField {
         array[2] = radios;
         array[3] = qrs;
         array[4] = initials;
-        array[5] = null;
+        array[5] = inpersons;
         array[6] = signatures;
         array[7] = combos;
-        array[8] = null;
+        array[8] = datetimes;
         array[9] = qryptos;
         array[10] = images;
         array[11] = cameras;
@@ -1143,14 +1165,17 @@ public class ConnectorField {
      * @param transactionId
      * @return
      */
-    private static <T> InternalResponse parseToField(
+    private static InternalResponse parseToField(
             String url,
             String payload,
             Boolean isCheckBasicField,
             Boolean isUpdate,
             String transactionId) {
-        String temp = url.substring(url.lastIndexOf("/") + 1);
-        switch (temp) {
+        String typeField = url.substring(url.lastIndexOf("/") + 1);
+        String temp = null;
+        switch (typeField) {
+            case "in_person_signature":
+                temp = FieldTypeName.INPERSON.getParentName();
             case "signature": {
                 //<editor-fold defaultstate="collapsed" desc="Generate SignatureFieldAttribute from Payload">
                 SignatureFieldAttribute field = null;
@@ -1170,7 +1195,65 @@ public class ConnectorField {
                     }
                 }
 
-                field.setType(Resources.getFieldTypes().get(FieldTypeName.SIGNATURE.getParentName()));
+                field.setType(Resources.getFieldTypes().get(
+                        temp == null
+                                ? FieldTypeName.SIGNATURE.getParentName()
+                                : temp
+                ));
+
+                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
+                //</editor-fold>
+            }
+            case "datetime": {
+                //<editor-fold defaultstate="collapsed" desc="Generate DateTime from Payload">
+
+                DateTimeFieldAttribute field = null;
+                try {
+                    field = new ObjectMapper().readValue(payload, DateTimeFieldAttribute.class);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    return new InternalResponse(
+                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                            A_FPSConstant.CODE_FAIL,
+                            A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE
+                    );
+                }
+                if (isCheckBasicField) {
+                    InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
+                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                        return response;
+                    }
+                }
+
+                if (!Utils.isNullOrEmpty(field.getTypeName())) {
+                    boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.DATETIME);
+
+                    if (!check) {
+                        return new InternalResponse(
+                                A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                                A_FPSConstant.CODE_FIELD_TEXT,
+                                A_FPSConstant.SUBCODE_INVALID_TEXT_FIELD_TYPE
+                        );
+                    }
+                    field.setType(Resources.getFieldTypes().get(field.getTypeName()));
+                } else {
+                    System.err.println("Transaction:" + transactionId + "\nCannot parse type of TextField => Using default TextBox");
+                    field.setType(Resources.getFieldTypes().get(FieldTypeName.DATETIME.getParentName()));
+                }
+
+                if (!isUpdate) {
+                    if (field.getAlign() == null) {
+                        field.setAlign(FPSTextAlign.LEFT);
+                    }
+                    if (field.getColor() == null) {
+                        field.setColor("BLACK");
+                    }
+                    try {
+                        System.out.println("Font:" + field.getFont().getSize());
+                        System.out.println("String:" + new String(field.getValue().getBytes("UTF-8"), "UTF-8"));
+                    } catch (Exception ex) {
+                    }
+                }
 
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
                 //</editor-fold>
@@ -1768,7 +1851,6 @@ public class ConnectorField {
                     System.err.println("Transaction:" + transactionId + "\nCannot parse type of HyperLink => Using default HyperLink");
                     field.setType(Resources.getFieldTypes().get(FieldTypeName.HYPERLINK.getParentName()));
                 }
-                
 
                 if (!isUpdate) {
                     if (field.getAlign() == null) {
@@ -1859,7 +1941,7 @@ public class ConnectorField {
                             A_FPSConstant.CODE_FIELD_COMBOBOX,
                             A_FPSConstant.SUBCODE_INVALID_COMBOBOX_FIELD_TYPE
                     );
-                } 
+                }
                 field.setType(Resources.getFieldTypes().get(FieldTypeName.TOGGLE.getParentName()));
 
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
@@ -1901,7 +1983,7 @@ public class ConnectorField {
                             A_FPSConstant.CODE_FIELD_COMBOBOX,
                             A_FPSConstant.SUBCODE_INVALID_COMBOBOX_FIELD_TYPE
                     );
-                } 
+                }
                 field.setType(Resources.getFieldTypes().get(FieldTypeName.NUMERIC_STEP.getParentName()));
 
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);

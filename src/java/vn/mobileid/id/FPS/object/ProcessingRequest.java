@@ -46,6 +46,7 @@ public class ProcessingRequest {
     private List<ProcessingFormFillRequest> combos = new ArrayList<>();
     private List<ProcessingFormFillRequest> toggles = new ArrayList<>();
     private List<ProcessingFormFillRequest> numericSteppers = new ArrayList<>();
+    private List<ProcessingFormFillRequest> dateTimes = new ArrayList<>();
 
     //Data for fill QR Qrypto Field
     private List<ItemDetails> item;
@@ -278,6 +279,17 @@ public class ProcessingRequest {
     public void setNumericSteppers(List<ProcessingFormFillRequest> numericSteppers) {
         this.numericSteppers = numericSteppers;
     }
+
+    @JsonProperty("datetime")
+    public List<ProcessingFormFillRequest> getDateTimes() {
+        return dateTimes;
+    }
+
+    public void setDateTimes(List<ProcessingFormFillRequest> dateTimes) {
+        this.dateTimes = dateTimes;
+    }
+    
+    
     
     @JsonIgnoreProperties(ignoreUnknown = true)
     @JsonInclude(JsonInclude.Include.NON_NULL)
