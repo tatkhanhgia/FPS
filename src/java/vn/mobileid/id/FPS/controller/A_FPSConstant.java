@@ -101,6 +101,7 @@ public class A_FPSConstant {
     final public static int CODE_FIELD_ATTACHMENT = 16;
     final public static int CODE_FIELD_HYPERLINK = 17;
     final public static int CODE_FIELD_COMBOBOX = 18;
+    final public static int CODE_FIELD_NUMERIC_STEPPER = 19;
     
     //SubCode
     final public static int SUBCODE_NO_PAYLOAD_FOUND = 1;
@@ -213,4 +214,7 @@ public class A_FPSConstant {
     //Subcode ComboBox - 18
     final public static int SUBCODE_INVALID_COMBOBOX_FIELD_TYPE = 1;
     final public static int SUBCODE_MISSING_DEFAULT_ITEMS_FOR_PROCESS = 2;
+    
+    //Subcode Numeric Stepper - 19
+    final public static int SUBCODE_MISSING_DEFAULT_VALUE_FOR_PROCESS = 1;
 }

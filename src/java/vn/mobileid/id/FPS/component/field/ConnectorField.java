@@ -21,6 +21,7 @@ import fps_core.objects.FieldType;
 import fps_core.objects.child.ComboBoxFieldAttribute;
 import fps_core.objects.child.DateTimeFieldAttribute;
 import fps_core.objects.child.HyperLinkFieldAttribute;
+import fps_core.objects.child.NumericStepperAttribute;
 import fps_core.objects.core.FileFieldAttribute;
 import fps_core.objects.core.InitialsFieldAttribute;
 import fps_core.objects.core.QRFieldAttribute;
@@ -836,6 +837,7 @@ public class ConnectorField {
         List<HyperLinkFieldAttribute> hypers = new ArrayList<>();
         List<ComboBoxFieldAttribute> combos = new ArrayList<>();
         List<ToggleFieldAttribute> toogles = new ArrayList<>();
+        List<NumericStepperAttribute> steppers = new ArrayList<>();
 
         for (ExtendedFieldAttribute field : fields) {
             try {
@@ -854,6 +856,13 @@ public class ConnectorField {
                         text = new ObjectMapper().readValue(field.getDetailValue(), TextFieldAttribute.class);
                         text = (TextFieldAttribute) field.clone(text, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
                         textboxs.add(text);
+                        break;
+                    }
+                    case 25: {
+                        NumericStepperAttribute stepper = new NumericStepperAttribute();
+                        stepper = new ObjectMapper().readValue(field.getDetailValue(), NumericStepperAttribute.class);
+                        stepper = (NumericStepperAttribute) field.clone(stepper, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
+                        steppers.add(stepper);
                         break;
                     }
                     case 22: {
@@ -1103,7 +1112,7 @@ public class ConnectorField {
                 return null;
             }
         }
-        Object[] array = new Object[15];
+        Object[] array = new Object[16];
         array[0] = textboxs;
         array[1] = checkboxs;
         array[2] = radios;
@@ -1119,6 +1128,7 @@ public class ConnectorField {
         array[12] = attachments;
         array[13] = hypers;
         array[14] = toogles;
+        array[15] = steppers;
         return array;
     }
     //</editor-fold>
@@ -1851,6 +1861,48 @@ public class ConnectorField {
                     );
                 } 
                 field.setType(Resources.getFieldTypes().get(FieldTypeName.TOGGLE.getParentName()));
+
+                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
+                //</editor-fold>
+            }
+            case "stepper": {
+                //<editor-fold defaultstate="collapsed" desc="Generate Stepper Field from Payload">
+                NumericStepperAttribute field = null;
+                try {
+                    field = new ObjectMapper().readValue(payload, NumericStepperAttribute.class);
+                } catch (Exception ex) {
+                    LogHandler.error(ConnectorField.class, transactionId, ex);
+                    return new InternalResponse(
+                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                            A_FPSConstant.CODE_FAIL,
+                            A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE
+                    );
+                }
+                if (isCheckBasicField) {
+                    InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
+                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                        return response;
+                    }
+                }
+
+                if (!Utils.isNullOrEmpty(field.getTypeName())) {
+                    boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.NUMERIC_STEP);
+
+                    if (!check) {
+                        return new InternalResponse(
+                                A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                                A_FPSConstant.CODE_FIELD_COMBOBOX,
+                                A_FPSConstant.SUBCODE_INVALID_COMBOBOX_FIELD_TYPE
+                        );
+                    }
+                } else if (!isUpdate) {
+                    return new InternalResponse(
+                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                            A_FPSConstant.CODE_FIELD_COMBOBOX,
+                            A_FPSConstant.SUBCODE_INVALID_COMBOBOX_FIELD_TYPE
+                    );
+                } 
+                field.setType(Resources.getFieldTypes().get(FieldTypeName.NUMERIC_STEP.getParentName()));
 
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
                 //</editor-fold>

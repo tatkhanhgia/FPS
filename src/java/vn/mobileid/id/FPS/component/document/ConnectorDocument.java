@@ -964,6 +964,20 @@ public class ConnectorDocument {
         }
         //</editor-fold>
         
+        //<editor-fold defaultstate="collapsed" desc="Process NumericStepper Form Field">
+        if (!Utils.isNullOrEmpty(processRequest.getNumericSteppers())) {
+            response = new ProcessingNumericStepper().processMultipleTextField(
+                    Utils.getIdFromURL(request.getRequestURI()),
+                    user,
+                    processRequest.getNumericSteppers(),
+                    transactionId);
+
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                return response;
+            }
+        }
+        //</editor-fold>
+        
         response = new InternalResponse(
                 A_FPSConstant.HTTP_CODE_SUCCESS,
                 ""

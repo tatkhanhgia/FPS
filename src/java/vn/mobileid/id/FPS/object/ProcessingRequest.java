@@ -45,6 +45,7 @@ public class ProcessingRequest {
     private List<ProcessingFormFillRequest> hypers = new ArrayList<>();
     private List<ProcessingFormFillRequest> combos = new ArrayList<>();
     private List<ProcessingFormFillRequest> toggles = new ArrayList<>();
+    private List<ProcessingFormFillRequest> numericSteppers = new ArrayList<>();
 
     //Data for fill QR Qrypto Field
     private List<ItemDetails> item;
@@ -111,7 +112,7 @@ public class ProcessingRequest {
     public void setItem(List<ItemDetails> item) {
         this.item = item;
     }
-
+ 
     @JsonProperty("field_name")
     public String getFieldName() {
         return fieldName;
@@ -268,8 +269,15 @@ public class ProcessingRequest {
     public void setToggles(List<ProcessingFormFillRequest> toggles) {
         this.toggles = toggles;
     }
-    
-    
+
+    @JsonProperty("numeric_stepper")
+    public List<ProcessingFormFillRequest> getNumericSteppers() {
+        return numericSteppers;
+    }
+
+    public void setNumericSteppers(List<ProcessingFormFillRequest> numericSteppers) {
+        this.numericSteppers = numericSteppers;
+    }
     
     @JsonIgnoreProperties(ignoreUnknown = true)
     @JsonInclude(JsonInclude.Include.NON_NULL)
