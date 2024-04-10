@@ -853,6 +853,8 @@ public class ConnectorField {
                     case 20:
                     case 21:
                     case 26:
+                    case 43:
+                    case 45:
                     case 1: {
                         TextFieldAttribute text = new TextFieldAttribute();
                         text = new ObjectMapper().readValue(field.getDetailValue(), TextFieldAttribute.class);
@@ -893,7 +895,7 @@ public class ConnectorField {
                         DateTimeFieldAttribute dateTime = new DateTimeFieldAttribute();
                         dateTime = new ObjectMapper().readValue(field.getDetailValue(), DateTimeFieldAttribute.class);
                         dateTime = (DateTimeFieldAttribute) field.clone(dateTime, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
-                        datetimes.add(dateTime);
+                        textboxs.add(dateTime);
                         break;
                     }
                     case 2: {
@@ -1277,13 +1279,14 @@ public class ConnectorField {
 
                 TextFieldAttribute field = null;
                 try {
-                    if (checkDate != null || type.equalsIgnoreCase("datetime") || type.equalsIgnoreCase("date")) {
-                        field = new ObjectMapper().readValue(payload, DateTimeFieldAttribute.class);
-                    } else if (checkAddress != null || type.equalsIgnoreCase("hyperlink")) {
-                        field = new ObjectMapper().readValue(payload, HyperLinkFieldAttribute.class);
-                    } else {
-                        field = new ObjectMapper().readValue(payload, TextFieldAttribute.class);
-                    }
+                    field = new ObjectMapper().readValue(payload, TextFieldAttribute.class);
+                    if(type!= null){
+                        if (checkDate != null || type.equalsIgnoreCase("datetime") || type.equalsIgnoreCase("date")) {
+                            field = new ObjectMapper().readValue(payload, DateTimeFieldAttribute.class);
+                        } else if (checkAddress != null || type.equalsIgnoreCase("hyperlink")) {
+                            field = new ObjectMapper().readValue(payload, HyperLinkFieldAttribute.class);
+                        } 
+                    } 
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     return new InternalResponse(
