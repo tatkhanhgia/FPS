@@ -1206,9 +1206,9 @@ public class ConnectorField {
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
                 //</editor-fold>
             }
+            case "date":
             case "datetime": {
                 //<editor-fold defaultstate="collapsed" desc="Generate DateTime from Payload">
-
                 DateTimeFieldAttribute field = null;
                 try {
                     field = new ObjectMapper().readValue(payload, DateTimeFieldAttribute.class);
@@ -1950,7 +1950,7 @@ public class ConnectorField {
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
                 //</editor-fold>
             }
-            case "stepper": {
+            case "numeric_stepper": {
                 //<editor-fold defaultstate="collapsed" desc="Generate Stepper Field from Payload">
                 NumericStepperAttribute field = null;
                 try {

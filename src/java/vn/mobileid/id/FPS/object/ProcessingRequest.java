@@ -280,7 +280,7 @@ public class ProcessingRequest {
         this.numericSteppers = numericSteppers;
     }
 
-    @JsonProperty("datetime")
+    @JsonProperty("date")
     public List<ProcessingFormFillRequest> getDateTimes() {
         return dateTimes;
     }
