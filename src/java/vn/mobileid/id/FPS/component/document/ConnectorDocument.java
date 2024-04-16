@@ -55,6 +55,7 @@ import vn.mobileid.id.utils.ManagementTemporal;
 import vn.mobileid.id.utils.TaskV2;
 import vn.mobileid.id.utils.Utils;
 import fps_core.objects.core.InitialsFieldAttribute;
+import fps_core.objects.core.TextFieldAttribute;
 import vn.mobileid.id.FPS.component.document.process.interfaces.IVersion;
 import vn.mobileid.id.FPS.object.ProcessFileField;
 import vn.mobileid.id.FPS.object.ProcessInitialField;
@@ -854,7 +855,7 @@ public class ConnectorDocument {
 
         //<editor-fold defaultstate="collapsed" desc="Process Text Form Field">
         if (!Utils.isNullOrEmpty(processRequest.getText())) {
-            response = new ProcessingTextFormField().processMultipleTextField(
+            response = new ProcessingTextFormField(new TextFieldAttribute()).processMultipleTextField(
                     Utils.getIdFromURL(request.getRequestURI()),
                     user,
                     processRequest.getText(),

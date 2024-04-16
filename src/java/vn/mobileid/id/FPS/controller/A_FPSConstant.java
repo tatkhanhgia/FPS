@@ -103,6 +103,7 @@ public class A_FPSConstant {
     final public static int CODE_FIELD_COMBOBOX = 18;
     final public static int CODE_FIELD_NUMERIC_STEPPER = 19;
     final public static int CODE_FIELD_DATETIME = 20;
+    final public static int CODE_FIELD_TOGGLE = 21;
     
     //SubCode
     final public static int SUBCODE_NO_PAYLOAD_FOUND = 1;
@@ -218,5 +219,11 @@ public class A_FPSConstant {
     
     //Subcode Numeric Stepper - 19
     final public static int SUBCODE_MISSING_DEFAULT_VALUE_FOR_PROCESS = 1;
+    final public static int SUBCODE_INVALID_NUMERIC_TYPE = 2;
     
+    //Subcode DateTime - 20
+     
+    
+    //Subcode Toggle - 21
+    final public static int SUBCODE_INVALID_TOGGLE_TYPE = 1;
 }

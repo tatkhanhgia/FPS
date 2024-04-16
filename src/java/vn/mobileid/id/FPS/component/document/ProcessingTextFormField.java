@@ -40,6 +40,7 @@ public class ProcessingTextFormField<T extends TextFieldAttribute>{
     }
 
     public ProcessingTextFormField() {
+        this.type = (T) new TextFieldAttribute();
     }
     
     //<editor-fold defaultstate="collapsed" desc="Processing Text Form Field">

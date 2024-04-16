@@ -1768,13 +1768,16 @@ public class ConnectorField {
                         );
                     }
                     field.setType(Resources.getFieldTypes().get(field.getTypeName()));
-                } else if (!isUpdate) {
-                    return new InternalResponse(
-                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                            A_FPSConstant.CODE_FIELD_ATTACHMENT,
-                            A_FPSConstant.SUBCODE_INVALID_ATTACHMENT_FIELD_TYPE
-                    );
                 }
+//                else if (!isUpdate) {
+//                    return new InternalResponse(
+//                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+//                            A_FPSConstant.CODE_FIELD_ATTACHMENT,
+//                            A_FPSConstant.SUBCODE_INVALID_ATTACHMENT_FIELD_TYPE
+//                    );
+//                }
+                field.setType(Resources.getFieldTypes().get(FieldTypeName.ATTACHMENT.getParentName()));
+
                 if (field.getFileData() != null) {
                     //<editor-fold defaultstate="collapsed" desc="Check data of File">
                     if (Utils.isNullOrEmpty(field.getFileExtension())) {
@@ -1850,10 +1853,8 @@ public class ConnectorField {
                         );
                     }
                     field.setType(Resources.getFieldTypes().get(field.getTypeName()));
-                } else {
-                    System.err.println("Transaction:" + transactionId + "\nCannot parse type of HyperLink => Using default HyperLink");
-                    field.setType(Resources.getFieldTypes().get(FieldTypeName.HYPERLINK.getParentName()));
-                }
+                } 
+                field.setType(Resources.getFieldTypes().get(FieldTypeName.HYPERLINK.getParentName()));
 
                 if (!isUpdate) {
                     if (field.getAlign() == null) {
@@ -1896,13 +1897,14 @@ public class ConnectorField {
                                 A_FPSConstant.SUBCODE_INVALID_COMBOBOX_FIELD_TYPE
                         );
                     }
-                } else if (!isUpdate) {
-                    return new InternalResponse(
-                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                            A_FPSConstant.CODE_FIELD_COMBOBOX,
-                            A_FPSConstant.SUBCODE_INVALID_COMBOBOX_FIELD_TYPE
-                    );
-                }
+                } 
+//                else if (!isUpdate) {
+//                    return new InternalResponse(
+//                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+//                            A_FPSConstant.CODE_FIELD_COMBOBOX,
+//                            A_FPSConstant.SUBCODE_INVALID_COMBOBOX_FIELD_TYPE
+//                    );
+//                }
                 field.setType(Resources.getFieldTypes().get(FieldTypeName.COMBOBOX.getParentName()));
 
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
@@ -1934,17 +1936,18 @@ public class ConnectorField {
                     if (!check) {
                         return new InternalResponse(
                                 A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                                A_FPSConstant.CODE_FIELD_COMBOBOX,
-                                A_FPSConstant.SUBCODE_INVALID_COMBOBOX_FIELD_TYPE
+                                A_FPSConstant.CODE_FIELD_TOGGLE,
+                                A_FPSConstant.SUBCODE_INVALID_TOGGLE_TYPE
                         );
                     }
-                } else if (!isUpdate) {
-                    return new InternalResponse(
-                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                            A_FPSConstant.CODE_FIELD_COMBOBOX,
-                            A_FPSConstant.SUBCODE_INVALID_COMBOBOX_FIELD_TYPE
-                    );
-                }
+                } 
+//                else if (!isUpdate) {
+//                    return new InternalResponse(
+//                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+//                            A_FPSConstant.CODE_FIELD_COMBOBOX,
+//                            A_FPSConstant.SUBCODE_INVALID_COMBOBOX_FIELD_TYPE
+//                    );
+//                }
                 field.setType(Resources.getFieldTypes().get(FieldTypeName.TOGGLE.getParentName()));
 
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
@@ -1976,17 +1979,18 @@ public class ConnectorField {
                     if (!check) {
                         return new InternalResponse(
                                 A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                                A_FPSConstant.CODE_FIELD_COMBOBOX,
-                                A_FPSConstant.SUBCODE_INVALID_COMBOBOX_FIELD_TYPE
+                                A_FPSConstant.CODE_FIELD_NUMERIC_STEPPER,
+                                A_FPSConstant.SUBCODE_INVALID_NUMERIC_TYPE
                         );
                     }
-                } else if (!isUpdate) {
-                    return new InternalResponse(
-                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                            A_FPSConstant.CODE_FIELD_COMBOBOX,
-                            A_FPSConstant.SUBCODE_INVALID_COMBOBOX_FIELD_TYPE
-                    );
-                }
+                } 
+//                else if (!isUpdate) {
+//                    return new InternalResponse(
+//                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+//                            A_FPSConstant.CODE_FIELD_COMBOBOX,
+//                            A_FPSConstant.SUBCODE_INVALID_COMBOBOX_FIELD_TYPE
+//                    );
+//                }
                 field.setType(Resources.getFieldTypes().get(FieldTypeName.NUMERIC_STEP.getParentName()));
 
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
