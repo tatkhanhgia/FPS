@@ -5,6 +5,9 @@
 package vn.mobileid.id.FPS.object;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import vn.mobileid.id.FPS.enumeration.EnterpriseRule;
 
 /**
  *
@@ -26,6 +29,8 @@ public class Enterprise extends Object{
     private Date createdAt;
     private String modifiedBy;
     private Date modifiedAt;
+    
+    private List<Integer> apiKeyRule;
     
     private long idOfClientID;
     
@@ -155,6 +160,20 @@ public class Enterprise extends Object{
     public void setIdOfClientID(long idOfClientID) {
         this.idOfClientID = idOfClientID;
     }
+
+    public List<Integer> getApiKeyRule() {
+        return apiKeyRule;
+    }
+
+    public void setApiKeyRule(List<Integer> apiKeyRule) {
+        this.apiKeyRule = apiKeyRule;
+    }
     
-    
+    public boolean isMatches(EnterpriseRule rule){
+        if(apiKeyRule == null){
+            return false;
+        }
+        
+        return apiKeyRule.contains(rule.getId());
+    }
 }

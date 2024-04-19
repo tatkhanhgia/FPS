@@ -15,6 +15,7 @@ import vn.mobileid.id.FPS.component.field.CheckFieldProcessedYet;
 import vn.mobileid.id.FPS.component.field.ConnectorField_Internal;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import fps_core.enumration.FieldTypeName;
+import fps_core.objects.child.CameraFieldAttribute;
 import fps_core.objects.core.FileFieldAttribute;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -197,8 +198,10 @@ public class ProcessingCameraField {
 
             //<editor-fold defaultstate="collapsed" desc="Get all data of the field">
             Document document_ = null;
+            long documentIdOriginal = 0;
             for (int i = documents.size() - 1; i >= 0; i--) {
                 if (documents.get(i).getRevision() == 1) {
+                    documentIdOriginal = documents.get(i).getId();
                     response = ConnectorField_Internal.getField(
                             documents.get(i).getId(),
                             field.getFieldName(),
@@ -291,11 +294,11 @@ public class ProcessingCameraField {
             response = new ProcessingFactory().createType(ProcessingFactory.TypeProcess.IMAGE).processField(
                     user,
                     document_,
+                    documents.size(),
                     fieldData.getDocumentFieldId(),
                     imageField,
-                    fieldData,
                     transactionId,
-                    documents.size());
+                    documentIdOriginal);
 
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 if (response.getCode() == 0 || response.getCodeDescription() == 0) {
@@ -332,8 +335,8 @@ public class ProcessingCameraField {
             User user,
             ExtendedFieldAttribute fieldData) throws Exception {
         //Read details
-        FileFieldAttribute imageField = new ObjectMapper().readValue(fieldData.getDetailValue(), FileFieldAttribute.class);
-        imageField = (FileFieldAttribute) fieldData.clone(imageField, fieldData.getDimension());
+        CameraFieldAttribute imageField = new ObjectMapper().readValue(fieldData.getDetailValue(), CameraFieldAttribute.class);
+        imageField = (CameraFieldAttribute) fieldData.clone(imageField, fieldData.getDimension());
 
         imageField.setProcessBy(user.getAzp());
         SimpleDateFormat dateFormat = new SimpleDateFormat(

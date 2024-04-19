@@ -265,7 +265,6 @@ public class ProcessingQRQryptoField {
     }
     //</editor-fold>
     //==========================================================================
-
     //<editor-fold defaultstate="collapsed" desc="Convert ExtendedField into Qrypto Field">
     private static InternalResponse convertExtendIntoQryptoField(
             User user,
@@ -354,6 +353,13 @@ public class ProcessingQRQryptoField {
         }
         //</editor-fold>
 
+        if(Utils.isNullOrEmpty(QRField.getItems())){
+            return new InternalResponse(
+                                A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                                A_FPSConstant.CODE_FIELD_QR_Qrypto,
+                                A_FPSConstant.SUBCODE_MISSING_ITEMS);
+        }
+            
         return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, QRField);
     }
     //</editor-fold>

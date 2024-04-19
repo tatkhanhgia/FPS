@@ -44,7 +44,7 @@ class GetEnterpriseInfo {
 
         return new InternalResponse(
                 A_FPSConstant.HTTP_CODE_SUCCESS,
-                (Enterprise) response.getObject());
+                (Enterprise) response.getObject()).setEnt((Enterprise) response.getObject());
     }
     //</editor-fold>
 

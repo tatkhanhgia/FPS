@@ -118,8 +118,9 @@ public class InternalResponse {
         return ent;
     }
 
-    public void setEnt(Enterprise ent) {
+    public InternalResponse setEnt(Enterprise ent) {
         this.ent = ent;
+        return this;
     }
 
     public InternalData getInternalData() {

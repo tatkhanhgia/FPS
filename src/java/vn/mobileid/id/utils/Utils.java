@@ -38,8 +38,11 @@ import org.apache.logging.log4j.Logger;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Iterator;
@@ -462,14 +465,22 @@ public class Utils {
                         return object.getValue().asToken().asByteArray();
                     }
                     if (object.getValue().isContainerNode()) {
-                        return object.getValue().toPrettyString();
+                        Object temp = object.getValue().toPrettyString();
+                        if (temp == null) {
+                            continue;
+                        }
+                        return temp;
                     }
                     if (object.getValue().isDouble()) {
                         return object.getValue().asDouble();
                     }
                 }
                 if (object.getValue().isContainerNode()) {
-                    return getFromJson_(name, object.getValue().toPrettyString());
+                    Object temp = getFromJson_(name, object.getValue().toPrettyString());
+                    if (temp == null) {
+                        continue;
+                    }
+                    return temp;
                 }
             }
             return null;
@@ -812,6 +823,22 @@ public class Utils {
     }
     //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="Convert ISO Date String into Custom Format Date">
+    public static String convertISOStringToCustom(String isoDate, String format){
+        // Parse the input date string into an Instant object
+        Instant instant = Instant.parse(isoDate);
+
+        // Convert the Instant to LocalDateTime with the desired time zone (UTC in this case)
+        LocalDateTime dateTime = LocalDateTime.ofInstant(instant, ZoneId.of("UTC"));
+
+        // Define the desired output format
+        DateTimeFormatter outputFormatter = DateTimeFormatter.ofPattern(format);
+
+        // Format the LocalDateTime object into the desired output format
+        return dateTime.format(outputFormatter);
+    } 
+    //</editor-fold>
+    
     public static void main(String[] args) throws NoSuchAlgorithmException {
         String payload = "onetwo";
         System.out.println(Utils.hashAndExtractMiddleSixChars(payload));

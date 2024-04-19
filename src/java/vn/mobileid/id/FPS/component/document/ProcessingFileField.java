@@ -410,8 +410,10 @@ public class ProcessingFileField {
 
             //<editor-fold defaultstate="collapsed" desc="Get all data of the field">
             Document document_ = null;
+            long documentIdOriginal = 0 ;
             for (int i = documents.size() - 1; i >= 0; i--) {
                 if (documents.get(i).getRevision() == 1) {
+                    documentIdOriginal = documents.get(i).getId();
                     response = ConnectorField_Internal.getField(
                             documents.get(i).getId(),
                             field.getFieldName(),
@@ -495,8 +497,8 @@ public class ProcessingFileField {
                     documents.size(),
                     fieldData.getDocumentFieldId(),
                     fileField,
-                    fieldData,
-                    transactionId);
+                    transactionId,
+                    documentIdOriginal);
 
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 errorField.setValue(

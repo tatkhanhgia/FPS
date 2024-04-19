@@ -55,6 +55,9 @@ public class ProcessingFactory<T extends BasicFieldAttribute> {
             case ATTACHMENT:{
                 return new AttachmentProcessing();
             }
+            case HYPERLINK:{
+                return new HyperLinkProcessing();
+            }
         }
         throw new IllegalArgumentException();
     }
@@ -89,6 +92,7 @@ public class ProcessingFactory<T extends BasicFieldAttribute> {
         QRYPTO,
         IMAGE,
         RADIO,
-        ATTACHMENT
+        ATTACHMENT,
+        HYPERLINK
     }
 }
