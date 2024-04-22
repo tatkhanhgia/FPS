@@ -1979,7 +1979,7 @@ public class ConnectorDocument {
         }
         //</editor-fold>
         
-        response = ProcessingSignatureField.processSignatureField(
+        response = ProcessingSignatureField.processSignatureFieldV2(
                 packageId, 
                 user, 
                 document_, 

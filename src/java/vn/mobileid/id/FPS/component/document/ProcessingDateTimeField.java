@@ -16,7 +16,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import vn.mobileid.id.FPS.component.enterprise.ConnectorEnterprise;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
-import vn.mobileid.id.FPS.enumeration.EnterpriseRule;
 import vn.mobileid.id.FPS.object.Enterprise;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
@@ -45,7 +44,7 @@ public class ProcessingDateTimeField extends ProcessingTextFormField<DateTimeFie
             ExtendedFieldAttribute fieldData,
             String value) throws Exception {
         //<editor-fold defaultstate="collapsed" desc="Get Enterprise Rule">
-        InternalResponse response = ConnectorEnterprise.getEnterpriseInfo(user.getAid(), "transaction");
+        InternalResponse response = ConnectorEnterprise.getKEYAPI(user.getScope(), "transaction");
         Enterprise enterprise = null;
 
         if (!response.isValid()) {
@@ -78,18 +77,20 @@ public class ProcessingDateTimeField extends ProcessingTextFormField<DateTimeFie
         //</editor-fold>
 
         if (!Utils.isNullOrEmpty(value)) {
-            if (enterprise != null && enterprise.isMatches(EnterpriseRule.IS_CONVERT_DATE)) {
-                dateTime.setValue(Utils.convertISOStringToCustom(value, dateFormat2));
-            } else {
-                dateTime.setValue(value);
-            }
+            dateTime.setValue(Utils.convertISOStringToCustom(value, dateFormat2));
+//            if (enterprise != null && enterprise.isMatches(Rule.IS_CONVERT_DATE)) {
+//                dateTime.setValue(Utils.convertISOStringToCustom(value, dateFormat2));
+//            } else {
+//                dateTime.setValue(value);
+//            }
         } else {
             try {
-                if (enterprise != null && enterprise.isMatches(EnterpriseRule.IS_CONVERT_DATE)) {
-                    dateTime.setValue(Utils.convertISOStringToCustom(dateTime.getDefaultDate(), dateFormat2));
-                } else {
-                    dateTime.setValue(dateTime.getDefaultDate());
-                }
+                dateTime.setValue(Utils.convertISOStringToCustom(value, dateFormat2));
+//                if (enterprise != null && enterprise.isMatches(Rule.IS_CONVERT_DATE)) {
+//                    dateTime.setValue(Utils.convertISOStringToCustom(dateTime.getDefaultDate(), dateFormat2));
+//                } else {
+//                    dateTime.setValue(dateTime.getDefaultDate());
+//                }
             } catch (Exception ex) {
                 return new InternalResponse(
                         A_FPSConstant.HTTP_CODE_BAD_REQUEST,

@@ -1280,13 +1280,13 @@ public class ConnectorField {
                 TextFieldAttribute field = null;
                 try {
                     field = new ObjectMapper().readValue(payload, TextFieldAttribute.class);
-                    if(type!= null){
+                    if (type != null) {
                         if (checkDate != null || type.equalsIgnoreCase("datetime") || type.equalsIgnoreCase("date")) {
                             field = new ObjectMapper().readValue(payload, DateTimeFieldAttribute.class);
                         } else if (checkAddress != null || type.equalsIgnoreCase("hyperlink")) {
                             field = new ObjectMapper().readValue(payload, HyperLinkFieldAttribute.class);
-                        } 
-                    } 
+                        }
+                    }
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     return new InternalResponse(
@@ -1780,7 +1780,7 @@ public class ConnectorField {
 
                 if (field.getFileData() != null) {
                     //<editor-fold defaultstate="collapsed" desc="Check data of File">
-                    if (Utils.isNullOrEmpty(field.getFileExtension())) {
+                    if (Utils.isNullOrEmpty(field.getFileExtension()) && Utils.isNullOrEmpty(field.getFileName())) {
                         return new InternalResponse(
                                 A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                                 A_FPSConstant.CODE_FIELD_ATTACHMENT,
@@ -1794,6 +1794,20 @@ public class ConnectorField {
                                 A_FPSConstant.CODE_FIELD_ATTACHMENT,
                                 A_FPSConstant.SUBCODE_MISSING_FILE_DATA_OF_ATTACHMENT
                         );
+                    }
+
+                    if (Utils.isNullOrEmpty(field.getFileExtension())) {
+                        try {
+                            String fileName = field.getFileName();
+                            String[] splits = fileName.split("\\.");
+                            field.setFileExtension(splits[splits.length-1]);
+                        } catch (Exception e) {
+                            return new InternalResponse(
+                                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                                    A_FPSConstant.CODE_FIELD_ATTACHMENT,
+                                    A_FPSConstant.SUBCODE_MISSING_EXTENSION
+                            );
+                        }
                     }
                     //</editor-fold>
 
@@ -1853,7 +1867,7 @@ public class ConnectorField {
                         );
                     }
                     field.setType(Resources.getFieldTypes().get(field.getTypeName()));
-                } 
+                }
                 field.setType(Resources.getFieldTypes().get(FieldTypeName.HYPERLINK.getParentName()));
 
                 if (!isUpdate) {
@@ -1897,7 +1911,7 @@ public class ConnectorField {
                                 A_FPSConstant.SUBCODE_INVALID_COMBOBOX_FIELD_TYPE
                         );
                     }
-                } 
+                }
 //                else if (!isUpdate) {
 //                    return new InternalResponse(
 //                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
@@ -1940,7 +1954,7 @@ public class ConnectorField {
                                 A_FPSConstant.SUBCODE_INVALID_TOGGLE_TYPE
                         );
                     }
-                } 
+                }
 //                else if (!isUpdate) {
 //                    return new InternalResponse(
 //                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
@@ -1983,7 +1997,7 @@ public class ConnectorField {
                                 A_FPSConstant.SUBCODE_INVALID_NUMERIC_TYPE
                         );
                     }
-                } 
+                }
 //                else if (!isUpdate) {
 //                    return new InternalResponse(
 //                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,

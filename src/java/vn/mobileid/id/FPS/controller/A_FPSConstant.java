@@ -142,6 +142,8 @@ public class A_FPSConstant {
     final public static int SUBCODE_THIS_DOCUMENT_IS_ALREADY_CHANGES_GETHASH_AGAIN = 6;
     final public static int SUBCODE_CANNOT_FILL_ALL_FORM_FIELD = 7;
     final public static int SUBCODE_PAGE_IN_FIELD_NEED_TO_BE_LOWER_THAN_DOCUMENT = 8;
+    final public static int SUBCODE_VALUE_MUST_BE_ENCODE_BASE64_FORMAT = 9;
+    
     
     //Subcode DOCUMENT - 5
     final public static int SUBCODE_DOCUMENT_STATSUS_IS_DISABLE = 1;
@@ -196,7 +198,6 @@ public class A_FPSConstant {
     //Subcode Field Stamp - 13
     final public static int SUBCODE_INVALID_STAMP_FIELD_TYPE = 1;
     final public static int SUBCODE_MISSING_IMAGE = 2;
-    final public static int SUBCODE_VALUE_MUST_BE_ENCODE_BASE64_FORMAT = 3;
     
     //Subcode Camera - 14
     final public static int SUBCODE_INVALID_CAMERA_FIELD_TYPE = 1;

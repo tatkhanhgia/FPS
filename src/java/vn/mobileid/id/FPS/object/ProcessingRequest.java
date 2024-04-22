@@ -31,6 +31,7 @@ public class ProcessingRequest {
     private List<String> certificateChain;
     private String signatureAlgorithm;
     private String signedHash;
+    private String signerContact;
     private String handSignatureImage;
 
     //Data for fillFormField
@@ -113,7 +114,16 @@ public class ProcessingRequest {
     public void setItem(List<ItemDetails> item) {
         this.item = item;
     }
- 
+
+    public void setSignerContact(String signerContact) {
+        this.signerContact = signerContact;
+    }
+
+    @JsonProperty("signer_contact")
+    public String getSignerContact() {
+        return signerContact;
+    }
+    
     @JsonProperty("field_name")
     public String getFieldName() {
         return fieldName;
@@ -196,6 +206,9 @@ public class ProcessingRequest {
         }
         if (!Utils.isNullOrEmpty(this.signingReason)) {
             original.getVerification().setSigningReason(signingReason);
+        }
+        if (!Utils.isNullOrEmpty(this.signerContact)){
+            original.getVerification().setSignerContact(signerContact);
         }
     }
 

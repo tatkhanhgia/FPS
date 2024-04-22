@@ -202,7 +202,7 @@ public class ProcessModuleForEnterprise {
 
     public static enum Enterprise {
         DOKOBIT_GATEWAY("Dokobit_Gateway"),
-        MOBILE_ID("Mobile-ID");
+        MOBILE_ID("MID_MobileApp");
 
         private String name;
 

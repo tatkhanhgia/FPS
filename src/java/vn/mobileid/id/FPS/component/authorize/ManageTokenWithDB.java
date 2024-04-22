@@ -63,7 +63,7 @@ class ManageTokenWithDB {
     protected static InternalResponse login(
             Token data,
             String transactionID) throws Exception {
-        InternalResponse callDb = GetKEYAPI.getKEYAPI(
+        InternalResponse callDb = ConnectorEnterprise.getKEYAPI(
                 data.getClientId(),
                 transactionID);
 

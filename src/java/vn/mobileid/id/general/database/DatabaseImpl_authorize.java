@@ -5,8 +5,10 @@
  */
 package vn.mobileid.id.general.database;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import vn.mobileid.id.general.Configuration;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.Enterprise;
@@ -18,11 +20,12 @@ import vn.mobileid.id.helper.ORM_JPA.database.objects.DatabaseResponse;
  *
  * @author GiaTK
  */
-public interface DatabaseImpl_authorize{
+public interface DatabaseImpl_authorize {
+
     public DatabaseResponse getAPIKey(
             String clientId,
             String transactionID) throws Exception;
-    
+
     public DatabaseResponse writeRefreshToken(
             String sessionId,
             String jwtId,
@@ -34,7 +37,7 @@ public interface DatabaseImpl_authorize{
             String createdBy,
             String transactionId
     ) throws Exception;
-    
+
     public DatabaseResponse checkSessionId(
             String jwtId,
             String sessionId,
@@ -42,7 +45,7 @@ public interface DatabaseImpl_authorize{
     ) throws Exception;
 }
 
-class DatabaseImpl_authorize_ implements DatabaseImpl_authorize{
+class DatabaseImpl_authorize_ implements DatabaseImpl_authorize {
 
     /* Template Call DB
     DatabaseResponse response = new DatabaseResponse();
@@ -107,11 +110,12 @@ class DatabaseImpl_authorize_ implements DatabaseImpl_authorize{
 
         Enterprise enterprise = new Enterprise();
         for (HashMap<String, Object> hashmap : response.getRows()) {
-            enterprise.setIdOfClientID((long)hashmap.get("ID"));
+            enterprise.setIdOfClientID((long) hashmap.get("ID"));
             enterprise.setClientID((String) hashmap.get("CLIENT_ID"));
             enterprise.setClientSecret((String) hashmap.get("CLIENT_SECRET"));
             Long temp = (long) hashmap.get("ENTERPRISE_ID");
             enterprise.setId(temp.intValue());
+            enterprise.setApiKeyRule((long)hashmap.get("API_KEY_TYPE"));
         }
 
         response.setObject(enterprise);

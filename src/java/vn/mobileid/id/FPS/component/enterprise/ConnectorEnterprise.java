@@ -18,4 +18,18 @@ public class ConnectorEnterprise {
     ) throws Exception {       
        return GetEnterpriseInfo.getEnterpriseInfo(id, transactionId);
    }
+   
+   public static InternalResponse getKEYAPI(
+           String clientId,
+           String transactionId
+   ) throws Exception{
+       return GetKEYAPI.getKEYAPI(clientId, transactionId);
+   }
+   
+   public static InternalResponse getKeyAPIRule(
+           int apiKeyType,
+           String transactionId
+   )throws Exception{
+       return GetAPIKeyRule.getAPIKeyRule(apiKeyType, transactionId);
+   }
 }

@@ -2,7 +2,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package vn.mobileid.id.FPS.component.authorize;
+package vn.mobileid.id.FPS.component.enterprise;
 
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.Enterprise;
@@ -15,7 +15,7 @@ import vn.mobileid.id.helper.ORM_JPA.database.objects.DatabaseResponse;
  *
  * @author GiaTK
  */
-public class GetKEYAPI{
+class GetKEYAPI{
 
     public static InternalResponse getKEYAPI(            
             String clientID,
@@ -39,7 +39,7 @@ public class GetKEYAPI{
         Enterprise user = (Enterprise) res.getObject();
         return new InternalResponse(
                 A_FPSConstant.HTTP_CODE_SUCCESS,
-                user);
+                user).setEnt(user);
     }
     
     public static void main(String[] arhs) throws Exception{

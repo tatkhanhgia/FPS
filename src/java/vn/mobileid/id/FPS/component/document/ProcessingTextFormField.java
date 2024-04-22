@@ -73,7 +73,7 @@ public class ProcessingTextFormField<T extends TextFieldAttribute>{
             if (field.getValue() != null) {
                 if (!(field.getValue() instanceof String)) {
                     errorField.setValue(
-                            String.valueOf(A_FPSConstant.CODE_FIELD_STAMP)
+                            String.valueOf(A_FPSConstant.CODE_FIELD)
                             + String.valueOf(A_FPSConstant.SUBCODE_VALUE_MUST_BE_ENCODE_BASE64_FORMAT)
                     );
                     listOfErrorField.add(errorField);
@@ -161,7 +161,7 @@ public class ProcessingTextFormField<T extends TextFieldAttribute>{
             }
             //</editor-fold>
             
-            //Processing
+            //Processing 
             response = new ProcessingFactory(type).createType(ProcessingFactory.TypeProcess.TEXTFIELD).processField(
                     user,
                     document_,
@@ -197,7 +197,7 @@ public class ProcessingTextFormField<T extends TextFieldAttribute>{
     }
     //</editor-fold>
 
-    //==========================================================================
+    //===============================Version 1 =================================
     //<editor-fold defaultstate="collapsed" desc="Convert ExtendedField into TextField">
     private static TextFieldAttribute convertExtendIntoTextField(
             User user,

@@ -20,20 +20,21 @@ public class User {
     private long iat;
     private String jti;
     private String iss;
-    private String aud;
+    private String aud; //Audience
     private String sub;
     private String typ;
     private String session_state;
     private String acr;
     private String scope;
-    private String sid;
+    private String sid; 
     private boolean email_verified;
     private String name;
     private String preferred_username;
     private String given_name;
     private String family_name;
     private String email;
-    private String azp;
+    private String azp; //Authorize Party 
+    private long rule;
     
     //DB
     private String mobile;

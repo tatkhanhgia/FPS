@@ -210,7 +210,7 @@ public class ProcessingFileField {
             if (fields.getValue() != null) {
                 if (!(fields.getValue() instanceof String)) {
                     errorField.setValue(
-                            String.valueOf(A_FPSConstant.CODE_FIELD_STAMP)
+                            String.valueOf(A_FPSConstant.CODE_FIELD)
                             + String.valueOf(A_FPSConstant.SUBCODE_VALUE_MUST_BE_ENCODE_BASE64_FORMAT)
                     );
                     listOfErrorField.add(errorField);
