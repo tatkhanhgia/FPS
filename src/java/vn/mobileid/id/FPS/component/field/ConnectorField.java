@@ -1718,7 +1718,7 @@ public class ConnectorField {
                                     .getSystemConfig()
                                     .getAttributes()
                                     .get(0)
-                                    .getMaximumFile()) {
+                                    .getMaximumFile()/2) {
                         try {
                             InternalResponse response = vn.mobileid.id.FMS.uploadToFMS(
                                     Base64.decode(field.getFile()),

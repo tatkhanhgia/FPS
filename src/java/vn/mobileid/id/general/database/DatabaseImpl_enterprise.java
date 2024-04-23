@@ -31,7 +31,7 @@ public interface DatabaseImpl_enterprise {
             String transactionID) throws Exception;
 
     public DatabaseResponse getRule(
-            int apiKeyRule,
+            long apiKeyRule,
             String transactionID
     ) throws Exception;
 
@@ -125,7 +125,7 @@ class DatabaseImpl_enterprise_ implements DatabaseImpl_enterprise {
 
     @Override
     public DatabaseResponse getRule(
-            int apiKeyRule,
+            long apiKeyRule,
             String transactionID) throws Exception {
         String nameStore = "{ CALL USP_API_KEY_TYPE_GET(?,?)}";
 

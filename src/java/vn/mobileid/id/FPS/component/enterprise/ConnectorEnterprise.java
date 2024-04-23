@@ -27,7 +27,7 @@ public class ConnectorEnterprise {
    }
    
    public static InternalResponse getKeyAPIRule(
-           int apiKeyType,
+           long apiKeyType,
            String transactionId
    )throws Exception{
        return GetAPIKeyRule.getAPIKeyRule(apiKeyType, transactionId);

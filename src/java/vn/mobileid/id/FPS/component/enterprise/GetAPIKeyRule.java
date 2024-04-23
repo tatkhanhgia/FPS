@@ -25,7 +25,7 @@ public class GetAPIKeyRule {
      * @throws Exception 
      */
     protected static InternalResponse getAPIKeyRule(
-            int apiKeyType,
+            long apiKeyType,
             String transactionId
     ) throws Exception {
         DatabaseResponse response = DatabaseFactory.getDatabaseImpl_enterprise().getRule(apiKeyType, transactionId);
