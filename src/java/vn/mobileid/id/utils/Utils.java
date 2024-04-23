@@ -39,6 +39,7 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
@@ -824,7 +825,7 @@ public class Utils {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Convert ISO Date String into Custom Format Date">
-    public static String convertISOStringToCustom(String isoDate, String format){
+    public static String convertISOStringToCustom(String isoDate, String format) {
         // Parse the input date string into an Instant object
         Instant instant = Instant.parse(isoDate);
 
@@ -836,11 +837,16 @@ public class Utils {
 
         // Format the LocalDateTime object into the desired output format
         return dateTime.format(outputFormatter);
-    } 
+    }
     //</editor-fold>
-    
+
     public static void main(String[] args) throws NoSuchAlgorithmException {
-        String payload = "onetwo";
-        System.out.println(Utils.hashAndExtractMiddleSixChars(payload));
+        String iso = "2024-04-23T07:08:13Z";
+        System.out.println(convertISOStringToCustom(iso, "dd-MM-yyyy"));
+
+        LocalDate currentDate = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("DDD");
+        String formattedDate = currentDate.format(formatter);
+        System.out.println(formattedDate);
     }
 }

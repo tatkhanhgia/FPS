@@ -24,6 +24,7 @@ import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.InternalResponse.InternalData;
 import vn.mobileid.id.FPS.object.ProcessingRequest;
 import vn.mobileid.id.FPS.object.User;
+import vn.mobileid.id.general.LogHandler;
 import vn.mobileid.id.general.PolicyConfiguration;
 import vn.mobileid.id.utils.Utils;
 
@@ -146,6 +147,7 @@ public class ProcessingTextFormField<T extends TextFieldAttribute>{
                 }
                 textField = (TextFieldAttribute)temp.getData();
             } catch (Exception ex) {
+                LogHandler.error(ProcessingTextFormField.class, transactionId, ex);
                 errorField.setValue(Utils.summaryException(ex));
                 listOfErrorField.add(errorField);
                 continue;
