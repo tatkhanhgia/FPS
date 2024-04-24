@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.util.Date;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.InternalResponse;
+import vn.mobileid.id.FPS.object.ProcessingRequest;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.general.PolicyConfiguration;
 import vn.mobileid.id.utils.Utils;
@@ -36,34 +37,36 @@ public class ProcessingNumericStepper extends ProcessingTextFormField<NumericSte
     public InternalResponse convert(
             User user,
             ExtendedFieldAttribute fieldData,
-            String value) throws Exception {
+            ProcessingRequest.ProcessingFormFillRequest processField) throws Exception {
         NumericStepperAttribute numeric = new ObjectMapper().readValue(fieldData.getDetailValue(), NumericStepperAttribute.class);
         numeric = (NumericStepperAttribute) fieldData.clone(numeric, fieldData.getDimension());
-
-        if (value != null) {
-            numeric.setValue(value);
-        }
 
         numeric.setProcessBy(user.getAzp());
         SimpleDateFormat dateFormat = new SimpleDateFormat(PolicyConfiguration.getInstant().getSystemConfig().getAttributes().get(0).getDateFormat());
         numeric.setProcessOn(dateFormat.format(Date.from(Instant.now())));
 
-        if (!Utils.isNullOrEmpty(value)) {
-            numeric.setValue(value);
+        //<editor-fold defaultstate="collapsed" desc="Check value is String?">
+        if (processField != null && !Utils.isNullOrEmpty(processField.getValue())) {
+            if (!(processField.getValue() instanceof String) && Utils.isNullOrEmpty(numeric.getDefaultValue())) {
+                return new InternalResponse(
+                        A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                        A_FPSConstant.CODE_FIELD,
+                        A_FPSConstant.SUBCODE_VALUE_MUST_BE_ENCODE_BASE64_FORMAT
+                );
+            }
+            numeric.setValue((String)processField.getValue());
         } else {
-            try {
-                if (Utils.isNullOrEmpty(numeric.getValue())) {
-                    numeric.setValue(String.valueOf(numeric.getDefaultValue()));
-                }
-            } catch (Exception ex) {
+            if(Utils.isNullOrEmpty(numeric.getDefaultValue())){
                 return new InternalResponse(
                         A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                         A_FPSConstant.CODE_FIELD_NUMERIC_STEPPER,
                         A_FPSConstant.SUBCODE_MISSING_DEFAULT_ITEMS_FOR_PROCESS
                 );
             }
+            numeric.setValue(String.valueOf(numeric.getDefaultValue()));
         }
-
+        //</editor-fold>
+        
         return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, numeric);
     }
 }

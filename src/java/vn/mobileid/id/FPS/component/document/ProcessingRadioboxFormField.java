@@ -23,6 +23,7 @@ import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.InternalResponse.InternalData;
 import vn.mobileid.id.FPS.object.ProcessingRequest;
 import vn.mobileid.id.FPS.object.User;
+import vn.mobileid.id.general.LogHandler;
 import vn.mobileid.id.general.PolicyConfiguration;
 import vn.mobileid.id.utils.Utils;
 
@@ -127,6 +128,13 @@ public class ProcessingRadioboxFormField {
             //<editor-fold defaultstate="collapsed" desc="Convert ExtendField into RadiobField">
             RadioFieldAttribute radioField = null;
             try {
+                if (field.getValue() != null && !(field.getValue() instanceof Boolean)) {
+                    field.setValue(null);
+                    LogHandler.info(
+                            ProcessingCheckboxFormField.class, 
+                            transactionId, 
+                            "The value is not a boolean => Using default");
+                }
                 radioField = convertExtendIntoRadioField(user, fieldData, field.getValue()==null?null:(boolean)field.getValue());
             } catch (Exception ex) {
                 errorField.setValue(Utils.summaryException(ex));

@@ -323,7 +323,7 @@ public class ProcessingCameraField {
         imageField.setProcessOn(dateFormat.format(Date.from(Instant.now())));
 
         //<editor-fold defaultstate="collapsed" desc="Check value is String?">
-        if (processField != null && processField.getValue() != null) {
+        if (processField != null && !Utils.isNullOrEmpty(processField.getValue())) {
             if (!(processField.getValue() instanceof String) && Utils.isNullOrEmpty(imageField.getFile())) {
                 return new InternalResponse(
                         A_FPSConstant.HTTP_CODE_BAD_REQUEST,
@@ -336,8 +336,8 @@ public class ProcessingCameraField {
             if (Utils.isNullOrEmpty(imageField.getFile())) {
                 return new InternalResponse(
                         A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                        A_FPSConstant.CODE_FIELD,
-                        A_FPSConstant.SUBCODE_VALUE_MUST_BE_ENCODE_BASE64_FORMAT
+                        A_FPSConstant.CODE_FIELD_STAMP,
+                        A_FPSConstant.SUBCODE_MISSING_IMAGE
                 );
             }
         }
@@ -365,16 +365,6 @@ public class ProcessingCameraField {
                             A_FPSConstant.SUBCODE_ERROR_WHILE_DOWNLOAD_FMS);
             }
         }
-        //</editor-fold>
-
-        //<editor-fold defaultstate="collapsed" desc="Check ImageField is have image data ?">
-            if (Utils.isNullOrEmpty(imageField.getFile())) {
-                return new InternalResponse(
-                        A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                        A_FPSConstant.CODE_FIELD_STAMP,
-                        A_FPSConstant.SUBCODE_MISSING_IMAGE
-                );
-            }
         //</editor-fold>
         
         return new InternalResponse(

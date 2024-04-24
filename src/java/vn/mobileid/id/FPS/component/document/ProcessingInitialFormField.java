@@ -19,7 +19,6 @@ import fps_core.enumration.FieldTypeName;
 import java.util.ArrayList;
 import java.util.Base64;
 import vn.mobileid.id.FMS;
-import vn.mobileid.id.FPS.component.document.process.interfaces.IDocumentProcessing;
 import vn.mobileid.id.FPS.component.document.process.interfaces.IVersion;
 import vn.mobileid.id.FPS.controller.ResponseMessageController;
 import vn.mobileid.id.FPS.object.Document;

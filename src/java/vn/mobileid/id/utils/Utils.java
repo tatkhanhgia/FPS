@@ -16,6 +16,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -46,6 +47,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -277,6 +279,30 @@ public class Utils {
             return true;
         }
         return value.isEmpty();
+    }
+    
+    public static boolean isNullOrEmpty(Object obj) {
+        if (obj == null) {
+            return true;
+        }
+
+        if (obj instanceof String) {
+            return ((String) obj).isEmpty();
+        }
+
+        if (obj instanceof Collection) {
+            return ((Collection<?>) obj).isEmpty();
+        }
+
+        if (obj instanceof Map) {
+            return ((Map<?, ?>) obj).isEmpty();
+        }
+
+        if (obj instanceof Array) {
+            return Array.getLength(obj) == 0;
+        }
+
+        return false;
     }
 
     public static byte[] genRandomArray(int size) throws NoSuchAlgorithmException, NoSuchProviderException {

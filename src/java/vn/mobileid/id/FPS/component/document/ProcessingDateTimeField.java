@@ -20,6 +20,7 @@ import vn.mobileid.id.FPS.enumeration.Rule;
 import vn.mobileid.id.FPS.object.APIKeyRule;
 import vn.mobileid.id.FPS.object.Enterprise;
 import vn.mobileid.id.FPS.object.InternalResponse;
+import vn.mobileid.id.FPS.object.ProcessingRequest;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.general.LogHandler;
 import vn.mobileid.id.general.PolicyConfiguration;
@@ -44,8 +45,8 @@ public class ProcessingDateTimeField extends ProcessingTextFormField<DateTimeFie
     public InternalResponse convert(
             User user,
             ExtendedFieldAttribute fieldData,
-            String value) throws Exception {
-        
+            ProcessingRequest.ProcessingFormFillRequest processField) throws Exception {
+
         //<editor-fold defaultstate="collapsed" desc="Get Enterprise Rule">
         InternalResponse response = ConnectorEnterprise.getKEYAPI(user.getScope(), "transaction");
         Enterprise enterprise = null;
@@ -53,20 +54,18 @@ public class ProcessingDateTimeField extends ProcessingTextFormField<DateTimeFie
 
         if (response.isValid()) {
             enterprise = response.getEnt();
-            response = ConnectorEnterprise.getKeyAPIRule(enterprise.getApiKeyRule(), value);
+            response = ConnectorEnterprise.getKeyAPIRule(
+                    enterprise.getApiKeyRule(), 
+                    "transactionID");
 
             if (response.isValid()) {
                 rule = (APIKeyRule) response.getData();
             }
         }
         //</editor-fold>
-        
+
         DateTimeFieldAttribute dateTime = new ObjectMapper().readValue(fieldData.getDetailValue(), DateTimeFieldAttribute.class);
         dateTime = (DateTimeFieldAttribute) fieldData.clone(dateTime, fieldData.getDimension());
-
-        if (value != null) {
-            dateTime.setValue(value);
-        }
 
         dateTime.setProcessBy(user.getAzp());
         SimpleDateFormat dateFormat = new SimpleDateFormat(PolicyConfiguration.getInstant().getSystemConfig().getAttributes().get(0).getDateFormat());
@@ -85,30 +84,59 @@ public class ProcessingDateTimeField extends ProcessingTextFormField<DateTimeFie
         }
         //</editor-fold>
 
-        if (!Utils.isNullOrEmpty(value)) {
-//            dateTime.setValue(Utils.convertISOStringToCustom(value, dateFormat2));
+        //<editor-fold defaultstate="collapsed" desc="Check value in ProcessField and default value in Field is valid">
+        if (processField != null && !Utils.isNullOrEmpty(processField.getValue())) {
+            if (!(processField.getValue() instanceof String) && Utils.isNullOrEmpty(dateTime.getDefaultDate())) {
+                return new InternalResponse(
+                        A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                        A_FPSConstant.CODE_FIELD,
+                        A_FPSConstant.SUBCODE_VALUE_MUST_BE_ENCODE_BASE64_FORMAT
+                );
+            }
             if (enterprise != null && rule != null && rule.isRuleEnabled(Rule.IS_CONVERT_DATE)) {
-                dateTime.setValue(Utils.convertISOStringToCustom(value, dateFormat2));
+                dateTime.setValue(Utils.convertISOStringToCustom((String) processField.getValue(), dateFormat2));
             } else {
-                dateTime.setValue(value);
+                dateTime.setValue((String) processField.getValue());
             }
         } else {
-            try {
-//                dateTime.setValue(Utils.convertISOStringToCustom(value, dateFormat2));
-                if (enterprise != null && rule != null && rule.isRuleEnabled(Rule.IS_CONVERT_DATE)) {
-                    dateTime.setValue(Utils.convertISOStringToCustom(dateTime.getDefaultDate(), dateFormat2));
-                } else {
-                    dateTime.setValue(dateTime.getDefaultDate());
-                }
-            } catch (Exception ex) {
+            if (Utils.isNullOrEmpty(dateTime.getDefaultDate())) {
                 return new InternalResponse(
                         A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                         A_FPSConstant.CODE_FIELD_DATETIME,
                         A_FPSConstant.SUBCODE_MISSING_DEFAULT_ITEMS_FOR_PROCESS
                 );
             }
+            if (enterprise != null && rule != null && rule.isRuleEnabled(Rule.IS_CONVERT_DATE)) {
+                dateTime.setValue(Utils.convertISOStringToCustom(dateTime.getDefaultDate(), dateFormat2));
+            } else {
+                dateTime.setValue(dateTime.getDefaultDate());
+            }
         }
+        //</editor-fold>
 
+//        if (!Utils.isNullOrEmpty(value)) {
+////            dateTime.setValue(Utils.convertISOStringToCustom(value, dateFormat2));
+//            if (enterprise != null && rule != null && rule.isRuleEnabled(Rule.IS_CONVERT_DATE)) {
+//                dateTime.setValue(Utils.convertISOStringToCustom(value, dateFormat2));
+//            } else {
+//                dateTime.setValue(value);
+//            }
+//        } else { 
+//            try {
+////                dateTime.setValue(Utils.convertISOStringToCustom(value, dateFormat2));
+//                if (enterprise != null && rule != null && rule.isRuleEnabled(Rule.IS_CONVERT_DATE)) {
+//                    dateTime.setValue(Utils.convertISOStringToCustom(dateTime.getDefaultDate(), dateFormat2));
+//                } else {
+//                    dateTime.setValue(dateTime.getDefaultDate());
+//                }
+//            } catch (Exception ex) {
+//                return new InternalResponse(
+//                        A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+//                        A_FPSConstant.CODE_FIELD_DATETIME,
+//                        A_FPSConstant.SUBCODE_MISSING_DEFAULT_ITEMS_FOR_PROCESS
+//                );
+//            }
+//        }
         return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, dateTime);
     }
 

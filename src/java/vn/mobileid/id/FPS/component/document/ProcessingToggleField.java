@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.util.Date;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.InternalResponse;
+import vn.mobileid.id.FPS.object.ProcessingRequest.ProcessingFormFillRequest;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.general.PolicyConfiguration;
 import vn.mobileid.id.utils.Utils;
@@ -36,34 +37,38 @@ public class ProcessingToggleField extends ProcessingTextFormField<ToggleFieldAt
     public InternalResponse convert(
             User user,
             ExtendedFieldAttribute fieldData,
-            String value) throws Exception {
+            ProcessingFormFillRequest processField) throws Exception {
         ToggleFieldAttribute toggle = new ObjectMapper().readValue(fieldData.getDetailValue(), ToggleFieldAttribute.class);
         toggle = (ToggleFieldAttribute) fieldData.clone(toggle, fieldData.getDimension());
-
-        if (value != null) {
-            toggle.setValue(value);
-        }
 
         toggle.setProcessBy(user.getAzp());
         SimpleDateFormat dateFormat = new SimpleDateFormat(PolicyConfiguration.getInstant().getSystemConfig().getAttributes().get(0).getDateFormat());
         toggle.setProcessOn(dateFormat.format(Date.from(Instant.now())));
 
-        if (!Utils.isNullOrEmpty(value)) {
-            toggle.setValue(value);
-        } else {
-            try {
-                if (Utils.isNullOrEmpty(toggle.getValue())) {
-                    toggle.setValue(toggle.getCombo().getDefaultItem());
+        //<editor-fold defaultstate="collapsed" desc="Check value is String?">
+        if (processField != null && !Utils.isNullOrEmpty(processField.getValue())) {
+            if (!(processField.getValue() instanceof String)) {
+                if (toggle.getCombo() == null || Utils.isNullOrEmpty(toggle.getCombo().getDefaultItem())) {
+                    return new InternalResponse(
+                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                            A_FPSConstant.CODE_FIELD,
+                            A_FPSConstant.SUBCODE_VALUE_MUST_BE_ENCODE_BASE64_FORMAT
+                    );
                 }
-            } catch (Exception ex) {
+            }
+            toggle.setValue((String)processField.getValue());
+        } else {
+            if (toggle.getCombo() == null || Utils.isNullOrEmpty(toggle.getCombo().getDefaultItem())) {
                 return new InternalResponse(
                         A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                         A_FPSConstant.CODE_FIELD_COMBOBOX,
                         A_FPSConstant.SUBCODE_MISSING_DEFAULT_ITEMS_FOR_PROCESS
                 );
             }
+            toggle.setValue(toggle.getCombo().getDefaultItem());
         }
-
+        //</editor-fold>
+        
         return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, toggle);
     }
 }

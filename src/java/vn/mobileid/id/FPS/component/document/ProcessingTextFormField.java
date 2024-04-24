@@ -23,6 +23,7 @@ import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.InternalResponse.InternalData;
 import vn.mobileid.id.FPS.object.ProcessingRequest;
+import vn.mobileid.id.FPS.object.ProcessingRequest.ProcessingFormFillRequest;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.general.LogHandler;
 import vn.mobileid.id.general.PolicyConfiguration;
@@ -69,19 +70,6 @@ public class ProcessingTextFormField<T extends TextFieldAttribute>{
         for (ProcessingRequest.ProcessingFormFillRequest field : fields) {
             InternalData errorField = new InternalData();
             errorField.setName(field.getFieldName());
-
-            //<editor-fold defaultstate="collapsed" desc="Check value is String?">
-            if (field.getValue() != null) {
-                if (!(field.getValue() instanceof String)) {
-                    errorField.setValue(
-                            String.valueOf(A_FPSConstant.CODE_FIELD)
-                            + String.valueOf(A_FPSConstant.SUBCODE_VALUE_MUST_BE_ENCODE_BASE64_FORMAT)
-                    );
-                    listOfErrorField.add(errorField);
-                    continue;
-                }
-            }
-            //</editor-fold>
 
             //<editor-fold defaultstate="collapsed" desc="Get Documents">
             InternalResponse response = GetDocument.getDocuments(
@@ -141,7 +129,7 @@ public class ProcessingTextFormField<T extends TextFieldAttribute>{
             //<editor-fold defaultstate="collapsed" desc="Convert ExtendField into TextField">
             TextFieldAttribute textField = null;
             try {
-                InternalResponse temp = convert(user, fieldData, (String)field.getValue());
+                InternalResponse temp = convert(user, fieldData, field);
                 if(!temp.isValid()){
                     return temp;
                 }
@@ -226,13 +214,31 @@ public class ProcessingTextFormField<T extends TextFieldAttribute>{
         return FieldTypeName.TEXTBOX;
     }
     
-    public InternalResponse convert(User user, ExtendedFieldAttribute fieldData, String value) throws Exception{
+    public InternalResponse convert(
+            User user,
+            ExtendedFieldAttribute fieldData, 
+            ProcessingFormFillRequest processField) throws Exception{
         //Read details
         T textField = (T) new ObjectMapper().readValue(fieldData.getDetailValue(), type.getClass());
         textField = (T) fieldData.clone(textField, fieldData.getDimension());
 
-        if (value != null) {
-            textField.setValue(value);
+        if (processField != null && processField.getValue() != null) {
+            if(!(processField.getValue() instanceof String) && Utils.isNullOrEmpty(textField.getValue())){
+                return new InternalResponse(
+                        A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                        A_FPSConstant.CODE_FIELD,
+                        A_FPSConstant.SUBCODE_VALUE_MUST_BE_ENCODE_BASE64_FORMAT
+                );
+            }
+            textField.setValue((String)processField.getValue());
+        } else {
+            if(Utils.isNullOrEmpty(textField.getValue())){
+                return new InternalResponse(
+                        A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                        A_FPSConstant.CODE_FIELD,
+                        A_FPSConstant.SUBCODE_VALUE_MUST_BE_ENCODE_BASE64_FORMAT
+                );
+            }
         }
 
         textField.setProcessBy(user.getAzp());

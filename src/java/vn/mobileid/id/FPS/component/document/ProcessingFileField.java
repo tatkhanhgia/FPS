@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.Base64;
 import vn.mobileid.id.FMS;
 import vn.mobileid.id.FPS.component.enterprise.ProcessModuleForEnterprise;
-import vn.mobileid.id.FPS.controller.ResponseMessageController;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.InternalResponse.InternalData;
@@ -529,7 +528,8 @@ public class ProcessingFileField {
     //<editor-fold defaultstate="collapsed" desc="Convert ExtendedField into FileField">
     private static InternalResponse convertExtendIntoFileField(
             User user,
-            ExtendedFieldAttribute fieldData) throws Exception {
+            ExtendedFieldAttribute fieldData
+            ) throws Exception {
         //Read details
         FileFieldAttribute imageField = new ObjectMapper().readValue(fieldData.getDetailValue(), FileFieldAttribute.class);
         imageField = (FileFieldAttribute) fieldData.clone(imageField, fieldData.getDimension());

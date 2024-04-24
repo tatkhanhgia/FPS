@@ -23,6 +23,7 @@ import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.InternalResponse.InternalData;
 import vn.mobileid.id.FPS.object.ProcessingRequest;
+import vn.mobileid.id.FPS.object.ProcessingRequest.ProcessingFormFillRequest;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.general.PolicyConfiguration;
 import vn.mobileid.id.utils.Utils;
@@ -59,19 +60,6 @@ public class ProcessingHyperLinkField {
             InternalData errorField = new InternalData();
             errorField.setName(field.getFieldName());
 
-            //<editor-fold defaultstate="collapsed" desc="Check value is String?">
-            if (field.getValue() != null) {
-                if (!(field.getValue() instanceof String)) {
-                    errorField.setValue(
-                            String.valueOf(A_FPSConstant.CODE_FIELD_HYPERLINK)
-                            + String.valueOf(A_FPSConstant.SUBCODE_VALUE_MUST_BE_A_STRING)
-                    );
-                    listOfErrorField.add(errorField);
-                    continue;
-                }
-            }
-            //</editor-fold>
-            
             //<editor-fold defaultstate="collapsed" desc="Get Documents">
             InternalResponse response = GetDocument.getDocuments(
                     packageId,
@@ -105,7 +93,6 @@ public class ProcessingHyperLinkField {
             }
 
             ExtendedFieldAttribute fieldData = (ExtendedFieldAttribute) response.getData();
-
             //</editor-fold>
             
             //<editor-fold defaultstate="collapsed" desc="Check data in ExtendedField is sastified">
@@ -131,7 +118,11 @@ public class ProcessingHyperLinkField {
             //<editor-fold defaultstate="collapsed" desc="Convert ExtendField into TextField">
             TextFieldAttribute textField = null;
             try {
-                textField = convertExtendIntoHyperLink(user, fieldData, (String) field.getValue());
+                InternalResponse temp = convertExtendIntoHyperLink(user, fieldData,field);
+                
+                if(temp.isValid()){
+                    textField = (TextFieldAttribute) temp.getData();
+                }
             } catch (Exception ex) {
                 errorField.setValue(Utils.summaryException(ex));
                 listOfErrorField.add(errorField);
@@ -186,27 +177,43 @@ public class ProcessingHyperLinkField {
 
     //==========================================================================
     //<editor-fold defaultstate="collapsed" desc="Convert ExtendedField into HyperLink">
-    private static TextFieldAttribute convertExtendIntoHyperLink(
+    private static InternalResponse convertExtendIntoHyperLink(
             User user,
             ExtendedFieldAttribute fieldData,
-            String value) throws Exception {
+            ProcessingFormFillRequest processField) throws Exception {
         //Read details
         HyperLinkFieldAttribute hyperLink = new ObjectMapper().readValue(fieldData.getDetailValue(), HyperLinkFieldAttribute.class);
         hyperLink = (HyperLinkFieldAttribute) fieldData.clone(hyperLink, fieldData.getDimension());
-
-        if (value != null) {
-            hyperLink.setValue(value);
-        }
 
         hyperLink.setProcessBy(user.getAzp());
         SimpleDateFormat dateFormat = new SimpleDateFormat(PolicyConfiguration.getInstant().getSystemConfig().getAttributes().get(0).getDateFormat());
         hyperLink.setProcessOn(dateFormat.format(Date.from(Instant.now())));
 
-        if(!Utils.isNullOrEmpty(value)){
-            hyperLink.setAddress(value);
+        //<editor-fold defaultstate="collapsed" desc="Check value is String?">
+        if (processField != null && !Utils.isNullOrEmpty(processField.getValue())) {
+            if (!(processField.getValue() instanceof String) && Utils.isNullOrEmpty(hyperLink.getAddress())) {
+                return new InternalResponse(
+                        A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                        A_FPSConstant.CODE_FIELD,
+                        A_FPSConstant.SUBCODE_VALUE_MUST_BE_ENCODE_BASE64_FORMAT
+                );
+            }
+            hyperLink.setAddress((String) processField.getValue());
+        } else {
+            if (Utils.isNullOrEmpty(hyperLink.getAddress())) {
+                return new InternalResponse(
+                        A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                        A_FPSConstant.CODE_FIELD_ATTACHMENT,
+                        A_FPSConstant.SUBCODE_MISSING_FILE_DATA_OF_ATTACHMENT
+                );
+            }
         }
-        
-        return hyperLink;
+        //</editor-fold>
+
+        return new InternalResponse(
+                A_FPSConstant.HTTP_CODE_SUCCESS,
+                hyperLink
+        );
     }
     //</editor-fold>
 }

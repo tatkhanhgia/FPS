@@ -148,24 +148,6 @@ public class ProcessingAttachmentField {
             }
             //</editor-fold>
 
-            //<editor-fold defaultstate="collapsed" desc="Check data is valid?">
-            if (Utils.isNullOrEmpty(fileField.getFile())) {
-                errorField.setValue(
-                        String.valueOf(A_FPSConstant.CODE_FIELD_ATTACHMENT)
-                        + String.valueOf(A_FPSConstant.SUBCODE_MISSING_FILE_DATA_OF_ATTACHMENT));
-                listOfErrorField.add(errorField);
-                continue;
-            }
-
-            if (Utils.isNullOrEmpty(fileField.getFileExtension())) {
-                errorField.setValue(
-                        String.valueOf(A_FPSConstant.CODE_FIELD_ATTACHMENT)
-                        + String.valueOf(A_FPSConstant.SUBCODE_MISSING_EXTENSION));
-                listOfErrorField.add(errorField);
-                continue;
-            }
-            //</editor-fold>
-
             //<editor-fold defaultstate="collapsed" desc="Check page FileField is valid?">
             if (document_.getDocumentPages() < fieldData.getPage()) {
                 errorField.setValue(
@@ -231,12 +213,20 @@ public class ProcessingAttachmentField {
         imageField.setProcessOn(dateFormat.format(Date.from(Instant.now())));
 
         //<editor-fold defaultstate="collapsed" desc="Check value is String?">
-        if (processField.getValue() != null) {
+        if (processField != null && !Utils.isNullOrEmpty(processField.getValue())) {
             if (!(processField.getValue() instanceof String) && Utils.isNullOrEmpty(imageField.getFile())) {
                 return new InternalResponse(
                         A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                         A_FPSConstant.CODE_FIELD,
                         A_FPSConstant.SUBCODE_VALUE_MUST_BE_ENCODE_BASE64_FORMAT
+                );
+            }
+        } else {
+            if(Utils.isNullOrEmpty(imageField.getFile())){
+                return new InternalResponse(
+                        A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                        A_FPSConstant.CODE_FIELD_ATTACHMENT,
+                        A_FPSConstant.SUBCODE_MISSING_FILE_DATA_OF_ATTACHMENT
                 );
             }
         }
