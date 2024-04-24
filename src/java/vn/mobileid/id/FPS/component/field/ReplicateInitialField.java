@@ -65,7 +65,7 @@ public class ReplicateInitialField {
 
         //<editor-fold defaultstate="collapsed" desc="Create list child field">
         List<T> childs = new ArrayList<>();
-        if (parent.isReplicateAllPages()) {
+        if (parent.isReplicateAllPages() != null && parent.isReplicateAllPages()) {
             long root = System.currentTimeMillis();
             for (int i = 1; i <= document.getDocumentPages(); i++) {
                 if (i == parent.getPage()) {

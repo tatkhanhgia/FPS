@@ -608,7 +608,7 @@ public class ConnectorField {
                             (String) Utils.getFromJson_("value", merge2.toPrettyString()),
                             Math.round(qr.getDimension().getWidth()),
                             Math.round(qr.getDimension().getWidth()),
-                            qr.IsTransparent());
+                            qr.IsTransparent() == null ? false : qr.IsTransparent());
                     qr.setImageQR(Base64.toBase64String(imageQR));
                 }
             } catch (Exception ex) {
@@ -1366,14 +1366,16 @@ public class ConnectorField {
                     }
                 }
 
-                boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.CHECKBOX);
+                if (!Utils.isNullOrEmpty(field.getTypeName())) {
+                    boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.CHECKBOX);
 
-                if (!check) {
-                    return new InternalResponse(
-                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                            A_FPSConstant.CODE_FIELD_CHECKBOX,
-                            A_FPSConstant.SUBCODE_INVALID_CHECKBOX_FIELD_TYPE
-                    );
+                    if (!check) {
+                        return new InternalResponse(
+                                A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                                A_FPSConstant.CODE_FIELD_CHECKBOX,
+                                A_FPSConstant.SUBCODE_INVALID_CHECKBOX_FIELD_TYPE
+                        );
+                    }
                 }
 
                 if (!isUpdate) {
@@ -1409,15 +1411,17 @@ public class ConnectorField {
                     }
                 }
 
-                boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.RADIOBOX);
+                if (!Utils.isNullOrEmpty(field.getTypeName())) {
+                    boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.RADIOBOX);
 
-                if (!check) {
-                    return new InternalResponse(
-                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                            A_FPSConstant.CODE_FIELD_RADIO_BOX,
-                            A_FPSConstant.SUBCODE_INVALID_TYPE_OF_RADIO
-                    );
-                }
+                    if (!check) {
+                        return new InternalResponse(
+                                A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                                A_FPSConstant.CODE_FIELD_RADIO_BOX,
+                                A_FPSConstant.SUBCODE_INVALID_TYPE_OF_RADIO
+                        );
+                    }
+                } 
 
                 if (!isUpdate) {
                     if (field.isChecked() == null) {

@@ -199,6 +199,7 @@ public class ProcessingHyperLinkField {
                 );
             }
             hyperLink.setAddress((String) processField.getValue());
+            hyperLink.setValue(hyperLink.getAddress());
         } else {
             if (Utils.isNullOrEmpty(hyperLink.getAddress())) {
                 return new InternalResponse(
@@ -207,6 +208,7 @@ public class ProcessingHyperLinkField {
                         A_FPSConstant.SUBCODE_MISSING_FILE_DATA_OF_ATTACHMENT
                 );
             }
+            hyperLink.setValue(hyperLink.getAddress());
         }
         //</editor-fold>
 

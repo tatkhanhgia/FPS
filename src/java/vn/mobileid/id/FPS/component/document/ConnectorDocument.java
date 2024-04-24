@@ -1658,7 +1658,7 @@ public class ConnectorDocument {
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Process Initial Form Field">
-        response = ProcessingInitialFormField.genVersion(IVersion.Version.V2).processInitialField_V2(
+        response = ProcessingInitialFormField.genVersion(IVersion.Version.V3).processInitialField_V2(
                 packageId,
                 user,
                 processRequest,

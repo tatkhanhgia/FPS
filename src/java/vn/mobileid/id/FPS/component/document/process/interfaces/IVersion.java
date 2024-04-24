@@ -21,6 +21,7 @@ public class IVersion {
 
     public static enum Version {
         V1,
-        V2
+        V2,
+        V3
     }
 }
