@@ -1375,6 +1375,16 @@ public class ConnectorField {
                             A_FPSConstant.SUBCODE_INVALID_CHECKBOX_FIELD_TYPE
                     );
                 }
+
+                if (!isUpdate) {
+                    if (field.isChecked() == null) {
+                        field.setChecked(false);
+                    }
+                    if (field.isReadOnly() == null) {
+                        field.setReadOnly(false);
+                    }
+                }
+
                 field.setType(Resources.getFieldTypes().get(field.getTypeName()));
 
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
@@ -1408,6 +1418,16 @@ public class ConnectorField {
                             A_FPSConstant.SUBCODE_INVALID_TYPE_OF_RADIO
                     );
                 }
+
+                if (!isUpdate) {
+                    if (field.isChecked() == null) {
+                        field.setChecked(false);
+                    }
+                    if (field.isReadOnly() == null) {
+                        field.setReadOnly(false);
+                    }
+                }
+
                 field.setType(Resources.getFieldTypes().get(field.getTypeName()));
 
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
@@ -1433,6 +1453,15 @@ public class ConnectorField {
                 }
 
                 field.setType(Resources.getFieldTypes().get(FieldTypeName.INITIAL.getParentName()));
+
+                if (!isUpdate) {
+                    if (field.isApplyToAll() == null) {
+                        field.setApplyToAll(false);
+                    }
+                    if (field.isReplicateAllPages() == null) {
+                        field.setReplicateAllPages(false);
+                    }
+                }
 
                 //<editor-fold defaultstate="collapsed" desc="Upload image into FMS If need">
                 if (field.getImage() != null && field.getImage().length()
@@ -1500,9 +1529,9 @@ public class ConnectorField {
                 } else {
                     field.setType(Resources.getFieldTypes().get(FieldTypeName.QR.getParentName()));
                 }
-                
-                if(!isUpdate){
-                    if(field.IsTransparent() == null){
+
+                if (!isUpdate) {
+                    if (field.IsTransparent() == null) {
                         field.setTransparent(false);
                     }
                 }
@@ -1665,6 +1694,16 @@ public class ConnectorField {
                             A_FPSConstant.SUBCODE_INVALID_STAMP_FIELD_TYPE
                     );
                 }
+
+                if (!isUpdate) {
+                    if (field.isApplyToAll() == null) {
+                        field.setApplyToAll(false);
+                    }
+                    if (field.isReplicateAllPages() == null) {
+                        field.setReplicateAllPages(false);
+                    }
+                }
+
                 if (!Utils.isNullOrEmpty(field.getFile())) {
                     //<editor-fold defaultstate="collapsed" desc="Upload into FMS if need">
                     if (field.getFile() != null && field.getFile().length()
@@ -1721,14 +1760,22 @@ public class ConnectorField {
                                 A_FPSConstant.SUBCODE_INVALID_CAMERA_FIELD_TYPE
                         );
                     }
-                    field.setType(Resources.getFieldTypes().get(field.getTypeName()));
-                } else if (!isUpdate) {
-                    return new InternalResponse(
-                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                            A_FPSConstant.CODE_FIELD_STAMP,
-                            A_FPSConstant.SUBCODE_INVALID_STAMP_FIELD_TYPE
-                    );
                 }
+
+                if (!isUpdate) {
+                    if (field.isShowIcon() == null) {
+                        field.setShowIcon(false);
+                    }
+                    if (field.isApplyToAll() == null) {
+                        field.setApplyToAll(false);
+                    }
+                    if (field.isReplicateAllPages() == null) {
+                        field.setReplicateAllPages(false);
+                    }
+                }
+
+                field.setType(Resources.getFieldTypes().get(FieldTypeName.CAMERA.getParentName()));
+
                 if (!Utils.isNullOrEmpty(field.getFile())) {
                     //<editor-fold defaultstate="collapsed" desc="Upload into FMS if need">
                     if (field.getFile() != null && field.getFile().length()
@@ -1787,13 +1834,18 @@ public class ConnectorField {
                     }
                     field.setType(Resources.getFieldTypes().get(field.getTypeName()));
                 }
-//                else if (!isUpdate) {
-//                    return new InternalResponse(
-//                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-//                            A_FPSConstant.CODE_FIELD_ATTACHMENT,
-//                            A_FPSConstant.SUBCODE_INVALID_ATTACHMENT_FIELD_TYPE
-//                    );
-//                }
+
+                if (!isUpdate) {
+                    if (field.isShowIcon() == null) {
+                        field.setIsShowIcon(false);
+                    }
+                    if (field.isApplyToAll() == null) {
+                        field.setApplyToAll(false);
+                    }
+                    if (field.isReplicateAllPages() == null) {
+                        field.setReplicateAllPages(false);
+                    }
+                }
                 field.setType(Resources.getFieldTypes().get(FieldTypeName.ATTACHMENT.getParentName()));
 
                 if (field.getFileData() != null) {
@@ -1936,13 +1988,7 @@ public class ConnectorField {
                         );
                     }
                 }
-//                else if (!isUpdate) {
-//                    return new InternalResponse(
-//                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-//                            A_FPSConstant.CODE_FIELD_COMBOBOX,
-//                            A_FPSConstant.SUBCODE_INVALID_COMBOBOX_FIELD_TYPE
-//                    );
-//                }
+
                 if (!isUpdate) {
                     if (field.getAlign() == null) {
                         field.setAlign(FPSTextAlign.LEFT);
@@ -1994,13 +2040,6 @@ public class ConnectorField {
                         );
                     }
                 }
-//                else if (!isUpdate) {
-//                    return new InternalResponse(
-//                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-//                            A_FPSConstant.CODE_FIELD_COMBOBOX,
-//                            A_FPSConstant.SUBCODE_INVALID_COMBOBOX_FIELD_TYPE
-//                    );
-//                }
 
                 if (!isUpdate) {
                     if (field.getAlign() == null) {
@@ -2053,13 +2092,6 @@ public class ConnectorField {
                         );
                     }
                 }
-//                else if (!isUpdate) {
-//                    return new InternalResponse(
-//                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-//                            A_FPSConstant.CODE_FIELD_COMBOBOX,
-//                            A_FPSConstant.SUBCODE_INVALID_COMBOBOX_FIELD_TYPE
-//                    );
-//                }
 
                 if (!isUpdate) {
                     if (field.getAlign() == null) {

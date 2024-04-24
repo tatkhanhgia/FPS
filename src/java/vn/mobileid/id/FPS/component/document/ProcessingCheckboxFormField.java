@@ -23,6 +23,7 @@ import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.InternalResponse.InternalData;
 import vn.mobileid.id.FPS.object.ProcessingRequest;
 import vn.mobileid.id.FPS.object.User;
+import vn.mobileid.id.general.LogHandler;
 import vn.mobileid.id.general.PolicyConfiguration;
 import vn.mobileid.id.utils.Utils;
 
@@ -91,8 +92,8 @@ public class ProcessingCheckboxFormField {
             }
 
             ExtendedFieldAttribute fieldData = (ExtendedFieldAttribute) response.getData();
-
             //</editor-fold>
+
             //<editor-fold defaultstate="collapsed" desc="Check data in ExtendedField is sastified">
             if (CheckFieldProcessedYet.checkProcessed(fieldData.getFieldValue()).getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 errorField.setValue(
@@ -123,11 +124,18 @@ public class ProcessingCheckboxFormField {
                 continue;
             }
             //</editor-fold>
-            
+
             //<editor-fold defaultstate="collapsed" desc="Convert ExtendField into CheckboxField">
             CheckBoxFieldAttribute checkboxField = null;
             try {
-                checkboxField = convertExtendIntoCheckBoxField(user, fieldData, field.getValue()==null?null:(boolean)field.getValue());
+                if (field.getValue() != null && !(field.getValue() instanceof Boolean)) {
+                    field.setValue(null);
+                    LogHandler.info(
+                            ProcessingCheckboxFormField.class, 
+                            transactionId, 
+                            "The value is not a boolean => Using default");
+                }
+                checkboxField = convertExtendIntoCheckBoxField(user, fieldData, field.getValue() == null ? null : (boolean) field.getValue());
             } catch (Exception ex) {
                 errorField.setValue(Utils.summaryException(ex));
                 listOfErrorField.add(errorField);

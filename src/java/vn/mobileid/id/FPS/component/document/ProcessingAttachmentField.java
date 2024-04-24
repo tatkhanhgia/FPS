@@ -63,19 +63,6 @@ public class ProcessingAttachmentField {
             InternalResponse.InternalData errorField = new InternalResponse.InternalData();
             errorField.setName(field.getFieldName());
 
-            //<editor-fold defaultstate="collapsed" desc="Check value is String?">
-            if (field.getValue() != null) {
-                if (!(field.getValue() instanceof String)) {
-                    errorField.setValue(
-                            String.valueOf(A_FPSConstant.CODE_FIELD)
-                            + String.valueOf(A_FPSConstant.SUBCODE_VALUE_MUST_BE_ENCODE_BASE64_FORMAT)
-                    );
-                    listOfErrorField.add(errorField);
-                    continue;
-                }
-            }
-            //</editor-fold>
-
             //<editor-fold defaultstate="collapsed" desc="Get Documents">
             InternalResponse response = GetDocument.getDocuments(
                     packageId,
@@ -243,19 +230,40 @@ public class ProcessingAttachmentField {
                         .getDateFormat());
         imageField.setProcessOn(dateFormat.format(Date.from(Instant.now())));
 
-        if (!Utils.isNullOrEmpty(processField.getFileName())){
+        //<editor-fold defaultstate="collapsed" desc="Check value is String?">
+        if (processField.getValue() != null) {
+            if (!(processField.getValue() instanceof String) && Utils.isNullOrEmpty(imageField.getFile())) {
+                return new InternalResponse(
+                        A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                        A_FPSConstant.CODE_FIELD,
+                        A_FPSConstant.SUBCODE_VALUE_MUST_BE_ENCODE_BASE64_FORMAT
+                );
+            }
+        }
+        //</editor-fold>
+
+        if (!Utils.isNullOrEmpty(processField.getFileName())) {
             String[] split = processField.getFileName().split("\\.");
             String extension = split[split.length - 1];
             imageField.setFileExtension(extension);
             imageField.setFileName(processField.getFileName());
-            imageField.setFile((String)processField.getValue());
-        } 
-        
-        if (!Utils.isNullOrEmpty((String)processField.getValue())) {
-            imageField.setFile((String)processField.getValue());
         }
 
-        //<editor-fold defaultstate="collapsed" desc="Download Image from FMS if need">
+        if (!Utils.isNullOrEmpty((String) processField.getValue())) {
+            imageField.setFile((String) processField.getValue());
+        }
+
+        //<editor-fold defaultstate="collapsed" desc="Check extension">
+        if (Utils.isNullOrEmpty(imageField.getFileExtension())) {
+            return new InternalResponse(
+                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                    A_FPSConstant.CODE_FIELD_ATTACHMENT,
+                    A_FPSConstant.SUBCODE_MISSING_EXTENSION
+            );
+        }
+        //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="Download File from FMS if need">
         if (!Utils.isNullOrEmpty(imageField.getFile()) && imageField.getFile().length() <= 32) {
             try {
                 InternalResponse response = FMS.downloadDocumentFromFMS(imageField.getFile(), "");

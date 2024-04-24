@@ -20,7 +20,6 @@ import fps_core.objects.core.FileFieldAttribute;
 import java.util.ArrayList;
 import java.util.Base64;
 import vn.mobileid.id.FMS;
-import vn.mobileid.id.FPS.controller.ResponseMessageController;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.ProcessingRequest;
@@ -107,7 +106,8 @@ public class ProcessingCameraField {
         try {
             InternalResponse convertResponse = convertExtendIntoImageField(
                     user,
-                    fieldData
+                    fieldData,
+                    null
             );
 
             if (convertResponse.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
@@ -170,19 +170,6 @@ public class ProcessingCameraField {
         for (ProcessingRequest.ProcessingFormFillRequest field : fields) {
             InternalResponse.InternalData errorField = new InternalResponse.InternalData();
             errorField.setName(field.getFieldName());
-
-            //<editor-fold defaultstate="collapsed" desc="Check value is String?">
-            if (field.getValue() != null) {
-                if (!(field.getValue() instanceof String)) {
-                    errorField.setValue(
-                            String.valueOf(A_FPSConstant.CODE_FIELD)
-                            + String.valueOf(A_FPSConstant.SUBCODE_VALUE_MUST_BE_ENCODE_BASE64_FORMAT)
-                    );
-                    listOfErrorField.add(errorField);
-                    continue;
-                }
-            }
-            //</editor-fold>
 
             //<editor-fold defaultstate="collapsed" desc="Get Documents">
             InternalResponse response = GetDocument.getDocuments(
@@ -248,7 +235,8 @@ public class ProcessingCameraField {
             try {
                 InternalResponse convertResponse = convertExtendIntoImageField(
                         user,
-                        fieldData
+                        fieldData,
+                        field
                 );
 
                 if (convertResponse.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
@@ -256,26 +244,11 @@ public class ProcessingCameraField {
                 }
 
                 imageField = (FileFieldAttribute) convertResponse.getData();
-
-                if (field.getValue() != null) {
-                    imageField.setFile((String) field.getValue());
-                }
             } catch (Exception ex) {
                 errorField.setValue(Utils.summaryException(ex));
                 if (response.getException() != null) {
                     responseFinal.setException(response.getException());
                 }
-                listOfErrorField.add(errorField);
-                continue;
-            }
-            //</editor-fold>
-
-            //<editor-fold defaultstate="collapsed" desc="Check ImageField is have image data ?">
-            if (Utils.isNullOrEmpty(imageField.getFile())) {
-                errorField.setValue(
-                        String.valueOf(A_FPSConstant.CODE_FIELD_STAMP)
-                        + String.valueOf(A_FPSConstant.SUBCODE_MISSING_IMAGE)
-                );
                 listOfErrorField.add(errorField);
                 continue;
             }
@@ -333,7 +306,8 @@ public class ProcessingCameraField {
     //<editor-fold defaultstate="collapsed" desc="Convert ExtendedField into ImageField">
     private static InternalResponse convertExtendIntoImageField(
             User user,
-            ExtendedFieldAttribute fieldData) throws Exception {
+            ExtendedFieldAttribute fieldData,
+            ProcessingRequest.ProcessingFormFillRequest processField) throws Exception {
         //Read details
         CameraFieldAttribute imageField = new ObjectMapper().readValue(fieldData.getDetailValue(), CameraFieldAttribute.class);
         imageField = (CameraFieldAttribute) fieldData.clone(imageField, fieldData.getDimension());
@@ -348,6 +322,27 @@ public class ProcessingCameraField {
                         .getDateFormat());
         imageField.setProcessOn(dateFormat.format(Date.from(Instant.now())));
 
+        //<editor-fold defaultstate="collapsed" desc="Check value is String?">
+        if (processField != null && processField.getValue() != null) {
+            if (!(processField.getValue() instanceof String) && Utils.isNullOrEmpty(imageField.getFile())) {
+                return new InternalResponse(
+                        A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                        A_FPSConstant.CODE_FIELD,
+                        A_FPSConstant.SUBCODE_VALUE_MUST_BE_ENCODE_BASE64_FORMAT
+                );
+            }
+            imageField.setFile((String)processField.getValue());
+        } else {
+            if (Utils.isNullOrEmpty(imageField.getFile())) {
+                return new InternalResponse(
+                        A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                        A_FPSConstant.CODE_FIELD,
+                        A_FPSConstant.SUBCODE_VALUE_MUST_BE_ENCODE_BASE64_FORMAT
+                );
+            }
+        }
+        //</editor-fold>
+        
         //<editor-fold defaultstate="collapsed" desc="Download Image from FMS if need">
         if (!Utils.isNullOrEmpty(imageField.getFile()) && imageField.getFile().length() <= 32) {
             try {
@@ -372,6 +367,16 @@ public class ProcessingCameraField {
         }
         //</editor-fold>
 
+        //<editor-fold defaultstate="collapsed" desc="Check ImageField is have image data ?">
+            if (Utils.isNullOrEmpty(imageField.getFile())) {
+                return new InternalResponse(
+                        A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                        A_FPSConstant.CODE_FIELD_STAMP,
+                        A_FPSConstant.SUBCODE_MISSING_IMAGE
+                );
+            }
+        //</editor-fold>
+        
         return new InternalResponse(
                 A_FPSConstant.HTTP_CODE_SUCCESS,
                 imageField);
