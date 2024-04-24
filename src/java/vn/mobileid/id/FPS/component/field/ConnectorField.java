@@ -1250,6 +1250,12 @@ public class ConnectorField {
                     if (field.getColor() == null) {
                         field.setColor("BLACK");
                     }
+                    if (field.isReadOnly() == null) {
+                        field.setReadOnly(false);
+                    }
+                    if (field.isMultiline() == null) {
+                        field.setMultiline(false);
+                    }
                     try {
                         System.out.println("Font:" + field.getFont().getSize());
                         System.out.println("String:" + new String(field.getValue().getBytes("UTF-8"), "UTF-8"));
@@ -1324,6 +1330,12 @@ public class ConnectorField {
                     }
                     if (field.getColor() == null) {
                         field.setColor("BLACK");
+                    }
+                    if (field.isReadOnly() == null) {
+                        field.setReadOnly(false);
+                    }
+                    if (field.isMultiline() == null) {
+                        field.setMultiline(false);
                     }
                     try {
                         System.out.println("Font:" + field.getFont().getSize());
@@ -1487,6 +1499,12 @@ public class ConnectorField {
                     field.setType(Resources.getFieldTypes().get(field.getTypeName()));
                 } else {
                     field.setType(Resources.getFieldTypes().get(FieldTypeName.QR.getParentName()));
+                }
+                
+                if(!isUpdate){
+                    if(field.IsTransparent() == null){
+                        field.setTransparent(false);
+                    }
                 }
 
                 if (field.getImageQR() != null
@@ -1718,7 +1736,7 @@ public class ConnectorField {
                                     .getSystemConfig()
                                     .getAttributes()
                                     .get(0)
-                                    .getMaximumFile()/2) {
+                                    .getMaximumFile() / 2) {
                         try {
                             InternalResponse response = vn.mobileid.id.FMS.uploadToFMS(
                                     Base64.decode(field.getFile()),
@@ -1800,7 +1818,7 @@ public class ConnectorField {
                         try {
                             String fileName = field.getFileName();
                             String[] splits = fileName.split("\\.");
-                            field.setFileExtension(splits[splits.length-1]);
+                            field.setFileExtension(splits[splits.length - 1]);
                         } catch (Exception e) {
                             return new InternalResponse(
                                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
@@ -1877,6 +1895,12 @@ public class ConnectorField {
                     if (field.getColor() == null) {
                         field.setColor("BLACK");
                     }
+                    if (field.isReadOnly() == null) {
+                        field.setReadOnly(false);
+                    }
+                    if (field.isMultiline() == null) {
+                        field.setMultiline(false);
+                    }
                 }
 
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
@@ -1919,6 +1943,21 @@ public class ConnectorField {
 //                            A_FPSConstant.SUBCODE_INVALID_COMBOBOX_FIELD_TYPE
 //                    );
 //                }
+                if (!isUpdate) {
+                    if (field.getAlign() == null) {
+                        field.setAlign(FPSTextAlign.LEFT);
+                    }
+                    if (field.getColor() == null) {
+                        field.setColor("BLACK");
+                    }
+                    if (field.isReadOnly() == null) {
+                        field.setReadOnly(false);
+                    }
+                    if (field.isMultiline() == null) {
+                        field.setMultiline(false);
+                    }
+                }
+
                 field.setType(Resources.getFieldTypes().get(FieldTypeName.COMBOBOX.getParentName()));
 
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
@@ -1962,6 +2001,22 @@ public class ConnectorField {
 //                            A_FPSConstant.SUBCODE_INVALID_COMBOBOX_FIELD_TYPE
 //                    );
 //                }
+
+                if (!isUpdate) {
+                    if (field.getAlign() == null) {
+                        field.setAlign(FPSTextAlign.LEFT);
+                    }
+                    if (field.getColor() == null) {
+                        field.setColor("BLACK");
+                    }
+                    if (field.isReadOnly() == null) {
+                        field.setReadOnly(false);
+                    }
+                    if (field.isMultiline() == null) {
+                        field.setMultiline(false);
+                    }
+                }
+
                 field.setType(Resources.getFieldTypes().get(FieldTypeName.TOGGLE.getParentName()));
 
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
@@ -2005,6 +2060,22 @@ public class ConnectorField {
 //                            A_FPSConstant.SUBCODE_INVALID_COMBOBOX_FIELD_TYPE
 //                    );
 //                }
+
+                if (!isUpdate) {
+                    if (field.getAlign() == null) {
+                        field.setAlign(FPSTextAlign.LEFT);
+                    }
+                    if (field.getColor() == null) {
+                        field.setColor("BLACK");
+                    }
+                    if (field.isReadOnly() == null) {
+                        field.setReadOnly(false);
+                    }
+                    if (field.isMultiline() == null) {
+                        field.setMultiline(false);
+                    }
+                }
+
                 field.setType(Resources.getFieldTypes().get(FieldTypeName.NUMERIC_STEP.getParentName()));
 
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
