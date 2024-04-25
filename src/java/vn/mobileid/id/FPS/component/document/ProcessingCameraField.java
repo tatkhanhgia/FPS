@@ -267,7 +267,7 @@ public class ProcessingCameraField {
             //Processing
             response = new ProcessingFactory().createType(
                     ProcessingFactory.TypeProcess.IMAGE,
-                    Version.V2).processField(
+                    Version.V3).processField(
                     user,
                     document_,
                     documents.size(),

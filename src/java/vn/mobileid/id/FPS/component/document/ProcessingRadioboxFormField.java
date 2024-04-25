@@ -104,7 +104,7 @@ public class ProcessingRadioboxFormField {
                 continue;
             }
 
-            if (!fieldData.getType().getParentType().equals(FieldTypeName.CHECKBOX.getParentName())) {
+            if (!fieldData.getType().getParentType().equals(FieldTypeName.RADIOBOX.getParentName())) {
                 errorField.setValue(ResponseMessageController.getErrorMessageAdvanced(
                         A_FPSConstant.CODE_FIELD,
                         A_FPSConstant.SUBCODE_THIS_TYPE_OF_FIELD_IS_NOT_VALID_FOR_THIS_PROCESSION,

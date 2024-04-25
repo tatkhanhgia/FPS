@@ -894,6 +894,20 @@ public class ConnectorDocument {
             }
         }
         //</editor-fold>
+        
+        //<editor-fold defaultstate="collapsed" desc="Process Radio Form Field">
+        if (!Utils.isNullOrEmpty(processRequest.getRadio())) {
+            response = ProcessingRadioboxFormField.processRadioField(
+                    Utils.getIdFromURL(request.getRequestURI()),
+                    user,
+                    processRequest.getRadio(),
+                    transactionId);
+
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                return response;
+            }
+        }
+        //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Process Stamp Form Field">
         if (!Utils.isNullOrEmpty(processRequest.getStamp())) {
