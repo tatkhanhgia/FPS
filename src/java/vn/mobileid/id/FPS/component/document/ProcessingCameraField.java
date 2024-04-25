@@ -20,6 +20,7 @@ import fps_core.objects.core.FileFieldAttribute;
 import java.util.ArrayList;
 import java.util.Base64;
 import vn.mobileid.id.FMS;
+import vn.mobileid.id.FPS.component.document.process.interfaces.IVersion.Version;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.ProcessingRequest;
@@ -264,7 +265,9 @@ public class ProcessingCameraField {
             //</editor-fold>
             
             //Processing
-            response = new ProcessingFactory().createType(ProcessingFactory.TypeProcess.IMAGE).processField(
+            response = new ProcessingFactory().createType(
+                    ProcessingFactory.TypeProcess.IMAGE,
+                    Version.V2).processField(
                     user,
                     document_,
                     documents.size(),

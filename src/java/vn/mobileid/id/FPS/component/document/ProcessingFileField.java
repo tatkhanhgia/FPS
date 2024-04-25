@@ -19,6 +19,7 @@ import fps_core.objects.core.FileFieldAttribute;
 import java.util.ArrayList;
 import java.util.Base64;
 import vn.mobileid.id.FMS;
+import vn.mobileid.id.FPS.component.document.process.interfaces.IVersion;
 import vn.mobileid.id.FPS.component.enterprise.ProcessModuleForEnterprise;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
@@ -313,7 +314,8 @@ public class ProcessingFileField {
 
             //Processing
             response = new ProcessingFactory().createType(
-                    ProcessingFactory.TypeProcess.IMAGE)
+                    ProcessingFactory.TypeProcess.IMAGE,
+                    IVersion.Version.V2)
                     .processField(
                             user,
                             document_,

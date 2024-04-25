@@ -203,12 +203,17 @@ public class FieldController extends HttpServlet {
                     InternalResponse response = ConnectorDocument.fillInitialField_V2(req, packageId, payload, transactionId);
 
                     if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                        String message = ResponseMessageController.getErrorMessageAdvanced(
-                                response.getCode(),
-                                response.getCodeDescription(),
-                                response.getMessage(),
-                                language,
-                                transactionId);
+                        String message = "";
+                        if (response.getInternalData() != null) {
+                            message = ResponseMessageController.createErrorMessage((List<InternalData>) response.getInternalData().getValue());
+                        } else {
+                            message = ResponseMessageController.getErrorMessageAdvanced(
+                                    response.getCode(),
+                                    response.getCodeDescription(),
+                                    response.getMessage(),
+                                    language,
+                                    transactionId);
+                        }
                         response.setMessage(message);
                     }
 

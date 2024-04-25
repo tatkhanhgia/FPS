@@ -47,7 +47,7 @@ public class ProcessingFactory<T extends BasicFieldAttribute> {
                 return new QryptoProcessing();
             }
             case IMAGE:{
-                return new FileProcessing();
+                return new FileProcessing(version);
             }
             case RADIO:{
                 return new RadioProcessing();
