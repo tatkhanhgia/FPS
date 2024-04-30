@@ -12,6 +12,7 @@ import vn.mobileid.id.FPS.component.document.process.interfaces.IVersion.Version
 /**
  *
  * @author GiaTK
+ * The factory of the System, distribute the request
  */
 public class ProcessingFactory<T extends BasicFieldAttribute> {
     private T type;

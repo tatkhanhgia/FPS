@@ -21,7 +21,7 @@ import vn.mobileid.id.FMS;
 import vn.mobileid.id.FPS.QryptoService.object.Item_IDPicture4Label;
 import vn.mobileid.id.FPS.QryptoService.object.ItemsType;
 import vn.mobileid.id.FPS.controller.ResponseMessageController;
-import vn.mobileid.id.FPS.fieldAttribute.QryptoFieldAttribute;
+import vn.mobileid.id.FPS.object.fieldAttribute.QryptoFieldAttribute;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
@@ -31,6 +31,11 @@ import vn.mobileid.id.utils.Utils;
 /**
  *
  * @author GiaTK
+ * Using for processing the QR Qrypto Field:
+ *  + Checked value is satisfied
+ *  + Get Document (original, lastest)
+ *  + Get ExtendFieldAttribute and parse it into QryptoFieldAttribute
+ *  + Call submethod QryptoProcessing
  */
 public class ProcessingQRQryptoField {
 
@@ -41,7 +46,6 @@ public class ProcessingQRQryptoField {
      * @param packageId
      * @param fieldName
      * @param user
-     * @param documents
      * @param processRequest
      * @param transactionId
      * @return InternalResponse If the InternalResponse.getStatus() !=

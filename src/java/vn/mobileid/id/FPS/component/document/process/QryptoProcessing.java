@@ -10,8 +10,11 @@ import fps_core.enumration.DocumentType;
 import fps_core.enumration.ProcessStatus;
 import fps_core.module.DocumentUtils_itext7;
 import fps_core.objects.FileManagement;
+import fps_core.objects.core.Signature;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
@@ -34,17 +37,19 @@ import vn.mobileid.id.FPS.controller.ResponseMessageController;
 import vn.mobileid.id.FPS.exception.InvalidFormatOfItems;
 import vn.mobileid.id.FPS.exception.LoginException;
 import vn.mobileid.id.FPS.exception.QryptoException;
-import vn.mobileid.id.FPS.fieldAttribute.QryptoFieldAttribute;
+import vn.mobileid.id.FPS.object.fieldAttribute.QryptoFieldAttribute;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.utils.TaskV2;
 import vn.mobileid.id.utils.Utils;
 import vn.mobileid.id.FPS.component.document.process.interfaces.IDocumentProcessing;
+import vn.mobileid.id.FPS.enumeration.QryptoVariable;
 
 /**
  *
  * @author GiaTK
+ * Core of the QryptoProcessing
  */
 class QryptoProcessing implements IDocumentProcessing {
 
@@ -81,9 +86,9 @@ class QryptoProcessing implements IDocumentProcessing {
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Create Config + Schema">
-        FileDataDetails temp = new FileDataDetails();
-        temp.setValue(file);
-        temp.setFile_field("fileprocessingservice");
+        FileDataDetails fileDataDetail = new FileDataDetails();
+        fileDataDetail.setValue(file);
+        fileDataDetail.setFile_field("fileprocessingservice");
 
         ItemDetails file_ = new ItemDetails();
         file_.setField("FilePDF");
@@ -110,7 +115,7 @@ class QryptoProcessing implements IDocumentProcessing {
         QRSchema schema = null;
         try {
             schema = CreateQRSchema.createQRSchema(
-                    Arrays.asList(temp),
+                    Arrays.asList(fileDataDetail),
                     items,
                     positionQR,
                     transactionId);
@@ -123,6 +128,26 @@ class QryptoProcessing implements IDocumentProcessing {
         }
         //</editor-fold>
 
+        //<editor-fold defaultstate="collapsed" desc="Update 2024-04-30: Add Logic read Signature in PDF and replace SigningTime @FirstSigner and @SecondSigner in QRSchema">
+        List<Signature> signatures = DocumentUtils_itext7.verifyDocument_i7(file);
+        
+        String temp = new ObjectMapper().writeValueAsString(schema);
+        
+        try {
+            temp = temp.replaceAll(
+                    QryptoVariable.FIRST_SIGNER.getAnnotationName(), 
+                    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                            .format(signatures.get(0).getSigningTime()));
+            temp = temp.replaceAll(
+                    QryptoVariable.SECOND_SIGNER.getAnnotationName(), 
+                    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                            .format(signatures.get(1).getSigningTime()));
+        } catch (Exception e) {
+        } finally {
+            schema = new ObjectMapper().readValue(temp, QRSchema.class);
+        }
+        //</editor-fold>
+        
         //<editor-fold defaultstate="collapsed" desc="Call Qrypto">
         IssueQryptoWithFileAttachResponse QRdata = null;
         try {
@@ -319,4 +344,10 @@ class QryptoProcessing implements IDocumentProcessing {
         );
     }
 
+    public static void main(String[] args) throws Exception{
+        Signature sig = new Signature();
+        sig.setSigningTime(new Date(System.currentTimeMillis()));
+        
+        
+    }
 }

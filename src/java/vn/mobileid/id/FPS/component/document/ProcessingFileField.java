@@ -492,7 +492,8 @@ public class ProcessingFileField {
             //</editor-fold>
 
             //Processing
-            response = new ProcessingFactory().createType(ProcessingFactory.TypeProcess.IMAGE).processField(
+            response = new ProcessingFactory().createType(ProcessingFactory.TypeProcess.IMAGE,
+                    IVersion.Version.V2).processField(
                     user,
                     document_,
                     documents.size(),

@@ -25,16 +25,27 @@ import vn.mobileid.id.FPS.QryptoService.object.QRSchema;
 import vn.mobileid.id.FPS.QryptoService.object.qryptoEffectiveDate;
 import vn.mobileid.id.FPS.exception.InvalidFormatOfItems;
 import vn.mobileid.id.utils.Utils;
-import vn.mobileid.id.FPS.fieldAttribute.QryptoFieldAttribute;
+import vn.mobileid.id.FPS.object.fieldAttribute.QryptoFieldAttribute;
 import vn.mobileid.id.FPS.object.User;
+import vn.mobileid.id.general.LogHandler;
 
 /**
  *
  * @author GiaTK
+ * Using for create QR Scheme to call Qrypto
  */
 public class CreateQRSchema {
 
     //<editor-fold defaultstate="collapsed" desc="Create QR Schema">
+    /**
+     * Create QRSchema to call Qrypto
+     * @param fileData List of FileDataDetails
+     * @param items List of ItemDetails
+     * @param positionQR Position of QR aka QR_META_DATA
+     * @param transactionID
+     * @return
+     * @throws InvalidFormatOfItems 
+     */
     public static QRSchema createQRSchema(
             List<FileDataDetails> fileData,
             List<ItemDetails> items,
@@ -51,6 +62,7 @@ public class CreateQRSchema {
         HashMap<String, byte[]> headers = new HashMap<>();
 
         for (ItemDetails item : items) {
+            //<editor-fold defaultstate="collapsed" desc="Remove all case the item.getValue() is not satisfied">
             if (item.getValue() == null) {
                 continue;
             }
@@ -60,6 +72,8 @@ public class CreateQRSchema {
                 }
             } catch (Exception ex) {
             }
+            //</editor-fold>
+            
             QRSchema.data data = new QRSchema.data();
             QRSchema.field field = new QRSchema.field();
 
@@ -68,7 +82,8 @@ public class CreateQRSchema {
                 switch (checkType) {
                     case Non_Editable: {
                     }
-                    case String: { //Type String _ text
+                    case String: { 
+                        //<editor-fold defaultstate="collapsed" desc="Processing">
                         String random = Utils.generateRandomString(6);
                         data.setName(random);
                         data.setValue((String) item.getValue());
@@ -78,8 +93,10 @@ public class CreateQRSchema {
                         listData.add(data);
                         listField.add(field);
                         break;
+                        //</editor-fold>
                     }
                     case URL: {
+                        //<editor-fold defaultstate="collapsed" desc="Processing">
                         String temp = "{\"value\":" + new ObjectMapper().writeValueAsString(item.getValue()) + "}";
                         Item_URL url = new ObjectMapper().readValue(temp, Item_URL.class);
 
@@ -98,8 +115,10 @@ public class CreateQRSchema {
                         listData.add(data);
                         listField.add(field);
                         break;
+                        //</editor-fold>
                     }
-                    case TextBold: { //Type String _ text
+                    case TextBold: {
+                        //<editor-fold defaultstate="collapsed" desc="Processing">
                         String random = Utils.generateRandomString(6);
                         data.setName(random);
                         data.setValue((String) item.getValue());
@@ -110,8 +129,10 @@ public class CreateQRSchema {
                         listData.add(data);
                         listField.add(field);
                         break;
+                        //</editor-fold>
                     }
-                    case Boolean: { //Type Boolean
+                    case Boolean: {
+                        //<editor-fold defaultstate="collapsed" desc="Processing">
                         String random = Utils.generateRandomString(6);
                         data.setName(random);
                         data.setValue(((Boolean) item.getValue()) == true ? "true" : "false");
@@ -121,19 +142,23 @@ public class CreateQRSchema {
                         listData.add(data);
                         listField.add(field);
                         break;
+                        //</editor-fold>
                     }
-                    case Integer: { //Type INT
+                    case Integer: {
+                        //<editor-fold defaultstate="collapsed" desc="Processing">
                         String random = Utils.generateRandomString(6);
                         data.setName(random);
-                        data.setValue(String.valueOf((Integer) item.getValue()));
+                        data.setValue(String.valueOf(item.getValue()));
                         field.setName(item.getField());
                         field.setKvalue(random);
                         field.setType(QRSchema.fieldType.t2);
                         listData.add(data);
                         listField.add(field);
                         break;
+                        //</editor-fold>
                     }
-                    case Date: { //Type DATE
+                    case Date: {
+                        //<editor-fold defaultstate="collapsed" desc="Processing">
                         String random = Utils.generateRandomString(6);
                         data.setName(random);
                         data.setValue((String) item.getValue());
@@ -143,8 +168,10 @@ public class CreateQRSchema {
                         listData.add(data);
                         listField.add(field);
                         break;
+                        //</editor-fold>
                     }
                     case File: {
+                        //<editor-fold defaultstate="collapsed" desc="Processing">
                         field.setType(QRSchema.fieldType.f1);
                         field.setName(item.getField());
                         field.setFile_type(item.getFile_format());
@@ -154,9 +181,10 @@ public class CreateQRSchema {
                         headers.put(field.getFile_field(), Base64.getDecoder().decode((String) item.getValue()));
                         listField.add(field);
                         break;
+                        //</editor-fold>
                     }
-                    case Binary: { //Type Binary           
-                        System.out.println("Append binary");
+                    case Binary: {    
+                        //<editor-fold defaultstate="collapsed" desc="Processing">
                         field.setType(QRSchema.fieldType.f1);
                         field.setName(item.getField());
                         field.setFile_type(item.getFile_format());
@@ -177,8 +205,10 @@ public class CreateQRSchema {
                         }
                         listField.add(field);
                         break;
+                        //</editor-fold>
                     }
                     case Choice: {
+                        //<editor-fold defaultstate="collapsed" desc="Processing">
                         String temp = "{\"value\":" + new ObjectMapper().writeValueAsString(item.getValue()) + "}";
                         Item_Choice choices = new ObjectMapper().readValue(temp, Item_Choice.class);
 
@@ -195,8 +225,10 @@ public class CreateQRSchema {
                             }
                         }
                         break;
+                        //</editor-fold>
                     }
                     case Table: {
+                        //<editor-fold defaultstate="collapsed" desc="Processing">
                         String temp = "{\"value\":" + new ObjectMapper().writeValueAsString(item.getValue()) + "}";
                         Item_Table itemTable = new ObjectMapper().readValue(temp, Item_Table.class);
 
@@ -213,12 +245,15 @@ public class CreateQRSchema {
                         listData.add(data);
                         listField.add(field);
                         break;
+                        //</editor-fold>
                     }
                     case ID_Picture_with_4_labels: {
+                        //<editor-fold defaultstate="collapsed" desc="Processing">
                         String temp = new ObjectMapper().writeValueAsString(item.getValue());
                         IDPicture4Label idPicture = new ObjectMapper().readValue(temp, IDPicture4Label.class);
 
                         String random = Utils.generateRandomString(6);
+                        
                         //Prepare field
                         field.setType(QRSchema.fieldType._4T1P);
                         field.setName(item.getField());
@@ -252,13 +287,17 @@ public class CreateQRSchema {
                         listData.add(data);
                         listField.add(field);
                         break;
+                        //</editor-fold>
                     }
                     default: {
                         throw new Exception("Invalid type of items");
                     }
                 }
             } catch (Exception ex) {
-                ex.printStackTrace();
+                LogHandler.error(
+                        CreateQRSchema.class,
+                        transactionID,
+                        ex);
                 throw new InvalidFormatOfItems(item.getField());
             }
         }
@@ -266,7 +305,7 @@ public class CreateQRSchema {
         format.setFields(listField);
         QR.setData(listData);
         QR.setFormat(format);
-        QR.setTitle("GoPaperless Service");
+        QR.setTitle("FPS Service");
         QR.setCi("");
         QR.setHeader(headers);
         return QR;
@@ -274,6 +313,15 @@ public class CreateQRSchema {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Create Config">
+    /**
+     * Create configuration of Qrypto
+     * @param field QryptoFieldAttribute data
+     * @param user User data
+     * @param pixel the width = the height = int pixel
+     * @param transactionID
+     * @return
+     * @throws Exception 
+     */
     public static Configuration createConfiguration(
             QryptoFieldAttribute field,
             User user,

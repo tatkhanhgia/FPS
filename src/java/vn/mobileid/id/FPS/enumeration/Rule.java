@@ -5,10 +5,8 @@
 package vn.mobileid.id.FPS.enumeration;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,12 +16,13 @@ import java.util.Map;
 /**
  *
  * @author GiaTK
+ * Using for auto generate code when the rule is enabled (get rule from DB)
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 //@JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum Rule {
-    IS_CONVERT_DATE(false); // default value is false
+    IS_CONVERT_DATE(false); //Convert Date with Format Date in DATE_DATETIME field
 
     private boolean isConvertDate;
 
