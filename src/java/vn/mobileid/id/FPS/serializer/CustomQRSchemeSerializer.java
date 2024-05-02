@@ -49,12 +49,12 @@ public class CustomQRSchemeSerializer extends JsonSerializer<QRSchema> {
                                 for(Row row : temp.getTable()){
                                     jg.writeStartArray();
                                         jg.writeStartArray();
-                                            jg.writeString(row.getColumn_1());
-                                            jg.writeString(row.getColumn_2());
-                                            jg.writeString(row.getColumn_3());
+                                            jg.writeString(row.getColumn_1() == null ? "" : row.getColumn_1());
+                                            jg.writeString(row.getColumn_2() == null ? "" : row.getColumn_2());
+                                            jg.writeString(row.getColumn_3() == null ? "" : row.getColumn_3());
                                         jg.writeEndArray();
                                         jg.writeStartArray();
-                                            jg.writeString(row.getText());
+                                            jg.writeString(row.getText() == null ? "" : row.getText());
                                         jg.writeEndArray();
                                     jg.writeEndArray();
                                 }
