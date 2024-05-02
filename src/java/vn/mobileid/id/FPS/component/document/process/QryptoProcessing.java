@@ -144,7 +144,7 @@ class QryptoProcessing implements IDocumentProcessing {
                             .format(signatures.get(1).getSigningTime()));
         } catch (Exception e) {
         } finally {
-            schema = new ObjectMapper().readValue(temp, QRSchema.class);
+//            schema = new ObjectMapper().readValue(temp, QRSchema.class);
         }
         //</editor-fold>
         
@@ -154,7 +154,12 @@ class QryptoProcessing implements IDocumentProcessing {
             try {
                 QRdata = QryptoService
                         .getInstance(1)
-                        .generateQR(schema, config, "tran");
+                        .generateQR(
+                                temp, 
+                                schema.getHeader(),
+                                schema.getFormat(),
+                                config, 
+                                transactionId);
             } catch (LoginException ex) {
                 QryptoService.getInstance(1).login();
                 QRdata = QryptoService

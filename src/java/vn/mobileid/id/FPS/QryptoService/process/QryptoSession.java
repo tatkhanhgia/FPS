@@ -272,4 +272,83 @@ public class QryptoSession implements ISession {
         }
     }
 
+    @Override
+    public IssueQryptoWithFileAttachResponse issueQryptoWithFileAttach(
+            String schema, 
+            HashMap<String, byte[]> headers_,
+            QRSchema.format format, 
+            Configuration configuration) throws Exception {
+        //        System.out.println("____________auth/login____________");
+        String authHeader = null;
+
+        if (bearerToken != null) {
+            authHeader = bearerToken;
+        } else {
+            retryLogin++;
+            this.login();
+            if (retryLogin == 2) {
+                throw new Exception("Cannot login again!");
+            }
+        }
+
+        Map<String, String> headers = new HashMap<>();
+//        headers.put("Content-Type", "application/json; charset=UTF-8");
+        headers.put("Accept-Charset", "UTF-8");
+        headers.put("Authorization", bearerToken);
+
+        HttpPostMultiPart2 a = new HttpPostMultiPart2();
+        Map<String, Object> bodypart = new HashMap<>();
+        bodypart.put("payload", schema);
+
+        bodypart.put("configuration", new ObjectMapper().writeValueAsString(configuration));
+        System.out.println("Config:" + new ObjectMapper().writeValueAsString(configuration));
+
+        HashMap<String, String> names = new HashMap<>();
+        for (String key : headers_.keySet()) {
+            if(key == null){
+                continue;
+            }
+            System.out.println("Put bodypart:" + key);
+            bodypart.put(key, headers_.get(key));
+            for (field field : format.getFields()) {
+                if (field.getType().equals(QRSchema.fieldType.f1) && field.getFile_field().equals(key)) {
+                    names.put(key, field.getFile_name() != null ? !"".equals(field.getFile_name()) ? field.getFile_name() : key : key);
+//                    System.out.println("Putname:"+names.get(key));
+                }
+                if (field.getType().equals(QRSchema.fieldType._4T1P) && field.getFile_field().equals(key)) {
+                    names.put(key, field.getFile_name() != null ? !"".equals(field.getFile_name()) ? field.getFile_name() : key : key);
+//                    System.out.println("Putname:"+names.get(key));
+                }
+            }
+        }
+
+        System.out.println("Payload:" + schema);
+
+        org.apache.http.HttpResponse response = a.sendPost(prop.getBaseUrl() + "/issuance/qrci/issueQryptoWithAttachment", headers, bodypart, names);
+        StringBuilder sb = new StringBuilder();
+        for (int ch; (ch = response.getEntity().getContent().read()) != -1;) {
+            sb.append((char) ch);
+        }
+        String message = sb.toString();
+        IssueQryptoWithFileAttachResponse responses = new IssueQryptoWithFileAttachResponse();
+        responses = new ObjectMapper().readValue(message, IssueQryptoWithFileAttachResponse.class);
+        if (responses.getStatus() == 1009 && response.getStatusLine().getStatusCode() == 401) {
+            StringBuilder builder = new StringBuilder();
+            builder.append("======CALL QRYPTO ERROR=====")
+                    .append("\n\tStatus:").append(response.getStatusLine().getStatusCode())
+                    .append("\n\tMessage:").append(responses.getMessage());
+            System.err.println(builder);
+            throw new LoginException(responses.getMessage());
+        }
+        if (response.getStatusLine().getStatusCode() != 200) {
+            StringBuilder builder = new StringBuilder();
+            builder.append("======CALL QRYPTO ERROR=====")
+                    .append("\n\tStatus:").append(response.getStatusLine().getStatusCode())
+                    .append("\n\tMessage:").append(responses.getMessage());
+            System.err.println(builder);
+            throw new QryptoException(responses.getMessage());
+        }
+        return responses;
+    }
+
 }

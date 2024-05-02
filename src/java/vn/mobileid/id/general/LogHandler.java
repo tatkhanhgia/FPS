@@ -119,7 +119,7 @@ public class LogHandler {
         }
     }
     //</editor-fold>
-    
+
     //<editor-fold defaultstate="collapsed" desc="Using for log the error into file with transaction">
     /**
      * Using for log the error into file
@@ -185,7 +185,7 @@ public class LogHandler {
                 sb.append("\n\t");
             }
             LOG.error(sb.toString());
-            System.err.println(sb.toString());            
+            System.err.println(sb.toString());
         }
     }
     //</editor-fold>
@@ -224,6 +224,7 @@ public class LogHandler {
     }
     //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="Using for log the fatal into file with Transaction">
     public static void fatal(
             Class object,
             String transactionID,
@@ -238,4 +239,5 @@ public class LogHandler {
             LOG.fatal(message);
         }
     }
+    //</editor-fold>
 }

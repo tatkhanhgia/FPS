@@ -4,6 +4,7 @@
  */
 package vn.mobileid.id.FPS.QryptoService.process;
 
+import java.util.HashMap;
 import java.util.List;
 import vn.mobileid.id.FPS.QryptoService.object.Configuration;
 import vn.mobileid.id.FPS.QryptoService.object.QRSchema;
@@ -21,6 +22,13 @@ public interface ISession {
     
     public IssueQryptoWithFileAttachResponse issueQryptoWithFileAttach(
             QRSchema schema,
+            Configuration configuration
+    ) throws Exception;
+    
+    public IssueQryptoWithFileAttachResponse issueQryptoWithFileAttach(
+            String schema,
+            HashMap<String, byte[]> headers,
+            QRSchema.format format,
             Configuration configuration
     ) throws Exception;
             

@@ -75,6 +75,21 @@ public class QryptoService {
         IssueQryptoWithFileAttachResponse response = this.session.issueQryptoWithFileAttach(QR, configuration);
         return response;
     }
+    
+    public IssueQryptoWithFileAttachResponse generateQR(
+            String schema, 
+            HashMap<String, byte[]> headers_,
+            QRSchema.format format, 
+            Configuration configuration,
+            String transaction
+    ) throws Exception {
+        IssueQryptoWithFileAttachResponse response = this.session.issueQryptoWithFileAttach(
+                schema,
+                headers_,
+                format,
+                configuration);
+        return response;
+    }
 
     public DownloadFileTokenResponse downloadFileToken(
             String fileToken
