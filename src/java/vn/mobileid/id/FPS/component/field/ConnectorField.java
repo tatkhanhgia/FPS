@@ -96,11 +96,11 @@ public class ConnectorField {
         fps_core.utils.LogHandler.HierarchicalLog hierarchicalLog = new fps_core.utils.LogHandler.HierarchicalLog("Add field");
 
         //<editor-fold defaultstate="collapsed" desc="Get Documents in Package && Verify Token">
-        hierarchicalLog.addStartHeading1("Start get Document + verify");
+//        hierarchicalLog.addStartHeading1("Start get Document + verify");
         InternalResponse response = ConnectorDocument_Internal.getDocuments(request, transactionId);
         if (!response.isValid()) {
             hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
-            hierarchicalLog.addEndHeading1("End get Document + verify => False");
+            hierarchicalLog.addEndHeading1("Get Document + verify => False");
             return response.setHierarchicalLog(hierarchicalLog);
         }
 
@@ -117,7 +117,7 @@ public class ConnectorField {
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Check payload">
-        hierarchicalLog.addStartHeading1("Checking payload");
+//        hierarchicalLog.addStartHeading1("Checking payload");
         if (Utils.isNullOrEmpty(payload)) {
             hierarchicalLog.addEndHeading1("Checking payload fail");
             return new InternalResponse(
@@ -211,7 +211,7 @@ public class ConnectorField {
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Add Field">
-        hierarchicalLog.addStartHeading1("Start add field");
+//        hierarchicalLog.addStartHeading1("Start add field");
         response = AddField.addField(
                 document.getId(),
                 field,
@@ -227,7 +227,7 @@ public class ConnectorField {
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Add Field Details">
-        hierarchicalLog.addStartHeading1("Start add field detail");
+//        hierarchicalLog.addStartHeading1("Start add field detail");
         response = AddField.addDetailField(
                 documentFieldId,
                 field.getType().getTypeId(),
@@ -1212,7 +1212,7 @@ public class ConnectorField {
 
         String typeField = url.substring(url.lastIndexOf("/") + 1);
         String temp = null;
-
+ 
         hierarchicalLog.addStartHeading1("Field from URL: " + typeField);
 
         switch (typeField) {
@@ -1220,7 +1220,7 @@ public class ConnectorField {
                 temp = FieldTypeName.INPERSON.getParentName();
             case "signature": {
                 //<editor-fold defaultstate="collapsed" desc="Generate SignatureFieldAttribute from Payload">
-                hierarchicalLog.addStartHeading1("Start parse into " + typeField);
+//                hierarchicalLog.addStartHeading1("Start parse into " + typeField);
 
                 //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
                 SignatureFieldAttribute field = null;
@@ -1295,6 +1295,7 @@ public class ConnectorField {
                 hierarchicalLog.addEndHeading1("Checked successfully");
                 //</editor-fold>
 
+                //<editor-fold defaultstate="collapsed" desc="Check field type">
                 if (!Utils.isNullOrEmpty(field.getTypeName())) {
                     hierarchicalLog.addStartHeading1("Start check field type");
                     boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.DATETIME);
@@ -1313,7 +1314,9 @@ public class ConnectorField {
                     field.setType(Resources.getFieldTypes().get(FieldTypeName.DATETIME.getParentName()));
                 }
                 hierarchicalLog.addStartHeading1("Final field type: " + field.getType().getTypeName());
+                //</editor-fold>
 
+                //<editor-fold defaultstate="collapsed" desc="Initial data of field">
                 if (!isUpdate) {
                     if (field.getAlign() == null) {
                         field.setAlign(FPSTextAlign.LEFT);
@@ -1334,6 +1337,7 @@ public class ConnectorField {
                     hierarchicalLog.addStartHeading1("Multiline: " + field.isMultiline());
                     //</editor-fold>
                 }
+                //</editor-fold>
 
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field).setHierarchicalLog(hierarchicalLog);
                 //</editor-fold>
@@ -1392,6 +1396,7 @@ public class ConnectorField {
                 hierarchicalLog.addEndHeading1("Checked successfully");
                 //</editor-fold>
 
+                //<editor-fold defaultstate="collapsed" desc="Check field type">
                 if (!Utils.isNullOrEmpty(field.getTypeName())) {
                     boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.TEXTBOX);
 
@@ -1408,7 +1413,9 @@ public class ConnectorField {
                     field.setType(Resources.getFieldTypes().get(FieldTypeName.TEXTBOX.getParentName()));
                 }
                 hierarchicalLog.addStartHeading1("Final field type: " + field.getType().getTypeName());
+                //</editor-fold>
 
+                //<editor-fold defaultstate="collapsed" desc="Initial data of field">
                 if (!isUpdate) {
                     if (field.getAlign() == null) {
                         field.setAlign(FPSTextAlign.LEFT);
@@ -1430,6 +1437,7 @@ public class ConnectorField {
                     hierarchicalLog.addStartHeading1("Multiline: " + field.isMultiline());
                     //</editor-fold>
                 }
+                //</editor-fold>
 
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field).setHierarchicalLog(hierarchicalLog);
                 //</editor-fold>
@@ -1466,6 +1474,7 @@ public class ConnectorField {
                 hierarchicalLog.addEndHeading1("Checked successfully");
                 //</editor-fold>
 
+                //<editor-fold defaultstate="collapsed" desc="Check field type">
                 if (!Utils.isNullOrEmpty(field.getTypeName())) {
                     boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.CHECKBOX);
 
@@ -1477,9 +1486,14 @@ public class ConnectorField {
                                 A_FPSConstant.SUBCODE_INVALID_CHECKBOX_FIELD_TYPE
                         ).setHierarchicalLog(hierarchicalLog);
                     }
+                    field.setType(Resources.getFieldTypes().get(field.getTypeName()));
+                } else {
+                    field.setType(Resources.getFieldTypes().get(FieldTypeName.CHECKBOX.getParentName()));
                 }
                 hierarchicalLog.addStartHeading1("Final field type: " + field.getType().getTypeName());
+                //</editor-fold>
 
+                //<editor-fold defaultstate="collapsed" desc="Initial data of field">
                 if (!isUpdate) {
                     if (field.isChecked() == null) {
                         field.setChecked(false);
@@ -1493,8 +1507,7 @@ public class ConnectorField {
                     hierarchicalLog.addStartHeading1("Checked: " + field.isChecked());
                     //</editor-fold>
                 }
-
-                field.setType(Resources.getFieldTypes().get(field.getTypeName()));
+                //</editor-fold>
 
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field).setHierarchicalLog(hierarchicalLog);
                 //</editor-fold>
@@ -1531,6 +1544,7 @@ public class ConnectorField {
                 hierarchicalLog.addEndHeading1("Checked successfully");
                 //</editor-fold>
 
+                //<editor-fold defaultstate="collapsed" desc="Check field type">
                 if (!Utils.isNullOrEmpty(field.getTypeName())) {
                     boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.RADIOBOX);
 
@@ -1542,9 +1556,14 @@ public class ConnectorField {
                                 A_FPSConstant.SUBCODE_INVALID_TYPE_OF_RADIO
                         ).setHierarchicalLog(hierarchicalLog);
                     }
+                    field.setType(Resources.getFieldTypes().get(field.getTypeName()));
+                } else {
+                    field.setType(Resources.getFieldTypes().get(FieldTypeName.RADIOBOX.getParentName()));
                 }
                 hierarchicalLog.addStartHeading1("Final field type: " + field.getType().getTypeName());
+                //</editor-fold>
 
+                //<editor-fold defaultstate="collapsed" desc="Initial data of field">
                 if (!isUpdate) {
                     if (field.isChecked() == null) {
                         field.setChecked(false);
@@ -1558,8 +1577,7 @@ public class ConnectorField {
                     hierarchicalLog.addStartHeading1("Checked: " + field.isChecked());
                     //</editor-fold>
                 }
-
-                field.setType(Resources.getFieldTypes().get(field.getTypeName()));
+                //</editor-fold>
 
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field).setHierarchicalLog(hierarchicalLog);
                 //</editor-fold>
@@ -1595,9 +1613,12 @@ public class ConnectorField {
                 hierarchicalLog.addEndHeading1("Checked successfully");
                 //</editor-fold>
 
+                //<editor-fold defaultstate="collapsed" desc="Check field type">
                 field.setType(Resources.getFieldTypes().get(FieldTypeName.INITIAL.getParentName()));
                 hierarchicalLog.addStartHeading1("Final field type: " + field.getType().getTypeName());
+                //</editor-fold>
 
+                //<editor-fold defaultstate="collapsed" desc="Initial data of field">
                 if (!isUpdate) {
                     if (field.isApplyToAll() == null) {
                         field.setApplyToAll(false);
@@ -1611,6 +1632,7 @@ public class ConnectorField {
                     hierarchicalLog.addStartHeading1("Replicate all pages: " + field.isReplicateAllPages());
                     //</editor-fold>
                 }
+                //</editor-fold>
 
                 //<editor-fold defaultstate="collapsed" desc="Upload image into FMS If need">
                 if (field.getImage() != null && field.getImage().length()
@@ -1681,6 +1703,7 @@ public class ConnectorField {
                     ).setHierarchicalLog(hierarchicalLog);
                 }
 
+                //<editor-fold defaultstate="collapsed" desc="Check field type">
                 if (!Utils.isNullOrEmpty(field.getTypeName())) {
                     boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.QR);
 
@@ -1697,7 +1720,9 @@ public class ConnectorField {
                     field.setType(Resources.getFieldTypes().get(FieldTypeName.QR.getParentName()));
                 }
                 hierarchicalLog.addStartHeading1("Final field type: " + field.getType().getTypeName());
+                //</editor-fold>
 
+                //<editor-fold defaultstate="collapsed" desc="Initial data of field">
                 if (!isUpdate) {
                     if (field.IsTransparent() == null) {
                         field.setTransparent(false);
@@ -1706,6 +1731,7 @@ public class ConnectorField {
                     hierarchicalLog.addStartHeading1("Transparent: " + field.IsTransparent());
                     //</editor-fold>
                 }
+                //</editor-fold>
 
                 //<editor-fold defaultstate="collapsed" desc="Upload image QR into FMS if need">
                 if (field.getImageQR() != null
@@ -1767,6 +1793,7 @@ public class ConnectorField {
                 hierarchicalLog.addEndHeading1("Checked successfully");
                 //</editor-fold>
 
+                //<editor-fold defaultstate="collapsed" desc="Check field type">
                 if (!Utils.isNullOrEmpty(field.getTypeName())) {
                     boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.QRYPTO);
 
@@ -1783,6 +1810,7 @@ public class ConnectorField {
                     field.setType(Resources.getFieldTypes().get(FieldTypeName.QRYPTO.getParentName()));
                 }
                 hierarchicalLog.addStartHeading1("Final field type: " + field.getType().getTypeName());
+                //</editor-fold>
 
                 //<editor-fold defaultstate="collapsed" desc="If item is not null => check type is file, upload it into FMS">
                 if (!Utils.isNullOrEmpty(field.getItems())) {
@@ -1887,6 +1915,7 @@ public class ConnectorField {
                 hierarchicalLog.addEndHeading1("Checked successfully");
                 //</editor-fold>
 
+                //<editor-fold defaultstate="collapsed" desc="Check field type">
                 if (!Utils.isNullOrEmpty(field.getTypeName())) {
                     boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.STAMP);
 
@@ -1903,7 +1932,9 @@ public class ConnectorField {
                     field.setType(Resources.getFieldTypes().get(FieldTypeName.STAMP.getParentName()));
                 }
                 hierarchicalLog.addStartHeading1("Final field type: " + field.getType().getTypeName());
+                //</editor-fold>
 
+                //<editor-fold defaultstate="collapsed" desc="Initial data of field">
                 if (!isUpdate) {
                     if (field.isApplyToAll() == null) {
                         field.setApplyToAll(false);
@@ -1917,6 +1948,7 @@ public class ConnectorField {
                     hierarchicalLog.addStartHeading1("Replicate all pages: " + field.isReplicateAllPages());
                     //</editor-fold>
                 }
+                //</editor-fold>
 
                 if (!Utils.isNullOrEmpty(field.getFile())) {
                     //<editor-fold defaultstate="collapsed" desc="Upload into FMS if need">
@@ -1981,6 +2013,7 @@ public class ConnectorField {
                 hierarchicalLog.addEndHeading1("Checked successfully");
                 //</editor-fold>
 
+                //<editor-fold defaultstate="collapsed" desc="Check field type">
                 if (!Utils.isNullOrEmpty(field.getTypeName())) {
                     boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.CAMERA);
 
@@ -1992,9 +2025,14 @@ public class ConnectorField {
                                 A_FPSConstant.SUBCODE_INVALID_CAMERA_FIELD_TYPE
                         ).setHierarchicalLog(hierarchicalLog);
                     }
+                    field.setType(Resources.getFieldTypes().get(field.getTypeName()));
+                } else {
+                    field.setType(Resources.getFieldTypes().get(FieldTypeName.CAMERA.getParentName()));
                 }
                 hierarchicalLog.addStartHeading1("Final field type: " + field.getType().getTypeName());
+                //</editor-fold>
 
+                //<editor-fold defaultstate="collapsed" desc="Initial data of field">
                 if (!isUpdate) {
                     if (field.isShowIcon() == null) {
                         field.setShowIcon(false);
@@ -2012,8 +2050,7 @@ public class ConnectorField {
                     hierarchicalLog.addStartHeading1("Replicate all pages: " + field.isReplicateAllPages());
                     //</editor-fold>
                 }
-
-                field.setType(Resources.getFieldTypes().get(FieldTypeName.CAMERA.getParentName()));
+                //</editor-fold>
 
                 if (!Utils.isNullOrEmpty(field.getFile())) {
                     //<editor-fold defaultstate="collapsed" desc="Upload into FMS if need">
@@ -2078,6 +2115,7 @@ public class ConnectorField {
                 hierarchicalLog.addEndHeading1("Checked successfully");
                 //</editor-fold>
 
+                //<editor-fold defaultstate="collapsed" desc="Check field type">
                 if (!Utils.isNullOrEmpty(field.getTypeName())) {
                     boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.ATTACHMENT);
 
@@ -2094,7 +2132,9 @@ public class ConnectorField {
                     field.setType(Resources.getFieldTypes().get(FieldTypeName.ATTACHMENT.getParentName()));
                 }
                 hierarchicalLog.addStartHeading1("Final field type: " + field.getType().getTypeName());
+                //</editor-fold>
 
+                //<editor-fold defaultstate="collapsed" desc="Initial data of field">
                 if (!isUpdate) {
                     if (field.isShowIcon() == null) {
                         field.setIsShowIcon(false);
@@ -2111,6 +2151,7 @@ public class ConnectorField {
                     hierarchicalLog.addStartHeading1("Replicate all pages: " + field.isReplicateAllPages());
                     //</editor-fold>
                 }
+                //</editor-fold> 
 
                 if (field.getFileData() != null) {
                     hierarchicalLog.addStartHeading1("Start checking file data");
@@ -2220,6 +2261,7 @@ public class ConnectorField {
                 hierarchicalLog.addEndHeading1("Checked successfully");
                 //</editor-fold>
 
+                //<editor-fold defaultstate="collapsed" desc="Check field type">
                 if (!Utils.isNullOrEmpty(field.getTypeName())) {
                     boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.HYPERLINK);
                     if (!check) {
@@ -2235,7 +2277,9 @@ public class ConnectorField {
                     field.setType(Resources.getFieldTypes().get(FieldTypeName.HYPERLINK.getParentName()));
                 }
                 hierarchicalLog.addStartHeading1("Final field type: " + field.getType().getTypeName());
+                //</editor-fold>
 
+                //<editor-fold defaultstate="collapsed" desc="Initial data of field">
                 if (!isUpdate) {
                     if (field.getAlign() == null) {
                         field.setAlign(FPSTextAlign.LEFT);
@@ -2256,6 +2300,7 @@ public class ConnectorField {
                     hierarchicalLog.addStartHeading1("Multiline: " + field.isMultiline());
                     //</editor-fold>
                 }
+                //</editor-fold>
 
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field).setHierarchicalLog(hierarchicalLog);
                 //</editor-fold>
@@ -2293,6 +2338,7 @@ public class ConnectorField {
                 hierarchicalLog.addEndHeading1("Checked successfully");
                 //</editor-fold>
 
+                //<editor-fold defaultstate="collapsed" desc="Check field type">
                 if (!Utils.isNullOrEmpty(field.getTypeName())) {
                     boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.COMBOBOX);
                     if (!check) {
@@ -2308,7 +2354,9 @@ public class ConnectorField {
                     field.setType(Resources.getFieldTypes().get(FieldTypeName.COMBOBOX.getParentName()));
                 }
                 hierarchicalLog.addStartHeading1("Final field type: " + field.getType().getTypeName());
+                //</editor-fold>
 
+                //<editor-fold defaultstate="collapsed" desc="Initial data of field">
                 if (!isUpdate) {
                     if (field.getAlign() == null) {
                         field.setAlign(FPSTextAlign.LEFT);
@@ -2329,6 +2377,7 @@ public class ConnectorField {
                     hierarchicalLog.addStartHeading1("Multiline: " + field.isMultiline());
                     //</editor-fold>
                 }
+                //</editor-fold>
 
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field).setHierarchicalLog(hierarchicalLog);
                 //</editor-fold>
@@ -2366,6 +2415,7 @@ public class ConnectorField {
                 hierarchicalLog.addEndHeading1("Checked successfully");
                 //</editor-fold>
 
+                //<editor-fold defaultstate="collapsed" desc="Check field type">
                 if (!Utils.isNullOrEmpty(field.getTypeName())) {
                     boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.TOGGLE);
 
@@ -2382,7 +2432,9 @@ public class ConnectorField {
                     field.setType(Resources.getFieldTypes().get(FieldTypeName.TOGGLE.getParentName()));
                 }
                 hierarchicalLog.addStartHeading1("Final field type: " + field.getType().getTypeName());
+                //</editor-fold>
 
+                //<editor-fold defaultstate="collapsed" desc="Initial data of field">
                 if (!isUpdate) {
                     if (field.getAlign() == null) {
                         field.setAlign(FPSTextAlign.LEFT);
@@ -2403,6 +2455,7 @@ public class ConnectorField {
                     hierarchicalLog.addStartHeading1("Multiline: " + field.isMultiline());
                     //</editor-fold>
                 }
+                //</editor-fold>
 
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
                 //</editor-fold>
@@ -2440,6 +2493,7 @@ public class ConnectorField {
                 hierarchicalLog.addEndHeading1("Checked successfully");
                 //</editor-fold>
 
+                //<editor-fold defaultstate="collapsed" desc="Check field type">
                 if (!Utils.isNullOrEmpty(field.getTypeName())) {
                     boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.NUMERIC_STEP);
 
@@ -2456,7 +2510,9 @@ public class ConnectorField {
                     field.setType(Resources.getFieldTypes().get(FieldTypeName.NUMERIC_STEP.getParentName()));
                 }
                 hierarchicalLog.addStartHeading1("Final field type: " + field.getType().getTypeName());
+                //</editor-fold>
 
+                //<editor-fold defaultstate="collapsed" desc="Initial data of field">
                 if (!isUpdate) {
                     if (field.getAlign() == null) {
                         field.setAlign(FPSTextAlign.LEFT);
@@ -2477,6 +2533,7 @@ public class ConnectorField {
                     hierarchicalLog.addStartHeading1("Multiline: " + field.isMultiline());
                     //</editor-fold>
                 }
+                //</editor-fold>
 
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field).setHierarchicalLog(hierarchicalLog);
                 //</editor-fold>

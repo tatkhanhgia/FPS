@@ -160,7 +160,7 @@ public class CheckPayloadRequest {
     public static InternalResponse checkBasicField(BasicFieldAttribute object, String transactionId) {
         LogHandler.HierarchicalLog log = new LogHandler.HierarchicalLog("Check basic field");
         
-        log.addStartHeading1("Start checking field name");
+//        log.addStartHeading1("Start checking field name");
         if (object.getFieldName() == null) {
             log.addEndHeading1("Checked field name fail");
             return new InternalResponse(
@@ -171,7 +171,7 @@ public class CheckPayloadRequest {
         }
         log.addEndHeading1("Checked field name successfully");
         
-        log.addStartHeading1("Start checking page");
+//        log.addStartHeading1("Start checking page");
         if (object.getPage() <= 0) {
             log.addEndHeading1("Checked page fail");
             return new InternalResponse(
@@ -182,7 +182,7 @@ public class CheckPayloadRequest {
         }
         log.addEndHeading1("Checked page successfully");
         
-        log.addStartHeading1("Start checking dimension");
+//        log.addStartHeading1("Start checking dimension");
         if (object.getDimension() == null) {
             log.addEndHeading1("Checked dimension fail");
             return new InternalResponse(
