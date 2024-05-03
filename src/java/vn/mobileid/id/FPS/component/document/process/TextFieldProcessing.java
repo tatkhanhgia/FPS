@@ -95,10 +95,11 @@ class TextFieldProcessing<T extends BasicFieldAttribute>  implements IDocumentPr
             if (field.getType().getTypeId() == ChildTextFieldTypeName.TEXT_FIELD.getId()) {
                 appendedFile = DocumentUtils_itext7.createTextField_i7(file, field, transactionId);
             } else {
-                appendedFile = DocumentUtils_itext7.createTextFormField_i7(file, field, transactionId);
+//                appendedFile = DocumentUtils_itext7.createTextFormField_i7(file, field, transactionId);
+                appendedFile = DocumentUtils_itext7.createTextField_i7(file, field, transactionId);
             }
 
-            //Upload to FMS
+            //<editor-fold defaultstate="collapsed" desc="Upload to FMS">
             Future<?> uploadFMS = executor.submit(new TaskV2(new Object[]{appendedFile}, transactionId) {
                 @Override
                 public Object call() {
@@ -116,6 +117,7 @@ class TextFieldProcessing<T extends BasicFieldAttribute>  implements IDocumentPr
                     return response;
                 }
             });
+            //</editor-fold>
 
             executor.shutdown();
 
@@ -137,14 +139,14 @@ class TextFieldProcessing<T extends BasicFieldAttribute>  implements IDocumentPr
 
             String uuid = (String) response.getData();
 
-            //Update new Document in DB    
+            //<editor-fold defaultstate="collapsed" desc="Upload new Document into DB">
             response = UploadDocument.uploadDocument(
                     document.getPackageId(),
                     revision + 1,
                     fileManagement,
                     DocumentStatus.READY,
                     "url",
-                    "contents",
+                    "none",
                     uuid,
                     "Appended Text Field - " + field.getFieldName(),
                     "hmac",
@@ -153,8 +155,9 @@ class TextFieldProcessing<T extends BasicFieldAttribute>  implements IDocumentPr
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 return response;
             }
+            //</editor-fold>
 
-            //Update field after processing
+            //<editor-fold defaultstate="collapsed" desc="Update field after processing">
             T textField = (T)new ObjectMapper().readValue(extendField.getDetailValue(), type.getClass());
             textField = (T) extendField.clone(textField, extendField.getDimension());
             
@@ -175,8 +178,9 @@ class TextFieldProcessing<T extends BasicFieldAttribute>  implements IDocumentPr
                         A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD
                 );
             }
+            //</editor-fold>
 
-            //Update new data of TextField
+            //<editor-fold defaultstate="collapsed" desc="Update new data of TextField">
             response = ConnectorField_Internal.updateFieldDetail(
                     documentFieldId,
                     user,
@@ -192,6 +196,7 @@ class TextFieldProcessing<T extends BasicFieldAttribute>  implements IDocumentPr
                         A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD_DETAILS
                 );
             }
+            //</editor-fold>
 
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_SUCCESS,

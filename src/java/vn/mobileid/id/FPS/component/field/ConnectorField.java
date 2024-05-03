@@ -79,16 +79,30 @@ import vn.mobileid.id.utils.Utils;
 public class ConnectorField {
 
     // <editor-fold defaultstate="collapsed" desc="Add Field">
+    /**
+     * Add field
+     * @param request
+     * @param payload
+     * @param transactionId
+     * @return
+     * @throws Exception 
+     */
     public static InternalResponse addField(
             HttpServletRequest request,
             String payload,
             String transactionId
     ) throws Exception {
+        fps_core.utils.LogHandler.HierarchicalLog hierarchicalLog = new fps_core.utils.LogHandler.HierarchicalLog("Add field");
+        
         //<editor-fold defaultstate="collapsed" desc="Get Documents in Package && Verify Token">
+        hierarchicalLog.addStartHeading1("Start get Document + verify");
         InternalResponse response = ConnectorDocument_Internal.getDocuments(request, transactionId);
-        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-            return response;
+        if (!response.isValid()) {
+            hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
+            hierarchicalLog.addEndHeading1("End get Document + verify => False");
+            return response.setHierarchicalLog(hierarchicalLog);
         }
+        
         User user = response.getUser();
         List<Document> listDoc = (List<Document>) response.getData();
         Document document = new Document();
@@ -98,9 +112,11 @@ public class ConnectorField {
                 break;
             }
         }
+        hierarchicalLog.addEndHeading1("End get Document + verify");
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Check payload">
+        hierarchicalLog.addStartHeading1("Checking payload");
         if (Utils.isNullOrEmpty(payload)) {
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
@@ -108,6 +124,7 @@ public class ConnectorField {
                     A_FPSConstant.SUBCODE_NO_PAYLOAD_FOUND
             ).setUser(user);
         }
+        hierarchicalLog.addEndHeading1("Checking payload successfully");
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Parse payload in input into Field Object in FPS">

@@ -17,6 +17,7 @@ public class InternalResponse {
     private int status;
     private String message;
     private String transactionId;
+    
     //Error Code and Error Code Description
     private int code;
     private int codeDescription;
@@ -36,6 +37,9 @@ public class InternalResponse {
     
     //Exception
     private Exception exception;
+    
+    //Store Hierarchical Log
+    private fps_core.utils.LogHandler.HierarchicalLog hierarchicalLog;
      
     public InternalResponse(int status, String message) {
         this.status = status;
@@ -181,5 +185,14 @@ public class InternalResponse {
             this.value = value;
             return this;
         }
+    }
+
+    public InternalResponse setHierarchicalLog(fps_core.utils.LogHandler.HierarchicalLog log){
+        this.hierarchicalLog = log;
+        return this;
+    }
+    
+    public fps_core.utils.LogHandler.HierarchicalLog getHierarchicalLog(){
+        return this.hierarchicalLog;
     }
 }

@@ -14,6 +14,8 @@ import vn.mobileid.id.general.api.ManagementController;
 /**
  *
  * @author GiaTK
+ * Manage all Log in System. 
+ * Note: can manage the log in FPS_Core too
  */
 public class LogHandler {
 
@@ -27,6 +29,9 @@ public class LogHandler {
     private static boolean configCaching;
 
     private static LogHandler instance;
+    
+    //For LogHandler in FPS_Core
+    private static fps_core.utils.LogHandler logHandlerCore;
 
     private static void readConfig() {
         showDebugLog = Configuration.getInstance().isShowDebugLog();
@@ -240,4 +245,10 @@ public class LogHandler {
         }
     }
     //</editor-fold>
+
+    //==========================For LogHandler Core=============================
+    
+    public static fps_core.utils.LogHandler getCoreLog(){
+        return logHandlerCore;
+    }
 }

@@ -5,7 +5,6 @@
 package vn.mobileid.id.FPS.component.document;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fps_core.enumration.DocumentStatus;
 import fps_core.enumration.DocumentType;
