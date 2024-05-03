@@ -81,11 +81,12 @@ public class ConnectorField {
     // <editor-fold defaultstate="collapsed" desc="Add Field">
     /**
      * Add field
+     *
      * @param request
      * @param payload
      * @param transactionId
      * @return
-     * @throws Exception 
+     * @throws Exception
      */
     public static InternalResponse addField(
             HttpServletRequest request,
@@ -93,7 +94,7 @@ public class ConnectorField {
             String transactionId
     ) throws Exception {
         fps_core.utils.LogHandler.HierarchicalLog hierarchicalLog = new fps_core.utils.LogHandler.HierarchicalLog("Add field");
-        
+
         //<editor-fold defaultstate="collapsed" desc="Get Documents in Package && Verify Token">
         hierarchicalLog.addStartHeading1("Start get Document + verify");
         InternalResponse response = ConnectorDocument_Internal.getDocuments(request, transactionId);
@@ -102,7 +103,7 @@ public class ConnectorField {
             hierarchicalLog.addEndHeading1("End get Document + verify => False");
             return response.setHierarchicalLog(hierarchicalLog);
         }
-        
+
         User user = response.getUser();
         List<Document> listDoc = (List<Document>) response.getData();
         Document document = new Document();
@@ -112,22 +113,24 @@ public class ConnectorField {
                 break;
             }
         }
-        hierarchicalLog.addEndHeading1("End get Document + verify");
+        hierarchicalLog.addEndHeading1("Get Document and Verify token successfully");
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Check payload">
         hierarchicalLog.addStartHeading1("Checking payload");
         if (Utils.isNullOrEmpty(payload)) {
+            hierarchicalLog.addEndHeading1("Checking payload fail");
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                     A_FPSConstant.CODE_FAIL,
                     A_FPSConstant.SUBCODE_NO_PAYLOAD_FOUND
-            ).setUser(user);
+            ).setUser(user).setHierarchicalLog(hierarchicalLog);
         }
         hierarchicalLog.addEndHeading1("Checking payload successfully");
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Parse payload in input into Field Object in FPS">
+        hierarchicalLog.addStartHeading1("Start parse to field");
         response = parseToField(
                 request.getRequestURI(),
                 payload,
@@ -135,9 +138,12 @@ public class ConnectorField {
                 false,
                 transactionId);
 
+        hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
         if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-            return response.setUser(user);
+            hierarchicalLog.addEndHeading1("End parse to field => False");
+            return response.setUser(user).setHierarchicalLog(hierarchicalLog);
         }
+        hierarchicalLog.addEndHeading1("Parse to field successfully");
 
         BasicFieldAttribute field = (BasicFieldAttribute) response.getData();
         //</editor-fold>
@@ -157,25 +163,31 @@ public class ConnectorField {
 //        //</editor-fold>
         //<editor-fold defaultstate="collapsed" desc="Parse from percentage unit to point unit">
         String temp_ = request.getHeader("x-dimension-unit");
-        System.out.println("Dimension:" + temp_);
+
+        hierarchicalLog.addStartHeading1("Dimenstion type: " + temp_);
         if (temp_ != null && temp_.equals("percentage")) {
             if (document.getDocumentWidth() != 0 && document.getDocumentHeight() != 0) {
+                hierarchicalLog.addStartHeading1("Start calculate dimension");
                 field.setDimension(ProcessModuleForEnterprise.getInstance(user).parse(document, field.getDimension()));
+                hierarchicalLog.addEndHeading1("Calculate dimension successfully");
             }
         }
-        System.out.println("X:" + field.getDimension().getX());
-        System.out.println("Y:" + field.getDimension().getY());
-        System.out.println("W:" + field.getDimension().getWidth());
-        System.out.println("H:" + field.getDimension().getHeight());
+        hierarchicalLog.addStartHeading1("Dimension:");
+        hierarchicalLog.addStartHeading2("DimensionX: " + field.getDimension().getX());
+        hierarchicalLog.addStartHeading2("DimensionX: " + field.getDimension().getY());
+        hierarchicalLog.addStartHeading2("DimensionW: " + field.getDimension().getWidth());
+        hierarchicalLog.addStartHeading2("DimensionH: " + field.getDimension().getHeight());
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Create QR Image if that type is QR Code">
         if (field instanceof QRFieldAttribute) {
+            hierarchicalLog.addStartHeading1("Start create QR");
             try {
                 QRFieldAttribute qr = (QRFieldAttribute) field;
                 if (Utils.isNullOrEmpty(qr.getValue())) {
                     qr.setValue("Waiting for process Qrypto");
                 }
+                hierarchicalLog.addEndHeading2("Value QR: " + qr.getValue());
                 byte[] imageQR = QRGenerator.generateQR(
                         qr.getValue(),
                         Math.round(qr.getDimension().getWidth()),
@@ -184,19 +196,22 @@ public class ConnectorField {
                 if (Utils.isNullOrEmpty(qr.getImageQR())) {
                     qr.setImageQR(Base64.toBase64String(imageQR));
                 }
+                hierarchicalLog.addEndHeading1("Create QR successfully");
             } catch (Exception ex) {
-                ex.printStackTrace();
+                LogHandler.error(ConnectorField.class, transactionId, ex);
+                hierarchicalLog.addEndHeading1("Create QR fail");
                 response = new InternalResponse(
                         A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                         A_FPSConstant.CODE_FIELD_QR,
                         A_FPSConstant.SUBCODE_CANNOT_GENERATE_QR
-                ).setException(ex).setUser(user);
+                ).setException(ex).setUser(user).setHierarchicalLog(hierarchicalLog);
                 return response;
             }
         }
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Add Field">
+        hierarchicalLog.addStartHeading1("Start add field");
         response = AddField.addField(
                 document.getId(),
                 field,
@@ -208,9 +223,11 @@ public class ConnectorField {
             return response.setUser(user);
         }
         int documentFieldId = (int) response.getData();
+        hierarchicalLog.addEndHeading1("Add field successfully");
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Add Field Details">
+        hierarchicalLog.addStartHeading1("Start add field detail");
         response = AddField.addDetailField(
                 documentFieldId,
                 field.getType().getTypeId(),
@@ -218,6 +235,7 @@ public class ConnectorField {
                 "hmac",
                 user.getAzp(),
                 transactionId);
+        hierarchicalLog.addEndHeading1("Add field detail successfully");
         //</editor-fold>
 
         return new InternalResponse(
@@ -225,7 +243,7 @@ public class ConnectorField {
                 new ResponseMessageController()
                         .writeStringField("field_name", field.getFieldName())
                         .build()
-        ).setUser(user);
+        ).setUser(user).setHierarchicalLog(hierarchicalLog);
     }
     // </editor-fold>
 
@@ -1190,29 +1208,47 @@ public class ConnectorField {
             Boolean isCheckBasicField,
             Boolean isUpdate,
             String transactionId) {
+        fps_core.utils.LogHandler.HierarchicalLog hierarchicalLog = new fps_core.utils.LogHandler.HierarchicalLog("Parse to Field");
+
         String typeField = url.substring(url.lastIndexOf("/") + 1);
         String temp = null;
+
+        hierarchicalLog.addStartHeading1("Field from URL: " + typeField);
+
         switch (typeField) {
             case "in_person_signature":
                 temp = FieldTypeName.INPERSON.getParentName();
             case "signature": {
                 //<editor-fold defaultstate="collapsed" desc="Generate SignatureFieldAttribute from Payload">
+                hierarchicalLog.addStartHeading1("Start parse into " + typeField);
+
+                //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
                 SignatureFieldAttribute field = null;
                 try {
                     field = new ObjectMapper().readValue(payload, SignatureFieldAttribute.class);
                 } catch (JsonProcessingException ex) {
+                    hierarchicalLog.addEndHeading1("Parse into field fail");
                     return new InternalResponse(
                             A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                             A_FPSConstant.CODE_FAIL,
                             A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE
-                    );
+                    ).setHierarchicalLog(hierarchicalLog);
                 }
+                hierarchicalLog.addEndHeading1("Parse into field successfully");
+                //</editor-fold>
+
+                //<editor-fold defaultstate="collapsed" desc="Check basic field">
+                hierarchicalLog.addStartHeading1("Start check basic");
                 if (isCheckBasicField) {
                     InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
-                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                        return response;
+                    hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
+                    if (!response.isValid()) {
+                        hierarchicalLog.addEndHeading1("Checked fail");
+                        return response.setHierarchicalLog(hierarchicalLog);
                     }
                 }
+                hierarchicalLog.addEndHeading1("Checked successfully");
+                //</editor-fold>
 
                 field.setType(Resources.getFieldTypes().get(
                         temp == null
@@ -1220,45 +1256,63 @@ public class ConnectorField {
                                 : temp
                 ));
 
-                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
+                hierarchicalLog.addStartHeading1("Final field type: " + field.getType().getTypeName());
+
+                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field)
+                        .setHierarchicalLog(hierarchicalLog);
                 //</editor-fold>
             }
             case "date":
             case "datetime": {
                 //<editor-fold defaultstate="collapsed" desc="Generate DateTime from Payload">
+                hierarchicalLog.addStartHeading1("Start parse into " + typeField);
+
+                //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
                 DateTimeFieldAttribute field = null;
                 try {
                     field = new ObjectMapper().readValue(payload, DateTimeFieldAttribute.class);
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    hierarchicalLog.addEndHeading1("Parse into field fail");
                     return new InternalResponse(
                             A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                             A_FPSConstant.CODE_FAIL,
                             A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE
-                    );
+                    ).setHierarchicalLog(hierarchicalLog);
                 }
+                hierarchicalLog.addEndHeading1("Parse into field successfully");
+                //</editor-fold>
+
+                //<editor-fold defaultstate="collapsed" desc="Check basic field">
+                hierarchicalLog.addStartHeading1("Start check basic");
                 if (isCheckBasicField) {
                     InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
-                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                        return response;
+                    hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
+                    if (!response.isValid()) {
+                        hierarchicalLog.addEndHeading1("Checked fail");
+                        return response.setHierarchicalLog(hierarchicalLog);
                     }
                 }
+                hierarchicalLog.addEndHeading1("Checked successfully");
+                //</editor-fold>
 
                 if (!Utils.isNullOrEmpty(field.getTypeName())) {
+                    hierarchicalLog.addStartHeading1("Start check field type");
                     boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.DATETIME);
 
                     if (!check) {
+                        hierarchicalLog.addEndHeading1("Check field type fail");
                         return new InternalResponse(
                                 A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                                 A_FPSConstant.CODE_FIELD_TEXT,
                                 A_FPSConstant.SUBCODE_INVALID_TEXT_FIELD_TYPE
-                        );
+                        ).setHierarchicalLog(hierarchicalLog);
                     }
+                    hierarchicalLog.addEndHeading1("Check field type successfully");
                     field.setType(Resources.getFieldTypes().get(field.getTypeName()));
                 } else {
-                    System.err.println("Transaction:" + transactionId + "\nCannot parse type of TextField => Using default TextBox");
                     field.setType(Resources.getFieldTypes().get(FieldTypeName.DATETIME.getParentName()));
                 }
+                hierarchicalLog.addStartHeading1("Final field type: " + field.getType().getTypeName());
 
                 if (!isUpdate) {
                     if (field.getAlign() == null) {
@@ -1273,18 +1327,20 @@ public class ConnectorField {
                     if (field.isMultiline() == null) {
                         field.setMultiline(false);
                     }
-                    try {
-                        System.out.println("Font:" + field.getFont().getSize());
-                        System.out.println("String:" + new String(field.getValue().getBytes("UTF-8"), "UTF-8"));
-                    } catch (Exception ex) {
-                    }
+                    //<editor-fold defaultstate="collapsed" desc="Logger">
+                    hierarchicalLog.addStartHeading1("Alignment: " + field.getAlign());
+                    hierarchicalLog.addStartHeading1("Text Color: " + field.getColor());
+                    hierarchicalLog.addStartHeading1("Read Only: " + field.isReadOnly());
+                    hierarchicalLog.addStartHeading1("Multiline: " + field.isMultiline());
+                    //</editor-fold>
                 }
 
-                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
+                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field).setHierarchicalLog(hierarchicalLog);
                 //</editor-fold>
             }
             case "text": {
                 //<editor-fold defaultstate="collapsed" desc="Generate TextFieldAttribute from Payload">
+                hierarchicalLog.addStartHeading1("Start parse into " + typeField);
 
                 //<editor-fold defaultstate="collapsed" desc="Check type of TextField">
                 String type = Utils.getFromJson("type", payload);
@@ -1292,14 +1348,16 @@ public class ConnectorField {
                 Object checkAddress = Utils.getFromJson_("address", payload);
 
                 if (Utils.isNullOrEmpty(type) && !isUpdate) {
+                    hierarchicalLog.addEndHeading1("Check type of textfield fail");
                     return new InternalResponse(
                             A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                             A_FPSConstant.CODE_FIELD_TEXT,
                             A_FPSConstant.SUBCODE_MISSING_TEXT_FIELD_TYPE
-                    );
+                    ).setHierarchicalLog(hierarchicalLog);
                 }
                 //</editor-fold>
 
+                //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
                 TextFieldAttribute field = null;
                 try {
                     field = new ObjectMapper().readValue(payload, TextFieldAttribute.class);
@@ -1311,35 +1369,45 @@ public class ConnectorField {
                         }
                     }
                 } catch (Exception ex) {
-                    ex.printStackTrace();
+                    hierarchicalLog.addEndHeading1("Parse into field fail");
                     return new InternalResponse(
                             A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                             A_FPSConstant.CODE_FAIL,
                             A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE
-                    );
+                    ).setHierarchicalLog(hierarchicalLog);
                 }
+                hierarchicalLog.addEndHeading1("Parse into field successfully");
+                //</editor-fold>
+
+                //<editor-fold defaultstate="collapsed" desc="Check basic field">
+                hierarchicalLog.addStartHeading1("Start check basic");
                 if (isCheckBasicField) {
                     InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
-                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                        return response;
+                    hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
+                    if (!response.isValid()) {
+                        hierarchicalLog.addEndHeading1("Checked fail");
+                        return response.setHierarchicalLog(hierarchicalLog);
                     }
                 }
+                hierarchicalLog.addEndHeading1("Checked successfully");
+                //</editor-fold>
 
                 if (!Utils.isNullOrEmpty(field.getTypeName())) {
                     boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.TEXTBOX);
 
                     if (!check) {
+                        hierarchicalLog.addEndHeading1("Check field type fail");
                         return new InternalResponse(
                                 A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                                 A_FPSConstant.CODE_FIELD_TEXT,
                                 A_FPSConstant.SUBCODE_INVALID_TEXT_FIELD_TYPE
-                        );
+                        ).setHierarchicalLog(hierarchicalLog);
                     }
                     field.setType(Resources.getFieldTypes().get(field.getTypeName()));
                 } else {
-                    System.err.println("Transaction:" + transactionId + "\nCannot parse type of TextField => Using default TextBox");
                     field.setType(Resources.getFieldTypes().get(FieldTypeName.TEXTBOX.getParentName()));
                 }
+                hierarchicalLog.addStartHeading1("Final field type: " + field.getType().getTypeName());
 
                 if (!isUpdate) {
                     if (field.getAlign() == null) {
@@ -1354,46 +1422,63 @@ public class ConnectorField {
                     if (field.isMultiline() == null) {
                         field.setMultiline(false);
                     }
-                    try {
-                        System.out.println("Font:" + field.getFont().getSize());
-                        System.out.println("String:" + new String(field.getValue().getBytes("UTF-8"), "UTF-8"));
-                    } catch (Exception ex) {
-                    }
+
+                    //<editor-fold defaultstate="collapsed" desc="Logger">
+                    hierarchicalLog.addStartHeading1("Alignment: " + field.getAlign());
+                    hierarchicalLog.addStartHeading1("Text Color: " + field.getColor());
+                    hierarchicalLog.addStartHeading1("Read Only: " + field.isReadOnly());
+                    hierarchicalLog.addStartHeading1("Multiline: " + field.isMultiline());
+                    //</editor-fold>
                 }
 
-                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
+                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field).setHierarchicalLog(hierarchicalLog);
                 //</editor-fold>
             }
             case "checkbox": {
                 //<editor-fold defaultstate="collapsed" desc="Generate CheckBoxFieldAttribute from Payload">
+                hierarchicalLog.addStartHeading1("Start parse into " + typeField);
+
+                //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
                 CheckBoxFieldAttribute field = null;
                 try {
                     field = new ObjectMapper().readValue(payload, CheckBoxFieldAttribute.class);
                 } catch (JsonProcessingException ex) {
+                    hierarchicalLog.addEndHeading1("Parse into field fail");
                     return new InternalResponse(
                             A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                             A_FPSConstant.CODE_FAIL,
                             A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE
-                    );
+                    ).setHierarchicalLog(hierarchicalLog);
                 }
+                hierarchicalLog.addEndHeading1("Parse into field successfully");
+                //</editor-fold>
+
+                //<editor-fold defaultstate="collapsed" desc="Check basic field">
+                hierarchicalLog.addStartHeading1("Start check basic");
                 if (isCheckBasicField) {
                     InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
-                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                        return response;
+                    hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
+                    if (!response.isValid()) {
+                        hierarchicalLog.addEndHeading1("Checked fail");
+                        return response.setHierarchicalLog(hierarchicalLog);
                     }
                 }
+                hierarchicalLog.addEndHeading1("Checked successfully");
+                //</editor-fold>
 
                 if (!Utils.isNullOrEmpty(field.getTypeName())) {
                     boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.CHECKBOX);
 
                     if (!check) {
+                        hierarchicalLog.addEndHeading1("Check field type fail");
                         return new InternalResponse(
                                 A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                                 A_FPSConstant.CODE_FIELD_CHECKBOX,
                                 A_FPSConstant.SUBCODE_INVALID_CHECKBOX_FIELD_TYPE
-                        );
+                        ).setHierarchicalLog(hierarchicalLog);
                     }
                 }
+                hierarchicalLog.addStartHeading1("Final field type: " + field.getType().getTypeName());
 
                 if (!isUpdate) {
                     if (field.isChecked() == null) {
@@ -1402,43 +1487,63 @@ public class ConnectorField {
                     if (field.isReadOnly() == null) {
                         field.setReadOnly(false);
                     }
+
+                    //<editor-fold defaultstate="collapsed" desc="Logger">
+                    hierarchicalLog.addStartHeading1("Read Only: " + field.isReadOnly());
+                    hierarchicalLog.addStartHeading1("Checked: " + field.isChecked());
+                    //</editor-fold>
                 }
 
                 field.setType(Resources.getFieldTypes().get(field.getTypeName()));
 
-                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
+                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field).setHierarchicalLog(hierarchicalLog);
                 //</editor-fold>
             }
             case "radio": {
                 //<editor-fold defaultstate="collapsed" desc="Generate RadioFieldAttribute from Payload">
+                hierarchicalLog.addStartHeading1("Start parse into " + typeField);
+
+                //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
                 RadioFieldAttribute field = null;
                 try {
                     field = new ObjectMapper().readValue(payload, RadioFieldAttribute.class);
                 } catch (JsonProcessingException ex) {
+                    hierarchicalLog.addEndHeading1("Parse into field fail");
                     return new InternalResponse(
                             A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                             A_FPSConstant.CODE_FAIL,
                             A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE
-                    );
+                    ).setHierarchicalLog(hierarchicalLog);
                 }
+                hierarchicalLog.addEndHeading1("Parse into field successfully");
+                //</editor-fold>
+
+                //<editor-fold defaultstate="collapsed" desc="Check basic field">
+                hierarchicalLog.addStartHeading1("Start check basic");
                 if (isCheckBasicField) {
                     InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
-                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                        return response;
+                    hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
+                    if (!response.isValid()) {
+                        hierarchicalLog.addEndHeading1("Checked fail");
+                        return response.setHierarchicalLog(hierarchicalLog);
                     }
                 }
+                hierarchicalLog.addEndHeading1("Checked successfully");
+                //</editor-fold>
 
                 if (!Utils.isNullOrEmpty(field.getTypeName())) {
                     boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.RADIOBOX);
 
                     if (!check) {
+                        hierarchicalLog.addEndHeading1("Check field type fail");
                         return new InternalResponse(
                                 A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                                 A_FPSConstant.CODE_FIELD_RADIO_BOX,
                                 A_FPSConstant.SUBCODE_INVALID_TYPE_OF_RADIO
-                        );
+                        ).setHierarchicalLog(hierarchicalLog);
                     }
-                } 
+                }
+                hierarchicalLog.addStartHeading1("Final field type: " + field.getType().getTypeName());
 
                 if (!isUpdate) {
                     if (field.isChecked() == null) {
@@ -1447,33 +1552,51 @@ public class ConnectorField {
                     if (field.isReadOnly() == null) {
                         field.setReadOnly(false);
                     }
+
+                    //<editor-fold defaultstate="collapsed" desc="Logger">
+                    hierarchicalLog.addStartHeading1("Read Only: " + field.isReadOnly());
+                    hierarchicalLog.addStartHeading1("Checked: " + field.isChecked());
+                    //</editor-fold>
                 }
 
                 field.setType(Resources.getFieldTypes().get(field.getTypeName()));
 
-                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
+                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field).setHierarchicalLog(hierarchicalLog);
                 //</editor-fold>
             }
             case "initial": {
                 //<editor-fold defaultstate="collapsed" desc="Generate InitialsFieldAttribute from Payload">
+                hierarchicalLog.addStartHeading1("Start parse into " + typeField);
+
+                //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
                 InitialsFieldAttribute field = null;
                 try {
                     field = new ObjectMapper().readValue(payload, InitialsFieldAttribute.class);
                 } catch (JsonProcessingException ex) {
+                    hierarchicalLog.addEndHeading1("Parse into field fail");
                     return new InternalResponse(
                             A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                             A_FPSConstant.CODE_FAIL,
                             A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE
-                    );
+                    ).setHierarchicalLog(hierarchicalLog);
                 }
+                hierarchicalLog.addEndHeading1("Parse into field successfully");
+                //</editor-fold>
+
+                //<editor-fold defaultstate="collapsed" desc="Check basic field for initial">
+                hierarchicalLog.addStartHeading1("Start check basic");
                 if (isCheckBasicField) {
                     InternalResponse response = CheckPayloadRequest.checkAddInitialField(field, transactionId);
-                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                        return response;
+                    if (!response.isValid()) {
+                        hierarchicalLog.addEndHeading1("Checked fail");
+                        return response.setHierarchicalLog(hierarchicalLog);
                     }
                 }
+                hierarchicalLog.addEndHeading1("Checked successfully");
+                //</editor-fold>
 
                 field.setType(Resources.getFieldTypes().get(FieldTypeName.INITIAL.getParentName()));
+                hierarchicalLog.addStartHeading1("Final field type: " + field.getType().getTypeName());
 
                 if (!isUpdate) {
                     if (field.isApplyToAll() == null) {
@@ -1482,6 +1605,11 @@ public class ConnectorField {
                     if (field.isReplicateAllPages() == null) {
                         field.setReplicateAllPages(false);
                     }
+
+                    //<editor-fold defaultstate="collapsed" desc="Logger">
+                    hierarchicalLog.addStartHeading1("Apply to all: " + field.isApplyToAll());
+                    hierarchicalLog.addStartHeading1("Replicate all pages: " + field.isReplicateAllPages());
+                    //</editor-fold>
                 }
 
                 //<editor-fold defaultstate="collapsed" desc="Upload image into FMS If need">
@@ -1492,71 +1620,94 @@ public class ConnectorField {
                                 .get(0)
                                 .getMaximumFile()) {
                     try {
+                        hierarchicalLog.addStartHeading1("Start upload to FMS");
                         InternalResponse response = vn.mobileid.id.FMS.uploadToFMS(
                                 Base64.decode(field.getImage()),
                                 "png",
                                 transactionId);
                         if (response.getStatus() == A_FPSConstant.HTTP_CODE_SUCCESS) {
+                            hierarchicalLog.addEndHeading1("upload to FMS successfully");
                             String uuid = (String) response.getData();
                             field.setImage(uuid);
                         }
+
                     } catch (Exception ex) {
                         System.err.println("Cannot upload image from QR to FMS!. Using default");
                     }
                 }
                 //</editor-fold>
 
-                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
+                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field).setHierarchicalLog(hierarchicalLog);
                 //</editor-fold>
             }
             case "qrcode": {
                 //<editor-fold defaultstate="collapsed" desc="Generate QRFieldAttribute from Payload">
+                hierarchicalLog.addStartHeading1("Start parse into " + typeField);
+
+                //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
                 QRFieldAttribute field = null;
                 try {
                     field = new ObjectMapper().readValue(payload, QRFieldAttribute.class);
                 } catch (JsonProcessingException ex) {
+                    hierarchicalLog.addEndHeading1("Parse into field fail");
                     return new InternalResponse(
                             A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                             A_FPSConstant.CODE_FAIL,
                             A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE
-                    );
+                    ).setHierarchicalLog(hierarchicalLog);
                 }
+                hierarchicalLog.addEndHeading1("Parse into field successfully");
+                //</editor-fold>
+
+                //<editor-fold defaultstate="collapsed" desc="Check basic field">
+                hierarchicalLog.addStartHeading1("Start check basic");
                 if (isCheckBasicField) {
                     InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
-                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                        return response;
+                    hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
+                    if (!response.isValid()) {
+                        hierarchicalLog.addEndHeading1("Checked fail");
+                        return response.setHierarchicalLog(hierarchicalLog);
                     }
                 }
+                hierarchicalLog.addEndHeading1("Checked successfully");
+                //</editor-fold>
 
                 if (Utils.isNullOrEmpty(field.getValue()) && !isUpdate) {
+                    hierarchicalLog.addEndHeading1("Missing encode string of QR");
                     return new InternalResponse(
                             A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                             A_FPSConstant.CODE_FIELD_QR,
                             A_FPSConstant.SUBCODE_MISSING_ENCODE_STRING_OF_QR
-                    );
+                    ).setHierarchicalLog(hierarchicalLog);
                 }
 
                 if (!Utils.isNullOrEmpty(field.getTypeName())) {
                     boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.QR);
 
                     if (!check) {
+                        hierarchicalLog.addEndHeading1("Check field type fail");
                         return new InternalResponse(
                                 A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                                 A_FPSConstant.CODE_FIELD_QR,
                                 A_FPSConstant.SUBCODE_INVALID_QR_TYTPE
-                        );
+                        ).setHierarchicalLog(hierarchicalLog);
                     }
                     field.setType(Resources.getFieldTypes().get(field.getTypeName()));
                 } else {
                     field.setType(Resources.getFieldTypes().get(FieldTypeName.QR.getParentName()));
                 }
+                hierarchicalLog.addStartHeading1("Final field type: " + field.getType().getTypeName());
 
                 if (!isUpdate) {
                     if (field.IsTransparent() == null) {
                         field.setTransparent(false);
                     }
+                    //<editor-fold defaultstate="collapsed" desc="Logger">
+                    hierarchicalLog.addStartHeading1("Transparent: " + field.IsTransparent());
+                    //</editor-fold>
                 }
 
+                //<editor-fold defaultstate="collapsed" desc="Upload image QR into FMS if need">
                 if (field.getImageQR() != null
                         && field.getImageQR().length()
                         > PolicyConfiguration.getInstant()
@@ -1565,11 +1716,13 @@ public class ConnectorField {
                                 .get(0)
                                 .getMaximumFile()) {
                     try {
+                        hierarchicalLog.addStartHeading1("Start upload to FMS");
                         InternalResponse response = vn.mobileid.id.FMS.uploadToFMS(
                                 Base64.decode(field.getImageQR()),
                                 "png",
                                 transactionId);
                         if (response.getStatus() == A_FPSConstant.HTTP_CODE_SUCCESS) {
+                            hierarchicalLog.addEndHeading1("Upload to FMS successfully");
                             String uuid = (String) response.getData();
                             field.setImageQR(uuid);
                         }
@@ -1577,46 +1730,63 @@ public class ConnectorField {
                         System.err.println("Cannot upload image from QR to FMS!. Using default");
                     }
                 }
+                //</editor-fold>
 
-                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
+                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field).setHierarchicalLog(hierarchicalLog);
                 //</editor-fold>
             }
             case "qrcode-qrypto": {
                 //<editor-fold defaultstate="collapsed" desc="Generate QryptoFieldAttribute from Payload">
+                hierarchicalLog.addStartHeading1("Start parse into " + typeField);
+
+                //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
                 QryptoFieldAttribute field = null;
                 try {
                     field = new ObjectMapper().readValue(payload, QryptoFieldAttribute.class);
                 } catch (JsonProcessingException ex) {
+                    hierarchicalLog.addEndHeading1("Parse into field fail");
                     return new InternalResponse(
                             A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                             A_FPSConstant.CODE_FAIL,
                             A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE
-                    );
+                    ).setHierarchicalLog(hierarchicalLog);
                 }
+                hierarchicalLog.addEndHeading1("Parse into field successfully");
+                //</editor-fold>
+
+                //<editor-fold defaultstate="collapsed" desc="Check basic field">
+                hierarchicalLog.addStartHeading1("Start check basic");
                 if (isCheckBasicField) {
                     InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
-                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                        return response;
+                    hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
+                    if (!response.isValid()) {
+                        hierarchicalLog.addEndHeading1("Checked fail");
+                        return response.setHierarchicalLog(hierarchicalLog);
                     }
                 }
+                hierarchicalLog.addEndHeading1("Checked successfully");
+                //</editor-fold>
 
                 if (!Utils.isNullOrEmpty(field.getTypeName())) {
                     boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.QRYPTO);
 
                     if (!check) {
+                        hierarchicalLog.addEndHeading1("Check field type fail");
                         return new InternalResponse(
                                 A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                                 A_FPSConstant.CODE_FIELD_QR,
                                 A_FPSConstant.SUBCODE_INVALID_QR_TYTPE
-                        );
+                        ).setHierarchicalLog(hierarchicalLog);
                     }
                     field.setType(Resources.getFieldTypes().get(field.getTypeName()));
                 } else {
                     field.setType(Resources.getFieldTypes().get(FieldTypeName.QRYPTO.getParentName()));
                 }
+                hierarchicalLog.addStartHeading1("Final field type: " + field.getType().getTypeName());
 
                 //<editor-fold defaultstate="collapsed" desc="If item is not null => check type is file, upload it into FMS">
                 if (!Utils.isNullOrEmpty(field.getItems())) {
+                    hierarchicalLog.addStartHeading1("Start checking items in Qrypto");
                     try {
                         for (ItemDetails detail : field.getItems()) {
                             String file = null;
@@ -1645,11 +1815,13 @@ public class ConnectorField {
                                                 .get(0)
                                                 .getMaximumFile()) {
                                     try {
+                                        hierarchicalLog.addStartHeading2("Upload image/file into FMS");
                                         InternalResponse response = vn.mobileid.id.FMS.uploadToFMS(
                                                 Base64.decode(file),
                                                 "png",
                                                 transactionId);
                                         if (response.getStatus() == A_FPSConstant.HTTP_CODE_SUCCESS) {
+                                            hierarchicalLog.addEndHeading2("Upload image/file into FMS successfully");
                                             String uuid = (String) response.getData();
                                             if (tempp != null) {
                                                 tempp.setBase64(uuid);
@@ -1657,6 +1829,8 @@ public class ConnectorField {
                                             } else {
                                                 detail.setValue(uuid);
                                             }
+                                        } else {
+                                            hierarchicalLog.addEndHeading2("Upload image/file into FMS fail");
                                         }
                                     } catch (Exception ex) {
                                         System.err.println("Cannot upload image from QR to FMS!. Using default");
@@ -1666,55 +1840,69 @@ public class ConnectorField {
                             }
                         }
                     } catch (Exception ex) {
+                        hierarchicalLog.addEndHeading1("Upload the image/file from QR into FMS fail");
+                        LogHandler.error(ConnectorField.class, transactionId, ex);
                         return new InternalResponse(
                                 A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                                 A_FPSConstant.CODE_FIELD_QR_Qrypto,
                                 A_FPSConstant.SUBCODE_INVALID_TYPE_OF_ITEM
-                        );
+                        ).setException(ex);
                     }
+                    hierarchicalLog.addEndHeading1("Checking items in Qrypto successfully");
                 }
                 //</editor-fold> 
 
-                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
+                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field).setHierarchicalLog(hierarchicalLog);
                 //</editor-fold>
             }
             case "stamp": {
                 //<editor-fold defaultstate="collapsed" desc="Generate FileFieldAttribute from Payload">
+                hierarchicalLog.addStartHeading1("Start parse into " + typeField);
+
+                //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
                 FileFieldAttribute field = null;
                 try {
                     field = new ObjectMapper().readValue(payload, FileFieldAttribute.class);
                 } catch (JsonProcessingException ex) {
+                    hierarchicalLog.addEndHeading1("Parse into field fail");
                     return new InternalResponse(
                             A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                             A_FPSConstant.CODE_FAIL,
                             A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE
-                    );
+                    ).setHierarchicalLog(hierarchicalLog);
                 }
+                hierarchicalLog.addEndHeading1("Parse into field successfully");
+                //</editor-fold>
+
+                //<editor-fold defaultstate="collapsed" desc="Check basic field">
+                hierarchicalLog.addStartHeading1("Start check basic");
                 if (isCheckBasicField) {
                     InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
-                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                        return response;
+                    hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
+                    if (!response.isValid()) {
+                        hierarchicalLog.addEndHeading1("Checked fail");
+                        return response.setHierarchicalLog(hierarchicalLog);
                     }
                 }
+                hierarchicalLog.addEndHeading1("Checked successfully");
+                //</editor-fold>
 
                 if (!Utils.isNullOrEmpty(field.getTypeName())) {
                     boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.STAMP);
 
                     if (!check) {
+                        hierarchicalLog.addEndHeading1("Check field type fail");
                         return new InternalResponse(
                                 A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                                 A_FPSConstant.CODE_FIELD_STAMP,
                                 A_FPSConstant.SUBCODE_INVALID_STAMP_FIELD_TYPE
-                        );
+                        ).setHierarchicalLog(hierarchicalLog);
                     }
                     field.setType(Resources.getFieldTypes().get(field.getTypeName()));
-                } else if (!isUpdate) {
-                    return new InternalResponse(
-                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                            A_FPSConstant.CODE_FIELD_STAMP,
-                            A_FPSConstant.SUBCODE_INVALID_STAMP_FIELD_TYPE
-                    );
+                } else {
+                    field.setType(Resources.getFieldTypes().get(FieldTypeName.STAMP.getParentName()));
                 }
+                hierarchicalLog.addStartHeading1("Final field type: " + field.getType().getTypeName());
 
                 if (!isUpdate) {
                     if (field.isApplyToAll() == null) {
@@ -1723,6 +1911,11 @@ public class ConnectorField {
                     if (field.isReplicateAllPages() == null) {
                         field.setReplicateAllPages(false);
                     }
+
+                    //<editor-fold defaultstate="collapsed" desc="Logger">
+                    hierarchicalLog.addStartHeading1("Apply to all: " + field.isApplyToAll());
+                    hierarchicalLog.addStartHeading1("Replicate all pages: " + field.isReplicateAllPages());
+                    //</editor-fold>
                 }
 
                 if (!Utils.isNullOrEmpty(field.getFile())) {
@@ -1734,54 +1927,73 @@ public class ConnectorField {
                                     .get(0)
                                     .getMaximumFile()) {
                         try {
+                            hierarchicalLog.addStartHeading2("Start upload image/file into FMS");
                             InternalResponse response = vn.mobileid.id.FMS.uploadToFMS(
                                     Base64.decode(field.getFile()),
                                     "png",
                                     transactionId);
                             if (response.getStatus() == A_FPSConstant.HTTP_CODE_SUCCESS) {
+                                hierarchicalLog.addEndHeading2("Upload successfully");
                                 String uuid = (String) response.getData();
                                 field.setFile(uuid);
+                            } else {
+                                hierarchicalLog.addEndHeading2("Upload fail");
                             }
                         } catch (Exception ex) {
-                            System.err.println("Cannot upload image from ImageField to FMS!. Using default");
+                            hierarchicalLog.addEndHeading2("Cannot upload image from ImageField to FMS!. Using default");
                         }
                     }
                     //</editor-fold>
                 }
 
-                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
+                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field).setHierarchicalLog(hierarchicalLog);
                 //</editor-fold>
             }
             case "camera": {
                 //<editor-fold defaultstate="collapsed" desc="Generate CameraFieldAttribute from Payload">
+                hierarchicalLog.addStartHeading1("Start parse into " + typeField);
+
+                //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
                 CameraFieldAttribute field = null;
                 try {
                     field = new ObjectMapper().readValue(payload, CameraFieldAttribute.class);
                 } catch (JsonProcessingException ex) {
+                    hierarchicalLog.addEndHeading1("Parse into field fail");
                     return new InternalResponse(
                             A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                             A_FPSConstant.CODE_FAIL,
                             A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE
-                    );
+                    ).setHierarchicalLog(hierarchicalLog);
                 }
+                hierarchicalLog.addEndHeading1("Parse into field successfully");
+                //</editor-fold>
+
+                //<editor-fold defaultstate="collapsed" desc="Check basic field">
+                hierarchicalLog.addStartHeading1("Start check basic");
                 if (isCheckBasicField) {
                     InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
-                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                        return response;
+                    hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
+                    if (!response.isValid()) {
+                        hierarchicalLog.addEndHeading1("Checked fail");
+                        return response.setHierarchicalLog(hierarchicalLog);
                     }
                 }
+                hierarchicalLog.addEndHeading1("Checked successfully");
+                //</editor-fold>
 
                 if (!Utils.isNullOrEmpty(field.getTypeName())) {
                     boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.CAMERA);
 
                     if (!check) {
+                        hierarchicalLog.addEndHeading1("Check field type fail");
                         return new InternalResponse(
                                 A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                                 A_FPSConstant.CODE_FIELD_CAMERA,
                                 A_FPSConstant.SUBCODE_INVALID_CAMERA_FIELD_TYPE
-                        );
+                        ).setHierarchicalLog(hierarchicalLog);
                     }
                 }
+                hierarchicalLog.addStartHeading1("Final field type: " + field.getType().getTypeName());
 
                 if (!isUpdate) {
                     if (field.isShowIcon() == null) {
@@ -1793,6 +2005,12 @@ public class ConnectorField {
                     if (field.isReplicateAllPages() == null) {
                         field.setReplicateAllPages(false);
                     }
+
+                    //<editor-fold defaultstate="collapsed" desc="Logger">
+                    hierarchicalLog.addStartHeading1("Is show icon: " + field.isShowIcon());
+                    hierarchicalLog.addStartHeading1("Apply to all: " + field.isApplyToAll());
+                    hierarchicalLog.addStartHeading1("Replicate all pages: " + field.isReplicateAllPages());
+                    //</editor-fold>
                 }
 
                 field.setType(Resources.getFieldTypes().get(FieldTypeName.CAMERA.getParentName()));
@@ -1806,55 +2024,76 @@ public class ConnectorField {
                                     .get(0)
                                     .getMaximumFile() / 2) {
                         try {
+                            hierarchicalLog.addStartHeading2("Upload image into FMS");
                             InternalResponse response = vn.mobileid.id.FMS.uploadToFMS(
                                     Base64.decode(field.getFile()),
                                     "png",
                                     transactionId);
                             if (response.getStatus() == A_FPSConstant.HTTP_CODE_SUCCESS) {
+                                hierarchicalLog.addEndHeading2("Upload successfully");
                                 String uuid = (String) response.getData();
                                 field.setFile(uuid);
+                            } else {
+                                hierarchicalLog.addEndHeading2("Upload fail");
                             }
                         } catch (Exception ex) {
-                            System.err.println("Cannot upload image from ImageField to FMS!. Using default");
+                            hierarchicalLog.addEndHeading2("Cannot upload image from ImageField to FMS!. Using default");
                         }
                     }
                     //</editor-fold>
                 }
 
-                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
+                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field).setHierarchicalLog(hierarchicalLog);
                 //</editor-fold>
             }
             case "attachment": {
                 //<editor-fold defaultstate="collapsed" desc="Generate Attachment from Payload">
+                hierarchicalLog.addStartHeading1("Start parse into " + typeField);
+
+                //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
                 AttachmentFieldAttribute field = null;
                 try {
                     field = new ObjectMapper().readValue(payload, AttachmentFieldAttribute.class);
                 } catch (JsonProcessingException ex) {
+                    hierarchicalLog.addEndHeading1("Parse into field fail");
                     return new InternalResponse(
                             A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                             A_FPSConstant.CODE_FAIL,
                             A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE
-                    );
+                    ).setHierarchicalLog(hierarchicalLog);
                 }
+                hierarchicalLog.addEndHeading1("Parse into field successfully");
+                //</editor-fold>
+
+                //<editor-fold defaultstate="collapsed" desc="Check basic field">
+                hierarchicalLog.addStartHeading1("Start check basic");
                 if (isCheckBasicField) {
                     InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
-                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                        return response;
+                    hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
+                    if (!response.isValid()) {
+                        hierarchicalLog.addEndHeading1("Checked fail");
+                        return response.setHierarchicalLog(hierarchicalLog);
                     }
                 }
+                hierarchicalLog.addEndHeading1("Checked successfully");
+                //</editor-fold>
 
                 if (!Utils.isNullOrEmpty(field.getTypeName())) {
                     boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.ATTACHMENT);
 
                     if (!check) {
+                        hierarchicalLog.addEndHeading1("Check field type fail");
                         return new InternalResponse(
                                 A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                                 A_FPSConstant.CODE_FIELD_ATTACHMENT,
                                 A_FPSConstant.SUBCODE_INVALID_ATTACHMENT_FIELD_TYPE
-                        );
+                        ).setHierarchicalLog(hierarchicalLog);
                     }
                     field.setType(Resources.getFieldTypes().get(field.getTypeName()));
+                } else {
+                    field.setType(Resources.getFieldTypes().get(FieldTypeName.ATTACHMENT.getParentName()));
                 }
+                hierarchicalLog.addStartHeading1("Final field type: " + field.getType().getTypeName());
 
                 if (!isUpdate) {
                     if (field.isShowIcon() == null) {
@@ -1866,40 +2105,55 @@ public class ConnectorField {
                     if (field.isReplicateAllPages() == null) {
                         field.setReplicateAllPages(false);
                     }
+                    //<editor-fold defaultstate="collapsed" desc="Logger">
+                    hierarchicalLog.addStartHeading1("Is show icon: " + field.isShowIcon());
+                    hierarchicalLog.addStartHeading1("Apply to all: " + field.isApplyToAll());
+                    hierarchicalLog.addStartHeading1("Replicate all pages: " + field.isReplicateAllPages());
+                    //</editor-fold>
                 }
-                field.setType(Resources.getFieldTypes().get(FieldTypeName.ATTACHMENT.getParentName()));
 
                 if (field.getFileData() != null) {
+                    hierarchicalLog.addStartHeading1("Start checking file data");
+
                     //<editor-fold defaultstate="collapsed" desc="Check data of File">
+                    hierarchicalLog.addStartHeading2("Checking file extension + file name");
                     if (Utils.isNullOrEmpty(field.getFileExtension()) && Utils.isNullOrEmpty(field.getFileName())) {
+                        hierarchicalLog.addEndHeading2("Checking fail");
                         return new InternalResponse(
                                 A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                                 A_FPSConstant.CODE_FIELD_ATTACHMENT,
                                 A_FPSConstant.SUBCODE_MISSING_EXTENSION
-                        );
+                        ).setHierarchicalLog(hierarchicalLog);
                     }
+                    hierarchicalLog.addStartHeading2("Checking file extension + file name successfully");
 
+                    hierarchicalLog.addStartHeading2("Checking file data");
                     if (Utils.isNullOrEmpty(field.getFile())) {
+                        hierarchicalLog.addEndHeading2("Checking file data fail");
                         return new InternalResponse(
                                 A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                                 A_FPSConstant.CODE_FIELD_ATTACHMENT,
                                 A_FPSConstant.SUBCODE_MISSING_FILE_DATA_OF_ATTACHMENT
-                        );
+                        ).setHierarchicalLog(hierarchicalLog);
                     }
+                    hierarchicalLog.addStartHeading2("Checking file data successfully");
 
+                    hierarchicalLog.addStartHeading2("Checking file extension");
                     if (Utils.isNullOrEmpty(field.getFileExtension())) {
                         try {
                             String fileName = field.getFileName();
                             String[] splits = fileName.split("\\.");
                             field.setFileExtension(splits[splits.length - 1]);
                         } catch (Exception e) {
+                            hierarchicalLog.addEndHeading2("Checking file extension fail");
                             return new InternalResponse(
                                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                                     A_FPSConstant.CODE_FIELD_ATTACHMENT,
                                     A_FPSConstant.SUBCODE_MISSING_EXTENSION
-                            );
+                            ).setHierarchicalLog(hierarchicalLog);
                         }
                     }
+                    hierarchicalLog.addStartHeading2("Checking file extension successfully");
                     //</editor-fold>
 
                     //<editor-fold defaultstate="collapsed" desc="Upload into FMS if need">
@@ -1910,209 +2164,298 @@ public class ConnectorField {
                                     .get(0)
                                     .getMaximumFile()) {
                         try {
+                            hierarchicalLog.addStartHeading2("Upload file into FMS");
                             InternalResponse response = vn.mobileid.id.FMS.uploadToFMS(
                                     Base64.decode(field.getFile()),
                                     field.getFileExtension(),
                                     transactionId);
                             if (response.getStatus() == A_FPSConstant.HTTP_CODE_SUCCESS) {
+                                hierarchicalLog.addStartHeading2("Upload successfully");
                                 String uuid = (String) response.getData();
                                 field.setFile(uuid);
+                            } else {
+                                hierarchicalLog.addStartHeading2("Upload fail");
                             }
                         } catch (Exception ex) {
-                            System.err.println("Cannot upload image from ImageField to FMS!. Using default");
+                            hierarchicalLog.addStartHeading2("Cannot upload image from ImageField to FMS!. Using default");
                         }
                     }
+                    //</editor-fold>
+
+                    hierarchicalLog.addEndHeading1("Checking file data successfully");
+                }
+
+                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field).setHierarchicalLog(hierarchicalLog);
+                //</editor-fold>
+            }
+            case "hyperlink": {
+                //<editor-fold defaultstate="collapsed" desc="Generate HyperLinkFieldAttribute from Payload">
+                hierarchicalLog.addStartHeading1("Start parse into " + typeField);
+
+                //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
+                HyperLinkFieldAttribute field = null;
+                try {
+                    field = new ObjectMapper().readValue(payload, HyperLinkFieldAttribute.class);
+                } catch (Exception ex) {
+                    hierarchicalLog.addEndHeading1("Parse into field fail");
+                    return new InternalResponse(
+                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                            A_FPSConstant.CODE_FAIL,
+                            A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE
+                    ).setHierarchicalLog(hierarchicalLog);
+                }
+                hierarchicalLog.addEndHeading1("Parse into field successfully");
+                //</editor-fold>
+
+                //<editor-fold defaultstate="collapsed" desc="Check basic field">
+                hierarchicalLog.addStartHeading1("Start check basic");
+                if (isCheckBasicField) {
+                    InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
+                    hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
+                    if (!response.isValid()) {
+                        hierarchicalLog.addEndHeading1("Checked fail");
+                        return response.setHierarchicalLog(hierarchicalLog);
+                    }
+                }
+                hierarchicalLog.addEndHeading1("Checked successfully");
+                //</editor-fold>
+
+                if (!Utils.isNullOrEmpty(field.getTypeName())) {
+                    boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.HYPERLINK);
+                    if (!check) {
+                        hierarchicalLog.addEndHeading1("Check field type fail");
+                        return new InternalResponse(
+                                A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                                A_FPSConstant.CODE_FIELD_HYPERLINK,
+                                A_FPSConstant.SUBCODE_INVALID_HYPERLINK_TYPE
+                        ).setHierarchicalLog(hierarchicalLog);
+                    }
+                    field.setType(Resources.getFieldTypes().get(field.getTypeName()));
+                } else {
+                    field.setType(Resources.getFieldTypes().get(FieldTypeName.HYPERLINK.getParentName()));
+                }
+                hierarchicalLog.addStartHeading1("Final field type: " + field.getType().getTypeName());
+
+                if (!isUpdate) {
+                    if (field.getAlign() == null) {
+                        field.setAlign(FPSTextAlign.LEFT);
+                    }
+                    if (field.getColor() == null) {
+                        field.setColor("BLACK");
+                    }
+                    if (field.isReadOnly() == null) {
+                        field.setReadOnly(false);
+                    }
+                    if (field.isMultiline() == null) {
+                        field.setMultiline(false);
+                    }
+                    //<editor-fold defaultstate="collapsed" desc="Logger">
+                    hierarchicalLog.addStartHeading1("Alignment: " + field.getAlign());
+                    hierarchicalLog.addStartHeading1("Text Color: " + field.getColor());
+                    hierarchicalLog.addStartHeading1("Read Only: " + field.isReadOnly());
+                    hierarchicalLog.addStartHeading1("Multiline: " + field.isMultiline());
+                    //</editor-fold>
+                }
+
+                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field).setHierarchicalLog(hierarchicalLog);
+                //</editor-fold>
+            }
+            case "combo": {
+                //<editor-fold defaultstate="collapsed" desc="Generate ComboBox Field from Payload">
+                hierarchicalLog.addStartHeading1("Start parse into " + typeField);
+                
+                //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
+                ComboBoxFieldAttribute field = null;
+                try {
+                    field = new ObjectMapper().readValue(payload, ComboBoxFieldAttribute.class);
+                } catch (Exception ex) {
+                    LogHandler.error(ConnectorField.class, transactionId, ex);
+                    hierarchicalLog.addEndHeading1("Parse into field fail");
+                    return new InternalResponse(
+                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                            A_FPSConstant.CODE_FAIL,
+                            A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE
+                    ).setHierarchicalLog(hierarchicalLog);
+                }
+                hierarchicalLog.addEndHeading1("Parse into field successfully");
+                //</editor-fold>
+                
+                //<editor-fold defaultstate="collapsed" desc="Check basic field">
+                hierarchicalLog.addStartHeading1("Start check basic");
+                if (isCheckBasicField) {
+                    InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
+                    hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
+                    if (!response.isValid()) {
+                        hierarchicalLog.addEndHeading1("Checked fail");
+                        return response.setHierarchicalLog(hierarchicalLog);
+                    }
+                }
+                hierarchicalLog.addEndHeading1("Checked successfully");
+                //</editor-fold>
+
+                if (!Utils.isNullOrEmpty(field.getTypeName())) {
+                    boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.COMBOBOX);
+                    if (!check) {
+                        hierarchicalLog.addEndHeading1("Check field type fail");
+                        return new InternalResponse(
+                                A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                                A_FPSConstant.CODE_FIELD_COMBOBOX,
+                                A_FPSConstant.SUBCODE_INVALID_COMBOBOX_FIELD_TYPE
+                        ).setHierarchicalLog(hierarchicalLog);
+                    }
+                    field.setType(Resources.getFieldTypes().get(field.getTypeName()));
+                } else {
+                    field.setType(Resources.getFieldTypes().get(FieldTypeName.COMBOBOX.getParentName()));
+                }
+                hierarchicalLog.addStartHeading1("Final field type: " + field.getType().getTypeName());
+
+                if (!isUpdate) {
+                    if (field.getAlign() == null) {
+                        field.setAlign(FPSTextAlign.LEFT);
+                    }
+                    if (field.getColor() == null) {
+                        field.setColor("BLACK");
+                    }
+                    if (field.isReadOnly() == null) {
+                        field.setReadOnly(false);
+                    }
+                    if (field.isMultiline() == null) {
+                        field.setMultiline(false);
+                    }
+                    //<editor-fold defaultstate="collapsed" desc="Logger">
+                    hierarchicalLog.addStartHeading1("Alignment: " + field.getAlign());
+                    hierarchicalLog.addStartHeading1("Text Color: " + field.getColor());
+                    hierarchicalLog.addStartHeading1("Read Only: " + field.isReadOnly());
+                    hierarchicalLog.addStartHeading1("Multiline: " + field.isMultiline());
+                    //</editor-fold>
+                }
+
+                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field).setHierarchicalLog(hierarchicalLog);
+                //</editor-fold>
+            }
+            case "toggle": {
+                //<editor-fold defaultstate="collapsed" desc="Generate Toogle Field from Payload">
+                hierarchicalLog.addStartHeading1("Start parse into " + typeField);
+                
+                //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
+                ToggleFieldAttribute field = null;
+                try {
+                    field = new ObjectMapper().readValue(payload, ToggleFieldAttribute.class);
+                } catch (Exception ex) {
+                    LogHandler.error(ConnectorField.class, transactionId, ex);
+                    hierarchicalLog.addEndHeading1("Parse into field fail");
+                    return new InternalResponse(
+                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                            A_FPSConstant.CODE_FAIL,
+                            A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE
+                    ).setHierarchicalLog(hierarchicalLog);
+                }
+                hierarchicalLog.addEndHeading1("Parse into field successfully");
+                //</editor-fold>
+                
+                //<editor-fold defaultstate="collapsed" desc="Check basic field">
+                hierarchicalLog.addStartHeading1("Start check basic");
+                if (isCheckBasicField) {
+                    InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
+                    hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
+                    if (!response.isValid()) {
+                        hierarchicalLog.addEndHeading1("Checked fail");
+                        return response.setHierarchicalLog(hierarchicalLog);
+                    }
+                }
+                hierarchicalLog.addEndHeading1("Checked successfully");
+                //</editor-fold>
+
+                if (!Utils.isNullOrEmpty(field.getTypeName())) {
+                    boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.TOGGLE);
+
+                    if (!check) {
+                        hierarchicalLog.addEndHeading1("Check field type fail");
+                        return new InternalResponse(
+                                A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                                A_FPSConstant.CODE_FIELD_TOGGLE,
+                                A_FPSConstant.SUBCODE_INVALID_TOGGLE_TYPE
+                        ).setHierarchicalLog(hierarchicalLog);
+                    }
+                    field.setType(Resources.getFieldTypes().get(field.getTypeName()));
+                } else {
+                    field.setType(Resources.getFieldTypes().get(FieldTypeName.TOGGLE.getParentName()));
+                }
+                hierarchicalLog.addStartHeading1("Final field type: " + field.getType().getTypeName());
+
+                if (!isUpdate) {
+                    if (field.getAlign() == null) {
+                        field.setAlign(FPSTextAlign.LEFT);
+                    }
+                    if (field.getColor() == null) {
+                        field.setColor("BLACK");
+                    }
+                    if (field.isReadOnly() == null) {
+                        field.setReadOnly(false);
+                    }
+                    if (field.isMultiline() == null) {
+                        field.setMultiline(false);
+                    }
+                    //<editor-fold defaultstate="collapsed" desc="Logger">
+                    hierarchicalLog.addStartHeading1("Alignment: " + field.getAlign());
+                    hierarchicalLog.addStartHeading1("Text Color: " + field.getColor());
+                    hierarchicalLog.addStartHeading1("Read Only: " + field.isReadOnly());
+                    hierarchicalLog.addStartHeading1("Multiline: " + field.isMultiline());
                     //</editor-fold>
                 }
 
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
                 //</editor-fold>
             }
-            case "hyperlink": {
-                //<editor-fold defaultstate="collapsed" desc="Generate HyperLinkFieldAttribute from Payload">
-                HyperLinkFieldAttribute field = null;
-                try {
-                    field = new ObjectMapper().readValue(payload, HyperLinkFieldAttribute.class);
-                } catch (Exception ex) {
-                    LogHandler.error(ConnectorField.class, transactionId, ex);
-                    return new InternalResponse(
-                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                            A_FPSConstant.CODE_FAIL,
-                            A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE
-                    );
-                }
-                if (isCheckBasicField) {
-                    InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
-                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                        return response;
-                    }
-                }
-
-                if (!Utils.isNullOrEmpty(field.getTypeName())) {
-                    boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.HYPERLINK);
-                    if (!check) {
-                        return new InternalResponse(
-                                A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                                A_FPSConstant.CODE_FIELD_HYPERLINK,
-                                A_FPSConstant.SUBCODE_INVALID_HYPERLINK_TYPE
-                        );
-                    }
-                    field.setType(Resources.getFieldTypes().get(field.getTypeName()));
-                }
-                field.setType(Resources.getFieldTypes().get(FieldTypeName.HYPERLINK.getParentName()));
-
-                if (!isUpdate) {
-                    if (field.getAlign() == null) {
-                        field.setAlign(FPSTextAlign.LEFT);
-                    }
-                    if (field.getColor() == null) {
-                        field.setColor("BLACK");
-                    }
-                    if (field.isReadOnly() == null) {
-                        field.setReadOnly(false);
-                    }
-                    if (field.isMultiline() == null) {
-                        field.setMultiline(false);
-                    }
-                }
-
-                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
-                //</editor-fold>
-            }
-            case "combo": {
-                //<editor-fold defaultstate="collapsed" desc="Generate ComboBox Field from Payload">
-                ComboBoxFieldAttribute field = null;
-                try {
-                    field = new ObjectMapper().readValue(payload, ComboBoxFieldAttribute.class);
-                } catch (Exception ex) {
-                    LogHandler.error(ConnectorField.class, transactionId, ex);
-                    return new InternalResponse(
-                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                            A_FPSConstant.CODE_FAIL,
-                            A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE
-                    );
-                }
-                if (isCheckBasicField) {
-                    InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
-                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                        return response;
-                    }
-                }
-
-                if (!Utils.isNullOrEmpty(field.getTypeName())) {
-                    boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.COMBOBOX);
-                    if (!check) {
-                        return new InternalResponse(
-                                A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                                A_FPSConstant.CODE_FIELD_COMBOBOX,
-                                A_FPSConstant.SUBCODE_INVALID_COMBOBOX_FIELD_TYPE
-                        );
-                    }
-                }
-
-                if (!isUpdate) {
-                    if (field.getAlign() == null) {
-                        field.setAlign(FPSTextAlign.LEFT);
-                    }
-                    if (field.getColor() == null) {
-                        field.setColor("BLACK");
-                    }
-                    if (field.isReadOnly() == null) {
-                        field.setReadOnly(false);
-                    }
-                    if (field.isMultiline() == null) {
-                        field.setMultiline(false);
-                    }
-                }
-
-                field.setType(Resources.getFieldTypes().get(FieldTypeName.COMBOBOX.getParentName()));
-
-                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
-                //</editor-fold>
-            }
-            case "toggle": {
-                //<editor-fold defaultstate="collapsed" desc="Generate Toogle Field from Payload">
-                ToggleFieldAttribute field = null;
-                try {
-                    field = new ObjectMapper().readValue(payload, ToggleFieldAttribute.class);
-                } catch (Exception ex) {
-                    LogHandler.error(ConnectorField.class, transactionId, ex);
-                    return new InternalResponse(
-                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                            A_FPSConstant.CODE_FAIL,
-                            A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE
-                    );
-                }
-                if (isCheckBasicField) {
-                    InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
-                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                        return response;
-                    }
-                }
-
-                if (!Utils.isNullOrEmpty(field.getTypeName())) {
-                    boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.TOGGLE);
-
-                    if (!check) {
-                        return new InternalResponse(
-                                A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                                A_FPSConstant.CODE_FIELD_TOGGLE,
-                                A_FPSConstant.SUBCODE_INVALID_TOGGLE_TYPE
-                        );
-                    }
-                }
-
-                if (!isUpdate) {
-                    if (field.getAlign() == null) {
-                        field.setAlign(FPSTextAlign.LEFT);
-                    }
-                    if (field.getColor() == null) {
-                        field.setColor("BLACK");
-                    }
-                    if (field.isReadOnly() == null) {
-                        field.setReadOnly(false);
-                    }
-                    if (field.isMultiline() == null) {
-                        field.setMultiline(false);
-                    }
-                }
-
-                field.setType(Resources.getFieldTypes().get(FieldTypeName.TOGGLE.getParentName()));
-
-                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
-                //</editor-fold>
-            }
             case "numeric_stepper": {
                 //<editor-fold defaultstate="collapsed" desc="Generate Stepper Field from Payload">
+                hierarchicalLog.addStartHeading1("Start parse into " + typeField);
+                
+                //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
                 NumericStepperAttribute field = null;
                 try {
                     field = new ObjectMapper().readValue(payload, NumericStepperAttribute.class);
                 } catch (Exception ex) {
                     LogHandler.error(ConnectorField.class, transactionId, ex);
+                    hierarchicalLog.addEndHeading1("Parse into field fail");
                     return new InternalResponse(
                             A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                             A_FPSConstant.CODE_FAIL,
                             A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE
-                    );
+                    ).setHierarchicalLog(hierarchicalLog);
                 }
+                hierarchicalLog.addEndHeading1("Parse into field successfully");
+                //</editor-fold>
+                
+                //<editor-fold defaultstate="collapsed" desc="Check basic field">
+                hierarchicalLog.addStartHeading1("Start check basic");
                 if (isCheckBasicField) {
                     InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
-                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                        return response;
+                    hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
+                    if (!response.isValid()) {
+                        hierarchicalLog.addEndHeading1("Checked fail");
+                        return response.setHierarchicalLog(hierarchicalLog);
                     }
                 }
+                hierarchicalLog.addEndHeading1("Checked successfully");
+                //</editor-fold>
 
                 if (!Utils.isNullOrEmpty(field.getTypeName())) {
                     boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.NUMERIC_STEP);
 
                     if (!check) {
+                        hierarchicalLog.addEndHeading1("Check field type fail");
                         return new InternalResponse(
                                 A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                                 A_FPSConstant.CODE_FIELD_NUMERIC_STEPPER,
                                 A_FPSConstant.SUBCODE_INVALID_NUMERIC_TYPE
-                        );
+                        ).setHierarchicalLog(hierarchicalLog);
                     }
+                    field.setType(Resources.getFieldTypes().get(field.getTypeName()));
+                } else {
+                    field.setType(Resources.getFieldTypes().get(FieldTypeName.NUMERIC_STEP.getParentName()));
                 }
+                hierarchicalLog.addStartHeading1("Final field type: " + field.getType().getTypeName());
 
                 if (!isUpdate) {
                     if (field.getAlign() == null) {
@@ -2127,16 +2470,21 @@ public class ConnectorField {
                     if (field.isMultiline() == null) {
                         field.setMultiline(false);
                     }
+                    //<editor-fold defaultstate="collapsed" desc="Logger">
+                    hierarchicalLog.addStartHeading1("Alignment: " + field.getAlign());
+                    hierarchicalLog.addStartHeading1("Text Color: " + field.getColor());
+                    hierarchicalLog.addStartHeading1("Read Only: " + field.isReadOnly());
+                    hierarchicalLog.addStartHeading1("Multiline: " + field.isMultiline());
+                    //</editor-fold>
                 }
 
-                field.setType(Resources.getFieldTypes().get(FieldTypeName.NUMERIC_STEP.getParentName()));
-
-                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field);
+                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field).setHierarchicalLog(hierarchicalLog);
                 //</editor-fold>
             }
         }
         return new InternalResponse(A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                new ResponseMessageController().writeStringField("error", "This type of Field not provide yet"));
+                new ResponseMessageController().writeStringField("error", "This type of Field not provide yet"))
+                .setHierarchicalLog(hierarchicalLog);
     }
     //</editor-fold>
 

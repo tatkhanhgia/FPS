@@ -60,6 +60,7 @@ import vn.mobileid.id.FPS.component.util.CreateAPILog;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
+import vn.mobileid.id.general.LogHandler;
 import vn.mobileid.id.general.PolicyConfiguration;
 
 /**
@@ -677,6 +678,9 @@ public class Utils {
             Exception ex,
             String transactionId
     ) {
+        //Show hierarchical log
+        LogHandler.showHierarchicalLog(response.getHierarchicalLog());
+        
         int entId = 0;
         String apiKey = "";
         if (response.getEnt() != null) {

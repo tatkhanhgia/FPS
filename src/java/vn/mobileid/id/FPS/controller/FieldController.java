@@ -56,7 +56,6 @@ public class FieldController extends HttpServlet {
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         String language = Utils.getRequestHeader(req, "x-language-name");
-
         //<editor-fold defaultstate="collapsed" desc="Get Fields">
         if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/fields$")) {
             String transactionId = Utils.getTransactionId(req, null);
@@ -142,6 +141,13 @@ public class FieldController extends HttpServlet {
                         catchException(ex, req, res, payload, (int) packageId, transactionId);
                         return;
                     }
+                } else {
+                    Utils.sendMessage(
+                                res,
+                                A_FPSConstant.HTTP_CODE_UNSUPPORTED_MEDIA_TYPE,
+                                "application/json",
+                                null,
+                                transactionId);
                 }
             }
             //</editor-fold>

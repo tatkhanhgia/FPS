@@ -10,6 +10,7 @@ import fps_core.objects.core.InitialsFieldAttribute;
 import java.util.Base64;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import fps_core.enumration.FieldTypeName;
+import fps_core.utils.LogHandler;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.ProcessFileField;
 import vn.mobileid.id.FPS.object.ProcessInitialField;
@@ -157,31 +158,45 @@ public class CheckPayloadRequest {
      * @return
      */
     public static InternalResponse checkBasicField(BasicFieldAttribute object, String transactionId) {
+        LogHandler.HierarchicalLog log = new LogHandler.HierarchicalLog("Check basic field");
+        
+        log.addStartHeading1("Start checking field name");
         if (object.getFieldName() == null) {
+            log.addEndHeading1("Checked field name fail");
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                     A_FPSConstant.CODE_FIELD,
                     A_FPSConstant.SUBCODE_MISSING_FIELD_NAME
-            );
+            ).setHierarchicalLog(log);
         }
+        log.addEndHeading1("Checked field name successfully");
+        
+        log.addStartHeading1("Start checking page");
         if (object.getPage() <= 0) {
+            log.addEndHeading1("Checked page fail");
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                     A_FPSConstant.CODE_FIELD,
                     A_FPSConstant.SUBCODE_MISSING_PAGE
-            );
+            ).setHierarchicalLog(log);
         }
+        log.addEndHeading1("Checked page successfully");
+        
+        log.addStartHeading1("Start checking dimension");
         if (object.getDimension() == null) {
+            log.addEndHeading1("Checked dimension fail");
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                     A_FPSConstant.CODE_FIELD,
                     A_FPSConstant.SUBCODE_MISSING_DIMENSION
-            );
+            ).setHierarchicalLog(log);
         }
+        log.addEndHeading1("Checked dimension successfully");
+        
         return new InternalResponse(
                 A_FPSConstant.HTTP_CODE_SUCCESS,
                 object
-        );
+        ).setHierarchicalLog(log);
     }
     //</editor-fold>
 

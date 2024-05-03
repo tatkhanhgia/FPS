@@ -30,9 +30,6 @@ public class LogHandler {
 
     private static LogHandler instance;
     
-    //For LogHandler in FPS_Core
-    private static fps_core.utils.LogHandler logHandlerCore;
-
     private static void readConfig() {
         showDebugLog = Configuration.getInstance().isShowDebugLog();
         showInfoLog = Configuration.getInstance().isShowInfoLog();
@@ -248,7 +245,7 @@ public class LogHandler {
 
     //==========================For LogHandler Core=============================
     
-    public static fps_core.utils.LogHandler getCoreLog(){
-        return logHandlerCore;
+    public static void showHierarchicalLog(fps_core.utils.LogHandler.HierarchicalLog log){
+        fps_core.utils.LogHandler.showHierarchicalLog(log);
     }
 }

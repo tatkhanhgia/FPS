@@ -874,7 +874,7 @@ public class ConnectorDocument {
             }
         }
         //</editor-fold>
-        
+
         //<editor-fold defaultstate="collapsed" desc="Process Checkbox Form Field">
         if (!Utils.isNullOrEmpty(processRequest.getCheckbox())) {
             response = ProcessingCheckboxFormField.processCheckboxField(
@@ -888,7 +888,7 @@ public class ConnectorDocument {
             }
         }
         //</editor-fold>
-        
+
         //<editor-fold defaultstate="collapsed" desc="Process Radio Form Field">
         if (!Utils.isNullOrEmpty(processRequest.getRadio())) {
             response = ProcessingRadioboxFormField.processRadioField(
@@ -909,14 +909,14 @@ public class ConnectorDocument {
                     Utils.getIdFromURL(request.getRequestURI()),
                     user,
                     processRequest.getStamp(),
-                transactionId);
+                    transactionId);
 
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 return response;
             }
         }
         //</editor-fold>
-        
+
         //<editor-fold defaultstate="collapsed" desc="Process Camera Form Field">
         if (!Utils.isNullOrEmpty(processRequest.getCameras())) {
             response = ProcessingCameraField.processMultipleCameraField(
@@ -930,7 +930,7 @@ public class ConnectorDocument {
             }
         }
         //</editor-fold>
-        
+
         //<editor-fold defaultstate="collapsed" desc="Process Attachment Form Field">
         if (!Utils.isNullOrEmpty(processRequest.getAttachment())) {
             response = ProcessingAttachmentField.processMultipleFileFormField(
@@ -944,7 +944,7 @@ public class ConnectorDocument {
             }
         }
         //</editor-fold>
-        
+
         //<editor-fold defaultstate="collapsed" desc="Process Hyperlink Form Field">
         if (!Utils.isNullOrEmpty(processRequest.getHyperlinks())) {
             response = ProcessingHyperLinkField.processMultipleHyperLinkField(
@@ -958,7 +958,7 @@ public class ConnectorDocument {
             }
         }
         //</editor-fold>
-        
+
         //<editor-fold defaultstate="collapsed" desc="Process ComboBox Form Field">
         if (!Utils.isNullOrEmpty(processRequest.getCombos())) {
             response = new ProcessingComboBoxField().processMultipleTextField(
@@ -972,7 +972,7 @@ public class ConnectorDocument {
             }
         }
         //</editor-fold>
-        
+
         //<editor-fold defaultstate="collapsed" desc="Process Toggle Form Field">
         if (!Utils.isNullOrEmpty(processRequest.getToggles())) {
             response = new ProcessingToggleField().processMultipleTextField(
@@ -986,7 +986,7 @@ public class ConnectorDocument {
             }
         }
         //</editor-fold>
-        
+
         //<editor-fold defaultstate="collapsed" desc="Process NumericStepper Form Field">
         if (!Utils.isNullOrEmpty(processRequest.getNumericSteppers())) {
             response = new ProcessingNumericStepper().processMultipleTextField(
@@ -1000,7 +1000,7 @@ public class ConnectorDocument {
             }
         }
         //</editor-fold>
-        
+
         response = new InternalResponse(
                 A_FPSConstant.HTTP_CODE_SUCCESS,
                 ""
@@ -1393,7 +1393,6 @@ public class ConnectorDocument {
 //        );
 //    }
 //    // </editor-fold>
-
     // <editor-fold defaultstate="collapsed" desc="Synchronized new DocumentID with UUID">
     public static InternalResponse synchronizedUUID(
             HttpServletRequest request,
@@ -1599,7 +1598,7 @@ public class ConnectorDocument {
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Process Initial Form Field">
-        response =  ProcessingInitialFormField.genVersion(IVersion.Version.V1).processInitialField(
+        response = ProcessingInitialFormField.genVersion(IVersion.Version.V1).processInitialField(
                 packageId,
                 user,
                 processRequest,
@@ -1686,7 +1685,7 @@ public class ConnectorDocument {
         return response;
     }
     // </editor-fold>
-    
+
     // <editor-fold defaultstate="collapsed" desc="Fill File Field Version2">
     public static InternalResponse fillFileField_V2(
             HttpServletRequest request,
@@ -1753,7 +1752,7 @@ public class ConnectorDocument {
         return response;
     }
     // </editor-fold>
-    
+
     //<editor-fold defaultstate="collapsed" desc="Recall Document">
     public static InternalResponse recallDocument(
             HttpServletRequest request,
@@ -1943,8 +1942,8 @@ public class ConnectorDocument {
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Check field is processed yet? and is type signature">
-        if (!fieldData.getType().getParentType().equals(FieldTypeName.SIGNATURE.getParentName()) &&
-                !fieldData.getType().getParentType().equals(FieldTypeName.INPERSON.getParentName())) {
+        if (!fieldData.getType().getParentType().equals(FieldTypeName.SIGNATURE.getParentName())
+                && !fieldData.getType().getParentType().equals(FieldTypeName.INPERSON.getParentName())) {
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                     A_FPSConstant.CODE_FIELD,
@@ -1958,7 +1957,6 @@ public class ConnectorDocument {
         }
 
         //</editor-fold>
-        
         //<editor-fold defaultstate="collapsed" desc="Check Hash of Signature field is existed in Temporal Table?">
         if (!Utils.isNullOrEmpty(fieldData.getHash())) {
             InternalResponse response2 = ManagementTemporal.getTemporal(
@@ -1978,7 +1976,7 @@ public class ConnectorDocument {
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Check page Sig is valid?">
-        if(document_.getDocumentPages() < fieldData.getPage()){
+        if (document_.getDocumentPages() < fieldData.getPage()) {
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                     A_FPSConstant.CODE_FIELD,
@@ -1986,21 +1984,21 @@ public class ConnectorDocument {
             ).setUser(user);
         }
         //</editor-fold>
-        
+
         response = ProcessingSignatureField.processSignatureFieldV2(
-                packageId, 
-                user, 
-                document_, 
-                documentIdOriginal, 
-                fieldData, 
-                processRequest, 
+                packageId,
+                user,
+                document_,
+                documentIdOriginal,
+                fieldData,
+                processRequest,
                 transactionId);
-        
+
         response.setUser(user);
         return response;
     }
     // </editor-fold>
-    
+
     //==========================================================================
     //<editor-fold defaultstate="collapsed" desc="Child function Synchonized - create New Document Id ">
     private static InternalResponse child_CreateNew(
@@ -2011,7 +2009,6 @@ public class ConnectorDocument {
             byte[] data,
             SyncForDokobit objects,
             String transactionId) throws Exception {
-
         //<editor-fold defaultstate="collapsed" desc="Create package to handle">
         InternalResponse response = UploadDocument.createPackage(
                 fileName,
