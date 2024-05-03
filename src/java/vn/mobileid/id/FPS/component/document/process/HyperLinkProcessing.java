@@ -50,7 +50,7 @@ class HyperLinkProcessing implements IDocumentProcessing, IModuleProcessing {
         String transactionId = (String) objects[6];
         byte[] file;
 
-        //Check status document
+        //<editor-fold defaultstate="collapsed" desc="Check status of document">
         if (document.isEnabled()) {
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
@@ -58,8 +58,9 @@ class HyperLinkProcessing implements IDocumentProcessing, IModuleProcessing {
                     A_FPSConstant.SUBCODE_DOCUMENT_STATSUS_IS_DISABLE
             );
         }
+        //</editor-fold>
 
-        //Download document from FMS
+        //<editor-fold defaultstate="collapsed" desc="Download document from FMS">
         InternalResponse response = FMS.downloadDocumentFromFMS(document.getUuid(),
                 transactionId);
 
@@ -67,14 +68,15 @@ class HyperLinkProcessing implements IDocumentProcessing, IModuleProcessing {
             return response;
         }
         file = (byte[]) response.getData();
+        //</editor-fold>
 
-        //Append data into field 
+        
         try {
             //Analys file
             ExecutorService executor = Executors.newFixedThreadPool(2);
             
             //Append HyperLink into file
-            byte[] appendedFile = DocumentUtils_itext7.createHyperLink(file, field, transactionId);
+            byte[] appendedFile = DocumentUtils_itext7.createHyperLinkV2(file, field, transactionId);
 
             //<editor-fold defaultstate="collapsed" desc="Thread 1: Analysis file">
             Future<?> analysis = executor.submit(new TaskV2(new Object[]{file}, transactionId) {
@@ -129,24 +131,25 @@ class HyperLinkProcessing implements IDocumentProcessing, IModuleProcessing {
 
             String uuid = (String) response.getData();
 
-            //Update new Document in DB    
+            //<editor-fold defaultstate="collapsed" desc="Update new Document in DB   ">
             response = UploadDocument.uploadDocument(
                     document.getPackageId(),
                     revision + 1,
                     fileManagement,
                     DocumentStatus.READY,
                     "url",
-                    "contents",
+                    "none",
                     uuid,
-                    "Appended Text Field - " + field.getFieldName(),
+                    "Appended HyperLink - " + field.getFieldName(),
                     "hmac",
                     user.getAzp(),
                     transactionId);
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 return response;
             }
+            //</editor-fold>
 
-            //Update field after processing
+            //<editor-fold defaultstate="collapsed" desc="Update field after processing">
             HyperLinkFieldAttribute hyperLink = new ObjectMapper().readValue(extendField.getDetailValue(), HyperLinkFieldAttribute.class);
             hyperLink = (HyperLinkFieldAttribute) extendField.clone(hyperLink, extendField.getDimension());
             
@@ -167,8 +170,9 @@ class HyperLinkProcessing implements IDocumentProcessing, IModuleProcessing {
                         A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD
                 );
             }
+            //</editor-fold>
 
-            //Update new data of TextField
+            //<editor-fold defaultstate="collapsed" desc="Update new data of TextField">
             response = ConnectorField_Internal.updateFieldDetail(
                     documentFieldId,
                     user,
@@ -184,6 +188,7 @@ class HyperLinkProcessing implements IDocumentProcessing, IModuleProcessing {
                         A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD_DETAILS
                 );
             }
+            //</editor-fold>
 
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_SUCCESS,

@@ -248,6 +248,14 @@ public class ConnectorField {
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Add FieldV2">
+    /**
+     * Add field Version 2: Using to append field immediately when add field
+     * @param request
+     * @param payload
+     * @param transactionId
+     * @return
+     * @throws Exception 
+     */
     public static InternalResponse addFieldV2(
             HttpServletRequest request,
             String payload,
@@ -325,7 +333,7 @@ public class ConnectorField {
         }
         //</editor-fold>
 
-        //Check exist of field name
+        //<editor-fold defaultstate="collapsed" desc="Check existed of field name">
         InternalResponse temp = GetField.getFieldData(documentId, field.getFieldName(), transactionId);
         if (temp.getStatus() == A_FPSConstant.HTTP_CODE_SUCCESS) {
             return new InternalResponse(
@@ -334,8 +342,9 @@ public class ConnectorField {
                     A_FPSConstant.SUBCODE_INVALID_FIELD_NAME
             ).setUser(user);
         }
+        //</editor-fold>
 
-        //Processing append field form into file 
+        //<editor-fold defaultstate="collapsed" desc="Processing append field form into file ">
         ExecutorService executor = Executors.newFixedThreadPool(2);
         Future<?> appended = executor.submit(
                 new TaskV2(
@@ -358,8 +367,9 @@ public class ConnectorField {
                 return response;
             }
         });
+        //</editor-fold>
 
-        //Processing add field data into DB
+        //<editor-fold defaultstate="collapsed" desc="Processing add field data into DB">
         Future<?> addField = executor.submit(
                 new TaskV2(
                         new Object[]{documentId, field, user},
@@ -384,6 +394,7 @@ public class ConnectorField {
             }
         }
         );
+        //</editor-fold>
 
         executor.shutdown();
 
@@ -423,6 +434,14 @@ public class ConnectorField {
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Update Field">
+    /**
+     * Update field in Document
+     * @param request
+     * @param payload
+     * @param transactionId
+     * @return
+     * @throws Exception 
+     */
     public static InternalResponse updateField(
             HttpServletRequest request,
             String payload,
