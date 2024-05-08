@@ -447,6 +447,8 @@ public class ConnectorField {
             String payload,
             String transactionId
     ) throws Exception {
+        fps_core.utils.LogHandler.HierarchicalLog hierarchicalLog = new fps_core.utils.LogHandler.HierarchicalLog("Add field");
+        
         //<editor-fold defaultstate="collapsed" desc="Check payload">
         if (payload == null) {
             return new InternalResponse(
@@ -455,6 +457,7 @@ public class ConnectorField {
                     A_FPSConstant.SUBCODE_NO_PAYLOAD_FOUND
             );
         }
+        hierarchicalLog.addEndHeading1("Checking payload successfully");
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Call throught connectorDocument to verify and get Documents of packageId">

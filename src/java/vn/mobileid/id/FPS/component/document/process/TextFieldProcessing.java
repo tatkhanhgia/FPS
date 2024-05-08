@@ -57,7 +57,7 @@ class TextFieldProcessing<T extends BasicFieldAttribute>  implements IDocumentPr
         String transactionId = (String) objects[6];
         byte[] file;
 
-        //Check status document
+        //<editor-fold defaultstate="collapsed" desc="Check status document">
         if (document.isEnabled()) {
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
@@ -65,8 +65,9 @@ class TextFieldProcessing<T extends BasicFieldAttribute>  implements IDocumentPr
                     A_FPSConstant.SUBCODE_DOCUMENT_STATSUS_IS_DISABLE
             );
         }
+        //</editor-fold>
 
-        //Download document from FMS
+        //<editor-fold defaultstate="collapsed" desc="Download document from FMS">
         InternalResponse response = FMS.downloadDocumentFromFMS(document.getUuid(),
                 transactionId);
 
@@ -74,10 +75,11 @@ class TextFieldProcessing<T extends BasicFieldAttribute>  implements IDocumentPr
             return response;
         }
         file = (byte[]) response.getData();
+        //</editor-fold>
 
         //Append data into field 
         try {
-            //Analys file
+            
             ExecutorService executor = Executors.newFixedThreadPool(2);
             Future<?> analysis = executor.submit(new TaskV2(new Object[]{file}, transactionId) {
                 @Override
