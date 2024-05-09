@@ -18,6 +18,7 @@ import fps_core.objects.core.CheckBoxFieldAttribute;
 import fps_core.objects.Dimension;
 import fps_core.objects.core.ExtendedFieldAttribute;
 import fps_core.objects.FieldType;
+import fps_core.objects.Font;
 import fps_core.objects.child.ComboBoxFieldAttribute;
 import fps_core.objects.child.DateTimeFieldAttribute;
 import fps_core.objects.child.HyperLinkFieldAttribute;
@@ -1439,6 +1440,9 @@ public class ConnectorField {
 
                 //<editor-fold defaultstate="collapsed" desc="Initial data of field">
                 if (!isUpdate) {
+                    if (field.getMaxLength() == 0){
+                        field.setMaxLength(100);
+                    }
                     if (field.getAlign() == null) {
                         field.setAlign(FPSTextAlign.LEFT);
                     }
@@ -1451,12 +1455,18 @@ public class ConnectorField {
                     if (field.isMultiline() == null) {
                         field.setMultiline(false);
                     }
+                    if (field.getFont() == null){
+                        field.setFont(new Font());
+                    }
 
                     //<editor-fold defaultstate="collapsed" desc="Logger">
                     hierarchicalLog.addStartHeading1("Alignment: " + field.getAlign());
                     hierarchicalLog.addStartHeading1("Text Color: " + field.getColor());
                     hierarchicalLog.addStartHeading1("Read Only: " + field.isReadOnly());
                     hierarchicalLog.addStartHeading1("Multiline: " + field.isMultiline());
+                    hierarchicalLog.addStartHeading1("Visible: " + field.getVisibleEnabled());
+                    hierarchicalLog.addStartHeading1("Font name: " + field.getFont().getName());
+                    hierarchicalLog.addStartHeading1("Font size: " + field.getFont().getSize());
                     //</editor-fold>
                 }
                 //</editor-fold>

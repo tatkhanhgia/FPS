@@ -136,11 +136,11 @@ class QryptoProcessing implements IDocumentProcessing {
         try {
             temp = temp.replaceAll(
                     QryptoVariable.FIRST_SIGNER.getAnnotationName(), 
-                    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                    new SimpleDateFormat("dd/MM/yyyy hh:mm:ss")
                             .format(signatures.get(0).getSigningTime()));
             temp = temp.replaceAll(
                     QryptoVariable.SECOND_SIGNER.getAnnotationName(), 
-                    new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                    new SimpleDateFormat("dd/MM/yyyy hh:mm:ss")
                             .format(signatures.get(1).getSigningTime()));
         } catch (Exception e) {
         } finally {
