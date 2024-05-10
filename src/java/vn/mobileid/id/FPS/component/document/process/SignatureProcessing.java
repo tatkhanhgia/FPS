@@ -256,7 +256,7 @@ class SignatureProcessing implements IDocumentProcessing, IModuleProcessing {
         String transactionId = (String) objects[5];
         byte[] file;
 
-        //Check enabled of  document
+        //<editor-fold defaultstate="collapsed" desc="Check Status">
         if (document.isEnabled()) {
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
@@ -264,21 +264,21 @@ class SignatureProcessing implements IDocumentProcessing, IModuleProcessing {
                     A_FPSConstant.SUBCODE_DOCUMENT_STATSUS_IS_DISABLE
             );
         }
-
-        //Check status of document
         InternalResponse response = checkStatusOfDocument(document, transactionId);
         if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
             return response;
         }
+        //</editor-fold>
 
-        //Get Data        
+        //<editor-fold defaultstate="collapsed" desc="Get data from FMS">
         response = FMS.downloadDocumentFromFMS(document.getUuid(), transactionId);
 
         if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
             return response;
         }
         file = (byte[]) response.getData();
-
+        //</editor-fold>
+        
         try {
             InternalData internalData = null;
             //<editor-fold defaultstate="collapsed" desc="Create QR and Append into file first">
@@ -341,7 +341,15 @@ class SignatureProcessing implements IDocumentProcessing, IModuleProcessing {
             }
             //</editor-fold>
 
-            //Create form Signature
+            //<editor-fold defaultstate="collapsed" desc="Get All Signature => If not existed, make the signature become lockac/lockper">
+            List<SignatureFieldAttribute> temp = DocumentUtils_itext7.getAllSignatures(file);
+            if(Utils.isNullOrEmpty(temp)){
+                field.getVerification().setLockAction("include");
+                field.getVerification().setLockPermission("formfillingandannotation");
+            }
+            //</editor-fold>
+            
+            //<editor-fold defaultstate="collapsed" desc="Create form Signature">
             Object[] objs = null;
             if (isEsealForm) {
                 objs = DocumentUtils_rssp_i7.createEsealFormSignature(
@@ -358,6 +366,7 @@ class SignatureProcessing implements IDocumentProcessing, IModuleProcessing {
                         PolicyConfiguration.getInstant().getSystemConfig().getAttributes().get(0).getDateFormat(),
                         transactionId);
             }
+            //</editor-fold>
 
             response = new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, objs);
             response.setUser(user);
