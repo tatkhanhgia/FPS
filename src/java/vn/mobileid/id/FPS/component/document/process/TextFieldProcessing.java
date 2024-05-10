@@ -95,10 +95,10 @@ class TextFieldProcessing<T extends BasicFieldAttribute>  implements IDocumentPr
             //Append textField into file
             byte[] appendedFile = null;
             if (field.getType().getTypeId() == ChildTextFieldTypeName.TEXT_FIELD.getId()) {
-                appendedFile = DocumentUtils_itext7.createTextField_i7(file, field, transactionId);
+                appendedFile = DocumentUtils_itext7.createTextField_i7V2(file, field, transactionId);
             } else {
 //                appendedFile = DocumentUtils_itext7.createTextFormField_i7(file, field, transactionId);
-                appendedFile = DocumentUtils_itext7.createTextField_i7(file, field, transactionId);
+                appendedFile = DocumentUtils_itext7.createTextField_i7V2(file, field, transactionId);
             }
 
             //<editor-fold defaultstate="collapsed" desc="Upload to FMS">

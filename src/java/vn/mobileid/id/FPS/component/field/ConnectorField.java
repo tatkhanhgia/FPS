@@ -468,9 +468,11 @@ public class ConnectorField {
         }
         User user = response.getUser();
         List<Document> documents = (List<Document>) response.getData();
+        hierarchicalLog.addEndHeading1("Get Document and Verify token successfully");
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Parse to field + check type of field">
+        hierarchicalLog.addStartHeading1("Start parse to field");
         response = parseToField(
                 request.getRequestURI(),
                 payload,
@@ -481,6 +483,7 @@ public class ConnectorField {
             return response.setUser(user);
         }
         BasicFieldAttribute field = (BasicFieldAttribute) response.getData();
+        hierarchicalLog.addEndHeading1("Parse to field successfully");
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Add more data to Field">
@@ -1440,7 +1443,7 @@ public class ConnectorField {
 
                 //<editor-fold defaultstate="collapsed" desc="Initial data of field">
                 if (!isUpdate) {
-                    if (field.getMaxLength() == 0){
+                    if (field.getMaxLength() == null){
                         field.setMaxLength(100);
                     }
                     if (field.getAlign() == null) {
@@ -1456,7 +1459,7 @@ public class ConnectorField {
                         field.setMultiline(false);
                     }
                     if (field.getFont() == null){
-                        field.setFont(new Font());
+                        field.setFont(Font.init());
                     }
 
                     //<editor-fold defaultstate="collapsed" desc="Logger">
