@@ -696,6 +696,7 @@ public class Utils {
 
         //<editor-fold defaultstate="collapsed" desc="Summarize all data which is long data">
         JsonNode summary = Utils.summarizePayload(payload);
+        JsonNode summary2 = Utils.summarizePayload(response.getMessage());
         //</editor-fold>
 
         CreateAPILog.createAPILog(
@@ -710,7 +711,7 @@ public class Utils {
                 req.getMethod(),
                 response.getStatus(),
                 summary == null ? null : summary.toPrettyString(),
-                response.getMessage(),
+                summary2 == null ? null : summary2.toPrettyString(),
                 exceptionSummary,
                 "HMAC",
                 Utils.getIp(req),
