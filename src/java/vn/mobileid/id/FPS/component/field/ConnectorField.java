@@ -1344,8 +1344,8 @@ public class ConnectorField {
 
                 //<editor-fold defaultstate="collapsed" desc="Initial data of field">
                 if (!isUpdate) {
-                    if (field.getAlign() == null) {
-                        field.setAlign(FPSTextAlign.LEFT);
+                    if (field.getAlignment() == null) {
+                        field.setDefaultAlignment();
                     }
                     if (field.getColor() == null) {
                         field.setColor("BLACK");
@@ -1357,7 +1357,7 @@ public class ConnectorField {
                         field.setMultiline(false);
                     }
                     //<editor-fold defaultstate="collapsed" desc="Logger">
-                    hierarchicalLog.addStartHeading1("Alignment: " + field.getAlign());
+                    hierarchicalLog.addStartHeading1("Alignment: " + field.getAlignment());
                     hierarchicalLog.addStartHeading1("Text Color: " + field.getColor());
                     hierarchicalLog.addStartHeading1("Read Only: " + field.isReadOnly());
                     hierarchicalLog.addStartHeading1("Multiline: " + field.isMultiline());
@@ -1446,8 +1446,8 @@ public class ConnectorField {
                     if (field.getMaxLength() == null){
                         field.setMaxLength(100);
                     }
-                    if (field.getAlign() == null) {
-                        field.setAlign(FPSTextAlign.LEFT);
+                    if (field.getAlignment() == null) {
+                        field.setDefaultAlignment();
                     }
                     if (field.getColor() == null) {
                         field.setColor("BLACK");
@@ -1463,7 +1463,7 @@ public class ConnectorField {
                     }
 
                     //<editor-fold defaultstate="collapsed" desc="Logger">
-                    hierarchicalLog.addStartHeading1("Alignment: " + field.getAlign());
+                    hierarchicalLog.addStartHeading1("Alignment: " + field.getAlignment());
                     hierarchicalLog.addStartHeading1("Text Color: " + field.getColor());
                     hierarchicalLog.addStartHeading1("Read Only: " + field.isReadOnly());
                     hierarchicalLog.addStartHeading1("Multiline: " + field.isMultiline());
@@ -2316,8 +2316,8 @@ public class ConnectorField {
 
                 //<editor-fold defaultstate="collapsed" desc="Initial data of field">
                 if (!isUpdate) {
-                    if (field.getAlign() == null) {
-                        field.setAlign(FPSTextAlign.LEFT);
+                    if (field.getAlignment() == null) {
+                        field.setDefaultAlignment();
                     }
                     if (field.getColor() == null) {
                         field.setColor("BLACK");
@@ -2329,7 +2329,7 @@ public class ConnectorField {
                         field.setMultiline(false);
                     }
                     //<editor-fold defaultstate="collapsed" desc="Logger">
-                    hierarchicalLog.addStartHeading1("Alignment: " + field.getAlign());
+                    hierarchicalLog.addStartHeading1("Alignment: " + field.getAlignment());
                     hierarchicalLog.addStartHeading1("Text Color: " + field.getColor());
                     hierarchicalLog.addStartHeading1("Read Only: " + field.isReadOnly());
                     hierarchicalLog.addStartHeading1("Multiline: " + field.isMultiline());
@@ -2393,8 +2393,8 @@ public class ConnectorField {
 
                 //<editor-fold defaultstate="collapsed" desc="Initial data of field">
                 if (!isUpdate) {
-                    if (field.getAlign() == null) {
-                        field.setAlign(FPSTextAlign.LEFT);
+                    if (field.getAlignment() == null) {
+                        field.setDefaultAlignment();
                     }
                     if (field.getColor() == null) {
                         field.setColor("BLACK");
@@ -2406,7 +2406,7 @@ public class ConnectorField {
                         field.setMultiline(false);
                     }
                     //<editor-fold defaultstate="collapsed" desc="Logger">
-                    hierarchicalLog.addStartHeading1("Alignment: " + field.getAlign());
+                    hierarchicalLog.addStartHeading1("Alignment: " + field.getAlignment());
                     hierarchicalLog.addStartHeading1("Text Color: " + field.getColor());
                     hierarchicalLog.addStartHeading1("Read Only: " + field.isReadOnly());
                     hierarchicalLog.addStartHeading1("Multiline: " + field.isMultiline());
@@ -2471,8 +2471,8 @@ public class ConnectorField {
 
                 //<editor-fold defaultstate="collapsed" desc="Initial data of field">
                 if (!isUpdate) {
-                    if (field.getAlign() == null) {
-                        field.setAlign(FPSTextAlign.LEFT);
+                    if (field.getAlignment() == null) {
+                        field.setDefaultAlignment();
                     }
                     if (field.getColor() == null) {
                         field.setColor("BLACK");
@@ -2484,7 +2484,7 @@ public class ConnectorField {
                         field.setMultiline(false);
                     }
                     //<editor-fold defaultstate="collapsed" desc="Logger">
-                    hierarchicalLog.addStartHeading1("Alignment: " + field.getAlign());
+                    hierarchicalLog.addStartHeading1("Alignment: " + field.getAlignment());
                     hierarchicalLog.addStartHeading1("Text Color: " + field.getColor());
                     hierarchicalLog.addStartHeading1("Read Only: " + field.isReadOnly());
                     hierarchicalLog.addStartHeading1("Multiline: " + field.isMultiline());
@@ -2549,8 +2549,8 @@ public class ConnectorField {
 
                 //<editor-fold defaultstate="collapsed" desc="Initial data of field">
                 if (!isUpdate) {
-                    if (field.getAlign() == null) {
-                        field.setAlign(FPSTextAlign.LEFT);
+                    if (field.getAlignment() == null) {
+                        field.setDefaultAlignment();
                     }
                     if (field.getColor() == null) {
                         field.setColor("BLACK");
@@ -2562,7 +2562,7 @@ public class ConnectorField {
                         field.setMultiline(false);
                     }
                     //<editor-fold defaultstate="collapsed" desc="Logger">
-                    hierarchicalLog.addStartHeading1("Alignment: " + field.getAlign());
+                    hierarchicalLog.addStartHeading1("Alignment: " + field.getAlignment());
                     hierarchicalLog.addStartHeading1("Text Color: " + field.getColor());
                     hierarchicalLog.addStartHeading1("Read Only: " + field.isReadOnly());
                     hierarchicalLog.addStartHeading1("Multiline: " + field.isMultiline());
@@ -2650,8 +2650,8 @@ public class ConnectorField {
                 }
 
                 if (!isUpdate) {
-                    if (field.getAlign() == null) {
-                        field.setAlign(FPSTextAlign.LEFT);
+                    if (field.getAlignment() == null) {
+                        field.setDefaultAlignment();
                     }
                     if (field.getColor() == null) {
                         field.setColor("BLACK");
