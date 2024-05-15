@@ -537,9 +537,8 @@ public class Utils {
             JsonNode rootNode = mapper.readTree(payload);
             return summarizeNode(rootNode);
         } catch (Exception ex) {
-            ex.printStackTrace(); // Handle or log the exception as needed
             return null;
-        }
+        } 
     }
 
     private static JsonNode summarizeNode(JsonNode node) {

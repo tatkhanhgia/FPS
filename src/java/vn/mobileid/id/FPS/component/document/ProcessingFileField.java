@@ -109,7 +109,8 @@ public class ProcessingFileField {
         try {
             InternalResponse convertResponse = convertExtendIntoFileField(
                     user,
-                    fieldData
+                    fieldData,
+                    null
             );
 
             if (convertResponse.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
@@ -259,19 +260,20 @@ public class ProcessingFileField {
             try {
                 InternalResponse convertResponse = convertExtendIntoFileField(
                         user,
-                        fieldData
+                        fieldData,
+                        fields.getValue()
                 );
 
                 if (convertResponse.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                    if (response.getCode() == 0 || response.getCodeDescription() == 0) {
-                        errorField.setValue(response.getMessage());
+                    if (convertResponse.getCode() == 0 || convertResponse.getCodeDescription() == 0) {
+                        errorField.setValue(convertResponse.getMessage());
                     } else {
                         errorField.setValue(
-                                String.valueOf(response.getCode()) + String.valueOf(response.getCodeDescription()));
+                                String.valueOf(convertResponse.getCode()) + String.valueOf(convertResponse.getCodeDescription()));
                     }
                     listOfErrorField.add(errorField);
-                    if (response.getException() != null) {
-                        responseFinal.setException(response.getException());
+                    if (convertResponse.getException() != null) {
+                        responseFinal.setException(convertResponse.getException());
                     }
                     continue;
                 }
@@ -457,7 +459,7 @@ public class ProcessingFileField {
             //<editor-fold defaultstate="collapsed" desc="Convert ExtendField into File Field">
             FileFieldAttribute fileField = null;
             try {
-                InternalResponse convert = convertExtendIntoFileField(user, fieldData);
+                InternalResponse convert = convertExtendIntoFileField(user, fieldData, (String)field.getValue());
 
                 if (!convert.isValid()) {
                     if (response.getCode() == 0 || response.getCodeDescription() == 0) {
@@ -531,7 +533,8 @@ public class ProcessingFileField {
     //<editor-fold defaultstate="collapsed" desc="Convert ExtendedField into FileField">
     private static InternalResponse convertExtendIntoFileField(
             User user,
-            ExtendedFieldAttribute fieldData
+            ExtendedFieldAttribute fieldData,
+            String value
             ) throws Exception {
         //Read details
         FileFieldAttribute imageField = new ObjectMapper().readValue(fieldData.getDetailValue(), FileFieldAttribute.class);
@@ -547,6 +550,16 @@ public class ProcessingFileField {
                         .getDateFormat());
         imageField.setProcessOn(dateFormat.format(Date.from(Instant.now())));
 
+        if(Utils.isNullOrEmpty(imageField.getFile())){
+            if(Utils.isNullOrEmpty(value)){
+                return new InternalResponse(
+                            A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
+                            A_FPSConstant.CODE_FIELD_STAMP,
+                            A_FPSConstant.SUBCODE_MISSING_IMAGE);
+            }
+            imageField.setFile(value);
+        }
+        
         //<editor-fold defaultstate="collapsed" desc="Download Image from FMS if need">
         if (!Utils.isNullOrEmpty(imageField.getFile()) && imageField.getFile().length() <= 32) {
             try {
