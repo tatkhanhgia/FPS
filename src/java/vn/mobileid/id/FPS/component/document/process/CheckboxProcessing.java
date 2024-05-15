@@ -28,13 +28,23 @@ import vn.mobileid.id.utils.Crypto;
 import vn.mobileid.id.utils.TaskV2;
 import vn.mobileid.id.FPS.component.document.process.interfaces.IDocumentProcessing;
 import vn.mobileid.id.FPS.component.document.process.interfaces.IModuleProcessing;
+import vn.mobileid.id.FPS.component.document.process.interfaces.IVersion;
 
 /**
  *
  * @author GiaTK
  */
-class CheckboxProcessing implements IModuleProcessing, IDocumentProcessing {
+class CheckboxProcessing extends IVersion implements IModuleProcessing, IDocumentProcessing {
 
+    public CheckboxProcessing(Version version) {
+        super(version);
+    }
+
+    public CheckboxProcessing() {
+        super(Version.V1);
+    }
+
+    //<editor-fold defaultstate="collapsed" desc="Deprecated">
     @Override
     public InternalResponse createFormField(Object... objects) throws Exception {
         //<editor-fold defaultstate="collapsed" desc="Variable">
@@ -284,6 +294,7 @@ class CheckboxProcessing implements IModuleProcessing, IDocumentProcessing {
     public InternalResponse replaceFormField(Object... objects) throws Exception {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
+    //</editor-fold>
 
     @Override
     public InternalResponse processField(Object... objects) throws Exception {
@@ -297,7 +308,7 @@ class CheckboxProcessing implements IModuleProcessing, IDocumentProcessing {
         String transactionId = (String) objects[6];
         byte[] file;
 
-        //Check status document
+        //<editor-fold defaultstate="collapsed" desc="Check status of Document">
         if (document.isEnabled()) {
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
@@ -305,8 +316,9 @@ class CheckboxProcessing implements IModuleProcessing, IDocumentProcessing {
                     A_FPSConstant.SUBCODE_DOCUMENT_STATSUS_IS_DISABLE
             );
         }
+        //</editor-fold>
 
-        //Download document from FMS
+        //<editor-fold defaultstate="collapsed" desc="Download document from FMS">
         InternalResponse response = FMS.downloadDocumentFromFMS(document.getUuid(),
                 transactionId);
 
@@ -314,14 +326,16 @@ class CheckboxProcessing implements IModuleProcessing, IDocumentProcessing {
             return response;
         }
         file = (byte[]) response.getData();
+        //</editor-fold>
 
         //Append data into field 
         try {
             //Analys file
             ExecutorService executor = Executors.newFixedThreadPool(2);
 
-            //Append CheckBoxField into file
-            byte[] appendedFile = DocumentUtils_itext7.createCheckBoxFormField_i7(file, field, transactionId);
+            //<editor-fold defaultstate="collapsed" desc="Append CheckBoxField into file">
+            byte[] appendedFile = createCheckbox(file, field, transactionId);
+            //</editor-fold>
 
             Future<?> analysis = executor.submit(new TaskV2(new Object[]{appendedFile}, transactionId) {
                 @Override
@@ -334,7 +348,7 @@ class CheckboxProcessing implements IModuleProcessing, IDocumentProcessing {
                 }
             });
 
-            //Upload to FMS
+            //<editor-fold defaultstate="collapsed" desc="Upload to FMS">
             Future<?> uploadFMS = executor.submit(new TaskV2(new Object[]{appendedFile}, transactionId) {
                 @Override
                 public Object call() {
@@ -352,9 +366,11 @@ class CheckboxProcessing implements IModuleProcessing, IDocumentProcessing {
                     return response;
                 }
             });
+            //</editor-fold>
 
             executor.shutdown();
 
+            //<editor-fold defaultstate="collapsed" desc="Analysis file">
             FileManagement fileManagement = (FileManagement) analysis.get();
             if (fileManagement == null) {
                 return new InternalResponse(
@@ -372,8 +388,9 @@ class CheckboxProcessing implements IModuleProcessing, IDocumentProcessing {
             }
 
             String uuid = (String) response.getData();
+            //</editor-fold>
 
-            //Update new Document in DB    
+            //<editor-fold defaultstate="collapsed" desc="Update new Document in DB">
             response = UploadDocument.uploadDocument(
                     document.getPackageId(),
                     revision + 1,
@@ -389,14 +406,15 @@ class CheckboxProcessing implements IModuleProcessing, IDocumentProcessing {
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 return response;
             }
+            //</editor-fold>
 
-            //Update field after processing
+            //<editor-fold defaultstate="collapsed" desc="Update field after processing">
             CheckBoxFieldAttribute checkboxField = new ObjectMapper().readValue(extendField.getDetailValue(), CheckBoxFieldAttribute.class);
             checkboxField = (CheckBoxFieldAttribute) extendField.clone(checkboxField, extendField.getDimension());
             checkboxField.setProcessStatus(ProcessStatus.PROCESSED.getName());
             checkboxField.setProcessBy(field.getProcessBy());
             checkboxField.setProcessOn(field.getProcessOn());
-            
+
             ObjectMapper ob = new ObjectMapper();
             response = ConnectorField_Internal.updateValueOfField(
                     documentFieldId,
@@ -410,8 +428,9 @@ class CheckboxProcessing implements IModuleProcessing, IDocumentProcessing {
                         A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD
                 );
             }
+            //</editor-fold>
 
-            //Update new data of CheckboxField
+            //<editor-fold defaultstate="collapsed" desc="Update new data of CheckboxField">
             response = ConnectorField_Internal.updateFieldDetail(
                     documentFieldId,
                     user,
@@ -427,6 +446,7 @@ class CheckboxProcessing implements IModuleProcessing, IDocumentProcessing {
                         A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD_DETAILS
                 );
             }
+            //</editor-fold>
 
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_SUCCESS,
@@ -443,5 +463,32 @@ class CheckboxProcessing implements IModuleProcessing, IDocumentProcessing {
             ).setException(ex);
         }
     }
-   
+
+    //<editor-fold defaultstate="collapsed" desc="Call DocumentUtils to create Checkbox with Version">
+    /**
+     * Call DocumentUtils_i7.createCheckbox with Version
+     *
+     * @param pdf
+     * @param field
+     * @param transactionId
+     * @return null if error
+     */
+    private byte[] createCheckbox(
+            byte[] pdf,
+            CheckBoxFieldAttribute field,
+            String transactionId
+    ) throws Exception {
+        switch (getVersion()) {
+            case V1: {
+                return DocumentUtils_itext7.createCheckBoxFormField_i7(pdf, field, transactionId);
+            }
+            case V2: {
+                return DocumentUtils_itext7.createCheckBoxFormField_i7V2(pdf, field, transactionId);
+            }
+            default: {
+                return DocumentUtils_itext7.createCheckBoxFormField_i7(pdf, field, transactionId);
+            }
+        }
+    }
+    //</editor-fold>
 }

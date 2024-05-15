@@ -875,9 +875,9 @@ public class ConnectorDocument {
         }
         //</editor-fold>
 
-        //<editor-fold defaultstate="collapsed" desc="Process Checkbox Form Field">
+        //<editor-fold defaultstate="collapsed" desc="Process Checkbox Form Field - Version2 nhen">
         if (!Utils.isNullOrEmpty(processRequest.getCheckbox())) {
-            response = ProcessingCheckboxFormField.processCheckboxField(
+            response = new ProcessingCheckboxFormField(IVersion.Version.V2).processCheckboxField(
                     Utils.getIdFromURL(request.getRequestURI()),
                     user,
                     processRequest.getCheckbox(),

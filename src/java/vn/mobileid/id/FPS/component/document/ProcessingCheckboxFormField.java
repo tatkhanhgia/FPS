@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import vn.mobileid.id.FPS.component.document.process.ProcessingFactory;
+import vn.mobileid.id.FPS.component.document.process.interfaces.IVersion;
 import vn.mobileid.id.FPS.component.field.CheckFieldProcessedYet;
 import vn.mobileid.id.FPS.component.field.ConnectorField_Internal;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
@@ -31,7 +32,15 @@ import vn.mobileid.id.utils.Utils;
  *
  * @author GiaTK
  */
-public class ProcessingCheckboxFormField {
+public class ProcessingCheckboxFormField extends IVersion {
+
+    public ProcessingCheckboxFormField(Version version) {
+        super(version);
+    }
+    
+    public ProcessingCheckboxFormField(){
+        super(Version.V1);
+    }
 
     //<editor-fold defaultstate="collapsed" desc="Processing Checkbox Form Field">
     /**
@@ -47,7 +56,7 @@ public class ProcessingCheckboxFormField {
      * error while processed
      * @throws Exception
      */
-    public static InternalResponse processCheckboxField(
+    public InternalResponse processCheckboxField(
             long packageId,
             User user,
             List<ProcessingRequest.ProcessingFormFillRequest> fields,
@@ -131,8 +140,8 @@ public class ProcessingCheckboxFormField {
                 if (field.getValue() != null && !(field.getValue() instanceof Boolean)) {
                     field.setValue(null);
                     LogHandler.info(
-                            ProcessingCheckboxFormField.class, 
-                            transactionId, 
+                            ProcessingCheckboxFormField.class,
+                            transactionId,
                             "The value is not a boolean => Using default");
                 }
                 checkboxField = convertExtendIntoCheckBoxField(user, fieldData, field.getValue() == null ? null : (boolean) field.getValue());
@@ -144,7 +153,10 @@ public class ProcessingCheckboxFormField {
             //</editor-fold>
 
             //Processing
-            response = new ProcessingFactory().createType(ProcessingFactory.TypeProcess.CHECKBOX).processField(
+            response = new ProcessingFactory().createType(
+                    ProcessingFactory.TypeProcess.CHECKBOX,
+                    getVersion()
+                    ).processField(
                     user,
                     document_,
                     documents.size(),
