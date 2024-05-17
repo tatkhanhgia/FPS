@@ -19,6 +19,7 @@ import vn.mobileid.id.FPS.QryptoService.object.ItemDetails;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class QryptoFieldAttribute extends BasicFieldAttribute {
 
+    private String qryptoBase45;
     private String value;
     private String imageQR;
     private boolean isTransparent;
@@ -43,6 +44,11 @@ public class QryptoFieldAttribute extends BasicFieldAttribute {
         return imageQR;
     }
 
+    @JsonProperty("qrypto_base45")
+    public String getQryptoBase45() {
+        return qryptoBase45;
+    }
+    
     @JsonProperty("items")
     public List<ItemDetails> getItems() {
         return items;
@@ -62,5 +68,9 @@ public class QryptoFieldAttribute extends BasicFieldAttribute {
 
     public void setImageQR(String imageQR) {
         this.imageQR = imageQR;
+    }
+
+    public void setQryptoBase45(String qryptoBase45) {
+        this.qryptoBase45 = qryptoBase45;
     }
 }

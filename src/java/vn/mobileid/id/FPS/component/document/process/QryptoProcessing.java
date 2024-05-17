@@ -289,7 +289,8 @@ class QryptoProcessing implements IDocumentProcessing {
                 new Object[]{
                     field,
                     QRdata.getQryptoBase64(),
-                    documentFieldId
+                    documentFieldId,
+                    QRdata.getQryptoBase45()
                 },
                 transactionId
         ) {
@@ -299,7 +300,9 @@ class QryptoProcessing implements IDocumentProcessing {
                     QryptoFieldAttribute field = (QryptoFieldAttribute) this.get()[0];
                     String imageQR = (String)this.get()[1];
                     long documentFieldId = (long)this.get()[2];
+                    String qryptoBase45 = (String)this.get()[3];
                     field.setImageQR(imageQR);
+                    field.setQryptoBase45(qryptoBase45);
                     field.setProcessStatus(ProcessStatus.PROCESSED.getName());
                     field.setProcessBy(user.getEmail());
                     field.setProcessOn(Utils.getTimestamp());

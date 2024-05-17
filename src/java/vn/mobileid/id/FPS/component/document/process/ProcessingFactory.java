@@ -39,7 +39,7 @@ public class ProcessingFactory<T extends BasicFieldAttribute> {
                 return new SignatureProcessing();
             }
             case CHECKBOX:{
-                return new CheckboxProcessing();
+                return new CheckboxProcessing(version);
             }
             case INITIALS:{
                 return new InitialsProcessing(version);

@@ -353,8 +353,6 @@ public class ConnectorDocument {
         List<Document> listDoc = (List) response.getData();
         String uuid = null;
         for (Document doc : listDoc) {
-            System.out.println("\n===Download Document from FMS===");
-            System.out.println("\tDocumentId:" + doc.getId());
             if (isOriginal && doc.getRevision() == 1) {
                 uuid = doc.getUuid();
             }
@@ -362,6 +360,7 @@ public class ConnectorDocument {
                 uuid = doc.getUuid();
             }
         }
+        System.out.println("\n===Download Document from FMS===");
         System.out.println("\tUUID:" + uuid);
         response = FMS.downloadDocumentFromFMS(
                 uuid,
