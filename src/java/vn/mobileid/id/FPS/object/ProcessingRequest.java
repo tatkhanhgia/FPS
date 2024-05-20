@@ -38,6 +38,7 @@ public class ProcessingRequest {
     private List<ProcessingFormFillRequest> text = new ArrayList<>();
     private List<ProcessingFormFillRequest> radio = new ArrayList<>();
     private List<ProcessingFormFillRequest> checkbox = new ArrayList<>();
+    private List<ProcessingFormFillRequest> checkboxV2 = new ArrayList<>();
     private List<ProcessingFormFillRequest> dropdown = new ArrayList<>();
     private List<ProcessingFormFillRequest> listbox = new ArrayList<>();
     private List<ProcessingFormFillRequest> stamp = new ArrayList<>();
@@ -97,6 +98,10 @@ public class ProcessingRequest {
 
     public void setCheckbox(List<ProcessingFormFillRequest> checkbox) {
         this.checkbox = checkbox;
+    }
+    
+    public void setCheckboxV2(List<ProcessingFormFillRequest> checkbox) {
+        this.checkboxV2 = checkbox;
     }
 
     public void setDropdown(List<ProcessingFormFillRequest> dropdown) {
@@ -225,6 +230,11 @@ public class ProcessingRequest {
     @JsonProperty("checkbox")
     public List<ProcessingFormFillRequest> getCheckbox() {
         return checkbox;
+    }
+    
+    @JsonProperty("checkboxV2")
+    public List<ProcessingFormFillRequest> getCheckboxV2() {
+        return checkboxV2;
     }
 
     @JsonProperty("dropdown")

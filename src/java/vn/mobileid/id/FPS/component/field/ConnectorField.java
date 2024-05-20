@@ -28,6 +28,7 @@ import fps_core.objects.core.InitialsFieldAttribute;
 import fps_core.objects.core.QRFieldAttribute;
 import fps_core.objects.child.RadioFieldAttribute;
 import fps_core.objects.child.ToggleFieldAttribute;
+import fps_core.objects.core.CheckBoxFieldAttributeV2;
 import fps_core.objects.core.SignatureFieldAttribute;
 import fps_core.objects.core.TextFieldAttribute;
 import fps_core.objects.interfaces.AbstractReplicateField;
@@ -901,6 +902,7 @@ public class ConnectorField {
         List<ComboBoxFieldAttribute> combos = new ArrayList<>();
         List<ToggleFieldAttribute> toogles = new ArrayList<>();
         List<NumericStepperAttribute> steppers = new ArrayList<>();
+        List<CheckBoxFieldAttributeV2> checkboxV2s = new ArrayList<>();
 
         for (ExtendedFieldAttribute field : fields) {
             try {
@@ -963,6 +965,12 @@ public class ConnectorField {
                         CheckBoxFieldAttribute checkBox = new ObjectMapper().readValue(field.getDetailValue(), CheckBoxFieldAttribute.class);
                         checkBox = (CheckBoxFieldAttribute) field.clone(checkBox, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
                         checkboxs.add(checkBox);
+                        break;
+                    }
+                    case 47: {
+                        CheckBoxFieldAttributeV2 checkBox = new ObjectMapper().readValue(field.getDetailValue(), CheckBoxFieldAttributeV2.class);
+                        checkBox = (CheckBoxFieldAttributeV2) field.clone(checkBox, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
+                        checkboxV2s.add(checkBox);
                         break;
                     }
                     case 3: {
@@ -1197,7 +1205,7 @@ public class ConnectorField {
                 return null;
             }
         }
-        Object[] array = new Object[16];
+        Object[] array = new Object[17];
         array[0] = textboxs;
         array[1] = checkboxs;
         array[2] = radios;
@@ -1214,6 +1222,7 @@ public class ConnectorField {
         array[13] = hypers;
         array[14] = toogles;
         array[15] = steppers;
+        array[16] = checkboxV2s;
         return array;
     }
     //</editor-fold>
@@ -1542,6 +1551,60 @@ public class ConnectorField {
                     hierarchicalLog.addStartHeading1("Checked: " + field.isChecked());
                     //</editor-fold>
                 }
+                //</editor-fold>
+
+                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field).setHierarchicalLog(hierarchicalLog);
+                //</editor-fold>
+            }
+            case "checkboxV2": {
+                //<editor-fold defaultstate="collapsed" desc="Generate CheckBoxFieldAttributeV2 from Payload">
+                hierarchicalLog.addStartHeading1("Start parse into " + typeField);
+
+                //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
+                CheckBoxFieldAttributeV2 field = null;
+                try {
+                    field = new ObjectMapper().readValue(payload, CheckBoxFieldAttributeV2.class);
+                } catch (JsonProcessingException ex) {
+                    hierarchicalLog.addEndHeading1("Parse into field fail");
+                    return new InternalResponse(
+                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                            A_FPSConstant.CODE_FAIL,
+                            A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE
+                    ).setHierarchicalLog(hierarchicalLog);
+                }
+                hierarchicalLog.addEndHeading1("Parse into field successfully");
+                //</editor-fold>
+
+                //<editor-fold defaultstate="collapsed" desc="Check basic field">
+                hierarchicalLog.addStartHeading1("Start check basic");
+                if (isCheckBasicField) {
+                    InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
+                    hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
+                    if (!response.isValid()) {
+                        hierarchicalLog.addEndHeading1("Checked fail");
+                        return response.setHierarchicalLog(hierarchicalLog);
+                    }
+                }
+                hierarchicalLog.addEndHeading1("Checked successfully");
+                //</editor-fold>
+
+                //<editor-fold defaultstate="collapsed" desc="Check field type">
+                if (!Utils.isNullOrEmpty(field.getTypeName())) {
+                    boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.CHECKBOXV2);
+
+                    if (!check) {
+                        hierarchicalLog.addEndHeading1("Check field type fail");
+                        return new InternalResponse(
+                                A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                                A_FPSConstant.CODE_FIELD_CHECKBOX,
+                                A_FPSConstant.SUBCODE_INVALID_CHECKBOX_FIELD_TYPE
+                        ).setHierarchicalLog(hierarchicalLog);
+                    }
+                    field.setType(Resources.getFieldTypes().get(field.getTypeName()));
+                } else {
+                    field.setType(Resources.getFieldTypes().get(FieldTypeName.CHECKBOX.getParentName()));
+                }
+                hierarchicalLog.addStartHeading1("Final field type: " + field.getType().getTypeName());
                 //</editor-fold>
 
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field).setHierarchicalLog(hierarchicalLog);

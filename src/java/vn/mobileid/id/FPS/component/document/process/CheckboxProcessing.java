@@ -11,6 +11,8 @@ import fps_core.module.DocumentUtils_itext7;
 import fps_core.objects.core.CheckBoxFieldAttribute;
 import fps_core.objects.core.ExtendedFieldAttribute;
 import fps_core.objects.FileManagement;
+import fps_core.objects.core.BasicFieldAttribute;
+import fps_core.objects.core.CheckBoxFieldAttributeV2;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -303,7 +305,7 @@ class CheckboxProcessing extends IVersion implements IModuleProcessing, IDocumen
         Document document = (Document) objects[1];
         int revision = (int) objects[2];
         long documentFieldId = (long) objects[3];
-        CheckBoxFieldAttribute field = (CheckBoxFieldAttribute) objects[4];
+        BasicFieldAttribute field = (BasicFieldAttribute) objects[4];
         ExtendedFieldAttribute extendField = (ExtendedFieldAttribute) objects[5];
         String transactionId = (String) objects[6];
         byte[] file;
@@ -475,20 +477,21 @@ class CheckboxProcessing extends IVersion implements IModuleProcessing, IDocumen
      */
     private byte[] createCheckbox(
             byte[] pdf,
-            CheckBoxFieldAttribute field,
+            Object field,
             String transactionId
     ) throws Exception {
         switch (getVersion()) {
             case V1: {
-                return DocumentUtils_itext7.createCheckBoxFormField_i7(pdf, field, transactionId);
+                return DocumentUtils_itext7.createCheckBoxFormField_i7(pdf, (CheckBoxFieldAttribute)field, transactionId);
             }
             case V2: {
-                return DocumentUtils_itext7.createCheckBoxFormField_i7V2(pdf, field, transactionId);
+                return DocumentUtils_itext7.createCheckBoxFormField_i7V2(pdf, (CheckBoxFieldAttributeV2)field, transactionId);
             }
             default: {
-                return DocumentUtils_itext7.createCheckBoxFormField_i7(pdf, field, transactionId);
+                return DocumentUtils_itext7.createCheckBoxFormField_i7(pdf, (CheckBoxFieldAttribute)field, transactionId);
             }
         }
     }
     //</editor-fold>
+    
 }

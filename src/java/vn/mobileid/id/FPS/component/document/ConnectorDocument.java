@@ -874,12 +874,26 @@ public class ConnectorDocument {
         }
         //</editor-fold>
 
-        //<editor-fold defaultstate="collapsed" desc="Process Checkbox Form Field - Version2 nhen">
+        //<editor-fold defaultstate="collapsed" desc="Process Checkbox Form Field V1">
         if (!Utils.isNullOrEmpty(processRequest.getCheckbox())) {
-            response = new ProcessingCheckboxFormField(IVersion.Version.V2).processCheckboxField(
+            response = new ProcessingCheckboxFormField(IVersion.Version.V1).processCheckboxField(
                     Utils.getIdFromURL(request.getRequestURI()),
                     user,
                     processRequest.getCheckbox(),
+                    transactionId);
+
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                return response;
+            }
+        }
+        //</editor-fold>
+        
+        //<editor-fold defaultstate="collapsed" desc="Process Checkbox Form Field - Version2 nhen">
+        if (!Utils.isNullOrEmpty(processRequest.getCheckboxV2())) {
+            response = new ProcessingCheckboxFormField(IVersion.Version.V2).processCheckboxField(
+                    Utils.getIdFromURL(request.getRequestURI()),
+                    user,
+                    processRequest.getCheckboxV2(),
                     transactionId);
 
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {

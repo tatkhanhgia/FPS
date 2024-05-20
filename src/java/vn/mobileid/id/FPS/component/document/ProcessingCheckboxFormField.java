@@ -6,7 +6,9 @@ package vn.mobileid.id.FPS.component.document;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fps_core.enumration.FieldTypeName;
+import fps_core.objects.core.BasicFieldAttribute;
 import fps_core.objects.core.CheckBoxFieldAttribute;
+import fps_core.objects.core.CheckBoxFieldAttributeV2;
 import fps_core.objects.core.ExtendedFieldAttribute;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -113,7 +115,7 @@ public class ProcessingCheckboxFormField extends IVersion {
                 continue;
             }
 
-            if (!fieldData.getType().getParentType().equals(FieldTypeName.CHECKBOX.getParentName())) {
+            if (!fieldData.getType().getParentType().equals(FieldTypeName.CHECKBOXV2.getParentName())) {
                 errorField.setValue(ResponseMessageController.getErrorMessageAdvanced(
                         A_FPSConstant.CODE_FIELD,
                         A_FPSConstant.SUBCODE_THIS_TYPE_OF_FIELD_IS_NOT_VALID_FOR_THIS_PROCESSION,
@@ -135,7 +137,7 @@ public class ProcessingCheckboxFormField extends IVersion {
             //</editor-fold>
 
             //<editor-fold defaultstate="collapsed" desc="Convert ExtendField into CheckboxField">
-            CheckBoxFieldAttribute checkboxField = null;
+            BasicFieldAttribute checkboxField = null;
             try {
                 if (field.getValue() != null && !(field.getValue() instanceof Boolean)) {
                     field.setValue(null);
@@ -192,20 +194,23 @@ public class ProcessingCheckboxFormField extends IVersion {
 
     //==========================================================================
     //<editor-fold defaultstate="collapsed" desc="Convert ExtendedField into CheckboxField">
-    private static CheckBoxFieldAttribute convertExtendIntoCheckBoxField(
+    private BasicFieldAttribute convertExtendIntoCheckBoxField(
             User user,
             ExtendedFieldAttribute fieldData,
             Boolean value) throws Exception {
         //Read details
-        CheckBoxFieldAttribute checkboxField = new ObjectMapper().readValue(fieldData.getDetailValue(), CheckBoxFieldAttribute.class);
-        checkboxField = (CheckBoxFieldAttribute) fieldData.clone(checkboxField, fieldData.getDimension());
+        BasicFieldAttribute checkboxField = null;
+        if(this.getVersion().equals(Version.V2)){
+            checkboxField = new CheckBoxFieldAttributeV2();
+        } else {
+            checkboxField = new CheckBoxFieldAttribute();
+        }
+        checkboxField = new ObjectMapper().readValue(fieldData.getDetailValue(), checkboxField.getClass());
+        checkboxField = (BasicFieldAttribute) fieldData.clone(checkboxField, fieldData.getDimension());
 
         checkboxField.setProcessBy(user.getAzp());
         SimpleDateFormat dateFormat = new SimpleDateFormat(PolicyConfiguration.getInstant().getSystemConfig().getAttributes().get(0).getDateFormat());
         checkboxField.setProcessOn(dateFormat.format(Date.from(Instant.now())));
-        if (value != null) {
-            checkboxField.setChecked(value);
-        }
 
         return checkboxField;
     }
