@@ -252,11 +252,12 @@ public class ConnectorField {
     // <editor-fold defaultstate="collapsed" desc="Add FieldV2">
     /**
      * Add field Version 2: Using to append field immediately when add field
+     *
      * @param request
      * @param payload
      * @param transactionId
      * @return
-     * @throws Exception 
+     * @throws Exception
      */
     public static InternalResponse addFieldV2(
             HttpServletRequest request,
@@ -438,11 +439,12 @@ public class ConnectorField {
     // <editor-fold defaultstate="collapsed" desc="Update Field">
     /**
      * Update field in Document
+     *
      * @param request
      * @param payload
      * @param transactionId
      * @return
-     * @throws Exception 
+     * @throws Exception
      */
     public static InternalResponse updateField(
             HttpServletRequest request,
@@ -450,7 +452,7 @@ public class ConnectorField {
             String transactionId
     ) throws Exception {
         fps_core.utils.LogHandler.HierarchicalLog hierarchicalLog = new fps_core.utils.LogHandler.HierarchicalLog("Add field");
-        
+
         //<editor-fold defaultstate="collapsed" desc="Check payload">
         if (payload == null) {
             return new InternalResponse(
@@ -1033,6 +1035,23 @@ public class ConnectorField {
                                 ex.printStackTrace();
                             }
                         }
+                        if (!Utils.isNullOrEmpty(qr.getImageQR())) {
+                            //<editor-fold defaultstate="collapsed" desc="Download image from FMS If need">
+                            if (qr.getImageQR().length() <= 32) {
+                                try {
+                                    InternalResponse response = vn.mobileid.id.FMS.downloadDocumentFromFMS(
+                                            qr.getImageQR(),
+                                            "");
+                                    if (response.getStatus() == A_FPSConstant.HTTP_CODE_SUCCESS) {
+                                        byte[] data = (byte[]) response.getData();
+                                        qr.setImageQR(Base64.toBase64String(data));
+                                    }
+                                } catch (Exception ex) {
+                                    System.err.println("Cannot download image from QR in FMS!. Using default");
+                                }
+                            }
+                            //</editor-fold>
+                        }
                         //</editor-fold>
 
                         qryptos.add(qr);
@@ -1247,7 +1266,7 @@ public class ConnectorField {
 
         String typeField = url.substring(url.lastIndexOf("/") + 1);
         String temp = null;
- 
+
         hierarchicalLog.addStartHeading1("Field from URL: " + typeField);
 
         switch (typeField) {
@@ -1452,7 +1471,7 @@ public class ConnectorField {
 
                 //<editor-fold defaultstate="collapsed" desc="Initial data of field">
                 if (!isUpdate) {
-                    if (field.getMaxLength() == null){
+                    if (field.getMaxLength() == null) {
                         field.setMaxLength(100);
                     }
                     if (field.getAlignment() == null) {
@@ -1467,7 +1486,7 @@ public class ConnectorField {
                     if (field.isMultiline() == null) {
                         field.setMultiline(false);
                     }
-                    if (field.getFont() == null){
+                    if (field.getFont() == null) {
                         field.setFont(Font.init());
                     }
 
@@ -2406,7 +2425,7 @@ public class ConnectorField {
             case "combo": {
                 //<editor-fold defaultstate="collapsed" desc="Generate ComboBox Field from Payload">
                 hierarchicalLog.addStartHeading1("Start parse into " + typeField);
-                
+
                 //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
                 ComboBoxFieldAttribute field = null;
                 try {
@@ -2422,7 +2441,7 @@ public class ConnectorField {
                 }
                 hierarchicalLog.addEndHeading1("Parse into field successfully");
                 //</editor-fold>
-                
+
                 //<editor-fold defaultstate="collapsed" desc="Check basic field">
                 hierarchicalLog.addStartHeading1("Start check basic");
                 if (isCheckBasicField) {
@@ -2483,7 +2502,7 @@ public class ConnectorField {
             case "toggle": {
                 //<editor-fold defaultstate="collapsed" desc="Generate Toogle Field from Payload">
                 hierarchicalLog.addStartHeading1("Start parse into " + typeField);
-                
+
                 //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
                 ToggleFieldAttribute field = null;
                 try {
@@ -2499,7 +2518,7 @@ public class ConnectorField {
                 }
                 hierarchicalLog.addEndHeading1("Parse into field successfully");
                 //</editor-fold>
-                
+
                 //<editor-fold defaultstate="collapsed" desc="Check basic field">
                 hierarchicalLog.addStartHeading1("Start check basic");
                 if (isCheckBasicField) {
@@ -2561,7 +2580,7 @@ public class ConnectorField {
             case "numeric_stepper": {
                 //<editor-fold defaultstate="collapsed" desc="Generate Stepper Field from Payload">
                 hierarchicalLog.addStartHeading1("Start parse into " + typeField);
-                
+
                 //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
                 NumericStepperAttribute field = null;
                 try {
@@ -2577,7 +2596,7 @@ public class ConnectorField {
                 }
                 hierarchicalLog.addEndHeading1("Parse into field successfully");
                 //</editor-fold>
-                
+
                 //<editor-fold defaultstate="collapsed" desc="Check basic field">
                 hierarchicalLog.addStartHeading1("Start check basic");
                 if (isCheckBasicField) {

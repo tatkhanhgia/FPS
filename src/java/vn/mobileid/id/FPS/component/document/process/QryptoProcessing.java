@@ -25,6 +25,11 @@ import vn.mobileid.id.FMS;
 import vn.mobileid.id.FPS.QryptoService.object.Configuration;
 import vn.mobileid.id.FPS.QryptoService.object.FileDataDetails;
 import vn.mobileid.id.FPS.QryptoService.object.ItemDetails;
+import vn.mobileid.id.FPS.QryptoService.object.Item_IDPicture4Label;
+import vn.mobileid.id.FPS.QryptoService.object.ItemsType;
+import static vn.mobileid.id.FPS.QryptoService.object.ItemsType.Binary;
+import static vn.mobileid.id.FPS.QryptoService.object.ItemsType.File;
+import static vn.mobileid.id.FPS.QryptoService.object.ItemsType.ID_Picture_with_4_labels;
 import vn.mobileid.id.FPS.QryptoService.object.QRSchema;
 import vn.mobileid.id.FPS.QryptoService.process.CreateQRSchema;
 import vn.mobileid.id.FPS.QryptoService.process.QryptoService;
@@ -44,7 +49,12 @@ import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.utils.TaskV2;
 import vn.mobileid.id.utils.Utils;
 import vn.mobileid.id.FPS.component.document.process.interfaces.IDocumentProcessing;
+import vn.mobileid.id.FPS.component.field.ConnectorField;
+import vn.mobileid.id.FPS.component.field.ConnectorField_Internal;
 import vn.mobileid.id.FPS.enumeration.QryptoVariable;
+import vn.mobileid.id.FPS.serializer.IgnoreIngeritedIntrospector;
+import vn.mobileid.id.general.LogHandler;
+import vn.mobileid.id.general.PolicyConfiguration;
 
 /**
  *
@@ -64,6 +74,10 @@ class QryptoProcessing implements IDocumentProcessing {
         long documentFieldId = (long) objects[5];
         String transactionId = (String) objects[6];
         byte[] file;
+
+        ExecutorService executors = Executors.newFixedThreadPool(2);
+        CompletionService<Object> taskCompletion = new ExecutorCompletionService<>(executors);
+        InternalResponse errorResponse = null;
 
         //<editor-fold defaultstate="collapsed" desc="Check status of Document">
         if (document.isEnabled()) {
@@ -110,7 +124,7 @@ class QryptoProcessing implements IDocumentProcessing {
         Configuration config = CreateQRSchema.createConfiguration(
                 field,
                 user,
-                items.size()*120,
+                items.size() * 120,
                 transactionId);
         QRSchema schema = null;
         try {
@@ -128,18 +142,89 @@ class QryptoProcessing implements IDocumentProcessing {
         }
         //</editor-fold>
 
+        //<editor-fold defaultstate="collapsed" desc="Run first Thread to summary the field (make Image/File turn from Base64 into UUID FMS)">
+        taskCompletion.submit(new TaskV2(
+                new Object[]{
+                    field
+                },
+                transactionId
+        ) {
+            @Override
+            public Object call() {
+                try {
+                    for (ItemDetails detail : field.getItems()) {
+                        String file = null;
+                        Item_IDPicture4Label.IDPicture4Label tempp = null;
+                        switch (ItemsType.getItemsType(detail.getType())) {
+                            case Binary:
+                            case File: {
+                                file = (String) detail.getValue();
+                                break;
+                            }
+                            case ID_Picture_with_4_labels: {
+                                String temp_ = new ObjectMapper().writeValueAsString(detail.getValue());
+                                tempp = new ObjectMapper().readValue(temp_, Item_IDPicture4Label.IDPicture4Label.class);
+                                file = tempp.getBase64();
+                                break;
+                            }
+                            default: {
+                            }
+                        }
+                        if (file != null) {
+                            //<editor-fold defaultstate="collapsed" desc="Upload image into FMS If need">
+                            if (file.length()
+                                    > PolicyConfiguration.getInstant()
+                                            .getSystemConfig()
+                                            .getAttributes()
+                                            .get(0)
+                                            .getMaximumFile()) {
+                                try {
+                                    InternalResponse response = vn.mobileid.id.FMS.uploadToFMS(
+                                            org.bouncycastle.util.encoders.Base64.decode(file),
+                                            "png",
+                                            transactionId);
+                                    if (response.getStatus() == A_FPSConstant.HTTP_CODE_SUCCESS) {
+                                        String uuid = (String) response.getData();
+                                        if (tempp != null) {
+                                            tempp.setBase64(uuid);
+                                            detail.setValue(tempp);
+                                        } else {
+                                            detail.setValue(uuid);
+                                        }
+                                    } else {
+                                    }
+                                } catch (Exception ex) {
+                                    System.err.println("Cannot upload image from QR to FMS!. Using default");
+                                }
+                            }
+                            //</editor-fold>
+                        }
+                    }
+                    return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS,"");
+                } catch (Exception ex) {
+                    LogHandler.error(ConnectorField.class, transactionId, ex);
+                    return new InternalResponse(
+                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                            A_FPSConstant.CODE_FIELD_QR_Qrypto,
+                            A_FPSConstant.SUBCODE_INVALID_TYPE_OF_ITEM
+                    ).setException(ex);
+                }
+            }
+        });
+        //</editor-fold>
+
         //<editor-fold defaultstate="collapsed" desc="Update 2024-04-30: Add Logic read Signature in PDF and replace SigningTime @FirstSigner and @SecondSigner in QRSchema">
         List<Signature> signatures = DocumentUtils_itext7.verifyDocument_i7(file);
-        
+
         String temp = new ObjectMapper().writeValueAsString(schema);
-        
+
         try {
             temp = temp.replaceAll(
-                    QryptoVariable.FIRST_SIGNER.getAnnotationName(), 
+                    QryptoVariable.FIRST_SIGNER.getAnnotationName(),
                     new SimpleDateFormat("dd/MM/yyyy hh:mm:ss")
                             .format(signatures.get(0).getSigningTime()));
             temp = temp.replaceAll(
-                    QryptoVariable.SECOND_SIGNER.getAnnotationName(), 
+                    QryptoVariable.SECOND_SIGNER.getAnnotationName(),
                     new SimpleDateFormat("dd/MM/yyyy hh:mm:ss")
                             .format(signatures.get(1).getSigningTime()));
         } catch (Exception e) {
@@ -147,7 +232,7 @@ class QryptoProcessing implements IDocumentProcessing {
 //            schema = new ObjectMapper().readValue(temp, QRSchema.class);
         }
         //</editor-fold>
-        
+
         //<editor-fold defaultstate="collapsed" desc="Call Qrypto">
         IssueQryptoWithFileAttachResponse QRdata = null;
         try {
@@ -155,10 +240,10 @@ class QryptoProcessing implements IDocumentProcessing {
                 QRdata = QryptoService
                         .getInstance(1)
                         .generateQR(
-                                temp, 
+                                temp,
                                 schema.getHeader(),
                                 schema.getFormat(),
-                                config, 
+                                config,
                                 transactionId);
             } catch (LoginException ex) {
                 QryptoService.getInstance(1).login();
@@ -224,10 +309,7 @@ class QryptoProcessing implements IDocumentProcessing {
         }
         //</editor-fold>
 
-        ExecutorService executors = Executors.newFixedThreadPool(2);
-        CompletionService<Object> taskCompletion = new ExecutorCompletionService<>(executors);
-        InternalResponse errorResponse = null;
-        
+        //Run thread after process
         //<editor-fold defaultstate="collapsed" desc="Create new Document + upload to FMS">
         taskCompletion.submit(new TaskV2(
                 new Object[]{
@@ -281,7 +363,7 @@ class QryptoProcessing implements IDocumentProcessing {
                     ).setException(ex);
                 }
             }
-        });        
+        });
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Update Image of QR and processMultipleField Status of Field">
@@ -298,20 +380,57 @@ class QryptoProcessing implements IDocumentProcessing {
             public Object call() {
                 try {
                     QryptoFieldAttribute field = (QryptoFieldAttribute) this.get()[0];
-                    String imageQR = (String)this.get()[1];
-                    long documentFieldId = (long)this.get()[2];
-                    String qryptoBase45 = (String)this.get()[3];
-                    field.setImageQR(imageQR);
-                    field.setQryptoBase45(qryptoBase45);
+
+                    long documentFieldId = (long) this.get()[2];
+
                     field.setProcessStatus(ProcessStatus.PROCESSED.getName());
                     field.setProcessBy(user.getEmail());
                     field.setProcessOn(Utils.getTimestamp());
-                    
-                    return UpdateField.updateValueOfField(
+
+                    InternalResponse response = UpdateField.updateValueOfField(
                             documentFieldId,
                             user,
                             new ObjectMapper().writeValueAsString(field),
                             this.getTransactionId());
+
+                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                        return new InternalResponse(
+                                A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                                A_FPSConstant.CODE_DOCUMENT,
+                                A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD
+                        );
+                    }
+
+                    String qryptoBase45 = (String) this.get()[3];
+                    field.setQryptoBase45(qryptoBase45);
+
+                    String imageQR = (String) this.get()[1];
+                    //<editor-fold defaultstate="collapsed" desc="Upload to FMS">
+                    response = FMS.uploadToFMS(imageQR.getBytes(), DocumentType.PNG.getType(), transactionId);
+                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                        return response;
+                    }
+                    //</editor-fold>
+
+                    String uuid = (String) response.getData();
+                    field.setImageQR(uuid);
+
+                    response = ConnectorField_Internal.updateFieldDetail(
+                            documentFieldId,
+                            user,
+                            new ObjectMapper()
+                                    .setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
+                                    .writeValueAsString(field),
+                            "hmac",
+                            transactionId);
+                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                        return new InternalResponse(
+                                A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                                A_FPSConstant.CODE_DOCUMENT,
+                                A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD_DETAILS
+                        );
+                    }
+                    return response;
                 } catch (Exception ex) {
                     return new InternalResponse(
                             A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
@@ -322,17 +441,17 @@ class QryptoProcessing implements IDocumentProcessing {
             }
         });
         //</editor-fold>
-        
+
         //<editor-fold defaultstate="collapsed" desc="Take from Completion service">
-        for(int i=0; i<2; i++){
-            try{
+        for (int i = 0; i < 2; i++) {
+            try {
                 Future<Object> result = taskCompletion.take();
                 InternalResponse resultDetail = (InternalResponse) result.get();
-                if(resultDetail.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS){
+                if (resultDetail.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                     executors.shutdownNow();
                     errorResponse = resultDetail;
                 }
-            }catch(Exception ex){
+            } catch (Exception ex) {
                 errorResponse = new InternalResponse(
                         A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
                         A_FPSConstant.CODE_FIELD_INITIAL,
@@ -341,21 +460,20 @@ class QryptoProcessing implements IDocumentProcessing {
             }
         }
         //</editor-fold>
-        
-        if(errorResponse != null){
+
+        if (errorResponse != null) {
             return errorResponse;
         }
-        
+
         return new InternalResponse(
                 A_FPSConstant.HTTP_CODE_SUCCESS,
                 ""
         );
     }
 
-    public static void main(String[] args) throws Exception{
+    public static void main(String[] args) throws Exception {
         Signature sig = new Signature();
         sig.setSigningTime(new Date(System.currentTimeMillis()));
-        
-        
+
     }
 }
