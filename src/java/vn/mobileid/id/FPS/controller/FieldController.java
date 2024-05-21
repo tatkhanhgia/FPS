@@ -102,7 +102,7 @@ public class FieldController extends HttpServlet {
         String payload = Utils.getPayload(req);
         try {
             //<editor-fold defaultstate="collapsed" desc="Add field">
-            if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/fields.*$") && !req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/fields/hash$")) {
+            if (req.getRequestURI().matches("^/fps/v[12]/documents/[0-9]+/fields.*$") && !req.getRequestURI().matches("^/fps/v[12]/documents/[0-9]+/fields/hash$")) {
                 String transactionId = Utils.getTransactionId(req, payload);
                 long packageId = Utils.getIdFromURL(req.getRequestURI());
                 LogHandler.request(
@@ -274,261 +274,19 @@ public class FieldController extends HttpServlet {
                         response.setMessage(message);
                     }
 
-                        Utils.createAPILog(req,
-                                payload,
-                                (int) packageId,
-                                response,
-                                response.getException(),
-                                transactionId);
+                    Utils.createAPILog(req,
+                            payload,
+                            (int) packageId,
+                            response,
+                            response.getException(),
+                            transactionId);
 
-                        Utils.sendMessage(
-                                res,
-                                response.getStatus(),
-                                "application/json",
-                                response.getMessage(),
-                                transactionId);
-                    } else {
-                        Utils.sendMessage(
-                                res,
-                                HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
-                                "application/json",
-                                null,
-                                transactionId);
-                    }
-                    return;
-                } //</editor-fold>
-
-                //<editor-fold defaultstate="collapsed" desc="Fill QR Qrypto Field">
-                if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/qrcode-qrypto$")) {
-                    String transactionId = Utils.getTransactionId(req, payload);
-                    long packageId = Utils.getIdFromURL(req.getRequestURI());
-                    LogHandler.request(
-                            FieldController.class,
-                            Utils.getDataRequestToLog(req, transactionId, "Fill Form Field", ""));
-                    if (!Utils.isNullOrEmpty(req.getContentType()) && req.getContentType().contains("application/json")) {
-
-                        InternalResponse response = ConnectorDocument.createQRQrypto(req, packageId, payload, transactionId);
-
-                        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                            String message = ResponseMessageController.getErrorMessageAdvanced(
-                                    response.getCode(),
-                                    response.getCodeDescription(),
-                                    response.getMessage(),
-                                    language,
-                                    transactionId);
-                            response.setMessage(message);
-                        }
-
-                        Utils.createAPILog(req,
-                                payload,
-                                (int) packageId,
-                                response,
-                                response.getException(),
-                                transactionId);
-
-                        Utils.sendMessage(
-                                res,
-                                response.getStatus(),
-                                "application/json",
-                                response.getMessage(),
-                                transactionId);
-                    } else {
-                        Utils.sendMessage(
-                                res,
-                                HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
-                                "application/json",
-                                null,
-                                transactionId);
-                    }
-                    return;
-                } //</editor-fold>
-                else {
                     Utils.sendMessage(
                             res,
-                            A_FPSConstant.HTTP_CODE_METHOD_NOT_ALLOWED,
+                            response.getStatus(),
                             "application/json",
-                            null,
-                            "");
-                }
-            }catch (Exception ex) {
-            catchException(
-                    ex,
-                    req,
-                    res,
-                    payload,
-                    (int) Utils.getIdFromURL(req.getRequestURI()),
-                    language);
-        }
-        }
-
-        @Override
-        public void doPut
-        (HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-            String language = Utils.getRequestHeader(req, "x-language-name");
-            String payload = Utils.getPayload(req);
-
-            try {
-                //<editor-fold defaultstate="collapsed" desc="Update Field">
-                if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/fields/.*$") && !req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/fields/hash$")) {
-                    String transactionId = Utils.getTransactionId(req, payload);
-
-                    try {
-                        LogHandler.request(
-                                FieldController.class,
-                                Utils.getDataRequestToLog(req, transactionId, "update Field", ""));
-                        if (!Utils.isNullOrEmpty(req.getContentType()) && req.getContentType().contains("application/json")) {
-                            InternalResponse response = ConnectorField.updateField(req, payload, transactionId);
-
-                            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                                String message = ResponseMessageController.getErrorMessageAdvanced(
-                                        response.getCode(),
-                                        response.getCodeDescription(),
-                                        response.getMessage(),
-                                        language,
-                                        transactionId);
-                                response.setMessage(message);
-                            }
-
-                            Utils.createAPILog(req,
-                                    payload,
-                                    (int) Utils.getIdFromURL(req.getRequestURI()),
-                                    response,
-                                    response.getException(),
-                                    transactionId);
-
-                            Utils.sendMessage(
-                                    res,
-                                    response.getStatus(),
-                                    "application/json",
-                                    response.getMessage(),
-                                    transactionId);
-                        } else {
-                            Utils.sendMessage(
-                                    res,
-                                    HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
-                                    "application/json",
-                                    null,
-                                    "none");
-                        }
-                    } catch (Exception ex) {
-                        catchException(ex, req, res, payload, 0, transactionId);
-                    }
-                    return;
-                }
-                //</editor-fold>
-
-                //<editor-fold defaultstate="collapsed" desc="Fill Form Field">
-                if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/fields$")) {
-                    String transactionId = Utils.getTransactionId(req, payload);
-                    LogHandler.request(
-                            FieldController.class,
-                            Utils.getDataRequestToLog(req, transactionId, "Fill Form Field", ""));
-                    if (!Utils.isNullOrEmpty(req.getContentType()) && req.getContentType().contains("application/json")) {
-                        InternalResponse response = ConnectorDocument.fillFormField_V1(req, payload, transactionId);
-
-                        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                            String message = "";
-                            if (response.getInternalData() != null) {
-                                message = ResponseMessageController.createErrorMessage((List<InternalData>) response.getInternalData().getValue());
-                            } else {
-                                message = ResponseMessageController.getErrorMessageAdvanced(
-                                        response.getCode(),
-                                        response.getCodeDescription(),
-                                        response.getMessage(),
-                                        language,
-                                        transactionId);
-                            }
-                            response.setMessage(message);
-                        }
-
-                        Utils.createAPILog(req,
-                                payload,
-                                (int) Utils.getIdFromURL(req.getRequestURI()),
-                                response,
-                                response.getException(),
-                                transactionId);
-
-                        Utils.sendMessage(
-                                res,
-                                response.getStatus(),
-                                "application/json",
-                                response.getMessage(),
-                                transactionId);
-
-                        return;
-                    } else {
-                        Utils.sendMessage(
-                                res,
-                                HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
-                                "application/json",
-                                null,
-                                "");
-                    }
-                    //</editor-fold>
-
-                } else {
-                    Utils.sendMessage(
-                            res,
-                            A_FPSConstant.HTTP_CODE_METHOD_NOT_ALLOWED,
-                            "application/json",
-                            null,
-                            "");
-
-                }
-
-            } catch (Exception ex) {
-                catchException(
-                        ex,
-                        req,
-                        res,
-                        payload,
-                        (int) Utils.getIdFromURL(req.getRequestURI()),
-                        language);
-            }
-        }
-
-        @Override
-        public void doDelete
-        (HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-            String language = Utils.getRequestHeader(req, "x-language-name");
-            String payload = Utils.getPayload(req);
-
-            if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/fields$")) {
-                String transactionId = Utils.getTransactionId(req, payload);
-                long packageId = Utils.getIdFromURL(req.getRequestURI());
-                LogHandler.request(
-                        FieldController.class,
-                        Utils.getDataRequestToLog(req, transactionId, "delete Field", payload));
-                if (!Utils.isNullOrEmpty(req.getContentType()) && req.getContentType().contains("application/json")) {
-                    try {
-                        InternalResponse response = ConnectorField.deleteFormField(req, packageId, payload, transactionId);
-
-                        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-                            String message = ResponseMessageController.getErrorMessageAdvanced(
-                                    response.getCode(),
-                                    response.getCodeDescription(),
-                                    response.getMessage(),
-                                    language,
-                                    transactionId);
-                            response.setMessage(message);
-                        }
-
-                        Utils.createAPILog(req,
-                                payload,
-                                (int) Utils.getIdFromURL(req.getRequestURI()),
-                                response,
-                                response.getException(),
-                                transactionId);
-
-                        Utils.sendMessage(
-                                res,
-                                response.getStatus(),
-                                "application/json",
-                                response.getMessage(),
-                                transactionId);
-                    } catch (Exception ex) {
-                        catchException(ex, req, res, payload, (int) packageId, transactionId);
-                    }
+                            response.getMessage(),
+                            transactionId);
                 } else {
                     Utils.sendMessage(
                             res,
@@ -537,17 +295,257 @@ public class FieldController extends HttpServlet {
                             null,
                             transactionId);
                 }
+                return;
+            } //</editor-fold>
+
+            //<editor-fold defaultstate="collapsed" desc="Fill QR Qrypto Field">
+            if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/qrcode-qrypto$")) {
+                String transactionId = Utils.getTransactionId(req, payload);
+                long packageId = Utils.getIdFromURL(req.getRequestURI());
+                LogHandler.request(
+                        FieldController.class,
+                        Utils.getDataRequestToLog(req, transactionId, "Fill Form Field", ""));
+                if (!Utils.isNullOrEmpty(req.getContentType()) && req.getContentType().contains("application/json")) {
+
+                    InternalResponse response = ConnectorDocument.createQRQrypto(req, packageId, payload, transactionId);
+
+                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                        String message = ResponseMessageController.getErrorMessageAdvanced(
+                                response.getCode(),
+                                response.getCodeDescription(),
+                                response.getMessage(),
+                                language,
+                                transactionId);
+                        response.setMessage(message);
+                    }
+
+                    Utils.createAPILog(req,
+                            payload,
+                            (int) packageId,
+                            response,
+                            response.getException(),
+                            transactionId);
+
+                    Utils.sendMessage(
+                            res,
+                            response.getStatus(),
+                            "application/json",
+                            response.getMessage(),
+                            transactionId);
+                } else {
+                    Utils.sendMessage(
+                            res,
+                            HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
+                            "application/json",
+                            null,
+                            transactionId);
+                }
+                return;
+            } //</editor-fold>
+            else {
+                Utils.sendMessage(
+                        res,
+                        A_FPSConstant.HTTP_CODE_METHOD_NOT_ALLOWED,
+                        "application/json",
+                        null,
+                        "");
+            }
+        } catch (Exception ex) {
+            catchException(
+                    ex,
+                    req,
+                    res,
+                    payload,
+                    (int) Utils.getIdFromURL(req.getRequestURI()),
+                    language);
+        }
+    }
+
+    @Override
+    public void doPut(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        String language = Utils.getRequestHeader(req, "x-language-name");
+        String payload = Utils.getPayload(req);
+
+        try {
+            //<editor-fold defaultstate="collapsed" desc="Update Field">
+            if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/fields/.*$") && !req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/fields/hash$")) {
+                String transactionId = Utils.getTransactionId(req, payload);
+
+                try {
+                    LogHandler.request(
+                            FieldController.class,
+                            Utils.getDataRequestToLog(req, transactionId, "update Field", ""));
+                    if (!Utils.isNullOrEmpty(req.getContentType()) && req.getContentType().contains("application/json")) {
+                        InternalResponse response = ConnectorField.updateField(req, payload, transactionId);
+
+                        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                            String message = ResponseMessageController.getErrorMessageAdvanced(
+                                    response.getCode(),
+                                    response.getCodeDescription(),
+                                    response.getMessage(),
+                                    language,
+                                    transactionId);
+                            response.setMessage(message);
+                        }
+
+                        Utils.createAPILog(req,
+                                payload,
+                                (int) Utils.getIdFromURL(req.getRequestURI()),
+                                response,
+                                response.getException(),
+                                transactionId);
+
+                        Utils.sendMessage(
+                                res,
+                                response.getStatus(),
+                                "application/json",
+                                response.getMessage(),
+                                transactionId);
+                    } else {
+                        Utils.sendMessage(
+                                res,
+                                HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
+                                "application/json",
+                                null,
+                                "none");
+                    }
+                } catch (Exception ex) {
+                    catchException(ex, req, res, payload, 0, transactionId);
+                }
+                return;
+            }
+            //</editor-fold>
+
+            //<editor-fold defaultstate="collapsed" desc="Fill Form Field">
+            if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/fields$")) {
+                String transactionId = Utils.getTransactionId(req, payload);
+                LogHandler.request(
+                        FieldController.class,
+                        Utils.getDataRequestToLog(req, transactionId, "Fill Form Field", ""));
+                if (!Utils.isNullOrEmpty(req.getContentType()) && req.getContentType().contains("application/json")) {
+                    InternalResponse response = ConnectorDocument.fillFormField_V1(req, payload, transactionId);
+
+                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                        String message = "";
+                        if (response.getInternalData() != null) {
+                            message = ResponseMessageController.createErrorMessage((List<InternalData>) response.getInternalData().getValue());
+                        } else {
+                            message = ResponseMessageController.getErrorMessageAdvanced(
+                                    response.getCode(),
+                                    response.getCodeDescription(),
+                                    response.getMessage(),
+                                    language,
+                                    transactionId);
+                        }
+                        response.setMessage(message);
+                    }
+
+                    Utils.createAPILog(req,
+                            payload,
+                            (int) Utils.getIdFromURL(req.getRequestURI()),
+                            response,
+                            response.getException(),
+                            transactionId);
+
+                    Utils.sendMessage(
+                            res,
+                            response.getStatus(),
+                            "application/json",
+                            response.getMessage(),
+                            transactionId);
+
+                    return;
+                } else {
+                    Utils.sendMessage(
+                            res,
+                            HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
+                            "application/json",
+                            null,
+                            "");
+                }
+                //</editor-fold>
+
             } else {
                 Utils.sendMessage(
                         res,
                         A_FPSConstant.HTTP_CODE_METHOD_NOT_ALLOWED,
                         "application/json",
                         null,
-                        "none");
+                        "");
+
             }
+
+        } catch (Exception ex) {
+            catchException(
+                    ex,
+                    req,
+                    res,
+                    payload,
+                    (int) Utils.getIdFromURL(req.getRequestURI()),
+                    language);
         }
-        //==========================================================================
-        //<editor-fold defaultstate="collapsed" desc="Catch Exception">
+    }
+
+    @Override
+    public void doDelete(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
+        String language = Utils.getRequestHeader(req, "x-language-name");
+        String payload = Utils.getPayload(req);
+
+        if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/fields$")) {
+            String transactionId = Utils.getTransactionId(req, payload);
+            long packageId = Utils.getIdFromURL(req.getRequestURI());
+            LogHandler.request(
+                    FieldController.class,
+                    Utils.getDataRequestToLog(req, transactionId, "delete Field", payload));
+            if (!Utils.isNullOrEmpty(req.getContentType()) && req.getContentType().contains("application/json")) {
+                try {
+                    InternalResponse response = ConnectorField.deleteFormField(req, packageId, payload, transactionId);
+
+                    if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                        String message = ResponseMessageController.getErrorMessageAdvanced(
+                                response.getCode(),
+                                response.getCodeDescription(),
+                                response.getMessage(),
+                                language,
+                                transactionId);
+                        response.setMessage(message);
+                    }
+
+                    Utils.createAPILog(req,
+                            payload,
+                            (int) Utils.getIdFromURL(req.getRequestURI()),
+                            response,
+                            response.getException(),
+                            transactionId);
+
+                    Utils.sendMessage(
+                            res,
+                            response.getStatus(),
+                            "application/json",
+                            response.getMessage(),
+                            transactionId);
+                } catch (Exception ex) {
+                    catchException(ex, req, res, payload, (int) packageId, transactionId);
+                }
+            } else {
+                Utils.sendMessage(
+                        res,
+                        HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
+                        "application/json",
+                        null,
+                        transactionId);
+            }
+        } else {
+            Utils.sendMessage(
+                    res,
+                    A_FPSConstant.HTTP_CODE_METHOD_NOT_ALLOWED,
+                    "application/json",
+                    null,
+                    "none");
+        }
+    }
+    //==========================================================================
+    //<editor-fold defaultstate="collapsed" desc="Catch Exception">
 
     private static void catchException(
             Exception ex,

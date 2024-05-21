@@ -1483,7 +1483,7 @@ public abstract class ParseToField {
             Boolean isCheckBasicField,
             Boolean isUpdate,
             String transactionId) {
-        fps_core.utils.LogHandler.HierarchicalLog hierarchicalLog = new fps_core.utils.LogHandler.HierarchicalLog("Parse to Field");
+        fps_core.utils.LogHandler.HierarchicalLog hierarchicalLog = new fps_core.utils.LogHandler.HierarchicalLog("Parse to Field Version 2");
 
         String typeField = url.substring(url.lastIndexOf("/") + 1);
 
@@ -2351,21 +2351,5 @@ public abstract class ParseToField {
             //</editor-fold>
         }
         //</editor-fold>
-    }
-
-    public static void main(String[] args) throws Exception {
-        TextFieldAttribute textFieldAttribute = new TextFieldAttribute();
-        Resources.reloadFieldTypes();
-        InternalResponse response = ParseToField.parseToFieldV2(
-                "/fields/text",
-                "{\"field_name\":\"COMPANY1\",\"visible_enabled\":true,\"required\":[],\"remark\":[\"1\",\"2\",\"3\"],\"multiline\":false,\"format_type\":\"TEXT\",\"color\":\"red\",\"align\":\"LEFT\",\"page\":1,\"type\":\"COMPANY\",\"place_holder\":\"COMPANY\",\"suffix\":\"139da7\",\"value\":\"19 Đặng Tiến Đông\",\"dimension\":{\"x\":40,\"y\":10,\"width\":10,\"height\":5}}",
-                Boolean.TRUE,
-                Boolean.FALSE,
-                "tran");
-        System.out.println(response.getStatus());
-        if (response.isValid()) {
-            textFieldAttribute = (TextFieldAttribute) response.getData();
-            System.out.println(textFieldAttribute.getFieldName());
-        }
     }
 }
