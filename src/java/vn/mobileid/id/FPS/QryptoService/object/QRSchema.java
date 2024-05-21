@@ -248,7 +248,7 @@ public class QRSchema {
         url("url"),//url
         t2("t2"), //text
         f1("f1"), //file
-        _4T1P("4T1P"), //PhotoCard
+        _4T1P("4T1p"), //PhotoCard
         _1l3_2l1("1l3-2l1"); //Table
 
         private String name;

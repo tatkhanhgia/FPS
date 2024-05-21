@@ -56,6 +56,10 @@ public class InternalResponse {
         this.status = status;
         this.data = data;
     }       
+    
+    public <T> InternalResponse(int status) {
+        this.status = status;        
+    }       
 
     public InternalResponse() {
     }
