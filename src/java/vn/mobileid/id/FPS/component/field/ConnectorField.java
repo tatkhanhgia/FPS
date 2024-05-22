@@ -222,14 +222,14 @@ public class ConnectorField {
                 transactionId);
 
         if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-            return response.setUser(user);
+            hierarchicalLog.addEndHeading1("Add field fail");
+            return response.setUser(user).setHierarchicalLog(hierarchicalLog);
         }
         int documentFieldId = (int) response.getData();
         hierarchicalLog.addEndHeading1("Add field successfully");
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Add Field Details">
-//        hierarchicalLog.addStartHeading1("Start add field detail");
         response = AddField.addDetailField(
                 documentFieldId,
                 field.getType().getTypeId(),
@@ -451,7 +451,7 @@ public class ConnectorField {
             String payload,
             String transactionId
     ) throws Exception {
-        fps_core.utils.LogHandler.HierarchicalLog hierarchicalLog = new fps_core.utils.LogHandler.HierarchicalLog("Add field");
+        fps_core.utils.LogHandler.HierarchicalLog hierarchicalLog = new fps_core.utils.LogHandler.HierarchicalLog("Update field");
 
         //<editor-fold defaultstate="collapsed" desc="Check payload">
         if (payload == null) {
@@ -513,9 +513,11 @@ public class ConnectorField {
             }
         }
         if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-            return response.setUser(user);
+            hierarchicalLog.addEndHeading1("Get field old fail");
+            return response.setUser(user).setHierarchicalLog(hierarchicalLog);
         }
         ExtendedFieldAttribute fieldOld = (ExtendedFieldAttribute) response.getData();
+        hierarchicalLog.addEndHeading1("Get field old successfully");
         //</editor-fold>
 
 //        //<editor-fold defaultstate="collapsed" desc="If the field is Initials => Create Thread to get all Field in DB and store in "fieldsInit"">
@@ -559,8 +561,10 @@ public class ConnectorField {
         //<editor-fold defaultstate="collapsed" desc="Check Process Status of Field">
         InternalResponse checking = CheckFieldProcessedYet.checkProcessed(fieldOld);
         if (checking.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-            return checking.setUser(user);
+            hierarchicalLog.addEndHeading1("Check process status fail");
+            return checking.setUser(user).setHierarchicalLog(hierarchicalLog);
         }
+        hierarchicalLog.addEndHeading1("Check process status successfully");
         //</editor-fold>
 
         if (field.getDimension() == null) {
@@ -572,6 +576,7 @@ public class ConnectorField {
             ));
         } else {
             //<editor-fold defaultstate="collapsed" desc="Parse from percentage unit to point unit">
+            hierarchicalLog.addStartHeading1("Start check dimension and parse it");
             String temp_ = request.getHeader("x-dimension-unit");
             Object x = Utils.getFromJson_("x", payload);
             Object y = Utils.getFromJson_("y", payload);
@@ -604,11 +609,8 @@ public class ConnectorField {
                                     : false)) {
                         field.getDimension().setHeight(fieldOld.getDimension().getHeight() / document_.getDocumentHeight() * 100);
                     }
-                    System.out.println("FinalX:" + field.getDimension().getX());
-                    System.out.println("FinalX:" + field.getDimension().getY());
-                    System.out.println("FinalX:" + field.getDimension().getWidth());
-                    System.out.println("FinalX:" + field.getDimension().getHeight());
                     field.setDimension(ProcessModuleForEnterprise.getInstance(user).parse(document_, field.getDimension()));
+                    hierarchicalLog.addEndHeading2("Parse dimension with percentage successfully");
                 }
             } else {
                 if (x == null
@@ -636,14 +638,15 @@ public class ConnectorField {
                     field.getDimension().setHeight(fieldOld.getDimension().getHeight());
                 }
             }
+            hierarchicalLog.addEndHeading1("Check dimension and parse it successfully");
             //</editor-fold>
         }
 
-        System.out.println("==================parse into point");
-        System.out.println("FinalX:" + field.getDimension().getX());
-        System.out.println("FinalX:" + field.getDimension().getY());
-        System.out.println("FinalX:" + field.getDimension().getWidth());
-        System.out.println("FinalX:" + field.getDimension().getHeight());
+        hierarchicalLog.addStartHeading1("Dimension");
+        hierarchicalLog.addStartHeading2("X:" + field.getDimension().getX());
+        hierarchicalLog.addStartHeading2("Y:" + field.getDimension().getY());
+        hierarchicalLog.addStartHeading2("W:" + field.getDimension().getWidth());
+        hierarchicalLog.addStartHeading2("H:" + field.getDimension().getHeight());
 
         //<editor-fold defaultstate="collapsed" desc="Merge 2 JSON - 1 in DB as ExternalFieldAtrtibute.getDetailValue - 1 in Payload">
         JsonNode merge = Utils.merge(
@@ -652,11 +655,11 @@ public class ConnectorField {
                         .setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
                         .writeValueAsString(field));
         String temp = merge.toPrettyString();
-        System.out.println("Json Original:" + fieldOld.getDetailValue());
-        System.out.println("Json Update:" + new ObjectMapper()
+        hierarchicalLog.addStartHeading1("Json Original:" + fieldOld.getDetailValue().replaceAll(" ", ""));
+        hierarchicalLog.addStartHeading1("Json Update:" + new ObjectMapper()
                 .setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
-                .writeValueAsString(field));
-        System.out.println("FinalJSON:" + temp);
+                .writeValueAsString(field).replaceAll(" ", ""));
+        hierarchicalLog.addStartHeading1("FinalJSON:" + temp.replaceAll(" ", ""));
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Merge Payload vs Field Value Old">
@@ -674,14 +677,16 @@ public class ConnectorField {
                             Math.round(qr.getDimension().getWidth()),
                             qr.IsTransparent() == null ? false : qr.IsTransparent());
                     qr.setImageQR(Base64.toBase64String(imageQR));
+                    hierarchicalLog.addEndHeading1("Generate QR successfully");
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
+                hierarchicalLog.addEndHeading1("Generate QR successfully");
                 response = new InternalResponse(
                         A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                         A_FPSConstant.CODE_FIELD_QR,
                         A_FPSConstant.SUBCODE_CANNOT_GENERATE_QR
-                ).setException(ex).setUser(user);
+                ).setException(ex).setUser(user).setHierarchicalLog(hierarchicalLog);
                 return response;
             }
         }
@@ -707,8 +712,10 @@ public class ConnectorField {
                 user.getEmail(),
                 transactionId);
         if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-            return response.setUser(user);
+            hierarchicalLog.addEndHeading1("Update field fail");
+            return response.setUser(user).setHierarchicalLog(hierarchicalLog);
         }
+        hierarchicalLog.addEndHeading1("Update field successfully");
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Update Field Details">
@@ -719,29 +726,39 @@ public class ConnectorField {
                 "hmac",
                 transactionId);
         if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-            return response.setUser(user);
+            hierarchicalLog.addEndHeading1("Update field detail fail");
+            return response.setUser(user).setHierarchicalLog(hierarchicalLog);
         }
+        hierarchicalLog.addEndHeading1("Update field detail successfully");
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Create Replicate Field if that field is Initial">
         if (field instanceof AbstractReplicateField) {
+            hierarchicalLog.addStartHeading1("Start creare replicate field");
             ((AbstractReplicateField) field).setType(fieldOld.getType());
             if (field.getPage() <= 0) {
                 field.setPage(fieldOld.getPage());
             }
             field.setRemark(fieldOld.getRemark());
-            return ReplicateInitialField.replicateField(
+            response = ReplicateInitialField.replicateField(
                     (AbstractReplicateField) field,
                     document_,
                     user,
-                    transactionId).setUser(user);
+                    transactionId);
+
+            if (response.isValid()) {
+                hierarchicalLog.addEndHeading1("Creare replicate field successfully");
+                return response.setUser(user).setHierarchicalLog(hierarchicalLog);
+            }
+            hierarchicalLog.addEndHeading1("Creare replicate field fail");
+            return response.setUser(user).setHierarchicalLog(hierarchicalLog);
         }
         //</editor-fold>
 
         return new InternalResponse(
                 A_FPSConstant.HTTP_CODE_SUCCESS,
                 ""
-        ).setUser(user);
+        ).setUser(user).setHierarchicalLog(hierarchicalLog);
     }
     // </editor-fold>
 
@@ -1262,14 +1279,14 @@ public class ConnectorField {
             Boolean isCheckBasicField,
             Boolean isUpdate,
             String transactionId) {
-        if(url.contains("v2") || url.contains("V2")){
+        if (url.contains("v2") || url.contains("V2")) {
             return ParseToField.parseToFieldV2(url, payload, isCheckBasicField, isUpdate, transactionId);
         } else {
             return ParseToField.parseToField(url, payload, isCheckBasicField, isUpdate, transactionId);
         }
     }
     //</editor-fold>
-    
+
 //    //<editor-fold defaultstate="collapsed" desc="ParseToField Backup">
 //    /**
 //     * Từ url xác định loại field và parse vào loại đó Determine the type of
@@ -2685,7 +2702,6 @@ public class ConnectorField {
 //                .setHierarchicalLog(hierarchicalLog);
 //    }
 //    //</editor-fold>
-
     //<editor-fold defaultstate="collapsed" desc="DistributeFlowDelete">
     /**
      * Dùng để phân phối kênh "Delete" phụ thuộc vào ParentType của Field

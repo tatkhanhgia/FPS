@@ -368,7 +368,7 @@ public class FieldController extends HttpServlet {
 
         try {
             //<editor-fold defaultstate="collapsed" desc="Update Field">
-            if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/fields/.*$") && !req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/fields/hash$")) {
+            if (req.getRequestURI().matches("^/fps/v(1|2)/documents/[0-9]+/fields/.*$") && !req.getRequestURI().matches("^/fps/v(1|2)/documents/[0-9]+/fields/hash$")) {
                 String transactionId = Utils.getTransactionId(req, payload);
 
                 try {

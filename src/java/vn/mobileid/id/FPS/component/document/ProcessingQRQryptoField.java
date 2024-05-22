@@ -19,6 +19,7 @@ import fps_core.enumration.FieldTypeName;
 import java.util.Base64;
 import vn.mobileid.id.FMS;
 import vn.mobileid.id.FPS.QryptoService.object.Item_IDPicture4Label;
+import vn.mobileid.id.FPS.QryptoService.object.Item_IDPicture4Label.IDPicture4Label;
 import vn.mobileid.id.FPS.QryptoService.object.ItemsType;
 import vn.mobileid.id.FPS.controller.ResponseMessageController;
 import vn.mobileid.id.FPS.object.fieldAttribute.QryptoFieldAttribute;
@@ -294,13 +295,13 @@ public class ProcessingQRQryptoField {
             for (ItemDetails item : QRField.getItems()) {
                 if (item.getType() == ItemsType.ID_Picture_with_4_labels.getId()) {
                     String temp_ = new ObjectMapper().writeValueAsString(item.getValue());
-                    Item_IDPicture4Label tempp = new ObjectMapper().readValue(temp_, Item_IDPicture4Label.class);
+                    IDPicture4Label tempp = new ObjectMapper().readValue(temp_, IDPicture4Label.class);
                     if (tempp != null
-                            && tempp.getIdPicture() != null
-                            && tempp.getIdPicture().getBase64() != null
-                            && tempp.getIdPicture().getBase64().length() <= 32) {
+//                            && tempp.getIdPicture() != null
+                            && tempp.getBase64() != null
+                            && tempp.getBase64().length() <= 32) {
                         try {
-                            InternalResponse response = FMS.downloadDocumentFromFMS(tempp.getIdPicture().getBase64(), "");
+                            InternalResponse response = FMS.downloadDocumentFromFMS(tempp.getBase64(), "");
 
                             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                                 return new InternalResponse(
@@ -310,7 +311,7 @@ public class ProcessingQRQryptoField {
                             }
 
                             byte[] image_ = (byte[]) response.getData();
-                            tempp.getIdPicture().setBase64(Base64.getEncoder().encodeToString(image_));
+                            tempp.setBase64(Base64.getEncoder().encodeToString(image_));
                             item.setValue(tempp);
                         } catch (Exception ex) {
                             ex.printStackTrace();

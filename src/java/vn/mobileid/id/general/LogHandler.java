@@ -248,4 +248,8 @@ public class LogHandler {
     public static void showHierarchicalLog(fps_core.utils.LogHandler.HierarchicalLog log){
         fps_core.utils.LogHandler.showHierarchicalLog(log);
     }
+    
+    public static String hierachicalLogToString(fps_core.utils.LogHandler.HierarchicalLog log){
+        return fps_core.utils.LogHandler.hierachicalLogToString(log);
+    }
 }
