@@ -24,6 +24,7 @@ import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.ProcessingRequest;
 import vn.mobileid.id.FPS.object.User;
+import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.general.PolicyConfiguration;
 import vn.mobileid.id.utils.Utils;
 
@@ -199,7 +200,7 @@ public class ProcessingAttachmentField {
             ExtendedFieldAttribute fieldData,
             ProcessingRequest.ProcessingFormFillRequest processField) throws Exception {
         //Read details
-        AttachmentFieldAttribute imageField = new ObjectMapper().readValue(fieldData.getDetailValue(), AttachmentFieldAttribute.class);
+        AttachmentFieldAttribute imageField = MyServices.getJsonService().readValue(fieldData.getDetailValue(), AttachmentFieldAttribute.class);
         imageField = (AttachmentFieldAttribute) fieldData.clone(imageField, fieldData.getDimension());
 
         imageField.setProcessBy(user.getAzp());

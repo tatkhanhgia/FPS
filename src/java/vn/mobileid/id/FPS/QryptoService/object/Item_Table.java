@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
+import vn.mobileid.id.FPS.services.MyServices;
 
 /**
  *
@@ -95,7 +96,7 @@ public class Item_Table {
 "                }\n" +
 "            ]\n" +
 "        }";
-        Item_Table table = new ObjectMapper().readValue(json, Item_Table.class);
+        Item_Table table = MyServices.getJsonService().readValue(json, Item_Table.class);
 //        System.out.println(table.getColumns().get(0).getText());
 //        System.out.println(table.getColumns().get(0).getColumns()[0]);
 //        System.out.println(table.getColumns().get(0).getColumns()[1]);

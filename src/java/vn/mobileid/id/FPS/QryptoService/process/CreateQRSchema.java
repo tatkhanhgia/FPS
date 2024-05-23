@@ -27,6 +27,7 @@ import vn.mobileid.id.FPS.exception.InvalidFormatOfItems;
 import vn.mobileid.id.utils.Utils;
 import vn.mobileid.id.FPS.object.fieldAttribute.QryptoFieldAttribute;
 import vn.mobileid.id.FPS.object.User;
+import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.general.LogHandler;
 
 /**
@@ -67,7 +68,7 @@ public class CreateQRSchema {
                 continue;
             }
             try {
-                if (new ObjectMapper().writeValueAsString(item.getValue()).equals("{}")) {
+                if (MyServices.getJsonService().writeValueAsString(item.getValue()).equals("{}")) {
                     continue;
                 }
             } catch (Exception ex) {
@@ -97,8 +98,8 @@ public class CreateQRSchema {
                     }
                     case URL: {
                         //<editor-fold defaultstate="collapsed" desc="Processing">
-                        String temp = "{\"value\":" + new ObjectMapper().writeValueAsString(item.getValue()) + "}";
-                        Item_URL url = new ObjectMapper().readValue(temp, Item_URL.class);
+                        String temp = "{\"value\":" + MyServices.getJsonService().writeValueAsString(item.getValue()) + "}";
+                        Item_URL url = MyServices.getJsonService().readValue(temp, Item_URL.class);
 
                         String random = Utils.generateRandomString(6);
                         data.setName(random);
@@ -209,8 +210,8 @@ public class CreateQRSchema {
                     }
                     case Choice: {
                         //<editor-fold defaultstate="collapsed" desc="Processing">
-                        String temp = "{\"value\":" + new ObjectMapper().writeValueAsString(item.getValue()) + "}";
-                        Item_Choice choices = new ObjectMapper().readValue(temp, Item_Choice.class);
+                        String temp = "{\"value\":" + MyServices.getJsonService().writeValueAsString(item.getValue()) + "}";
+                        Item_Choice choices = MyServices.getJsonService().readValue(temp, Item_Choice.class);
 
                         for (Element element : choices.getElements()) {
                             if (element.isChoice()) {
@@ -229,8 +230,8 @@ public class CreateQRSchema {
                     }
                     case Table: {
                         //<editor-fold defaultstate="collapsed" desc="Processing">
-                        String temp = "{\"value\":" + new ObjectMapper().writeValueAsString(item.getValue()) + "}";
-                        Item_Table itemTable = new ObjectMapper().readValue(temp, Item_Table.class);
+                        String temp = "{\"value\":" + MyServices.getJsonService().writeValueAsString(item.getValue()) + "}";
+                        Item_Table itemTable = MyServices.getJsonService().readValue(temp, Item_Table.class);
 
                         String random = Utils.generateRandomString(6);
                         data.setName(random);
@@ -249,8 +250,8 @@ public class CreateQRSchema {
                     }
                     case ID_Picture_with_4_labels: {
                         //<editor-fold defaultstate="collapsed" desc="Processing">
-                        String temp = new ObjectMapper().writeValueAsString(item.getValue());
-                        IDPicture4Label idPicture = new ObjectMapper().readValue(temp, IDPicture4Label.class);
+                        String temp = MyServices.getJsonService().writeValueAsString(item.getValue());
+                        IDPicture4Label idPicture = MyServices.getJsonService().readValue(temp, IDPicture4Label.class);
 
                         String random = Utils.generateRandomString(6);
                         

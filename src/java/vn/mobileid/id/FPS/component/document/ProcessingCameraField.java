@@ -25,6 +25,7 @@ import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.ProcessingRequest;
 import vn.mobileid.id.FPS.object.User;
+import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.general.PolicyConfiguration;
 import vn.mobileid.id.utils.Utils;
 
@@ -313,7 +314,7 @@ public class ProcessingCameraField {
             ExtendedFieldAttribute fieldData,
             ProcessingRequest.ProcessingFormFillRequest processField) throws Exception {
         //Read details
-        CameraFieldAttribute imageField = new ObjectMapper().readValue(fieldData.getDetailValue(), CameraFieldAttribute.class);
+        CameraFieldAttribute imageField = MyServices.getJsonService().readValue(fieldData.getDetailValue(), CameraFieldAttribute.class);
         imageField = (CameraFieldAttribute) fieldData.clone(imageField, fieldData.getDimension());
 
         imageField.setProcessBy(user.getAzp());

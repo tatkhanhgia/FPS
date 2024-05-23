@@ -14,6 +14,7 @@ import vn.mobileid.id.FPS.controller.ResponseMessageController;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.Token;
 import vn.mobileid.id.FPS.object.User;
+import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.general.LogHandler;
 import vn.mobileid.id.utils.Utils;
 
@@ -36,9 +37,8 @@ public class ConnectorAuthorize {
         }
 
         Token object = new Token();
-        ObjectMapper mapper = new ObjectMapper();
         try {
-            object = mapper.readValue(payload, Token.class);
+            object = MyServices.getJsonService().readValue(payload, Token.class);
         } catch (JsonProcessingException ex) {
             LogHandler.error(
                     ManageTokenWithDB.class,
@@ -117,7 +117,7 @@ public class ConnectorAuthorize {
             int pos = header.indexOf("alg");
             int typ = header.indexOf("typ");
             alg = header.substring(pos + 6, typ - 3);
-            data = new ObjectMapper().readValue(payload, User.class);
+            data = MyServices.getJsonService().readValue(payload, User.class);
         } catch (UnsupportedEncodingException e) {
             LogHandler.error(
                     ManageTokenWithDB.class,

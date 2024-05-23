@@ -4,12 +4,9 @@
  */
 package vn.mobileid.id.FPS.component.field;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fps_core.enumration.DocumentStatus;
-import fps_core.enumration.FPSTextAlign;
-import fps_core.enumration.FieldTypeName;
 import fps_core.enumration.RotateDegree;
 import fps_core.objects.child.AttachmentFieldAttribute;
 import fps_core.objects.core.BasicFieldAttribute;
@@ -18,7 +15,6 @@ import fps_core.objects.core.CheckBoxFieldAttribute;
 import fps_core.objects.Dimension;
 import fps_core.objects.core.ExtendedFieldAttribute;
 import fps_core.objects.FieldType;
-import fps_core.objects.Font;
 import fps_core.objects.child.ComboBoxFieldAttribute;
 import fps_core.objects.child.DateTimeFieldAttribute;
 import fps_core.objects.child.HyperLinkFieldAttribute;
@@ -50,7 +46,6 @@ import vn.mobileid.id.FPS.QryptoService.object.ItemsType;
 import static vn.mobileid.id.FPS.QryptoService.object.ItemsType.Binary;
 import static vn.mobileid.id.FPS.QryptoService.object.ItemsType.File;
 import static vn.mobileid.id.FPS.QryptoService.object.ItemsType.ID_Picture_with_4_labels;
-import vn.mobileid.id.FPS.component.document.CheckPayloadRequest;
 import static vn.mobileid.id.FPS.component.document.CheckStatusOfDocument.checkStatusOfDocument;
 import vn.mobileid.id.FPS.component.document.ConnectorDocument;
 import vn.mobileid.id.FPS.component.document.ConnectorDocument_Internal;
@@ -67,6 +62,7 @@ import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.FPS.serializer.FieldsSerializer;
 import vn.mobileid.id.FPS.serializer.IgnoreIngeritedIntrospector;
+import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.general.LogHandler;
 import vn.mobileid.id.general.PolicyConfiguration;
 import vn.mobileid.id.general.Resources;
@@ -538,7 +534,7 @@ public class ConnectorField {
 //                    for (ExtendedFieldAttribute value : fields) {
 //                        if(value.getType().getParentType().equals(FieldTypeName.INITIAL.getParentName())){
 //                            try {
-//                                InitialsFieldAttribute init = new ObjectMapper().readValue(value.getFieldValue(), InitialsFieldAttribute.class);
+//                                InitialsFieldAttribute init = MyServices.getJsonService().readValue(value.getFieldValue(), InitialsFieldAttribute.class);
 //                                init = (InitialsFieldAttribute) value.clone(init, value.getDimension());
 //                                fieldsInit.add(init);
 //                            } catch (JsonProcessingException ex) {
@@ -649,21 +645,21 @@ public class ConnectorField {
         hierarchicalLog.addStartHeading2("H:" + field.getDimension().getHeight());
 
         //<editor-fold defaultstate="collapsed" desc="Merge 2 JSON - 1 in DB as ExternalFieldAtrtibute.getDetailValue - 1 in Payload">
+        String temp = MyServices.getJsonService(
+                new ObjectMapper().setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
+        )
+                .writeValueAsString(field);
         JsonNode merge = Utils.merge(
                 fieldOld.getDetailValue(),
-                new ObjectMapper()
-                        .setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
-                        .writeValueAsString(field));
-        String temp = merge.toPrettyString();
+                temp);
+        String temp2 = merge.toPrettyString();
         hierarchicalLog.addStartHeading1("Json Original:" + fieldOld.getDetailValue().replaceAll(" ", ""));
-        hierarchicalLog.addStartHeading1("Json Update:" + new ObjectMapper()
-                .setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
-                .writeValueAsString(field).replaceAll(" ", ""));
-        hierarchicalLog.addStartHeading1("FinalJSON:" + temp.replaceAll(" ", ""));
+        hierarchicalLog.addStartHeading1("Json Update:" + temp.replaceAll(" ", ""));
+        hierarchicalLog.addStartHeading1("FinalJSON:" + temp2.replaceAll(" ", ""));
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Merge Payload vs Field Value Old">
-        JsonNode merge2 = Utils.merge(fieldOld.getFieldValue(), new ObjectMapper().writeValueAsString(field));
+        JsonNode merge2 = Utils.merge(fieldOld.getFieldValue(), MyServices.getJsonService().writeValueAsString(field));
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Create new QR Image if that type is QR Code">
@@ -781,7 +777,7 @@ public class ConnectorField {
         }
         return new InternalResponse(
                 A_FPSConstant.HTTP_CODE_SUCCESS,
-                new ObjectMapper().writeValueAsString(temp)
+                MyServices.getJsonService().writeValueAsString(temp)
         ).setUser(user);
     }
     // </editor-fold>
@@ -825,7 +821,7 @@ public class ConnectorField {
         FieldsSerializer serializer = new FieldsSerializer(array);
         return new InternalResponse(
                 A_FPSConstant.HTTP_CODE_SUCCESS,
-                new ObjectMapper().writeValueAsString(serializer)).setUser(user);
+                MyServices.getJsonService().writeValueAsString(serializer)).setUser(user);
     }
     // </editor-fold>
 
@@ -939,35 +935,35 @@ public class ConnectorField {
                     case 45:
                     case 1: {
                         TextFieldAttribute text = new TextFieldAttribute();
-                        text = new ObjectMapper().readValue(field.getDetailValue(), TextFieldAttribute.class);
+                        text = MyServices.getJsonService().readValue(field.getDetailValue(), TextFieldAttribute.class);
                         text = (TextFieldAttribute) field.clone(text, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
                         textboxs.add(text);
                         break;
                     }
                     case 25: {
                         NumericStepperAttribute stepper = new NumericStepperAttribute();
-                        stepper = new ObjectMapper().readValue(field.getDetailValue(), NumericStepperAttribute.class);
+                        stepper = MyServices.getJsonService().readValue(field.getDetailValue(), NumericStepperAttribute.class);
                         stepper = (NumericStepperAttribute) field.clone(stepper, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
                         steppers.add(stepper);
                         break;
                     }
                     case 22: {
                         ComboBoxFieldAttribute combo = new ComboBoxFieldAttribute();
-                        combo = new ObjectMapper().readValue(field.getDetailValue(), ComboBoxFieldAttribute.class);
+                        combo = MyServices.getJsonService().readValue(field.getDetailValue(), ComboBoxFieldAttribute.class);
                         combo = (ComboBoxFieldAttribute) field.clone(combo, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
                         combos.add(combo);
                         break;
                     }
                     case 23: {
                         ToggleFieldAttribute toogle = new ToggleFieldAttribute();
-                        toogle = new ObjectMapper().readValue(field.getDetailValue(), ToggleFieldAttribute.class);
+                        toogle = MyServices.getJsonService().readValue(field.getDetailValue(), ToggleFieldAttribute.class);
                         toogle = (ToggleFieldAttribute) field.clone(toogle, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
                         toogles.add(toogle);
                         break;
                     }
                     case 27: {
                         HyperLinkFieldAttribute hyper = new HyperLinkFieldAttribute();
-                        hyper = new ObjectMapper().readValue(field.getDetailValue(), HyperLinkFieldAttribute.class);
+                        hyper = MyServices.getJsonService().readValue(field.getDetailValue(), HyperLinkFieldAttribute.class);
                         hyper = (HyperLinkFieldAttribute) field.clone(hyper, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
                         hypers.add(hyper);
                         break;
@@ -975,32 +971,32 @@ public class ConnectorField {
                     case 14:
                     case 24: {
                         DateTimeFieldAttribute dateTime = new DateTimeFieldAttribute();
-                        dateTime = new ObjectMapper().readValue(field.getDetailValue(), DateTimeFieldAttribute.class);
+                        dateTime = MyServices.getJsonService().readValue(field.getDetailValue(), DateTimeFieldAttribute.class);
                         dateTime = (DateTimeFieldAttribute) field.clone(dateTime, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
                         textboxs.add(dateTime);
                         break;
                     }
                     case 2: {
-                        CheckBoxFieldAttribute checkBox = new ObjectMapper().readValue(field.getDetailValue(), CheckBoxFieldAttribute.class);
+                        CheckBoxFieldAttribute checkBox = MyServices.getJsonService().readValue(field.getDetailValue(), CheckBoxFieldAttribute.class);
                         checkBox = (CheckBoxFieldAttribute) field.clone(checkBox, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
                         checkboxs.add(checkBox);
                         break;
                     }
                     case 47: {
-                        CheckBoxFieldAttributeV2 checkBox = new ObjectMapper().readValue(field.getDetailValue(), CheckBoxFieldAttributeV2.class);
+                        CheckBoxFieldAttributeV2 checkBox = MyServices.getJsonService().readValue(field.getDetailValue(), CheckBoxFieldAttributeV2.class);
                         checkBox = (CheckBoxFieldAttributeV2) field.clone(checkBox, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
                         checkboxV2s.add(checkBox);
                         break;
                     }
                     case 3: {
-                        RadioFieldAttribute radio = new ObjectMapper().readValue(field.getDetailValue(), RadioFieldAttribute.class);
+                        RadioFieldAttribute radio = MyServices.getJsonService().readValue(field.getDetailValue(), RadioFieldAttribute.class);
                         radio.setDimension(ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
                         radio = (RadioFieldAttribute) field.clone(radio, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
                         radios.add(radio);
                         break;
                     }
                     case 37: {
-                        QryptoFieldAttribute qr = new ObjectMapper().readValue(field.getDetailValue(), QryptoFieldAttribute.class);
+                        QryptoFieldAttribute qr = MyServices.getJsonService().readValue(field.getDetailValue(), QryptoFieldAttribute.class);
                         qr.setDimension(ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
                         qr = (QryptoFieldAttribute) field.clone(qr, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
 
@@ -1017,8 +1013,8 @@ public class ConnectorField {
                                             break;
                                         }
                                         case ID_Picture_with_4_labels: {
-                                            String temp_ = new ObjectMapper().writeValueAsString(detail.getValue());
-                                            tempp = new ObjectMapper().readValue(temp_, IDPicture4Label.class);
+                                            String temp_ = MyServices.getJsonService().writeValueAsString(detail.getValue());
+                                            tempp = MyServices.getJsonService().readValue(temp_, IDPicture4Label.class);
                                             file = tempp.getBase64();
                                             break;
                                         }
@@ -1075,7 +1071,7 @@ public class ConnectorField {
                         break;
                     }
                     case 4: {
-                        QRFieldAttribute qr = new ObjectMapper().readValue(field.getDetailValue(), QRFieldAttribute.class);
+                        QRFieldAttribute qr = MyServices.getJsonService().readValue(field.getDetailValue(), QRFieldAttribute.class);
                         qr.setDimension(ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
                         qr = (QRFieldAttribute) field.clone(qr, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
 
@@ -1099,7 +1095,7 @@ public class ConnectorField {
                         break;
                     }
                     case 5: {
-                        InitialsFieldAttribute initialField = new ObjectMapper().readValue(field.getDetailValue(), InitialsFieldAttribute.class);
+                        InitialsFieldAttribute initialField = MyServices.getJsonService().readValue(field.getDetailValue(), InitialsFieldAttribute.class);
                         initialField = (InitialsFieldAttribute) field.clone(initialField, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
 
                         //<editor-fold defaultstate="collapsed" desc="Download Image from FMS if image is UUID">
@@ -1134,7 +1130,7 @@ public class ConnectorField {
                         } else {
                             json2 = json1;
                         }
-                        signatureField = new ObjectMapper().readValue(json2, SignatureFieldAttribute.class);
+                        signatureField = MyServices.getJsonService().readValue(json2, SignatureFieldAttribute.class);
                         signatureField = (SignatureFieldAttribute) field.clone(signatureField, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
 
                         signatureField.setLevelOfAssurance(field.getLevelOfAssurance());
@@ -1157,7 +1153,7 @@ public class ConnectorField {
                         } else {
                             json2 = json1;
                         }
-                        signatureField = new ObjectMapper().readValue(json2, SignatureFieldAttribute.class);
+                        signatureField = MyServices.getJsonService().readValue(json2, SignatureFieldAttribute.class);
                         signatureField = (SignatureFieldAttribute) field.clone(signatureField, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
 
                         signatureField.setLevelOfAssurance(field.getLevelOfAssurance());
@@ -1166,7 +1162,7 @@ public class ConnectorField {
                         //</editor-fold>
                     }
                     case 38: {
-                        FileFieldAttribute image = new ObjectMapper().readValue(field.getDetailValue(), FileFieldAttribute.class);
+                        FileFieldAttribute image = MyServices.getJsonService().readValue(field.getDetailValue(), FileFieldAttribute.class);
                         image = (FileFieldAttribute) field.clone(image, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
 
                         //<editor-fold defaultstate="collapsed" desc="Download Image from FMS if need">
@@ -1189,7 +1185,7 @@ public class ConnectorField {
                         break;
                     }
                     case 39: {
-                        CameraFieldAttribute camera = new ObjectMapper().readValue(field.getDetailValue(), CameraFieldAttribute.class);
+                        CameraFieldAttribute camera = MyServices.getJsonService().readValue(field.getDetailValue(), CameraFieldAttribute.class);
                         camera = (CameraFieldAttribute) field.clone(camera, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
 
                         //<editor-fold defaultstate="collapsed" desc="Download Image from FMS if need">
@@ -1212,7 +1208,7 @@ public class ConnectorField {
                         break;
                     }
                     case 41: {
-                        AttachmentFieldAttribute attach = new ObjectMapper().readValue(field.getDetailValue(), AttachmentFieldAttribute.class);
+                        AttachmentFieldAttribute attach = MyServices.getJsonService().readValue(field.getDetailValue(), AttachmentFieldAttribute.class);
                         attach = (AttachmentFieldAttribute) field.clone(attach, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
                         //<editor-fold defaultstate="collapsed" desc="Download File from FMS if need">
                         if (attach.getFileData() != null
@@ -1320,7 +1316,7 @@ public class ConnectorField {
 //                //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
 //                SignatureFieldAttribute field = null;
 //                try {
-//                    field = new ObjectMapper().readValue(payload, SignatureFieldAttribute.class);
+//                    field = MyServices.getJsonService().readValue(payload, SignatureFieldAttribute.class);
 //                } catch (JsonProcessingException ex) {
 //                    hierarchicalLog.addEndHeading1("Parse into field fail");
 //                    return new InternalResponse(
@@ -1365,7 +1361,7 @@ public class ConnectorField {
 //                //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
 //                DateTimeFieldAttribute field = null;
 //                try {
-//                    field = new ObjectMapper().readValue(payload, DateTimeFieldAttribute.class);
+//                    field = MyServices.getJsonService().readValue(payload, DateTimeFieldAttribute.class);
 //                } catch (Exception ex) {
 //                    hierarchicalLog.addEndHeading1("Parse into field fail");
 //                    return new InternalResponse(
@@ -1459,12 +1455,12 @@ public class ConnectorField {
 //                //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
 //                TextFieldAttribute field = null;
 //                try {
-//                    field = new ObjectMapper().readValue(payload, TextFieldAttribute.class);
+//                    field = MyServices.getJsonService().readValue(payload, TextFieldAttribute.class);
 //                    if (type != null) {
 //                        if (checkDate != null || type.equalsIgnoreCase("datetime") || type.equalsIgnoreCase("date")) {
-//                            field = new ObjectMapper().readValue(payload, DateTimeFieldAttribute.class);
+//                            field = MyServices.getJsonService().readValue(payload, DateTimeFieldAttribute.class);
 //                        } else if (checkAddress != null || type.equalsIgnoreCase("hyperlink")) {
-//                            field = new ObjectMapper().readValue(payload, HyperLinkFieldAttribute.class);
+//                            field = MyServices.getJsonService().readValue(payload, HyperLinkFieldAttribute.class);
 //                        }
 //                    }
 //                } catch (Exception ex) {
@@ -1553,7 +1549,7 @@ public class ConnectorField {
 //                //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
 //                CheckBoxFieldAttribute field = null;
 //                try {
-//                    field = new ObjectMapper().readValue(payload, CheckBoxFieldAttribute.class);
+//                    field = MyServices.getJsonService().readValue(payload, CheckBoxFieldAttribute.class);
 //                } catch (JsonProcessingException ex) {
 //                    hierarchicalLog.addEndHeading1("Parse into field fail");
 //                    return new InternalResponse(
@@ -1623,7 +1619,7 @@ public class ConnectorField {
 //                //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
 //                CheckBoxFieldAttributeV2 field = null;
 //                try {
-//                    field = new ObjectMapper().readValue(payload, CheckBoxFieldAttributeV2.class);
+//                    field = MyServices.getJsonService().readValue(payload, CheckBoxFieldAttributeV2.class);
 //                } catch (JsonProcessingException ex) {
 //                    hierarchicalLog.addEndHeading1("Parse into field fail");
 //                    return new InternalResponse(
@@ -1677,7 +1673,7 @@ public class ConnectorField {
 //                //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
 //                RadioFieldAttribute field = null;
 //                try {
-//                    field = new ObjectMapper().readValue(payload, RadioFieldAttribute.class);
+//                    field = MyServices.getJsonService().readValue(payload, RadioFieldAttribute.class);
 //                } catch (JsonProcessingException ex) {
 //                    hierarchicalLog.addEndHeading1("Parse into field fail");
 //                    return new InternalResponse(
@@ -1747,7 +1743,7 @@ public class ConnectorField {
 //                //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
 //                InitialsFieldAttribute field = null;
 //                try {
-//                    field = new ObjectMapper().readValue(payload, InitialsFieldAttribute.class);
+//                    field = MyServices.getJsonService().readValue(payload, InitialsFieldAttribute.class);
 //                } catch (JsonProcessingException ex) {
 //                    hierarchicalLog.addEndHeading1("Parse into field fail");
 //                    return new InternalResponse(
@@ -1827,7 +1823,7 @@ public class ConnectorField {
 //                //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
 //                QRFieldAttribute field = null;
 //                try {
-//                    field = new ObjectMapper().readValue(payload, QRFieldAttribute.class);
+//                    field = MyServices.getJsonService().readValue(payload, QRFieldAttribute.class);
 //                } catch (JsonProcessingException ex) {
 //                    hierarchicalLog.addEndHeading1("Parse into field fail");
 //                    return new InternalResponse(
@@ -1926,7 +1922,7 @@ public class ConnectorField {
 //                //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
 //                QryptoFieldAttribute field = null;
 //                try {
-//                    field = new ObjectMapper().readValue(payload, QryptoFieldAttribute.class);
+//                    field = MyServices.getJsonService().readValue(payload, QryptoFieldAttribute.class);
 //                } catch (JsonProcessingException ex) {
 //                    hierarchicalLog.addEndHeading1("Parse into field fail");
 //                    return new InternalResponse(
@@ -1984,8 +1980,8 @@ public class ConnectorField {
 //                                    break;
 //                                }
 //                                case ID_Picture_with_4_labels: {
-//                                    String temp_ = new ObjectMapper().writeValueAsString(detail.getValue());
-//                                    tempp = new ObjectMapper().readValue(temp_, IDPicture4Label.class);
+//                                    String temp_ = MyServices.getJsonService().writeValueAsString(detail.getValue());
+//                                    tempp = MyServices.getJsonService().readValue(temp_, IDPicture4Label.class);
 //                                    file = tempp.getBase64();
 //                                    break;
 //                                }
@@ -2048,7 +2044,7 @@ public class ConnectorField {
 //                //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
 //                FileFieldAttribute field = null;
 //                try {
-//                    field = new ObjectMapper().readValue(payload, FileFieldAttribute.class);
+//                    field = MyServices.getJsonService().readValue(payload, FileFieldAttribute.class);
 //                } catch (JsonProcessingException ex) {
 //                    hierarchicalLog.addEndHeading1("Parse into field fail");
 //                    return new InternalResponse(
@@ -2146,7 +2142,7 @@ public class ConnectorField {
 //                //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
 //                CameraFieldAttribute field = null;
 //                try {
-//                    field = new ObjectMapper().readValue(payload, CameraFieldAttribute.class);
+//                    field = MyServices.getJsonService().readValue(payload, CameraFieldAttribute.class);
 //                } catch (JsonProcessingException ex) {
 //                    hierarchicalLog.addEndHeading1("Parse into field fail");
 //                    return new InternalResponse(
@@ -2248,7 +2244,7 @@ public class ConnectorField {
 //                //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
 //                AttachmentFieldAttribute field = null;
 //                try {
-//                    field = new ObjectMapper().readValue(payload, AttachmentFieldAttribute.class);
+//                    field = MyServices.getJsonService().readValue(payload, AttachmentFieldAttribute.class);
 //                } catch (JsonProcessingException ex) {
 //                    hierarchicalLog.addEndHeading1("Parse into field fail");
 //                    return new InternalResponse(
@@ -2394,7 +2390,7 @@ public class ConnectorField {
 //                //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
 //                HyperLinkFieldAttribute field = null;
 //                try {
-//                    field = new ObjectMapper().readValue(payload, HyperLinkFieldAttribute.class);
+//                    field = MyServices.getJsonService().readValue(payload, HyperLinkFieldAttribute.class);
 //                } catch (Exception ex) {
 //                    hierarchicalLog.addEndHeading1("Parse into field fail");
 //                    return new InternalResponse(
@@ -2470,7 +2466,7 @@ public class ConnectorField {
 //                //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
 //                ComboBoxFieldAttribute field = null;
 //                try {
-//                    field = new ObjectMapper().readValue(payload, ComboBoxFieldAttribute.class);
+//                    field = MyServices.getJsonService().readValue(payload, ComboBoxFieldAttribute.class);
 //                } catch (Exception ex) {
 //                    LogHandler.error(ConnectorField.class, transactionId, ex);
 //                    hierarchicalLog.addEndHeading1("Parse into field fail");
@@ -2547,7 +2543,7 @@ public class ConnectorField {
 //                //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
 //                ToggleFieldAttribute field = null;
 //                try {
-//                    field = new ObjectMapper().readValue(payload, ToggleFieldAttribute.class);
+//                    field = MyServices.getJsonService().readValue(payload, ToggleFieldAttribute.class);
 //                } catch (Exception ex) {
 //                    LogHandler.error(ConnectorField.class, transactionId, ex);
 //                    hierarchicalLog.addEndHeading1("Parse into field fail");
@@ -2625,7 +2621,7 @@ public class ConnectorField {
 //                //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
 //                NumericStepperAttribute field = null;
 //                try {
-//                    field = new ObjectMapper().readValue(payload, NumericStepperAttribute.class);
+//                    field = MyServices.getJsonService().readValue(payload, NumericStepperAttribute.class);
 //                } catch (Exception ex) {
 //                    LogHandler.error(ConnectorField.class, transactionId, ex);
 //                    hierarchicalLog.addEndHeading1("Parse into field fail");

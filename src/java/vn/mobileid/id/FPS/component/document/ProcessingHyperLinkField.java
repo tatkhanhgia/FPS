@@ -4,7 +4,6 @@
  */
 package vn.mobileid.id.FPS.component.document;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fps_core.enumration.FieldTypeName;
 import fps_core.objects.child.HyperLinkFieldAttribute;
 import fps_core.objects.core.ExtendedFieldAttribute;
@@ -25,6 +24,7 @@ import vn.mobileid.id.FPS.object.InternalResponse.InternalData;
 import vn.mobileid.id.FPS.object.ProcessingRequest;
 import vn.mobileid.id.FPS.object.ProcessingRequest.ProcessingFormFillRequest;
 import vn.mobileid.id.FPS.object.User;
+import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.general.PolicyConfiguration;
 import vn.mobileid.id.utils.Utils;
 
@@ -182,7 +182,7 @@ public class ProcessingHyperLinkField {
             ExtendedFieldAttribute fieldData,
             ProcessingFormFillRequest processField) throws Exception {
         //Read details
-        HyperLinkFieldAttribute hyperLink = new ObjectMapper().readValue(fieldData.getDetailValue(), HyperLinkFieldAttribute.class);
+        HyperLinkFieldAttribute hyperLink = MyServices.getJsonService().readValue(fieldData.getDetailValue(), HyperLinkFieldAttribute.class);
         hyperLink = (HyperLinkFieldAttribute) fieldData.clone(hyperLink, fieldData.getDimension());
 
         hyperLink.setProcessBy(user.getAzp());

@@ -28,6 +28,7 @@ import vn.mobileid.id.utils.Crypto;
 import vn.mobileid.id.utils.TaskV2;
 import vn.mobileid.id.FPS.component.document.process.interfaces.IDocumentProcessing;
 import vn.mobileid.id.FPS.component.document.process.interfaces.IVersion;
+import vn.mobileid.id.FPS.services.MyServices;
 
 /**
  *
@@ -187,11 +188,10 @@ class FileProcessing extends IVersion implements IDocumentProcessing {
 
             //</editor-fold>
             
-            ObjectMapper ob = new ObjectMapper();
             response = ConnectorField_Internal.updateValueOfField(
                     documentFieldId,
                     user,
-                    ob.writeValueAsString(field),
+                    MyServices.getJsonService().writeValueAsString(field),
                     transactionId);
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 return new InternalResponse(
@@ -206,8 +206,9 @@ class FileProcessing extends IVersion implements IDocumentProcessing {
             response = ConnectorField_Internal.updateFieldDetail(
                     documentFieldId,
                     user,
-                    new ObjectMapper()
-                            .setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
+                    MyServices.getJsonService(
+                            new ObjectMapper().setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
+                    )
                             .writeValueAsString(field),
                     "HMAC",
                     transactionId);
@@ -373,11 +374,10 @@ class FileProcessing extends IVersion implements IDocumentProcessing {
 
             //</editor-fold>
             
-            ObjectMapper ob = new ObjectMapper();
             response = ConnectorField_Internal.updateValueOfField(
                     documentFieldId,
                     user,
-                    ob.writeValueAsString(field),
+                    MyServices.getJsonService().writeValueAsString(field),
                     transactionId);
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 return new InternalResponse(
@@ -392,8 +392,9 @@ class FileProcessing extends IVersion implements IDocumentProcessing {
             response = ConnectorField_Internal.updateFieldDetail(
                     documentFieldId,
                     user,
-                    new ObjectMapper()
-                            .setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
+                    MyServices.getJsonService(
+                            new ObjectMapper().setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
+                    )
                             .writeValueAsString(field),
                     "HMAC",
                     transactionId);

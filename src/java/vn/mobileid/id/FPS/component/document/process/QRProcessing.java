@@ -17,6 +17,7 @@ import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.general.LogHandler;
 import vn.mobileid.id.FPS.component.document.process.interfaces.IDocumentProcessing;
+import vn.mobileid.id.FPS.services.MyServices;
 
 /**
  *
@@ -73,11 +74,10 @@ class QRProcessing implements IDocumentProcessing{
            
             //Update field after processing
             field.setProcessStatus(ProcessStatus.PROCESSED.getName());
-            ObjectMapper ob = new ObjectMapper();
             response = ConnectorField_Internal.updateValueOfField(
                     documentFieldId,
                     user,
-                    ob.writeValueAsString(field),
+                    MyServices.getJsonService().writeValueAsString(field),
                     transactionId);
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 return new InternalResponse(
@@ -91,7 +91,7 @@ class QRProcessing implements IDocumentProcessing{
             response = ConnectorField_Internal.updateFieldDetail(
                     documentFieldId,
                     user,
-                    ob.writeValueAsString(field),
+                    MyServices.getJsonService().writeValueAsString(field),
                     "HMAC",
                     transactionId);
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {

@@ -4,7 +4,6 @@
  */
 package vn.mobileid.id.general.database;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fps_core.enumration.DocumentStatus;
 import fps_core.enumration.DocumentType;
 import fps_core.objects.CustomPageSize;
@@ -18,6 +17,7 @@ import java.util.List;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.User;
+import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.general.Configuration;
 import vn.mobileid.id.general.LogHandler;
 import vn.mobileid.id.helper.ORM_JPA.database.CreateConnection;
@@ -178,7 +178,7 @@ class DatabaseImpl_document_ implements DatabaseImpl_document {
         datas.put("pDOCUMENT_WIDTH", documentWidth);
         Document temp = new Document();
         temp.setDocumentCustomPageSize(documentCustomPage);
-        datas.put("pDOCUMENT_CUSTOM_PAGESIZE", documentCustomPage != null ? new ObjectMapper().writeValueAsString(temp) : null);
+        datas.put("pDOCUMENT_CUSTOM_PAGESIZE", documentCustomPage != null ? MyServices.getJsonService().writeValueAsString(temp) : null);
         datas.put("pDIGEST", digest);
         datas.put("pCONTENT", content);
         datas.put("pDOCUMENT_UUID", uuid);
@@ -285,7 +285,7 @@ class DatabaseImpl_document_ implements DatabaseImpl_document {
             doc.setDocumentHeight((float) row.get("DOCUMENT_HEIGHT"));
             doc.setDocumentWidth((float) row.get("DOCUMENT_WIDTH"));
             if ((String) row.get("DOCUMENT_CUSTOM_PAGESIZE") != null) {
-                Document temp = new ObjectMapper().readValue((String) row.get("DOCUMENT_CUSTOM_PAGESIZE"), Document.class);
+                Document temp = MyServices.getJsonService().readValue((String) row.get("DOCUMENT_CUSTOM_PAGESIZE"), Document.class);
                 doc.setDocumentCustomPageSize(temp.getDocumentCustomPageSize());
             }
             doc.setDocumentPages((int) row.get("DOCUMENT_PAGES"));
@@ -361,7 +361,7 @@ class DatabaseImpl_document_ implements DatabaseImpl_document {
             doc.setDocumentHeight((float) row.get("DOCUMENT_HEIGHT"));
             doc.setDocumentWidth((float) row.get("DOCUMENT_WIDTH"));
             if ((String) row.get("DOCUMENT_CUSTOM_PAGESIZE") != null) {
-                Document temp = new ObjectMapper().readValue((String) row.get("DOCUMENT_CUSTOM_PAGESIZE"), Document.class);
+                Document temp = MyServices.getJsonService().readValue((String) row.get("DOCUMENT_CUSTOM_PAGESIZE"), Document.class);
                 doc.setDocumentCustomPageSize(temp.getDocumentCustomPageSize());
             }
             doc.setDocumentPages((int) row.get("DOCUMENT_PAGES"));

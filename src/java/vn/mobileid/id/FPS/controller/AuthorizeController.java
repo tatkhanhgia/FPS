@@ -4,7 +4,6 @@
  */
 package vn.mobileid.id.FPS.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fps_core.enumration.Language;
 import java.io.IOException;
 import java.util.Properties;
@@ -20,6 +19,7 @@ import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.Token;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.FPS.serializer.PropertiesSerializer;
+import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.general.Configuration;
 import vn.mobileid.id.general.LogHandler;
 import vn.mobileid.id.utils.Utils;
@@ -65,7 +65,7 @@ public class AuthorizeController extends HttpServlet {
                     res,
                     A_FPSConstant.HTTP_CODE_SUCCESS,
                     "application/json",
-                    new ObjectMapper().writeValueAsString(serializer),
+                    MyServices.getJsonService().writeValueAsString(serializer),
                     "none");
         } else {
             Utils.sendMessage(
@@ -116,7 +116,7 @@ public class AuthorizeController extends HttpServlet {
                 InternalResponse response = ConnectorAuthorize.processLogin(req, payload, transactionId);
                 
                 try{
-                    Token object = new ObjectMapper().readValue(payload, Token.class);
+                    Token object = MyServices.getJsonService().readValue(payload, Token.class);
                     Enterprise ent = new Enterprise();
                     ent.setClientID(object.getClientId());
                     response.setEnt(ent);

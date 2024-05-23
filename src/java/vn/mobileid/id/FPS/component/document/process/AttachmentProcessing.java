@@ -10,7 +10,6 @@ import fps_core.enumration.ProcessStatus;
 import fps_core.module.DocumentUtils_itext7;
 import fps_core.objects.child.AttachmentFieldAttribute;
 import fps_core.objects.FileManagement;
-import fps_core.objects.core.FileFieldAttribute;
 import java.util.Base64;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,6 +27,7 @@ import vn.mobileid.id.general.LogHandler;
 import vn.mobileid.id.utils.Crypto;
 import vn.mobileid.id.utils.TaskV2;
 import vn.mobileid.id.FPS.component.document.process.interfaces.IDocumentProcessing;
+import vn.mobileid.id.FPS.services.MyServices;
 
 /**
  *
@@ -169,11 +169,10 @@ class AttachmentProcessing implements IDocumentProcessing {
 
             //</editor-fold>
             
-            ObjectMapper ob = new ObjectMapper();
             response = ConnectorField_Internal.updateValueOfField(
                     documentFieldId,
                     user,
-                    ob.writeValueAsString(field),
+                    MyServices.getJsonService().writeValueAsString(field),
                     transactionId);
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 return new InternalResponse(
@@ -188,8 +187,9 @@ class AttachmentProcessing implements IDocumentProcessing {
             response = ConnectorField_Internal.updateFieldDetail(
                     documentFieldId,
                     user,
-                    new ObjectMapper()
-                            .setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
+                    MyServices.getJsonService(
+                            new ObjectMapper().setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
+                    )
                             .writeValueAsString(field),
                     "HMAC",
                     transactionId);

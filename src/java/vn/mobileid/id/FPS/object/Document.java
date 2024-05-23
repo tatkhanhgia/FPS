@@ -8,12 +8,12 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Date;
 import java.util.List;
 import fps_core.enumration.DocumentType;
 import fps_core.enumration.DocumentStatus;
 import fps_core.objects.CustomPageSize;
+import vn.mobileid.id.FPS.services.MyServices;
 /**
  *
  * @author GiaTK
@@ -235,7 +235,7 @@ public class Document {
     
     public static void main(String[] args) throws JsonProcessingException {
         String json = "{ \"document_custom_page\":[{\"page_start\":1,\"page_end\":2,\"page_rotate\":90,\"page_width\":100,\"page_height\":100}] }";
-        Document document = new ObjectMapper().readValue(json, Document.class);
+        Document document = MyServices.getJsonService().readValue(json, Document.class);
         List<CustomPageSize> cus = document.getDocumentCustomPageSize();
         String temp = "";
     }

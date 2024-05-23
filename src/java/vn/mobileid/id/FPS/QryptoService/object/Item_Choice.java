@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
+import vn.mobileid.id.FPS.services.MyServices;
 
 /**
  *
@@ -93,7 +94,7 @@ public class Item_Choice extends Object{
                 + "            ]\n"
                 + "        }";
 
-        Item_Choice choices = new ObjectMapper().readValue(json, Item_Choice.class);
+        Item_Choice choices = MyServices.getJsonService().readValue(json, Item_Choice.class);
         for (Element element : choices.getElements()) {
             System.out.println(element.getElementName());
             System.out.println(element.isChoice());

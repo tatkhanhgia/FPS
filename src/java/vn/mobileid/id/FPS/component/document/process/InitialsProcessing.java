@@ -39,6 +39,7 @@ import vn.mobileid.id.FPS.component.document.process.interfaces.IModuleProcessin
 import vn.mobileid.id.FPS.component.document.process.interfaces.IVersion;
 import static vn.mobileid.id.FPS.component.document.process.interfaces.IVersion.Version.V1;
 import static vn.mobileid.id.FPS.component.document.process.interfaces.IVersion.Version.V2;
+import vn.mobileid.id.FPS.services.MyServices;
 
 /**
  *
@@ -436,11 +437,10 @@ class InitialsProcessing extends IVersion implements IModuleProcessing, IDocumen
 
             //Update field after processing
             field.setProcessStatus(ProcessStatus.PROCESSED.getName());
-            ObjectMapper ob = new ObjectMapper();
             response = ConnectorField_Internal.updateValueOfField(
                     documentFieldId,
                     user,
-                    ob.writeValueAsString(field),
+                    MyServices.getJsonService().writeValueAsString(field),
                     transactionId);
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 return new InternalResponse(
@@ -454,7 +454,7 @@ class InitialsProcessing extends IVersion implements IModuleProcessing, IDocumen
             response = ConnectorField_Internal.updateFieldDetail(
                     documentFieldId,
                     user,
-                    ob.writeValueAsString(field),
+                    MyServices.getJsonService().writeValueAsString(field),
                     uuid,
                     transactionId);
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
@@ -560,7 +560,7 @@ class InitialsProcessing extends IVersion implements IModuleProcessing, IDocumen
                     for (ExtendedFieldAttribute initChild : fields) {
                         if (initChild.getType() != null
                                 && initChild.getType().getParentType().equalsIgnoreCase(FieldTypeName.INITIAL.getParentName())) {
-                            InitialsFieldAttribute fieldChild = new ObjectMapper().readValue(
+                            InitialsFieldAttribute fieldChild = MyServices.getJsonService().readValue(
                                     initChild.getFieldValue(),
                                     InitialsFieldAttribute.class);
                             fieldChild = (InitialsFieldAttribute) initChild.clone(fieldChild, initChild.getDimension());
@@ -586,11 +586,10 @@ class InitialsProcessing extends IVersion implements IModuleProcessing, IDocumen
                     for (InitialsFieldAttribute initChild : initFields) {
                         //Update field after processing
                         initChild.setProcessStatus(ProcessStatus.PROCESSED.getName());
-                        ObjectMapper ob = new ObjectMapper();
                         response = ConnectorField_Internal.updateValueOfField(
                                 map.get(initChild.getFieldName()),
                                 user,
-                                ob.writeValueAsString(initChild),
+                                MyServices.getJsonService().writeValueAsString(initChild),
                                 transactionId);
                         if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                             return new InternalResponse(
@@ -604,7 +603,7 @@ class InitialsProcessing extends IVersion implements IModuleProcessing, IDocumen
                         response = ConnectorField_Internal.updateFieldDetail(
                                 map.get(initChild.getFieldName()),
                                 user,
-                                ob.writeValueAsString(initChild),
+                                MyServices.getJsonService().writeValueAsString(initChild),
                                 "hmac",
                                 transactionId);
                         if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
@@ -707,11 +706,10 @@ class InitialsProcessing extends IVersion implements IModuleProcessing, IDocumen
 
             field.setProcessStatus(ProcessStatus.PROCESSED.getName());
 
-            ObjectMapper ob = new ObjectMapper();
             response = ConnectorField_Internal.updateValueOfField(
                     documentFieldId,
                     user,
-                    ob.writeValueAsString(field),
+                    MyServices.getJsonService().writeValueAsString(field),
                     transactionId);
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 return new InternalResponse(
@@ -726,8 +724,9 @@ class InitialsProcessing extends IVersion implements IModuleProcessing, IDocumen
             response = ConnectorField_Internal.updateFieldDetail(
                     documentFieldId,
                     user,
-                    new ObjectMapper()
-                            .setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
+                    MyServices.getJsonService(
+                            new ObjectMapper().setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
+                    )
                             .writeValueAsString(field),
                     uuid,
                     transactionId);
@@ -831,7 +830,7 @@ class InitialsProcessing extends IVersion implements IModuleProcessing, IDocumen
 //                for (ExtendedFieldAttribute initChild : fields) {
 //                    if (initChild.getType() != null 
 //                            && initChild.getType().getParentType().equalsIgnoreCase(FieldTypeName.INITIAL.getParentName())) {
-//                        InitialsFieldAttribute fieldChild = new ObjectMapper().readValue(
+//                        InitialsFieldAttribute fieldChild = MyServices.getJsonService().readValue(
 //                                initChild.getFieldValue(),
 //                                InitialsFieldAttribute.class);
 //                        fieldChild = (InitialsFieldAttribute) initChild.clone(fieldChild, initChild.getDimension());
@@ -857,7 +856,7 @@ class InitialsProcessing extends IVersion implements IModuleProcessing, IDocumen
 //                for (InitialsFieldAttribute initChild : initFields) {
 //                    //Update field after processing
 //                    initChild.setProcessStatus(ProcessStatus.PROCESSED.getName());
-//                    ObjectMapper ob = new ObjectMapper();
+//                    ObjectMapper ob = MyServices.getJsonService();
 //                    response = ConnectorField_Internal.updateValueOfField(
 //                            map.get(initChild.getFieldName()),
 //                            user,
@@ -974,11 +973,10 @@ class InitialsProcessing extends IVersion implements IModuleProcessing, IDocumen
 
             field.setProcessStatus(ProcessStatus.PROCESSED.getName());
 
-            ObjectMapper ob = new ObjectMapper();
             response = ConnectorField_Internal.updateValueOfField(
                     documentFieldId,
                     user,
-                    ob.writeValueAsString(field),
+                    MyServices.getJsonService().writeValueAsString(field),
                     transactionId);
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 return new InternalResponse(
@@ -993,8 +991,9 @@ class InitialsProcessing extends IVersion implements IModuleProcessing, IDocumen
             response = ConnectorField_Internal.updateFieldDetail(
                     documentFieldId,
                     user,
-                    new ObjectMapper()
-                            .setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
+                    MyServices.getJsonService(
+                            new ObjectMapper().setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
+                    )
                             .writeValueAsString(field),
                     uuid,
                     transactionId);
@@ -1098,7 +1097,7 @@ class InitialsProcessing extends IVersion implements IModuleProcessing, IDocumen
 //                for (ExtendedFieldAttribute initChild : fields) {
 //                    if (initChild.getType() != null 
 //                            && initChild.getType().getParentType().equalsIgnoreCase(FieldTypeName.INITIAL.getParentName())) {
-//                        InitialsFieldAttribute fieldChild = new ObjectMapper().readValue(
+//                        InitialsFieldAttribute fieldChild = MyServices.getJsonService().readValue(
 //                                initChild.getFieldValue(),
 //                                InitialsFieldAttribute.class);
 //                        fieldChild = (InitialsFieldAttribute) initChild.clone(fieldChild, initChild.getDimension());
@@ -1124,7 +1123,7 @@ class InitialsProcessing extends IVersion implements IModuleProcessing, IDocumen
 //                for (InitialsFieldAttribute initChild : initFields) {
 //                    //Update field after processing
 //                    initChild.setProcessStatus(ProcessStatus.PROCESSED.getName());
-//                    ObjectMapper ob = new ObjectMapper();
+//                    ObjectMapper ob = MyServices.getJsonService();
 //                    response = ConnectorField_Internal.updateValueOfField(
 //                            map.get(initChild.getFieldName()),
 //                            user,
@@ -1241,11 +1240,10 @@ class InitialsProcessing extends IVersion implements IModuleProcessing, IDocumen
 
             field.setProcessStatus(ProcessStatus.PROCESSED.getName());
 
-            ObjectMapper ob = new ObjectMapper();
             response = ConnectorField_Internal.updateValueOfField(
                     documentFieldId,
                     user,
-                    ob.writeValueAsString(field),
+                    MyServices.getJsonService().writeValueAsString(field),
                     transactionId);
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 return new InternalResponse(
@@ -1260,8 +1258,9 @@ class InitialsProcessing extends IVersion implements IModuleProcessing, IDocumen
             response = ConnectorField_Internal.updateFieldDetail(
                     documentFieldId,
                     user,
-                    new ObjectMapper()
-                            .setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
+                    MyServices.getJsonService(
+                            new ObjectMapper().setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
+                    )
                             .writeValueAsString(field),
                     uuid,
                     transactionId);

@@ -4,7 +4,6 @@
  */
 package vn.mobileid.id.FPS.component.document;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fps_core.enumration.FieldTypeName;
 import fps_core.objects.child.ToggleFieldAttribute;
 import fps_core.objects.core.ExtendedFieldAttribute;
@@ -15,6 +14,7 @@ import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.ProcessingRequest.ProcessingFormFillRequest;
 import vn.mobileid.id.FPS.object.User;
+import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.general.PolicyConfiguration;
 import vn.mobileid.id.utils.Utils;
 
@@ -38,7 +38,7 @@ public class ProcessingToggleField extends ProcessingTextFormField<ToggleFieldAt
             User user,
             ExtendedFieldAttribute fieldData,
             ProcessingFormFillRequest processField) throws Exception {
-        ToggleFieldAttribute toggle = new ObjectMapper().readValue(fieldData.getDetailValue(), ToggleFieldAttribute.class);
+        ToggleFieldAttribute toggle = MyServices.getJsonService().readValue(fieldData.getDetailValue(), ToggleFieldAttribute.class);
         toggle = (ToggleFieldAttribute) fieldData.clone(toggle, fieldData.getDimension());
 
         toggle.setProcessBy(user.getAzp());

@@ -46,6 +46,7 @@ import vn.mobileid.id.FPS.object.Enterprise;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.Token;
 import vn.mobileid.id.FPS.object.User;
+import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.general.LogHandler;
 import vn.mobileid.id.utils.Crypto;
 import vn.mobileid.id.utils.TaskV2;
@@ -140,7 +141,7 @@ class ManageTokenWithDB {
 
             InternalResponse res = new InternalResponse(
                     A_FPSConstant.HTTP_CODE_SUCCESS,
-                    new ObjectMapper().writeValueAsString(response));
+                    MyServices.getJsonService().writeValueAsString(response));
             res.setEnt(ent);
             return res;
         } catch (Exception e) {
@@ -294,7 +295,7 @@ class ManageTokenWithDB {
             Enterprise enterprise) throws IOException, GeneralSecurityException, Exception {
         String header = createHeader();
         User temp = createBasicPayloadData(enterprise);
-        String payload = new ObjectMapper().writeValueAsString(temp);
+        String payload = MyServices.getJsonService().writeValueAsString(temp);
         header = Base64.getUrlEncoder().withoutPadding().encodeToString(header.getBytes());
         payload = Base64.getUrlEncoder().withoutPadding().encodeToString(payload.getBytes());
         String signature = Crypto.sign(
@@ -323,7 +324,7 @@ class ManageTokenWithDB {
         long now = user.getIat();
         Date temp = new Date(now);
         user.setExp(temp.toInstant().plusSeconds(A_FPSConstant.refresh_token_expired_in).toEpochMilli());
-        String payload = new ObjectMapper().writeValueAsString(user);
+        String payload = MyServices.getJsonService().writeValueAsString(user);
         String header = createHeader();
         header = Base64.getUrlEncoder().withoutPadding().encodeToString(header.getBytes());
         payload = Base64.getUrlEncoder().withoutPadding().encodeToString(payload.getBytes());

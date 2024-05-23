@@ -4,12 +4,12 @@
  */
 package vn.mobileid.id.FPS.component.field;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fps_core.enumration.ProcessStatus;
 import fps_core.objects.core.BasicFieldAttribute;
 import fps_core.objects.core.ExtendedFieldAttribute;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.InternalResponse;
+import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.utils.Utils;
 
 /**
@@ -23,7 +23,7 @@ public class CheckFieldProcessedYet {
             String fieldValue
     ) {
         try {
-            BasicFieldAttribute signatureField = new ObjectMapper().readValue(fieldValue, BasicFieldAttribute.class);
+            BasicFieldAttribute signatureField = MyServices.getJsonService().readValue(fieldValue, BasicFieldAttribute.class);
             if (signatureField.getProcessStatus().equals(ProcessStatus.PROCESSED.getName())) {
                 return new InternalResponse(
                         A_FPSConstant.HTTP_CODE_BAD_REQUEST,
@@ -53,7 +53,7 @@ public class CheckFieldProcessedYet {
             );
         }
         try {
-            BasicFieldAttribute signatureField = new ObjectMapper().readValue(field.getFieldValue(), BasicFieldAttribute.class);
+            BasicFieldAttribute signatureField = MyServices.getJsonService().readValue(field.getFieldValue(), BasicFieldAttribute.class);
             if (signatureField.getProcessStatus().equals(ProcessStatus.PROCESSED.getName())) {
                 return new InternalResponse(
                         A_FPSConstant.HTTP_CODE_BAD_REQUEST,

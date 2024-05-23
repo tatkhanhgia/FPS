@@ -4,7 +4,6 @@
  */
 package vn.mobileid.id.FPS.component.document;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fps_core.objects.core.ExtendedFieldAttribute;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -27,6 +26,7 @@ import vn.mobileid.id.FPS.object.InternalResponse.InternalData;
 import vn.mobileid.id.FPS.object.ProcessFileField;
 import vn.mobileid.id.FPS.object.ProcessingRequest;
 import vn.mobileid.id.FPS.object.User;
+import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.general.PolicyConfiguration;
 import vn.mobileid.id.utils.Utils;
 
@@ -537,7 +537,7 @@ public class ProcessingFileField {
             String value
             ) throws Exception {
         //Read details
-        FileFieldAttribute imageField = new ObjectMapper().readValue(fieldData.getDetailValue(), FileFieldAttribute.class);
+        FileFieldAttribute imageField = MyServices.getJsonService().readValue(fieldData.getDetailValue(), FileFieldAttribute.class);
         imageField = (FileFieldAttribute) fieldData.clone(imageField, fieldData.getDimension());
 
         imageField.setProcessBy(user.getAzp());

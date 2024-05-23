@@ -31,6 +31,7 @@ import vn.mobileid.id.utils.TaskV2;
 import vn.mobileid.id.FPS.component.document.process.interfaces.IDocumentProcessing;
 import vn.mobileid.id.FPS.component.document.process.interfaces.IModuleProcessing;
 import vn.mobileid.id.FPS.component.document.process.interfaces.IVersion;
+import vn.mobileid.id.FPS.services.MyServices;
 
 /**
  *
@@ -411,17 +412,16 @@ class CheckboxProcessing extends IVersion implements IModuleProcessing, IDocumen
             //</editor-fold>
 
             //<editor-fold defaultstate="collapsed" desc="Update field after processing">
-            CheckBoxFieldAttribute checkboxField = new ObjectMapper().readValue(extendField.getDetailValue(), CheckBoxFieldAttribute.class);
+            CheckBoxFieldAttribute checkboxField = MyServices.getJsonService().readValue(extendField.getDetailValue(), CheckBoxFieldAttribute.class);
             checkboxField = (CheckBoxFieldAttribute) extendField.clone(checkboxField, extendField.getDimension());
             checkboxField.setProcessStatus(ProcessStatus.PROCESSED.getName());
             checkboxField.setProcessBy(field.getProcessBy());
             checkboxField.setProcessOn(field.getProcessOn());
 
-            ObjectMapper ob = new ObjectMapper();
             response = ConnectorField_Internal.updateValueOfField(
                     documentFieldId,
                     user,
-                    ob.writeValueAsString(checkboxField),
+                    MyServices.getJsonService().writeValueAsString(checkboxField),
                     transactionId);
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 return new InternalResponse(
@@ -436,8 +436,9 @@ class CheckboxProcessing extends IVersion implements IModuleProcessing, IDocumen
             response = ConnectorField_Internal.updateFieldDetail(
                     documentFieldId,
                     user,
-                    new ObjectMapper()
-                            .setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
+                    MyServices.getJsonService(
+                            new ObjectMapper().setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
+                    )
                             .writeValueAsString(checkboxField),
                     uuid,
                     transactionId);

@@ -30,6 +30,7 @@ import vn.mobileid.id.utils.Crypto;
 import vn.mobileid.id.utils.TaskV2;
 import vn.mobileid.id.FPS.component.document.process.interfaces.IDocumentProcessing;
 import vn.mobileid.id.FPS.component.document.process.interfaces.IModuleProcessing;
+import vn.mobileid.id.FPS.services.MyServices;
 
 /**
  *
@@ -160,18 +161,17 @@ class TextFieldProcessing<T extends BasicFieldAttribute>  implements IDocumentPr
             //</editor-fold>
 
             //<editor-fold defaultstate="collapsed" desc="Update field after processing">
-            T textField = (T)new ObjectMapper().readValue(extendField.getDetailValue(), type.getClass());
+            T textField = (T)MyServices.getJsonService().readValue(extendField.getDetailValue(), type.getClass());
             textField = (T) extendField.clone(textField, extendField.getDimension());
             
             textField.setProcessStatus(ProcessStatus.PROCESSED.getName());
             textField.setProcessBy(field.getProcessBy());
             textField.setProcessOn(field.getProcessOn());
 
-            ObjectMapper ob = new ObjectMapper();
             response = ConnectorField_Internal.updateValueOfField(
                     documentFieldId,
                     user,
-                    ob.writeValueAsString(textField),
+                    MyServices.getJsonService().writeValueAsString(textField),
                     transactionId);
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 return new InternalResponse(
@@ -186,8 +186,9 @@ class TextFieldProcessing<T extends BasicFieldAttribute>  implements IDocumentPr
             response = ConnectorField_Internal.updateFieldDetail(
                     documentFieldId,
                     user,
-                    new ObjectMapper()
-                            .setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
+                    MyServices.getJsonService(
+                            new ObjectMapper().setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
+                    )
                             .writeValueAsString(textField),
                     uuid,
                     transactionId);

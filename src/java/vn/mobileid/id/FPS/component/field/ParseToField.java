@@ -4,9 +4,7 @@
  */
 package vn.mobileid.id.FPS.component.field;
 
-import com.fasterxml.jackson.annotation.A;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fps_core.enumration.FieldTypeName;
 import fps_core.objects.Font;
 import fps_core.objects.child.AttachmentFieldAttribute;
@@ -25,7 +23,6 @@ import fps_core.objects.core.InitialsFieldAttribute;
 import fps_core.objects.core.QRFieldAttribute;
 import fps_core.objects.core.SignatureFieldAttribute;
 import fps_core.objects.core.TextFieldAttribute;
-import fps_core.objects.interfaces.AbstractReplicateField;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import org.bouncycastle.util.encoders.Base64;
@@ -40,6 +37,7 @@ import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.controller.ResponseMessageController;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.fieldAttribute.QryptoFieldAttribute;
+import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.general.LogHandler;
 import vn.mobileid.id.general.PolicyConfiguration;
 import vn.mobileid.id.general.Resources;
@@ -84,7 +82,7 @@ public abstract class ParseToField {
                 //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
                 SignatureFieldAttribute field = null;
                 try {
-                    field = new ObjectMapper().readValue(payload, SignatureFieldAttribute.class);
+                    field = MyServices.getJsonService().readValue(payload, SignatureFieldAttribute.class);
                 } catch (JsonProcessingException ex) {
                     hierarchicalLog.addEndHeading1("Parse into field fail");
                     return new InternalResponse(
@@ -129,7 +127,7 @@ public abstract class ParseToField {
                 //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
                 DateTimeFieldAttribute field = null;
                 try {
-                    field = new ObjectMapper().readValue(payload, DateTimeFieldAttribute.class);
+                    field = MyServices.getJsonService().readValue(payload, DateTimeFieldAttribute.class);
                 } catch (Exception ex) {
                     hierarchicalLog.addEndHeading1("Parse into field fail");
                     return new InternalResponse(
@@ -223,12 +221,12 @@ public abstract class ParseToField {
                 //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
                 TextFieldAttribute field = null;
                 try {
-                    field = new ObjectMapper().readValue(payload, TextFieldAttribute.class);
+                    field = MyServices.getJsonService().readValue(payload, TextFieldAttribute.class);
                     if (type != null) {
                         if (checkDate != null || type.equalsIgnoreCase("datetime") || type.equalsIgnoreCase("date")) {
-                            field = new ObjectMapper().readValue(payload, DateTimeFieldAttribute.class);
+                            field = MyServices.getJsonService().readValue(payload, DateTimeFieldAttribute.class);
                         } else if (checkAddress != null || type.equalsIgnoreCase("hyperlink")) {
-                            field = new ObjectMapper().readValue(payload, HyperLinkFieldAttribute.class);
+                            field = MyServices.getJsonService().readValue(payload, HyperLinkFieldAttribute.class);
                         }
                     }
                 } catch (Exception ex) {
@@ -317,7 +315,7 @@ public abstract class ParseToField {
                 //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
                 CheckBoxFieldAttribute field = null;
                 try {
-                    field = new ObjectMapper().readValue(payload, CheckBoxFieldAttribute.class);
+                    field = MyServices.getJsonService().readValue(payload, CheckBoxFieldAttribute.class);
                 } catch (JsonProcessingException ex) {
                     hierarchicalLog.addEndHeading1("Parse into field fail");
                     return new InternalResponse(
@@ -387,7 +385,7 @@ public abstract class ParseToField {
                 //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
                 CheckBoxFieldAttributeV2 field = null;
                 try {
-                    field = new ObjectMapper().readValue(payload, CheckBoxFieldAttributeV2.class);
+                    field = MyServices.getJsonService().readValue(payload, CheckBoxFieldAttributeV2.class);
                 } catch (JsonProcessingException ex) {
                     hierarchicalLog.addEndHeading1("Parse into field fail");
                     return new InternalResponse(
@@ -441,7 +439,7 @@ public abstract class ParseToField {
                 //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
                 RadioFieldAttribute field = null;
                 try {
-                    field = new ObjectMapper().readValue(payload, RadioFieldAttribute.class);
+                    field = MyServices.getJsonService().readValue(payload, RadioFieldAttribute.class);
                 } catch (JsonProcessingException ex) {
                     hierarchicalLog.addEndHeading1("Parse into field fail");
                     return new InternalResponse(
@@ -511,7 +509,7 @@ public abstract class ParseToField {
                 //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
                 InitialsFieldAttribute field = null;
                 try {
-                    field = new ObjectMapper().readValue(payload, InitialsFieldAttribute.class);
+                    field = MyServices.getJsonService().readValue(payload, InitialsFieldAttribute.class);
                 } catch (JsonProcessingException ex) {
                     hierarchicalLog.addEndHeading1("Parse into field fail");
                     return new InternalResponse(
@@ -591,7 +589,7 @@ public abstract class ParseToField {
                 //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
                 QRFieldAttribute field = null;
                 try {
-                    field = new ObjectMapper().readValue(payload, QRFieldAttribute.class);
+                    field = MyServices.getJsonService().readValue(payload, QRFieldAttribute.class);
                 } catch (JsonProcessingException ex) {
                     hierarchicalLog.addEndHeading1("Parse into field fail");
                     return new InternalResponse(
@@ -690,7 +688,7 @@ public abstract class ParseToField {
                 //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
                 QryptoFieldAttribute field = null;
                 try {
-                    field = new ObjectMapper().readValue(payload, QryptoFieldAttribute.class);
+                    field = MyServices.getJsonService().readValue(payload, QryptoFieldAttribute.class);
                 } catch (JsonProcessingException ex) {
                     hierarchicalLog.addEndHeading1("Parse into field fail");
                     return new InternalResponse(
@@ -748,8 +746,8 @@ public abstract class ParseToField {
                                     break;
                                 }
                                 case ID_Picture_with_4_labels: {
-                                    String temp_ = new ObjectMapper().writeValueAsString(detail.getValue());
-                                    tempp = new ObjectMapper().readValue(temp_, Item_IDPicture4Label.IDPicture4Label.class);
+                                    String temp_ = MyServices.getJsonService().writeValueAsString(detail.getValue());
+                                    tempp = MyServices.getJsonService().readValue(temp_, Item_IDPicture4Label.IDPicture4Label.class);
                                     file = tempp.getBase64();
                                     break;
                                 }
@@ -812,7 +810,7 @@ public abstract class ParseToField {
                 //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
                 FileFieldAttribute field = null;
                 try {
-                    field = new ObjectMapper().readValue(payload, FileFieldAttribute.class);
+                    field = MyServices.getJsonService().readValue(payload, FileFieldAttribute.class);
                 } catch (JsonProcessingException ex) {
                     hierarchicalLog.addEndHeading1("Parse into field fail");
                     return new InternalResponse(
@@ -910,7 +908,7 @@ public abstract class ParseToField {
                 //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
                 CameraFieldAttribute field = null;
                 try {
-                    field = new ObjectMapper().readValue(payload, CameraFieldAttribute.class);
+                    field = MyServices.getJsonService().readValue(payload, CameraFieldAttribute.class);
                 } catch (JsonProcessingException ex) {
                     hierarchicalLog.addEndHeading1("Parse into field fail");
                     return new InternalResponse(
@@ -1012,7 +1010,7 @@ public abstract class ParseToField {
                 //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
                 AttachmentFieldAttribute field = null;
                 try {
-                    field = new ObjectMapper().readValue(payload, AttachmentFieldAttribute.class);
+                    field = MyServices.getJsonService().readValue(payload, AttachmentFieldAttribute.class);
                 } catch (JsonProcessingException ex) {
                     hierarchicalLog.addEndHeading1("Parse into field fail");
                     return new InternalResponse(
@@ -1158,7 +1156,7 @@ public abstract class ParseToField {
                 //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
                 HyperLinkFieldAttribute field = null;
                 try {
-                    field = new ObjectMapper().readValue(payload, HyperLinkFieldAttribute.class);
+                    field = MyServices.getJsonService().readValue(payload, HyperLinkFieldAttribute.class);
                 } catch (Exception ex) {
                     hierarchicalLog.addEndHeading1("Parse into field fail");
                     return new InternalResponse(
@@ -1234,7 +1232,7 @@ public abstract class ParseToField {
                 //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
                 ComboBoxFieldAttribute field = null;
                 try {
-                    field = new ObjectMapper().readValue(payload, ComboBoxFieldAttribute.class);
+                    field = MyServices.getJsonService().readValue(payload, ComboBoxFieldAttribute.class);
                 } catch (Exception ex) {
                     LogHandler.error(ConnectorField.class, transactionId, ex);
                     hierarchicalLog.addEndHeading1("Parse into field fail");
@@ -1311,7 +1309,7 @@ public abstract class ParseToField {
                 //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
                 ToggleFieldAttribute field = null;
                 try {
-                    field = new ObjectMapper().readValue(payload, ToggleFieldAttribute.class);
+                    field = MyServices.getJsonService().readValue(payload, ToggleFieldAttribute.class);
                 } catch (Exception ex) {
                     LogHandler.error(ConnectorField.class, transactionId, ex);
                     hierarchicalLog.addEndHeading1("Parse into field fail");
@@ -1389,7 +1387,7 @@ public abstract class ParseToField {
                 //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
                 NumericStepperAttribute field = null;
                 try {
-                    field = new ObjectMapper().readValue(payload, NumericStepperAttribute.class);
+                    field = MyServices.getJsonService().readValue(payload, NumericStepperAttribute.class);
                 } catch (Exception ex) {
                     LogHandler.error(ConnectorField.class, transactionId, ex);
                     hierarchicalLog.addEndHeading1("Parse into field fail");
@@ -1470,10 +1468,12 @@ public abstract class ParseToField {
     //<editor-fold defaultstate="collapsed" desc="ParseToField Version 2">
     /**
      * Từ url xác định loại field và parse vào loại đó Determine the type of
-     * field and parse into that type. Based on URL
+     * field and parse into that type.Based on URL
      *
      * @param url
      * @param payload
+     * @param isCheckBasicField
+     * @param isUpdate
      * @param transactionId
      * @return
      */
@@ -1496,7 +1496,7 @@ public abstract class ParseToField {
                 //<editor-fold defaultstate="collapsed" desc="Generate SignatureFieldAttribute from Payload">
                 parseV2 = createBufferer(new SignatureFieldAttribute(),
                         null)
-                        .templateParseTopField(
+                        .parseAndValidateField(
                                 FieldTypeName.INPERSON,
                                 payload,
                                 true,
@@ -1509,7 +1509,7 @@ public abstract class ParseToField {
                 //<editor-fold defaultstate="collapsed" desc="Generate SignatureFieldAttribute from Payload">
                 parseV2 = createBufferer(new SignatureFieldAttribute(),
                         null)
-                        .templateParseTopField(
+                        .parseAndValidateField(
                                 FieldTypeName.SIGNATURE,
                                 payload,
                                 true,
@@ -1539,7 +1539,7 @@ public abstract class ParseToField {
                             }
                             //</editor-fold>
                         })
-                        .templateParseTopField(
+                        .parseAndValidateField(
                                 FieldTypeName.DATETIME,
                                 payload,
                                 true,
@@ -1574,7 +1574,7 @@ public abstract class ParseToField {
                             }
                             //</editor-fold>
                         })
-                        .templateParseTopField(
+                        .parseAndValidateField(
                                 FieldTypeName.TEXTBOX,
                                 payload,
                                 true,
@@ -1597,7 +1597,7 @@ public abstract class ParseToField {
                             }
                             //</editor-fold>
                         })
-                        .templateParseTopField(
+                        .parseAndValidateField(
                                 FieldTypeName.CHECKBOX,
                                 payload,
                                 true,
@@ -1611,7 +1611,7 @@ public abstract class ParseToField {
                 //<editor-fold defaultstate="collapsed" desc="Generate CheckboxFieldAttribute from Payload">
                 parseV2 = createBufferer(new CheckBoxFieldAttributeV2(),
                         null)
-                        .templateParseTopField(
+                        .parseAndValidateField(
                                 FieldTypeName.CHECKBOX,
                                 payload,
                                 true,
@@ -1634,7 +1634,7 @@ public abstract class ParseToField {
                             }
                             //</editor-fold>
                         })
-                        .templateParseTopField(
+                        .parseAndValidateField(
                                 FieldTypeName.RADIOBOX,
                                 payload,
                                 true,
@@ -1681,7 +1681,7 @@ public abstract class ParseToField {
                             //</editor-fold>
                             //</editor-fold>
                         })
-                        .templateParseTopField(
+                        .parseAndValidateField(
                                 FieldTypeName.INITIAL,
                                 payload,
                                 true,
@@ -1747,7 +1747,7 @@ public abstract class ParseToField {
                             //</editor-fold>
                         }
                 )
-                        .templateParseTopField(
+                        .parseAndValidateField(
                                 FieldTypeName.QR,
                                 payload,
                                 true,
@@ -1776,8 +1776,8 @@ public abstract class ParseToField {
                                                 break;
                                             }
                                             case ID_Picture_with_4_labels: {
-                                                String temp_ = new ObjectMapper().writeValueAsString(detail.getValue());
-                                                tempp = new ObjectMapper().readValue(temp_, Item_IDPicture4Label.IDPicture4Label.class);
+                                                String temp_ = MyServices.getJsonService().writeValueAsString(detail.getValue());
+                                                tempp = MyServices.getJsonService().readValue(temp_, Item_IDPicture4Label.IDPicture4Label.class);
                                                 file = tempp.getBase64();
                                                 break;
                                             }
@@ -1831,7 +1831,7 @@ public abstract class ParseToField {
                             return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, "");
                             //</editor-fold>
                         })
-                        .templateParseTopField(
+                        .parseAndValidateField(
                                 FieldTypeName.QRYPTO,
                                 payload,
                                 true,
@@ -1893,7 +1893,7 @@ public abstract class ParseToField {
                             return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, "");
                             //</editor-fold>
                         })
-                        .templateParseTopField(
+                        .parseAndValidateField(
                                 FieldTypeName.STAMP,
                                 payload,
                                 true,
@@ -1959,7 +1959,7 @@ public abstract class ParseToField {
                             return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, "");
                             //</editor-fold>
                         })
-                        .templateParseTopField(
+                        .parseAndValidateField(
                                 FieldTypeName.CAMERA,
                                 payload,
                                 true,
@@ -2069,7 +2069,7 @@ public abstract class ParseToField {
                             return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, "");
                             //</editor-fold>
                         })
-                        .templateParseTopField(
+                        .parseAndValidateField(
                                 FieldTypeName.ATTACHMENT,
                                 payload,
                                 true,
@@ -2106,7 +2106,7 @@ public abstract class ParseToField {
                             }
                             //</editor-fold>
                         })
-                        .templateParseTopField(
+                        .parseAndValidateField(
                                 FieldTypeName.HYPERLINK,
                                 payload,
                                 true,
@@ -2143,7 +2143,7 @@ public abstract class ParseToField {
                             }
                             //</editor-fold>
                         })
-                        .templateParseTopField(
+                        .parseAndValidateField(
                                 FieldTypeName.COMBOBOX,
                                 payload,
                                 true,
@@ -2180,7 +2180,7 @@ public abstract class ParseToField {
                             }
                             //</editor-fold>
                         })
-                        .templateParseTopField(
+                        .parseAndValidateField(
                                 FieldTypeName.TOGGLE,
                                 payload,
                                 true,
@@ -2217,7 +2217,7 @@ public abstract class ParseToField {
                             }
                             //</editor-fold>
                         })
-                        .templateParseTopField(
+                        .parseAndValidateField(
                                 FieldTypeName.TOGGLE,
                                 payload,
                                 true,
@@ -2275,7 +2275,7 @@ public abstract class ParseToField {
          *
          * @return
          */
-        private InternalResponse templateParseTopField(
+        private InternalResponse parseAndValidateField(
                 FieldTypeName parentType,
                 String payload,
                 boolean isCheckBasicField,
@@ -2288,7 +2288,7 @@ public abstract class ParseToField {
 
             //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
             try {
-                fieldType = new ObjectMapper().readValue(payload, (Class<T>) fieldType.getClass());
+                fieldType = MyServices.getJsonService().readValue(payload, (Class<T>) fieldType.getClass());
             } catch (Exception ex) {
                 hierarchicalLog.addEndHeading1("Parse into field fail");
                 return new InternalResponse(

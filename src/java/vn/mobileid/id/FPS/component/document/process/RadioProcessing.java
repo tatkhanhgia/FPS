@@ -28,6 +28,7 @@ import vn.mobileid.id.utils.Crypto;
 import vn.mobileid.id.utils.TaskV2;
 import vn.mobileid.id.FPS.component.document.process.interfaces.IDocumentProcessing;
 import vn.mobileid.id.FPS.component.document.process.interfaces.IModuleProcessing;
+import vn.mobileid.id.FPS.services.MyServices;
 
 /**
  *
@@ -278,17 +279,16 @@ class RadioProcessing implements IModuleProcessing, IDocumentProcessing {
             }
 
             //Update field after processing
-            RadioFieldAttribute checkboxField = new ObjectMapper().readValue(extendField.getDetailValue(), RadioFieldAttribute.class);
+            RadioFieldAttribute checkboxField = MyServices.getJsonService().readValue(extendField.getDetailValue(), RadioFieldAttribute.class);
             checkboxField = (RadioFieldAttribute) extendField.clone(checkboxField, extendField.getDimension());
             checkboxField.setProcessStatus(ProcessStatus.PROCESSED.getName());
             checkboxField.setProcessBy(field.getProcessBy());
             checkboxField.setProcessOn(field.getProcessOn());
             
-            ObjectMapper ob = new ObjectMapper();
             response = ConnectorField_Internal.updateValueOfField(
                     documentFieldId,
                     user,
-                    ob.writeValueAsString(checkboxField),
+                    MyServices.getJsonService().writeValueAsString(checkboxField),
                     transactionId);
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 return new InternalResponse(
@@ -302,8 +302,9 @@ class RadioProcessing implements IModuleProcessing, IDocumentProcessing {
             response = ConnectorField_Internal.updateFieldDetail(
                     documentFieldId,
                     user,
-                    new ObjectMapper()
-                            .setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
+                    MyServices.getJsonService(
+                            new ObjectMapper().setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
+                    )
                             .writeValueAsString(checkboxField),
                     uuid,
                     transactionId);

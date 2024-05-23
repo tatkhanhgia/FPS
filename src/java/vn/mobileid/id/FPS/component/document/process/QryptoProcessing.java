@@ -53,6 +53,7 @@ import vn.mobileid.id.FPS.component.field.ConnectorField;
 import vn.mobileid.id.FPS.component.field.ConnectorField_Internal;
 import vn.mobileid.id.FPS.enumeration.QryptoVariable;
 import vn.mobileid.id.FPS.serializer.IgnoreIngeritedIntrospector;
+import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.general.LogHandler;
 import vn.mobileid.id.general.PolicyConfiguration;
 
@@ -162,8 +163,8 @@ class QryptoProcessing implements IDocumentProcessing {
                                 break;
                             }
                             case ID_Picture_with_4_labels: {
-                                String temp_ = new ObjectMapper().writeValueAsString(detail.getValue());
-                                tempp = new ObjectMapper().readValue(temp_, Item_IDPicture4Label.IDPicture4Label.class);
+                                String temp_ = MyServices.getJsonService().writeValueAsString(detail.getValue());
+                                tempp = MyServices.getJsonService().readValue(temp_, Item_IDPicture4Label.IDPicture4Label.class);
                                 file = tempp.getBase64();
                                 break;
                             }
@@ -216,7 +217,7 @@ class QryptoProcessing implements IDocumentProcessing {
         //<editor-fold defaultstate="collapsed" desc="Update 2024-04-30: Add Logic read Signature in PDF and replace SigningTime @FirstSigner and @SecondSigner in QRSchema">
         List<Signature> signatures = DocumentUtils_itext7.verifyDocument_i7(file);
 
-        String temp = new ObjectMapper().writeValueAsString(schema);
+        String temp = MyServices.getJsonService().writeValueAsString(schema);
 
         try {
             temp = temp.replaceAll(
@@ -229,7 +230,7 @@ class QryptoProcessing implements IDocumentProcessing {
                             .format(signatures.get(1).getSigningTime()));
         } catch (Exception e) {
         } finally {
-//            schema = new ObjectMapper().readValue(temp, QRSchema.class);
+//            schema = MyServices.getJsonService().readValue(temp, QRSchema.class);
         }
         //</editor-fold>
 
@@ -390,7 +391,7 @@ class QryptoProcessing implements IDocumentProcessing {
                     InternalResponse response = UpdateField.updateValueOfField(
                             documentFieldId,
                             user,
-                            new ObjectMapper().writeValueAsString(field),
+                            MyServices.getJsonService().writeValueAsString(field),
                             this.getTransactionId());
 
                     if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
@@ -418,8 +419,9 @@ class QryptoProcessing implements IDocumentProcessing {
                     response = ConnectorField_Internal.updateFieldDetail(
                             documentFieldId,
                             user,
-                            new ObjectMapper()
-                                    .setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
+                            MyServices.getJsonService(
+                                    new ObjectMapper().setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
+                            )
                                     .writeValueAsString(field),
                             "hmac",
                             transactionId);

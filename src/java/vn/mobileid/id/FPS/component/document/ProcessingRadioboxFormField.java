@@ -4,7 +4,6 @@
  */
 package vn.mobileid.id.FPS.component.document;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fps_core.enumration.FieldTypeName;
 import fps_core.objects.core.ExtendedFieldAttribute;
 import fps_core.objects.child.RadioFieldAttribute;
@@ -23,6 +22,7 @@ import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.InternalResponse.InternalData;
 import vn.mobileid.id.FPS.object.ProcessingRequest;
 import vn.mobileid.id.FPS.object.User;
+import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.general.LogHandler;
 import vn.mobileid.id.general.PolicyConfiguration;
 import vn.mobileid.id.utils.Utils;
@@ -185,7 +185,7 @@ public class ProcessingRadioboxFormField {
             ExtendedFieldAttribute fieldData,
             Boolean value) throws Exception {
         //Read details
-        RadioFieldAttribute checkboxField = new ObjectMapper().readValue(fieldData.getDetailValue(), RadioFieldAttribute.class);
+        RadioFieldAttribute checkboxField = MyServices.getJsonService().readValue(fieldData.getDetailValue(), RadioFieldAttribute.class);
         checkboxField = (RadioFieldAttribute) fieldData.clone(checkboxField, fieldData.getDimension());
 
         checkboxField.setProcessBy(user.getAzp());

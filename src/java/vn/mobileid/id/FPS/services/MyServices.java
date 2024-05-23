@@ -1,0 +1,48 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
+package vn.mobileid.id.FPS.services;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import vn.mobileid.id.FPS.services.impls.JacksonJsonService;
+import vn.mobileid.id.FPS.services.interfaces.IJsonService;
+
+/**
+ * Provides static factory methods to obtain instances of service interfaces.
+ * <p>
+ * Cung cấp các phương thức tĩnh để lấy các instance của các giao diện dịch vụ.
+ *
+ * @author GiaTK
+ */
+public class MyServices {
+
+    //<editor-fold defaultstate="collapsed" desc="Get JsonService">
+    /**
+     * Returns an instance of {@link IJsonService} implemented by {@link JacksonJsonService}.
+     * <p>
+     * Trả về một instance của {@link IJsonService} được triển khai bởi {@link JacksonJsonService}.
+     *
+     * @return An implementation of {@link IJsonService} for JSON serialization and deserialization.
+     *         Một implementation của {@link IJsonService} cho việc chuyển đổi đối tượng Java thành chuỗi JSON và ngược lại. 
+     */
+    public static IJsonService getJsonService() {
+        return new JacksonJsonService();
+    }
+    
+    /**
+     * Returns an instance of {@link IJsonService} implemented by {@link JacksonJsonService}.
+     * <p>
+     * Trả về một instance của {@link IJsonService} được triển khai bởi {@link JacksonJsonService}.
+     *
+     * @param objectMapper
+     * @return An implementation of {@link IJsonService} for JSON serialization and deserialization.
+     *         Một implementation của {@link IJsonService} cho việc chuyển đổi đối tượng Java thành chuỗi JSON và ngược lại. 
+     */
+    public static IJsonService getJsonService(ObjectMapper objectMapper) {
+        return new JacksonJsonService(objectMapper);
+    }
+    //</editor-fold>
+
+    
+}

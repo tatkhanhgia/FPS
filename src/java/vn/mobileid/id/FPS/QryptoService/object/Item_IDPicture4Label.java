@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import vn.mobileid.id.FPS.services.MyServices;
 
 /**
  *
@@ -91,7 +92,7 @@ public class Item_IDPicture4Label {
     
     public static void main(String[] args) throws JsonProcessingException {
         String temp = "{\"field\":\"Photo\",\"mandatory_enable\":false,\"type\":11,\"value\":{\"label_1\":\"one\",\"label_2\":\"two\",\"label_3\":\"three\",\"label_4\":\"four\",\"file_data\":\"{Base64_of_file}\"},\"file_field\":\"fileA\",\"file_format\":\"image/png\",\"file_name\":\"hello.png\"}";
-        Item_IDPicture4Label tempp = new ObjectMapper().readValue(temp, Item_IDPicture4Label.class);
+        Item_IDPicture4Label tempp = MyServices.getJsonService().readValue(temp, Item_IDPicture4Label.class);
         
         System.out.println(tempp.getIdPicture().getLabel1());
         System.out.println(tempp.getIdPicture().getLabel2());

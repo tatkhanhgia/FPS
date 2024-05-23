@@ -15,6 +15,7 @@ import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.ProcessFileField;
 import vn.mobileid.id.FPS.object.ProcessInitialField;
 import vn.mobileid.id.FPS.object.ProcessingRequest;
+import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.general.Resources;
 import vn.mobileid.id.utils.Utils;
 
@@ -40,7 +41,7 @@ public class CheckPayloadRequest {
         //Parse payload
         ProcessingRequest processRequest = null;
         try {
-            processRequest = new ObjectMapper().readValue(payload, ProcessingRequest.class);
+            processRequest = MyServices.getJsonService().readValue(payload, ProcessingRequest.class);
         } catch (Exception ex) {
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
@@ -92,7 +93,7 @@ public class CheckPayloadRequest {
         //Parse payload
         ProcessingRequest processRequest = null;
         try {
-            processRequest = new ObjectMapper().readValue(payload, ProcessingRequest.class);
+            processRequest = MyServices.getJsonService().readValue(payload, ProcessingRequest.class);
         } catch (Exception ex) {
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,

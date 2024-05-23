@@ -4,7 +4,6 @@
  */
 package vn.mobileid.id.FPS.component.document;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fps_core.enumration.FieldTypeName;
 import fps_core.objects.child.NumericStepperAttribute;
 import fps_core.objects.core.ExtendedFieldAttribute;
@@ -15,6 +14,7 @@ import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.ProcessingRequest;
 import vn.mobileid.id.FPS.object.User;
+import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.general.PolicyConfiguration;
 import vn.mobileid.id.utils.Utils;
 
@@ -38,7 +38,7 @@ public class ProcessingNumericStepper extends ProcessingTextFormField<NumericSte
             User user,
             ExtendedFieldAttribute fieldData,
             ProcessingRequest.ProcessingFormFillRequest processField) throws Exception {
-        NumericStepperAttribute numeric = new ObjectMapper().readValue(fieldData.getDetailValue(), NumericStepperAttribute.class);
+        NumericStepperAttribute numeric = MyServices.getJsonService().readValue(fieldData.getDetailValue(), NumericStepperAttribute.class);
         numeric = (NumericStepperAttribute) fieldData.clone(numeric, fieldData.getDimension());
 
         numeric.setProcessBy(user.getAzp());

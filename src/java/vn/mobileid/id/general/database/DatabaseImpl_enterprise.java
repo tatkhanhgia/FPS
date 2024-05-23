@@ -5,15 +5,13 @@
  */
 package vn.mobileid.id.general.database;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import vn.mobileid.id.general.Configuration;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.APIKeyRule;
 import vn.mobileid.id.FPS.object.Enterprise;
+import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.general.LogHandler;
 import vn.mobileid.id.helper.ORM_JPA.database.CreateConnection;
 import vn.mobileid.id.helper.ORM_JPA.database.objects.DatabaseResponse;
@@ -148,7 +146,7 @@ class DatabaseImpl_enterprise_ implements DatabaseImpl_enterprise {
         for (HashMap<String, Object> hashmap : response.getRows()) {
             try {
                 String value = (String) hashmap.get("VALUE");
-                APIKeyRule rule = new ObjectMapper().readValue(value, APIKeyRule.class);
+                APIKeyRule rule = MyServices.getJsonService().readValue(value, APIKeyRule.class);
                 response.setObject(rule);
             } catch (Exception ex) {
                 LogHandler.error(DatabaseImpl_enterprise_.class, transactionID, ex);

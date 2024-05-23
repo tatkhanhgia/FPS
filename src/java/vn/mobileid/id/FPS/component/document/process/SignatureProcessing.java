@@ -43,6 +43,7 @@ import vn.mobileid.id.utils.TaskV2;
 import vn.mobileid.id.utils.Utils;
 import vn.mobileid.id.FPS.component.document.process.interfaces.IDocumentProcessing;
 import vn.mobileid.id.FPS.component.document.process.interfaces.IModuleProcessing;
+import vn.mobileid.id.FPS.services.MyServices;
 
 /**
  *
@@ -179,7 +180,7 @@ class SignatureProcessing implements IDocumentProcessing, IModuleProcessing {
             response = ConnectorField_Internal.updateValueOfField(
                     documentFieldId,
                     user,
-                    ob.writeValueAsString(field),
+                    MyServices.getJsonService(ob).writeValueAsString(field),
                     transactionId);
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 return new InternalResponse(
@@ -291,7 +292,7 @@ class SignatureProcessing implements IDocumentProcessing, IModuleProcessing {
             }
             for (ExtendedFieldAttribute temp : (Iterable<? extends ExtendedFieldAttribute>) response.getData()) {
                 if (temp.getType().getParentType().equals(FieldTypeName.QR.getParentName())) {
-                    QRFieldAttribute qr = new ObjectMapper().readValue(temp.getDetailValue(), QRFieldAttribute.class);
+                    QRFieldAttribute qr = MyServices.getJsonService().readValue(temp.getDetailValue(), QRFieldAttribute.class);
                     qr = (QRFieldAttribute) temp.clone(qr, temp.getDimension());
 
                     byte[] imageQR = null;
@@ -556,13 +557,12 @@ class SignatureProcessing implements IDocumentProcessing, IModuleProcessing {
             //</editor-fold>
 
             //Update field after processing
-            ObjectMapper ob = new ObjectMapper();
             field.setProcessStatus(ProcessStatus.PROCESSED.getName());
 
             response = ConnectorField_Internal.updateValueOfField(
                     documentFieldId,
                     user,
-                    ob.writeValueAsString(field),
+                    MyServices.getJsonService().writeValueAsString(field),
                     transactionId);
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 return new InternalResponse(

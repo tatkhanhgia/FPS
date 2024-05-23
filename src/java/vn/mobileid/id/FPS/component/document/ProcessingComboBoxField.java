@@ -15,6 +15,7 @@ import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.ProcessingRequest;
 import vn.mobileid.id.FPS.object.User;
+import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.general.PolicyConfiguration;
 import vn.mobileid.id.utils.Utils;
 
@@ -38,7 +39,7 @@ public class ProcessingComboBoxField extends ProcessingTextFormField<ComboBoxFie
             User user,
             ExtendedFieldAttribute fieldData,
             ProcessingRequest.ProcessingFormFillRequest processField) throws Exception {
-        ComboBoxFieldAttribute comboField = new ObjectMapper().readValue(fieldData.getDetailValue(), ComboBoxFieldAttribute.class);
+        ComboBoxFieldAttribute comboField = MyServices.getJsonService().readValue(fieldData.getDetailValue(), ComboBoxFieldAttribute.class);
         comboField = (ComboBoxFieldAttribute) fieldData.clone(comboField, fieldData.getDimension());
 
         comboField.setProcessBy(user.getAzp());

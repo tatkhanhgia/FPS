@@ -19,6 +19,7 @@ import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.FPS.serializer.IgnoreChildIntrospector;
 import vn.mobileid.id.FPS.serializer.IgnoreIngeritedIntrospector;
+import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.general.Configuration;
 import vn.mobileid.id.general.LogHandler;
 import vn.mobileid.id.general.Resources;
@@ -239,8 +240,9 @@ class DatabaseImpl_field_ implements DatabaseImpl_field {
         datas.put("pDOCUMENT_ID", documentId);
         datas.put("pTYPE", field.getType().getTypeId());
         datas.put("pNAME", field.getFieldName());
-        datas.put("pVALUE", new ObjectMapper()
-                .setAnnotationIntrospector(new IgnoreChildIntrospector())
+        datas.put("pVALUE", MyServices.getJsonService(
+                new ObjectMapper().setAnnotationIntrospector(new IgnoreChildIntrospector())
+        )
                 .writeValueAsString(inputClass));
         datas.put("pPAGE_NUMBER", field.getPage());
         datas.put("pFIELD_WIDTH", field.getDimension().getWidth());
@@ -261,7 +263,7 @@ class DatabaseImpl_field_ implements DatabaseImpl_field {
                 if (temp.getLevelOfAssurance() == null) {
                     datas.put("pLEVEL_OF_ASSURANCE", null);
                 } else {
-                    datas.put("pLEVEL_OF_ASSURANCE", new ObjectMapper()
+                    datas.put("pLEVEL_OF_ASSURANCE", MyServices.getJsonService()
                             .writeValueAsString(
                                     temp
                             ));
@@ -316,7 +318,7 @@ class DatabaseImpl_field_ implements DatabaseImpl_field {
         HashMap<String, Object> datas = new HashMap<>();
         datas.put("pDOCUMENT_FIELD_ID", documentFieldId);
         datas.put("pDOCUMENT_FIELD_ATTR_TYPE", fieldTypeId);
-        datas.put("pVALUE", ob.writeValueAsString(data));
+        datas.put("pVALUE", MyServices.getJsonService(ob).writeValueAsString(data));
         datas.put("pHMAC", hmac);
         datas.put("pCREATED_BY", createdBy);
 
@@ -395,14 +397,14 @@ class DatabaseImpl_field_ implements DatabaseImpl_field {
                 }
             }
             if (row.get("LEVEL_OF_ASSURANCE") != null) {
-                SignatureFieldAttribute temp = new ObjectMapper().readValue(
+                SignatureFieldAttribute temp = MyServices.getJsonService().readValue(
                         (String) row.get("LEVEL_OF_ASSURANCE"),
                         SignatureFieldAttribute.class);
                 attribute.setLevelOfAssurance(temp.getLevelOfAssurance());
             }
 
             try {
-                BasicFieldAttribute basic = new ObjectMapper().readValue((String) row.get("DOCUMENT_FIELD_VALUE"), BasicFieldAttribute.class);
+                BasicFieldAttribute basic = MyServices.getJsonService().readValue((String) row.get("DOCUMENT_FIELD_VALUE"), BasicFieldAttribute.class);
                 attribute.setProcessStatus(basic.getProcessStatus());
                 attribute.setProcessBy(basic.getProcessBy());
                 attribute.setProcessOn(basic.getProcessOn());
@@ -505,7 +507,7 @@ class DatabaseImpl_field_ implements DatabaseImpl_field {
             ExtendedFieldAttribute attribute = new ExtendedFieldAttribute();
 
             try {
-                BasicFieldAttribute basic = new ObjectMapper().readValue((String) row.get("DOCUMENT_FIELD_VALUE"), BasicFieldAttribute.class);
+                BasicFieldAttribute basic = MyServices.getJsonService().readValue((String) row.get("DOCUMENT_FIELD_VALUE"), BasicFieldAttribute.class);
                 attribute.setProcessStatus(basic.getProcessStatus());
                 attribute.setProcessBy(basic.getProcessBy());
                 attribute.setProcessOn(basic.getProcessOn());
@@ -540,7 +542,7 @@ class DatabaseImpl_field_ implements DatabaseImpl_field {
                 }
             }
             if (!Utils.isNullOrEmpty((String) row.get("LEVEL_OF_ASSURANCE"))) {
-                SignatureFieldAttribute temp = new ObjectMapper().readValue((String) row.get("LEVEL_OF_ASSURANCE"), SignatureFieldAttribute.class);
+                SignatureFieldAttribute temp = MyServices.getJsonService().readValue((String) row.get("LEVEL_OF_ASSURANCE"), SignatureFieldAttribute.class);
                 attribute.setLevelOfAssurance(temp.getLevelOfAssurance());
                 attribute.setSuffix(temp.getSuffix());
             }
@@ -635,7 +637,7 @@ class DatabaseImpl_field_ implements DatabaseImpl_field {
             }
 
             try {
-                BasicFieldAttribute basic = new ObjectMapper().readValue((String) row.get("DOCUMENT_FIELD_VALUE"), BasicFieldAttribute.class);
+                BasicFieldAttribute basic = MyServices.getJsonService().readValue((String) row.get("DOCUMENT_FIELD_VALUE"), BasicFieldAttribute.class);
                 attribute.setProcessStatus(basic.getProcessStatus());
                 attribute.setProcessBy(basic.getProcessBy());
                 attribute.setProcessOn(basic.getProcessOn());

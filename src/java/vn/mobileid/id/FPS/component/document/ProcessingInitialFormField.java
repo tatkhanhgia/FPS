@@ -4,7 +4,6 @@
  */
 package vn.mobileid.id.FPS.component.document;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fps_core.objects.core.ExtendedFieldAttribute;
 import fps_core.objects.core.InitialsFieldAttribute;
 import java.text.SimpleDateFormat;
@@ -25,6 +24,7 @@ import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.ProcessInitialField;
 import vn.mobileid.id.FPS.object.User;
+import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.general.PolicyConfiguration;
 import vn.mobileid.id.utils.Utils;
 
@@ -390,7 +390,7 @@ public class ProcessingInitialFormField extends IVersion{
             InitialsFieldAttribute processRequest,
             ProcessInitialField processRequestV2) throws Exception {
         //Read details
-        InitialsFieldAttribute initialField = new ObjectMapper().readValue(fieldData.getDetailValue(), InitialsFieldAttribute.class);
+        InitialsFieldAttribute initialField = MyServices.getJsonService().readValue(fieldData.getDetailValue(), InitialsFieldAttribute.class);
         initialField = (InitialsFieldAttribute) fieldData.clone(initialField, fieldData.getDimension());
 
         //Read Basic

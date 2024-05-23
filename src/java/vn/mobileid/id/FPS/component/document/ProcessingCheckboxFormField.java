@@ -26,6 +26,7 @@ import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.InternalResponse.InternalData;
 import vn.mobileid.id.FPS.object.ProcessingRequest;
 import vn.mobileid.id.FPS.object.User;
+import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.general.LogHandler;
 import vn.mobileid.id.general.PolicyConfiguration;
 import vn.mobileid.id.utils.Utils;
@@ -205,7 +206,7 @@ public class ProcessingCheckboxFormField extends IVersion {
         } else {
             checkboxField = new CheckBoxFieldAttribute();
         }
-        checkboxField = new ObjectMapper().readValue(fieldData.getDetailValue(), checkboxField.getClass());
+        checkboxField = MyServices.getJsonService().readValue(fieldData.getDetailValue(), checkboxField.getClass());
         checkboxField = (BasicFieldAttribute) fieldData.clone(checkboxField, fieldData.getDimension());
 
         checkboxField.setProcessBy(user.getAzp());

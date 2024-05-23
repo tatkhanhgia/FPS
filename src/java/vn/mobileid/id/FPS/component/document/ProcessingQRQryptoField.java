@@ -4,7 +4,6 @@
  */
 package vn.mobileid.id.FPS.component.document;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fps_core.objects.core.ExtendedFieldAttribute;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -18,7 +17,6 @@ import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import fps_core.enumration.FieldTypeName;
 import java.util.Base64;
 import vn.mobileid.id.FMS;
-import vn.mobileid.id.FPS.QryptoService.object.Item_IDPicture4Label;
 import vn.mobileid.id.FPS.QryptoService.object.Item_IDPicture4Label.IDPicture4Label;
 import vn.mobileid.id.FPS.QryptoService.object.ItemsType;
 import vn.mobileid.id.FPS.controller.ResponseMessageController;
@@ -26,6 +24,7 @@ import vn.mobileid.id.FPS.object.fieldAttribute.QryptoFieldAttribute;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
+import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.general.PolicyConfiguration;
 import vn.mobileid.id.utils.Utils;
 
@@ -275,7 +274,7 @@ public class ProcessingQRQryptoField {
             User user,
             ExtendedFieldAttribute fieldData) throws Exception {
         //Read details
-        QryptoFieldAttribute QRField = new ObjectMapper().readValue(fieldData.getDetailValue(), QryptoFieldAttribute.class);
+        QryptoFieldAttribute QRField = MyServices.getJsonService().readValue(fieldData.getDetailValue(), QryptoFieldAttribute.class);
         QRField = (QryptoFieldAttribute) fieldData.clone(QRField, fieldData.getDimension());
 
         //Read Basic
@@ -294,8 +293,8 @@ public class ProcessingQRQryptoField {
         if (!Utils.isNullOrEmpty(QRField.getItems())) {
             for (ItemDetails item : QRField.getItems()) {
                 if (item.getType() == ItemsType.ID_Picture_with_4_labels.getId()) {
-                    String temp_ = new ObjectMapper().writeValueAsString(item.getValue());
-                    IDPicture4Label tempp = new ObjectMapper().readValue(temp_, IDPicture4Label.class);
+                    String temp_ = MyServices.getJsonService().writeValueAsString(item.getValue());
+                    IDPicture4Label tempp = MyServices.getJsonService().readValue(temp_, IDPicture4Label.class);
                     if (tempp != null
 //                            && tempp.getIdPicture() != null
                             && tempp.getBase64() != null

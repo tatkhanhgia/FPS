@@ -53,6 +53,7 @@ import fps_core.objects.core.TextFieldAttribute;
 import vn.mobileid.id.FPS.component.document.process.interfaces.IVersion;
 import vn.mobileid.id.FPS.object.ProcessFileField;
 import vn.mobileid.id.FPS.object.ProcessInitialField;
+import vn.mobileid.id.FPS.services.MyServices;
 
 /**
  *
@@ -458,7 +459,7 @@ public class ConnectorDocument {
         //Get Documents and serializer it
         List<Document> listDoc = (List<Document>) response.getData();
         DocumentSerializer serializer = new DocumentSerializer(listDoc, packageId);
-        response.setMessage(new ObjectMapper().writeValueAsString(serializer));
+        response.setMessage(MyServices.getJsonService().writeValueAsString(serializer));
         return response;
     }
     // </editor-fold>
@@ -534,7 +535,7 @@ public class ConnectorDocument {
 
         //<editor-fold defaultstate="collapsed" desc="Check field is processed yet? and is type signature?">
         if (!Utils.isNullOrEmpty(fieldData.getFieldValue())) {
-            SignatureFieldAttribute temp = new ObjectMapper().readValue(fieldData.getFieldValue(), SignatureFieldAttribute.class);
+            SignatureFieldAttribute temp = MyServices.getJsonService().readValue(fieldData.getFieldValue(), SignatureFieldAttribute.class);
             if (temp.getProcessStatus().equalsIgnoreCase(ProcessStatus.PROCESSED.getName())) {
                 response = new InternalResponse(
                         A_FPSConstant.HTTP_CODE_BAD_REQUEST,
@@ -580,8 +581,8 @@ public class ConnectorDocument {
         signatureField.setFieldName(fieldData.getFieldName());
         signatureField.setPage(fieldData.getPage());
         signatureField.setVisibleEnabled(fieldData.getVisibleEnabled());
-        signatureField.setVerification(new ObjectMapper().setAnnotationIntrospector(
-                new IgnoreIngeritedIntrospector()).readValue(payload, Signature.class));
+        signatureField.setVerification(MyServices.getJsonService(new ObjectMapper().setAnnotationIntrospector(
+                new IgnoreIngeritedIntrospector())).readValue(payload, Signature.class));
         signatureField.setLevelOfAssurance(fieldData.getLevelOfAssurance());
         //</editor-fold>
 
@@ -613,13 +614,13 @@ public class ConnectorDocument {
                     InternalResponse response = new InternalResponse();
                     try {
                         ExtendedFieldAttribute qrField_ex = (ExtendedFieldAttribute) this.get()[0];
-                        QRFieldAttribute qr = new ObjectMapper().readValue(qrField_ex.getDetailValue(), QRFieldAttribute.class);
+                        QRFieldAttribute qr = MyServices.getJsonService().readValue(qrField_ex.getDetailValue(), QRFieldAttribute.class);
                         qr = (QRFieldAttribute) qrField_ex.clone(qr, qrField_ex.getDimension());
                         qr.setProcessStatus(ProcessStatus.PROCESSED.getName());
                         response = UpdateField.updateValueOfField(
                                 qrField_ex.getDocumentFieldId(),
                                 user,
-                                new ObjectMapper().writeValueAsString(qr),
+                                MyServices.getJsonService().writeValueAsString(qr),
                                 transactionId);
                         if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                             response.setUser(user);
@@ -706,7 +707,7 @@ public class ConnectorDocument {
         //Parse payload
         ProcessingRequest processRequest = null;
         try {
-            processRequest = new ObjectMapper().readValue(payload, ProcessingRequest.class);
+            processRequest = MyServices.getJsonService().readValue(payload, ProcessingRequest.class);
         } catch (Exception ex) {
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
@@ -835,7 +836,7 @@ public class ConnectorDocument {
         //<editor-fold defaultstate="collapsed" desc="Parse Payload">
         ProcessingRequest processRequest = null;
         try {
-            processRequest = new ObjectMapper().readValue(payload, ProcessingRequest.class);
+            processRequest = MyServices.getJsonService().readValue(payload, ProcessingRequest.class);
         } catch (Exception ex) {
             ex.printStackTrace();
             return new InternalResponse(
@@ -887,7 +888,7 @@ public class ConnectorDocument {
             }
         }
         //</editor-fold>
-        
+
         //<editor-fold defaultstate="collapsed" desc="Process Checkbox Form Field - Version2 nhen">
         if (!Utils.isNullOrEmpty(processRequest.getCheckboxV2())) {
             response = new ProcessingCheckboxFormField(IVersion.Version.V2).processCheckboxField(
@@ -1079,7 +1080,7 @@ public class ConnectorDocument {
             for (Signature signature : listSignature1) {
                 for (ExtendedFieldAttribute field : fields) {
                     try {
-                        SignatureFieldAttribute temp = new ObjectMapper().readValue(field.getDetailValue(), SignatureFieldAttribute.class);
+                        SignatureFieldAttribute temp = MyServices.getJsonService().readValue(field.getDetailValue(), SignatureFieldAttribute.class);
                         if (temp.getVerification().getSignatureId().equals(signature.getFieldName())
                                 || temp.getVerification().getSignatureId().equals(signature.getSignatureId())) {
                             signature.setFieldName(field.getFieldName());
@@ -1094,7 +1095,7 @@ public class ConnectorDocument {
 
         return new InternalResponse(
                 A_FPSConstant.HTTP_CODE_SUCCESS,
-                new ObjectMapper().writeValueAsString(listSignature1)
+                MyServices.getJsonService().writeValueAsString(listSignature1)
         );
     }
     // </editor-fold>
@@ -1201,7 +1202,7 @@ public class ConnectorDocument {
 //
 //        //<editor-fold defaultstate="collapsed" desc="Mapping into SignatureFieldAttribute">
 //        SignatureFieldAttribute signatureField = new SignatureFieldAttribute();
-//        signatureField = new ObjectMapper().readValue(fieldData.getDetailValue(), SignatureFieldAttribute.class);
+//        signatureField = MyServices.getJsonService().readValue(fieldData.getDetailValue(), SignatureFieldAttribute.class);
 //        signatureField = (SignatureFieldAttribute) fieldData.clone(signatureField, fieldData.getDimension());
 //
 //        signatureField.setHandSignatureImage(processRequest.getHandSignatureImage());
@@ -1238,7 +1239,7 @@ public class ConnectorDocument {
 //        QRFieldAttribute qrField = null;
 //        if (response.getInternalData() != null) {
 //            qrField_ex = (ExtendedFieldAttribute) response.getInternalData().getValue();
-//            qrField = new ObjectMapper().readValue(qrField_ex.getDetailValue(), QRFieldAttribute.class);
+//            qrField = MyServices.getJsonService().readValue(qrField_ex.getDetailValue(), QRFieldAttribute.class);
 //            qrField = (QRFieldAttribute) qrField_ex.clone(qrField, qrField_ex.getDimension());
 //            qrField.setProcessStatus(ProcessStatus.PROCESSED.getName());
 //        }
@@ -1268,7 +1269,7 @@ public class ConnectorDocument {
 //                = UpdateField.updateValueOfField(
 //                        fieldData.getDocumentFieldId(),
 //                        user,
-//                        new ObjectMapper().writeValueAsString(signatureField),
+//                        MyServices.getJsonService().writeValueAsString(signatureField),
 //                        transactionId);
 //        if (response2.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
 //            response2.setUser(user);
@@ -1365,7 +1366,7 @@ public class ConnectorDocument {
 //                                = UpdateField.updateValueOfField(
 //                                        qrField_ex.getDocumentFieldId(),
 //                                        user,
-//                                        new ObjectMapper().writeValueAsString(qrField),
+//                                        MyServices.getJsonService().writeValueAsString(qrField),
 //                                        transactionId);
 //                        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
 //                            response.setUser(user);
@@ -1433,7 +1434,7 @@ public class ConnectorDocument {
         System.out.println("Preserve:" + preserve);
         SyncForDokobit object = null;
         try {
-            object = new ObjectMapper().readValue(payload, SyncForDokobit.class);
+            object = MyServices.getJsonService().readValue(payload, SyncForDokobit.class);
         } catch (Exception ex) {
             response = new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
@@ -1585,8 +1586,9 @@ public class ConnectorDocument {
         //<editor-fold defaultstate="collapsed" desc="Parse Payload">
         InitialsFieldAttribute processRequest = null;
         try {
-            processRequest = new ObjectMapper()
-                    .addMixIn(InitialsFieldAttribute.class, InitialsFieldAttributeMixIn.class)
+            processRequest = MyServices.getJsonService(
+                    new ObjectMapper().addMixIn(InitialsFieldAttribute.class, InitialsFieldAttributeMixIn.class)
+            )
                     .readValue(payload, InitialsFieldAttribute.class);
 //            response = CheckPayloadRequest.checkAddInitialField(processRequest, transactionId);
 //            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
@@ -1659,7 +1661,7 @@ public class ConnectorDocument {
         //<editor-fold defaultstate="collapsed" desc="Parse Payload">
         ProcessInitialField processRequest = null;
         try {
-            processRequest = new ObjectMapper().readValue(payload, ProcessInitialField.class);
+            processRequest = MyServices.getJsonService().readValue(payload, ProcessInitialField.class);
 
             response = CheckPayloadRequest.checkFillInitialField(processRequest, transactionId);
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
@@ -1726,7 +1728,7 @@ public class ConnectorDocument {
         //<editor-fold defaultstate="collapsed" desc="Parse Payload">
         ProcessFileField processRequest = null;
         try {
-            processRequest = new ObjectMapper().readValue(payload, ProcessFileField.class);
+            processRequest = MyServices.getJsonService().readValue(payload, ProcessFileField.class);
 
             response = CheckPayloadRequest.checkFillField(processRequest, transactionId);
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
@@ -1832,7 +1834,7 @@ public class ConnectorDocument {
         //<editor-fold defaultstate="collapsed" desc="Parse Payload">
         ProcessingRequest processRequest = null;
         try {
-            processRequest = new ObjectMapper().readValue(payload, ProcessingRequest.class);
+            processRequest = MyServices.getJsonService().readValue(payload, ProcessingRequest.class);
         } catch (Exception ex) {
             ex.printStackTrace();
             return new InternalResponse(

@@ -22,6 +22,7 @@ import vn.mobileid.id.FPS.object.Enterprise;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.ProcessingRequest;
 import vn.mobileid.id.FPS.object.User;
+import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.general.LogHandler;
 import vn.mobileid.id.general.PolicyConfiguration;
 import vn.mobileid.id.utils.Utils;
@@ -64,7 +65,7 @@ public class ProcessingDateTimeField extends ProcessingTextFormField<DateTimeFie
         }
         //</editor-fold>
 
-        DateTimeFieldAttribute dateTime = new ObjectMapper().readValue(fieldData.getDetailValue(), DateTimeFieldAttribute.class);
+        DateTimeFieldAttribute dateTime = MyServices.getJsonService().readValue(fieldData.getDetailValue(), DateTimeFieldAttribute.class);
         dateTime = (DateTimeFieldAttribute) fieldData.clone(dateTime, fieldData.getDimension());
 
         dateTime.setProcessBy(user.getAzp());

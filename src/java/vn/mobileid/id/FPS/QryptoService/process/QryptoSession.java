@@ -22,6 +22,7 @@ import vn.mobileid.id.FPS.QryptoService.response.ClaimResponse;
 import vn.mobileid.id.FPS.QryptoService.response.DownloadFileTokenResponse;
 import vn.mobileid.id.FPS.QryptoService.response.GetTokenResponse;
 import vn.mobileid.id.FPS.QryptoService.response.IssueQryptoWithFileAttachResponse;
+import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.helper.http.HttpPostMultiPart2;
 import vn.mobileid.id.helper.http.HttpResponse;
 import vn.mobileid.id.helper.http.HttpUtils;
@@ -59,7 +60,7 @@ public class QryptoSession implements ISession {
         GetTokenRequest loginRequest = new GetTokenRequest();
 //        loginRequest.setRefresh_token(QryptoConstant.RefreshTokenTest);
 
-        String jsonReq = new ObjectMapper().writeValueAsString(loginRequest);
+        String jsonReq = MyServices.getJsonService().writeValueAsString(loginRequest);
 
         HttpResponse response = HttpUtils.sendPost(prop.getBaseUrl() + "/general/auth/login", jsonReq, authHeader);
 
@@ -72,7 +73,7 @@ public class QryptoSession implements ISession {
         }
 
 //        System.out.println("Response Message:" + response.getMsg());
-        GetTokenResponse qryptoResp = new ObjectMapper().readValue(response.getMsg(), GetTokenResponse.class);
+        GetTokenResponse qryptoResp = MyServices.getJsonService().readValue(response.getMsg(), GetTokenResponse.class);
         if (qryptoResp.getCode() == 3005 || qryptoResp.getCode() == 3006) {
             refreshToken = null;
             if (retryLogin >= 5) {
@@ -122,14 +123,14 @@ public class QryptoSession implements ISession {
         headers.put("Accept-Charset", "UTF-8");
         headers.put("Authorization", bearerToken);
 
-        String temp = new ObjectMapper().writeValueAsString(QR);
+        String temp = MyServices.getJsonService().writeValueAsString(QR);
 
         HttpPostMultiPart2 a = new HttpPostMultiPart2();
         Map<String, Object> bodypart = new HashMap<>();
         bodypart.put("payload", temp);
 
-        bodypart.put("configuration", new ObjectMapper().writeValueAsString(configuration));
-        System.out.println("Config:" + new ObjectMapper().writeValueAsString(configuration));
+        bodypart.put("configuration", MyServices.getJsonService().writeValueAsString(configuration));
+        System.out.println("Config:" + MyServices.getJsonService().writeValueAsString(configuration));
 
         HashMap<String, String> names = new HashMap<>();
         for (String key : QR.getHeader().keySet()) {
@@ -159,7 +160,7 @@ public class QryptoSession implements ISession {
         }
         String message = sb.toString();
         IssueQryptoWithFileAttachResponse responses = new IssueQryptoWithFileAttachResponse();
-        responses = new ObjectMapper().readValue(message, IssueQryptoWithFileAttachResponse.class);
+        responses = MyServices.getJsonService().readValue(message, IssueQryptoWithFileAttachResponse.class);
         if (responses.getStatus() == 1009 && response.getStatusLine().getStatusCode() == 401) {
             StringBuilder builder = new StringBuilder();
             builder.append("======CALL QRYPTO ERROR=====")
@@ -196,7 +197,7 @@ public class QryptoSession implements ISession {
         Map<String, String> headers = new HashMap<>();
         headers.put("Authorization", bearerToken);
 
-        String jsonReq = new ObjectMapper().writeValueAsString(request);
+        String jsonReq = MyServices.getJsonService().writeValueAsString(request);
         System.out.println("Qrypto Session - JsonRequest:" + jsonReq);
         HttpResponse response = HttpUtils.sendPost(prop.getBaseUrl() + "/issuance/qrci/wallet/claim", jsonReq, authHeader);
         if (response.getHttpCode() != 0) {
@@ -208,7 +209,7 @@ public class QryptoSession implements ISession {
             }
         }
 //        System.out.println("credentials/list response.getMsg() = "+ response.getMsg());
-        ClaimResponse responses = new ObjectMapper().readValue(response.getMsg(), ClaimResponse.class);
+        ClaimResponse responses = MyServices.getJsonService().readValue(response.getMsg(), ClaimResponse.class);
 
         return responses;
     }
@@ -236,7 +237,7 @@ public class QryptoSession implements ISession {
 
         System.out.println("Status:" + response.getHttpCode());
 //        System.out.println("Response Message:" + response.getMsg());
-        DownloadFileTokenResponse qryptoResp = new ObjectMapper().readValue(response.getMsg(), DownloadFileTokenResponse.class);
+        DownloadFileTokenResponse qryptoResp = MyServices.getJsonService().readValue(response.getMsg(), DownloadFileTokenResponse.class);
         if (qryptoResp.getCode() == 3005 || qryptoResp.getCode() == 3006) {
             refreshToken = null;
             if (retryLogin >= 5) {
@@ -300,8 +301,8 @@ public class QryptoSession implements ISession {
         Map<String, Object> bodypart = new HashMap<>();
         bodypart.put("payload", schema);
 
-        bodypart.put("configuration", new ObjectMapper().writeValueAsString(configuration));
-        System.out.println("Config:" + new ObjectMapper().writeValueAsString(configuration));
+        bodypart.put("configuration", MyServices.getJsonService().writeValueAsString(configuration));
+        System.out.println("Config:" + MyServices.getJsonService().writeValueAsString(configuration));
 
         HashMap<String, String> names = new HashMap<>();
         for (String key : headers_.keySet()) {
@@ -331,7 +332,7 @@ public class QryptoSession implements ISession {
         }
         String message = sb.toString();
         IssueQryptoWithFileAttachResponse responses = new IssueQryptoWithFileAttachResponse();
-        responses = new ObjectMapper().readValue(message, IssueQryptoWithFileAttachResponse.class);
+        responses = MyServices.getJsonService().readValue(message, IssueQryptoWithFileAttachResponse.class);
         if (responses.getStatus() == 1009 && response.getStatusLine().getStatusCode() == 401) {
             StringBuilder builder = new StringBuilder();
             builder.append("======CALL QRYPTO ERROR=====")

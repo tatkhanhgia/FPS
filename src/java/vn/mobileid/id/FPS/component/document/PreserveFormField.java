@@ -19,6 +19,7 @@ import vn.mobileid.id.FPS.component.field.DeleteField;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
+import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.general.Resources;
 
 /**
@@ -78,11 +79,10 @@ public class PreserveFormField {
                 return response;
             }
 
-            ObjectMapper ob = new ObjectMapper();
             response = ConnectorField_Internal.updateValueOfField(
                     fieldId,
                     user,
-                    ob.writeValueAsString(signature),
+                    MyServices.getJsonService().writeValueAsString(signature),
                     transactionId);
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 return new InternalResponse(

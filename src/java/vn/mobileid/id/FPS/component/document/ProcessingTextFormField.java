@@ -4,9 +4,7 @@
  */
 package vn.mobileid.id.FPS.component.document;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fps_core.enumration.FieldTypeName;
-import fps_core.objects.core.BasicFieldAttribute;
 import fps_core.objects.core.ExtendedFieldAttribute;
 import fps_core.objects.core.TextFieldAttribute;
 import java.text.SimpleDateFormat;
@@ -25,6 +23,7 @@ import vn.mobileid.id.FPS.object.InternalResponse.InternalData;
 import vn.mobileid.id.FPS.object.ProcessingRequest;
 import vn.mobileid.id.FPS.object.ProcessingRequest.ProcessingFormFillRequest;
 import vn.mobileid.id.FPS.object.User;
+import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.general.LogHandler;
 import vn.mobileid.id.general.PolicyConfiguration;
 import vn.mobileid.id.utils.Utils;
@@ -194,7 +193,7 @@ public class ProcessingTextFormField<T extends TextFieldAttribute>{
             ExtendedFieldAttribute fieldData,
             String value) throws Exception {
         //Read details
-        TextFieldAttribute textField = new ObjectMapper().readValue(fieldData.getDetailValue(), TextFieldAttribute.class);
+        TextFieldAttribute textField = MyServices.getJsonService().readValue(fieldData.getDetailValue(), TextFieldAttribute.class);
         textField = (TextFieldAttribute) fieldData.clone(textField, fieldData.getDimension());
 
         if (value != null) {
@@ -219,7 +218,7 @@ public class ProcessingTextFormField<T extends TextFieldAttribute>{
             ExtendedFieldAttribute fieldData, 
             ProcessingFormFillRequest processField) throws Exception{
         //Read details
-        T textField = (T) new ObjectMapper().readValue(fieldData.getDetailValue(), type.getClass());
+        T textField = (T) MyServices.getJsonService().readValue(fieldData.getDetailValue(), type.getClass());
         textField = (T) fieldData.clone(textField, fieldData.getDimension());
 
         if (processField != null && processField.getValue() != null) {

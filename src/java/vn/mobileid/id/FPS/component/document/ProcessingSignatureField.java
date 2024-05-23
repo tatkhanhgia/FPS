@@ -4,7 +4,6 @@
  */
 package vn.mobileid.id.FPS.component.document;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fps_core.enumration.DocumentStatus;
 import fps_core.enumration.FieldTypeName;
 import fps_core.enumration.ProcessStatus;
@@ -28,6 +27,7 @@ import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.ProcessingRequest;
 import vn.mobileid.id.FPS.object.TemporalObject;
 import vn.mobileid.id.FPS.object.User;
+import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.general.LogHandler;
 import vn.mobileid.id.general.PolicyConfiguration;
 import vn.mobileid.id.utils.ManagementTemporal;
@@ -118,7 +118,7 @@ public class ProcessingSignatureField {
         QRFieldAttribute qrField = null;
         if (response.getInternalData() != null) {
             qrField_ex = (ExtendedFieldAttribute) response.getInternalData().getValue();
-            qrField = new ObjectMapper().readValue(qrField_ex.getDetailValue(), QRFieldAttribute.class);
+            qrField = MyServices.getJsonService().readValue(qrField_ex.getDetailValue(), QRFieldAttribute.class);
             qrField = (QRFieldAttribute) qrField_ex.clone(qrField, qrField_ex.getDimension());
             qrField.setProcessStatus(ProcessStatus.PROCESSED.getName());
         }
@@ -148,7 +148,7 @@ public class ProcessingSignatureField {
                 = UpdateField.updateValueOfField(
                         fieldData.getDocumentFieldId(),
                         user,
-                        new ObjectMapper().writeValueAsString(signatureField),
+                        MyServices.getJsonService().writeValueAsString(signatureField),
                         transactionId);
         if (response2.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
             response2.setUser(user);
@@ -245,7 +245,7 @@ public class ProcessingSignatureField {
                                 = UpdateField.updateValueOfField(
                                         qrField_ex.getDocumentFieldId(),
                                         user,
-                                        new ObjectMapper().writeValueAsString(qrField),
+                                        MyServices.getJsonService().writeValueAsString(qrField),
                                         transactionId);
                         if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                             response.setUser(user);
@@ -331,7 +331,7 @@ public class ProcessingSignatureField {
         QRFieldAttribute qrField = null;
         if (response.getInternalData() != null) {
             qrField_ex = (ExtendedFieldAttribute) response.getInternalData().getValue();
-            qrField = new ObjectMapper().readValue(qrField_ex.getDetailValue(), QRFieldAttribute.class);
+            qrField = MyServices.getJsonService().readValue(qrField_ex.getDetailValue(), QRFieldAttribute.class);
             qrField = (QRFieldAttribute) qrField_ex.clone(qrField, qrField_ex.getDimension());
             qrField.setProcessStatus(ProcessStatus.PROCESSED.getName());
         }
@@ -361,7 +361,7 @@ public class ProcessingSignatureField {
                 = UpdateField.updateValueOfField(
                         fieldData.getDocumentFieldId(),
                         user,
-                        new ObjectMapper().writeValueAsString(signatureField),
+                        MyServices.getJsonService().writeValueAsString(signatureField),
                         transactionId);
         if (response2.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
             response2.setUser(user);
@@ -458,7 +458,7 @@ public class ProcessingSignatureField {
                                 = UpdateField.updateValueOfField(
                                         qrField_ex.getDocumentFieldId(),
                                         user,
-                                        new ObjectMapper().writeValueAsString(qrField),
+                                        MyServices.getJsonService().writeValueAsString(qrField),
                                         transactionId);
                         if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                             response.setUser(user);
@@ -507,7 +507,7 @@ public class ProcessingSignatureField {
             ProcessingRequest processRequest) throws Exception {
         //Read details
         SignatureFieldAttribute signatureField = new SignatureFieldAttribute();
-        signatureField = new ObjectMapper().readValue(fieldData.getDetailValue(), SignatureFieldAttribute.class);
+        signatureField = MyServices.getJsonService().readValue(fieldData.getDetailValue(), SignatureFieldAttribute.class);
         signatureField = (SignatureFieldAttribute) fieldData.clone(signatureField, fieldData.getDimension());
 
         signatureField.setHandSignatureImage(processRequest.getHandSignatureImage());

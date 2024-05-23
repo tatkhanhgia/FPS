@@ -38,6 +38,7 @@ import vn.mobileid.id.FPS.component.document.process.interfaces.IDocumentProcess
 import vn.mobileid.id.FPS.component.document.process.interfaces.IVersion;
 import static vn.mobileid.id.FPS.component.document.process.interfaces.IVersion.Version.V1;
 import static vn.mobileid.id.FPS.component.document.process.interfaces.IVersion.Version.V2;
+import vn.mobileid.id.FPS.services.MyServices;
 
 /**
  *
@@ -165,7 +166,7 @@ public class AbstractReplicateProcessing<T extends AbstractReplicateField> exten
                         if (initChild.getType() != null
                                 && initChild.getType().getParentType().equalsIgnoreCase(
                                         this.fieldTypeName.getParentName())) {
-                            AbstractReplicateField fieldChild = new ObjectMapper().readValue(
+                            AbstractReplicateField fieldChild = MyServices.getJsonService().readValue(
                                     initChild.getFieldValue(),
                                     field.getClass());
                             fieldChild = (AbstractReplicateField) initChild.clone(fieldChild, initChild.getDimension());
@@ -183,11 +184,10 @@ public class AbstractReplicateProcessing<T extends AbstractReplicateField> exten
                     for (T initChild : initFields) {
                         //Update field after processing
                         initChild.setProcessStatus(ProcessStatus.PROCESSED.getName());
-                        ObjectMapper ob = new ObjectMapper();
                         response = ConnectorField_Internal.updateValueOfField(
                                 map.get(initChild.getFieldName()),
                                 user,
-                                ob.writeValueAsString(initChild),
+                                MyServices.getJsonService().writeValueAsString(initChild),
                                 transactionId);
                         if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                             return new InternalResponse(
@@ -201,7 +201,7 @@ public class AbstractReplicateProcessing<T extends AbstractReplicateField> exten
                         response = ConnectorField_Internal.updateFieldDetail(
                                 map.get(initChild.getFieldName()),
                                 user,
-                                ob.writeValueAsString(initChild),
+                                MyServices.getJsonService().writeValueAsString(initChild),
                                 "hmac",
                                 transactionId);
                         if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
@@ -285,11 +285,10 @@ public class AbstractReplicateProcessing<T extends AbstractReplicateField> exten
             
             field.setProcessStatus(ProcessStatus.PROCESSED.getName());
 
-            ObjectMapper ob = new ObjectMapper();
             response = ConnectorField_Internal.updateValueOfField(
                     documentFieldId,
                     user,
-                    ob.writeValueAsString(field),
+                    MyServices.getJsonService().writeValueAsString(field),
                     transactionId);
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 return new InternalResponse(
@@ -304,8 +303,9 @@ public class AbstractReplicateProcessing<T extends AbstractReplicateField> exten
             response = ConnectorField_Internal.updateFieldDetail(
                     documentFieldId,
                     user,
-                    new ObjectMapper()
-                            .setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
+                    MyServices.getJsonService(
+                            new ObjectMapper().setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
+                    )
                             .writeValueAsString(field),
                     uuid,
                     transactionId);

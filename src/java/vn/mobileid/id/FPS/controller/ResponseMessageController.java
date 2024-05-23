@@ -26,7 +26,6 @@ import vn.mobileid.id.utils.Utils;
 public class ResponseMessageController implements ResponseMessageBuilder {
 
     private static final Logger LOG = LogManager.getLogger(ResponseMessageController.class);
-    final private static ObjectMapper objectMapper = new ObjectMapper().configure(SerializationFeature.INDENT_OUTPUT, true);
     private List<String> messages = new ArrayList<>();
 
     //<editor-fold defaultstate="collapsed" desc="Create Error Message">

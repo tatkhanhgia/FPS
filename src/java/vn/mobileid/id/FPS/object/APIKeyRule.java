@@ -9,13 +9,12 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import vn.mobileid.id.FPS.enumeration.Rule;
+import vn.mobileid.id.FPS.services.MyServices;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonRootName("attributes")
@@ -53,8 +52,7 @@ public class APIKeyRule {
     }
 
     public String toJson() throws JsonProcessingException {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.writeValueAsString(this);
+        return MyServices.getJsonService().writeValueAsString(this);
     }
 
     public boolean isRuleEnabled(Rule ruleCheck) {
@@ -72,7 +70,7 @@ public class APIKeyRule {
     public static void main(String[] args) throws IOException {
         String temp = "{\"attributes\":{\"attributes\":[{\"IS_CONVERT_DATE\":true}]}}";
 
-        APIKeyRule rule = new ObjectMapper()
+        APIKeyRule rule = MyServices.getJsonService()
 //                .enable(DeserializationFeature.UNWRAP_ROOT_VALUE)
                 .readValue(temp, APIKeyRule.class);
 
