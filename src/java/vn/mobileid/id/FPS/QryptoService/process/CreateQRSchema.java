@@ -40,12 +40,13 @@ public class CreateQRSchema {
     //<editor-fold defaultstate="collapsed" desc="Create QR Schema">
     /**
      * Create QRSchema to call Qrypto
+     *
      * @param fileData List of FileDataDetails
      * @param items List of ItemDetails
      * @param positionQR Position of QR aka QR_META_DATA
      * @param transactionID
      * @return
-     * @throws InvalidFormatOfItems 
+     * @throws InvalidFormatOfItems
      */
     public static QRSchema createQRSchema(
             List<FileDataDetails> fileData,
@@ -64,7 +65,7 @@ public class CreateQRSchema {
 
         for (ItemDetails item : items) {
             //<editor-fold defaultstate="collapsed" desc="Remove all case the item.getValue() is not satisfied">
-            if (item.getValue() == null) {
+            if (item.getValue() == null && item.getType()!=6) {
                 continue;
             }
             try {
@@ -74,7 +75,7 @@ public class CreateQRSchema {
             } catch (Exception ex) {
             }
             //</editor-fold>
-            
+
             QRSchema.data data = new QRSchema.data();
             QRSchema.field field = new QRSchema.field();
 
@@ -83,7 +84,7 @@ public class CreateQRSchema {
                 switch (checkType) {
                     case Non_Editable: {
                     }
-                    case String: { 
+                    case String: {
                         //<editor-fold defaultstate="collapsed" desc="Processing">
                         String random = Utils.generateRandomString(6);
                         data.setName(random);
@@ -122,7 +123,11 @@ public class CreateQRSchema {
                         //<editor-fold defaultstate="collapsed" desc="Processing">
                         String random = Utils.generateRandomString(6);
                         data.setName(random);
-                        data.setValue((String) item.getValue());
+                        if (!Utils.isNullOrEmpty(item.getValue())) {
+                            data.setValue((String) item.getValue());
+                        } else {
+                            data.setValue(item.getField());
+                        }
                         field.setName(item.getField());
                         field.setKvalue(random);
                         field.setType(QRSchema.fieldType.t2);
@@ -176,7 +181,7 @@ public class CreateQRSchema {
                         field.setType(QRSchema.fieldType.f1);
                         field.setName(item.getField());
                         field.setFile_type(item.getFile_format());
-                        field.setFile_field(Utils.isNullOrEmpty(item.getFile_field())?Utils.generateRandomString(5):item.getFile_field());
+                        field.setFile_field(Utils.isNullOrEmpty(item.getFile_field()) ? Utils.generateRandomString(5) : item.getFile_field());
                         field.setFile_name(item.getFile_name());
                         field.setShare_mode(3);
                         headers.put(field.getFile_field(), Base64.getDecoder().decode((String) item.getValue()));
@@ -184,7 +189,7 @@ public class CreateQRSchema {
                         break;
                         //</editor-fold>
                     }
-                    case Binary: {    
+                    case Binary: {
                         //<editor-fold defaultstate="collapsed" desc="Processing">
                         field.setType(QRSchema.fieldType.f1);
                         field.setName(item.getField());
@@ -254,7 +259,7 @@ public class CreateQRSchema {
                         IDPicture4Label idPicture = MyServices.getJsonService().readValue(temp, IDPicture4Label.class);
 
                         String random = Utils.generateRandomString(6);
-                        
+
                         //Prepare field
                         field.setType(QRSchema.fieldType._4T1P);
                         field.setName(item.getField());
@@ -316,12 +321,13 @@ public class CreateQRSchema {
     //<editor-fold defaultstate="collapsed" desc="Create Config">
     /**
      * Create configuration of Qrypto
+     *
      * @param field QryptoFieldAttribute data
      * @param user User data
      * @param pixel the width = the height = int pixel
      * @param transactionID
      * @return
-     * @throws Exception 
+     * @throws Exception
      */
     public static Configuration createConfiguration(
             QryptoFieldAttribute field,
@@ -336,7 +342,7 @@ public class CreateQRSchema {
         Calendar now = Calendar.getInstance();
         String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(now.getTime());
 
-        now.add(Calendar.DATE, 
+        now.add(Calendar.DATE,
                 Integer.parseInt(
                         PolicyConfiguration
                                 .getInstant()
@@ -344,7 +350,7 @@ public class CreateQRSchema {
                                 .getAttributes()
                                 .get(0)
                                 .getQrExpiredTime()));
-        
+
         String timeStamp2 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(now.getTime());
         effectiveDate.setNotValidBefore(timeStamp);
         effectiveDate.setNotValidAfter(timeStamp2);

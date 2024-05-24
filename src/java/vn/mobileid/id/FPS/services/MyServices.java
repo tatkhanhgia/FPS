@@ -43,6 +43,5 @@ public class MyServices {
         return new JacksonJsonService(objectMapper);
     }
     //</editor-fold>
-
-    
+     
 }
