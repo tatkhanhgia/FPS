@@ -32,10 +32,10 @@ import vn.mobileid.id.utils.Utils;
  *
  * @author GiaTK
  * Using for processing the QR Qrypto Field:
- *  + Checked value is satisfied
- *  + Get Document (original, lastest)
- *  + Get ExtendFieldAttribute and parse it into QryptoFieldAttribute
- *  + Call submethod QryptoProcessing
+ * + Checked value is satisfied
+ * + Get Document (original, lastest)
+ * + Get ExtendFieldAttribute and parse it into QryptoFieldAttribute
+ * + Call submethod QryptoProcessing
  */
 public class ProcessingQRQryptoField {
 
@@ -114,10 +114,11 @@ public class ProcessingQRQryptoField {
         try {
             InternalResponse res = convertExtendIntoQryptoField(
                     user,
-                    fieldData
+                    fieldData,
+                    true
             );
 
-            if (res.getStatus() == A_FPSConstant.HTTP_CODE_SUCCESS) {
+            if (!res.isValid()) {
                 return res;
             }
 
@@ -223,7 +224,8 @@ public class ProcessingQRQryptoField {
         try {
             InternalResponse res = convertExtendIntoQryptoField(
                     user,
-                    fieldData
+                    fieldData,
+                    false
             );
 
             if (res.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
@@ -267,12 +269,28 @@ public class ProcessingQRQryptoField {
 
         return response;
     }
+
     //</editor-fold>
     //==========================================================================
     //<editor-fold defaultstate="collapsed" desc="Convert ExtendedField into Qrypto Field">
+    /**
+     * Converts an ExtendedFieldAttribute into a QryptoFieldAttribute.
+     * <p>
+     * Chuyển đổi một ExtendedFieldAttribute thành QryptoFieldAttribute.
+     *
+     * @param user The user performing the conversion.
+     * Người dùng thực hiện chuyển đổi.
+     * @param fieldData The ExtendedFieldAttribute to convert.
+     * ExtendedFieldAttribute cần chuyển đổi.
+     * @return An InternalResponse containing the converted QryptoFieldAttribute on success, or an error response otherwise.
+     * Một InternalResponse chứa QryptoFieldAttribute đã chuyển đổi nếu thành công, hoặc một phản hồi lỗi nếu không.
+     * @throws Exception If an error occurs during conversion.
+     * Nếu có lỗi xảy ra trong quá trình chuyển đổi.
+     */
     private static InternalResponse convertExtendIntoQryptoField(
             User user,
-            ExtendedFieldAttribute fieldData) throws Exception {
+            ExtendedFieldAttribute fieldData,
+            boolean ignoreMissingItem) throws Exception {
         //Read details
         QryptoFieldAttribute QRField = MyServices.getJsonService().readValue(fieldData.getDetailValue(), QryptoFieldAttribute.class);
         QRField = (QryptoFieldAttribute) fieldData.clone(QRField, fieldData.getDimension());
@@ -296,7 +314,7 @@ public class ProcessingQRQryptoField {
                     String temp_ = MyServices.getJsonService().writeValueAsString(item.getValue());
                     IDPicture4Label tempp = MyServices.getJsonService().readValue(temp_, IDPicture4Label.class);
                     if (tempp != null
-//                            && tempp.getIdPicture() != null
+                            //                            && tempp.getIdPicture() != null
                             && tempp.getBase64() != null
                             && tempp.getBase64().length() <= 32) {
                         try {
@@ -357,13 +375,13 @@ public class ProcessingQRQryptoField {
         }
         //</editor-fold>
 
-        if(Utils.isNullOrEmpty(QRField.getItems())){
+        if (Utils.isNullOrEmpty(QRField.getItems()) && !ignoreMissingItem) {
             return new InternalResponse(
-                                A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                                A_FPSConstant.CODE_FIELD_QR_Qrypto,
-                                A_FPSConstant.SUBCODE_MISSING_ITEMS);
+                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                    A_FPSConstant.CODE_FIELD_QR_Qrypto,
+                    A_FPSConstant.SUBCODE_MISSING_ITEMS);
         }
-            
+
         return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, QRField);
     }
     //</editor-fold>

@@ -264,21 +264,22 @@ public class CreateQRSchema {
                         //Update 2024-05-27 add SigningTime
                         //<editor-fold defaultstate="collapsed" desc="Processing">
                         String temp = "{\"value\":" + MyServices.getJsonService().writeValueAsString(item.getValue()) + "}";
-                        if (replaceSigningTime && !Utils.isNullOrEmpty(listSignature)) {
-                            try {
-                                temp = temp.replaceAll(
-                                        QryptoVariable.FIRST_SIGNER.getAnnotationName(),
-                                        new SimpleDateFormat("dd/MM/yyyy hh:mm:ss")
-                                                .format(listSignature.get(0).getSigningTime()));
-                                temp = temp.replaceAll(
-                                        QryptoVariable.SECOND_SIGNER.getAnnotationName(),
-                                        new SimpleDateFormat("dd/MM/yyyy hh:mm:ss")
-                                                .format(listSignature.get(1).getSigningTime()));
-                            } catch (Exception e) {
-                            } 
-                        }
+//                        if (replaceSigningTime && !Utils.isNullOrEmpty(listSignature)) {
+//                            try {
+//                                temp = temp.replaceAll(
+//                                        QryptoVariable.FIRST_SIGNER.getAnnotationName(),
+//                                        new SimpleDateFormat("dd/MM/yyyy hh:mm:ss")
+//                                                .format(listSignature.get(0).getSigningTime()));
+//                                temp = temp.replaceAll(
+//                                        QryptoVariable.SECOND_SIGNER.getAnnotationName(),
+//                                        new SimpleDateFormat("dd/MM/yyyy hh:mm:ss")
+//                                                .format(listSignature.get(1).getSigningTime()));
+//                            } catch (Exception e) {
+//                            } 
+//                        }
+//                        temp = temp.substring(10, temp.length()-2);
                         Item_Table itemTable = MyServices.getJsonService().readValue(temp, Item_Table.class);
-                        item.setValue(itemTable);
+//                        item.setValue(itemTable);
 
                         String random = Utils.generateRandomString(6);
                         data.setName(random);

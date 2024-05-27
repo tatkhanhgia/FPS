@@ -76,7 +76,7 @@ class QryptoProcessing implements IDocumentProcessing {
         String transactionId = (String) objects[6];
         byte[] file;
 
-        ExecutorService executors = Executors.newFixedThreadPool(2);
+        ExecutorService executors = Executors.newFixedThreadPool(3);
         CompletionService<Object> taskCompletion = new ExecutorCompletionService<>(executors);
         InternalResponse errorResponse = null;
 
@@ -100,10 +100,15 @@ class QryptoProcessing implements IDocumentProcessing {
         file = (byte[]) response.getData();
         //</editor-fold>
 
+        //<editor-fold defaultstate="collapsed" desc="Update 2024-05-27: Add the items in Fill API into QryptoFieldAttribute if items in Field is null">
+        if(Utils.isNullOrEmpty(field.getItems())){
+            field.setItems(items);
+        }
+        //</editor-fold>
+        
         //<editor-fold defaultstate="collapsed" desc="Update 2024-05-27: Add logic read Signature in PDF and replace SigningTime @FirstSigner and @SecondSigner">
         List<Signature> signatures = null;
 
-        //Create Thread run parallel
         TaskV2 getSignature = new TaskV2(new Object[]{file}, transactionId) {
             @Override
             public List<Signature> call() {
@@ -122,30 +127,8 @@ class QryptoProcessing implements IDocumentProcessing {
                     transactionId,
                     "Cannot get List Signature in file PDF! Not replace QryptoAnnotation");
         }
-
-//        if (!Utils.isNullOrEmpty(itemsInField) && callVerify != null) {
-//            for (ItemDetails itemInField : itemsInField) {
-//                //<editor-fold defaultstate="collapsed" desc="Update 2024-04-30: Add Logic read Signature in PDF and replace SigningTime @FirstSigner and @SecondSigner in QRSchema">
-//                String temp = MyServices.getJsonService().writeValueAsString(itemInField);
-//
-//                try {
-//                    temp = temp.replaceAll(
-//                            QryptoVariable.FIRST_SIGNER.getAnnotationName(),
-//                            new SimpleDateFormat("dd/MM/yyyy hh:mm:ss")
-//                                    .format(signatures.get(0).getSigningTime()));
-//                    temp = temp.replaceAll(
-//                            QryptoVariable.SECOND_SIGNER.getAnnotationName(),
-//                            new SimpleDateFormat("dd/MM/yyyy hh:mm:ss")
-//                                    .format(signatures.get(1).getSigningTime()));
-//                } catch (Exception e) {
-//                } finally {
-//                    itemInField = MyServices.getJsonService().readValue(temp, ItemDetails.class);
-//                }
-//                //</editor-fold>
-//            }
-//        }
         //</editor-fold>
-        
+
         //<editor-fold defaultstate="collapsed" desc="Create Config + Schema">
         FileDataDetails fileDataDetail = new FileDataDetails();
         fileDataDetail.setValue(file);
@@ -200,56 +183,59 @@ class QryptoProcessing implements IDocumentProcessing {
             @Override
             public Object call() {
                 try {
-                    for (ItemDetails detail : field.getItems()) {
-                        String file = null;
-                        Item_IDPicture4Label.IDPicture4Label tempp = null;
-                        switch (ItemsType.getItemsType(detail.getType())) {
-                            case Binary:
-                            case File: {
-                                file = (String) detail.getValue();
-                                break;
-                            }
-                            case ID_Picture_with_4_labels: {
-                                String temp_ = MyServices.getJsonService().writeValueAsString(detail.getValue());
-                                tempp = MyServices.getJsonService().readValue(temp_, Item_IDPicture4Label.IDPicture4Label.class);
-                                file = tempp.getBase64();
-                                break;
-                            }
-                            default: {
-                            }
-                        }
-                        if (file != null) {
-                            //<editor-fold defaultstate="collapsed" desc="Upload image into FMS If need">
-                            if (file.length()
-                                    > PolicyConfiguration.getInstant()
-                                            .getSystemConfig()
-                                            .getAttributes()
-                                            .get(0)
-                                            .getMaximumFile()) {
-                                try {
-                                    InternalResponse response = vn.mobileid.id.FMS.uploadToFMS(
-                                            org.bouncycastle.util.encoders.Base64.decode(file),
-                                            "png",
-                                            transactionId);
-                                    if (response.getStatus() == A_FPSConstant.HTTP_CODE_SUCCESS) {
-                                        String uuid = (String) response.getData();
-                                        if (tempp != null) {
-                                            tempp.setBase64(uuid);
-                                            detail.setValue(tempp);
-                                        } else {
-                                            detail.setValue(uuid);
-                                        }
-                                    } else {
-                                    }
-                                } catch (Exception ex) {
-                                    System.err.println("Cannot upload image from QR to FMS!. Using default");
+                    if (!Utils.isNullOrEmpty(field.getItems())) {
+                        for (ItemDetails detail : field.getItems()) {
+                            String file = null;
+                            Item_IDPicture4Label.IDPicture4Label tempp = null;
+                            switch (ItemsType.getItemsType(detail.getType())) {
+                                case Binary:
+                                case File: {
+                                    file = (String) detail.getValue();
+                                    break;
+                                }
+                                case ID_Picture_with_4_labels: {
+                                    String temp_ = MyServices.getJsonService().writeValueAsString(detail.getValue());
+                                    tempp = MyServices.getJsonService().readValue(temp_, Item_IDPicture4Label.IDPicture4Label.class);
+                                    file = tempp.getBase64();
+                                    break;
+                                }
+                                default: {
                                 }
                             }
-                            //</editor-fold>
+                            if (file != null) {
+                                //<editor-fold defaultstate="collapsed" desc="Upload image into FMS If need">
+                                if (file.length()
+                                        > PolicyConfiguration.getInstant()
+                                                .getSystemConfig()
+                                                .getAttributes()
+                                                .get(0)
+                                                .getMaximumFile()) {
+                                    try {
+                                        InternalResponse response = vn.mobileid.id.FMS.uploadToFMS(
+                                                org.bouncycastle.util.encoders.Base64.decode(file),
+                                                "png",
+                                                transactionId);
+                                        if (response.getStatus() == A_FPSConstant.HTTP_CODE_SUCCESS) {
+                                            String uuid = (String) response.getData();
+                                            if (tempp != null) {
+                                                tempp.setBase64(uuid);
+                                                detail.setValue(tempp);
+                                            } else {
+                                                detail.setValue(uuid);
+                                            }
+                                        } else {
+                                        }
+                                    } catch (Exception ex) {
+                                        System.err.println("Cannot upload image from QR to FMS!. Using default");
+                                    }
+                                }
+                                //</editor-fold>
+                            }
                         }
                     }
                     return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, "");
                 } catch (Exception ex) {
+                    ex.printStackTrace();
                     LogHandler.error(ConnectorField.class, transactionId, ex);
                     return new InternalResponse(
                             A_FPSConstant.HTTP_CODE_BAD_REQUEST,
@@ -395,13 +381,15 @@ class QryptoProcessing implements IDocumentProcessing {
         });
         //</editor-fold>
 
+        //Update 2024 - 05 - 27: Add logic replace QryptoAnntation
         //<editor-fold defaultstate="collapsed" desc="Update Image of QR and processMultipleField Status of Field">
         taskCompletion.submit(new TaskV2(
                 new Object[]{
                     field,
                     QRdata.getQryptoBase64(),
                     documentFieldId,
-                    QRdata.getQryptoBase45()
+                    QRdata.getQryptoBase45(),
+                    signatures
                 },
                 transactionId
         ) {
@@ -411,6 +399,7 @@ class QryptoProcessing implements IDocumentProcessing {
                     QryptoFieldAttribute field = (QryptoFieldAttribute) this.get()[0];
 
                     long documentFieldId = (long) this.get()[2];
+                    List<Signature> signatures = (List<Signature>) this.get()[4];
 
                     field.setProcessStatus(ProcessStatus.PROCESSED.getName());
                     field.setProcessBy(user.getEmail());
@@ -444,13 +433,30 @@ class QryptoProcessing implements IDocumentProcessing {
                     String uuid = (String) response.getData();
                     field.setImageQR(uuid);
 
+                    //<editor-fold defaultstate="collapsed" desc="Update 2024-05-27: Add logic read Signature in PDF and replace SigningTime @FirstSigner and @SecondSigner">
+                    String temp = MyServices.getJsonService(
+                            new ObjectMapper().setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
+                    )
+                            .writeValueAsString(field);
+                    if (!Utils.isNullOrEmpty(signatures)) {
+                        try {
+                            temp = temp.replaceAll(
+                                    QryptoVariable.FIRST_SIGNER.getAnnotationName(),
+                                    new SimpleDateFormat("dd/MM/yyyy hh:mm:ss")
+                                            .format(signatures.get(0).getSigningTime()));
+                            temp = temp.replaceAll(
+                                    QryptoVariable.SECOND_SIGNER.getAnnotationName(),
+                                    new SimpleDateFormat("dd/MM/yyyy hh:mm:ss")
+                                            .format(signatures.get(1).getSigningTime()));
+                        } catch (Exception e) {
+                        }
+                    }
+                    //</editor-fold>
+
                     response = ConnectorField_Internal.updateFieldDetail(
                             documentFieldId,
                             user,
-                            MyServices.getJsonService(
-                                    new ObjectMapper().setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
-                            )
-                                    .writeValueAsString(field),
+                            temp,
                             "hmac",
                             transactionId);
                     if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
@@ -473,11 +479,11 @@ class QryptoProcessing implements IDocumentProcessing {
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Take from Completion service">
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 3; i++) {
             try {
                 Future<Object> result = taskCompletion.take();
                 InternalResponse resultDetail = (InternalResponse) result.get();
-                if (resultDetail.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                if (!resultDetail.isValid()) {
                     executors.shutdownNow();
                     errorResponse = resultDetail;
                 }
