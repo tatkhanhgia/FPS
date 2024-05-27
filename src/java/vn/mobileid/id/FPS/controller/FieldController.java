@@ -18,7 +18,7 @@ import vn.mobileid.id.FPS.component.field.ConnectorField;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.InternalResponse.InternalData;
 import vn.mobileid.id.FPS.object.User;
-import vn.mobileid.id.general.LogHandler;
+import vn.mobileid.id.FPS.systemManagement.LogHandler;
 import vn.mobileid.id.utils.Utils;
 
 /**

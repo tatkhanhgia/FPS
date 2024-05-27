@@ -38,9 +38,9 @@ import vn.mobileid.id.FPS.controller.ResponseMessageController;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.fieldAttribute.QryptoFieldAttribute;
 import vn.mobileid.id.FPS.services.MyServices;
-import vn.mobileid.id.general.LogHandler;
-import vn.mobileid.id.general.PolicyConfiguration;
-import vn.mobileid.id.general.Resources;
+import vn.mobileid.id.FPS.systemManagement.LogHandler;
+import vn.mobileid.id.FPS.systemManagement.PolicyConfiguration;
+import vn.mobileid.id.FPS.systemManagement.Resources;
 import vn.mobileid.id.utils.Utils;
 
 /**

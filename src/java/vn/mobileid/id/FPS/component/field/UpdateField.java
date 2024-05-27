@@ -11,7 +11,7 @@ import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.FPS.serializer.IgnoreIngeritedIntrospector;
 import vn.mobileid.id.FPS.services.MyServices;
-import vn.mobileid.id.general.database.DatabaseFactory;
+import vn.mobileid.id.FPS.database.DatabaseFactory;
 import vn.mobileid.id.helper.ORM_JPA.database.objects.DatabaseResponse;
 
 /**

@@ -15,8 +15,8 @@ import vn.mobileid.id.FPS.component.util.GetRemarkLanguage;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.RemarkLanguage;
 import vn.mobileid.id.FPS.object.ResponseCode;
-import vn.mobileid.id.general.LogHandler;
-import vn.mobileid.id.general.Resources;
+import vn.mobileid.id.FPS.systemManagement.LogHandler;
+import vn.mobileid.id.FPS.systemManagement.Resources;
 import vn.mobileid.id.utils.Utils;
 
 /**

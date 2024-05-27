@@ -27,8 +27,8 @@ import vn.mobileid.id.FPS.object.InternalResponse.InternalData;
 import vn.mobileid.id.FPS.object.ProcessingRequest;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.FPS.services.MyServices;
-import vn.mobileid.id.general.LogHandler;
-import vn.mobileid.id.general.PolicyConfiguration;
+import vn.mobileid.id.FPS.systemManagement.LogHandler;
+import vn.mobileid.id.FPS.systemManagement.PolicyConfiguration;
 import vn.mobileid.id.utils.Utils;
 
 /**

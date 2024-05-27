@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.InternalResponse;
-import vn.mobileid.id.general.database.DatabaseFactory;
+import vn.mobileid.id.FPS.database.DatabaseFactory;
 import vn.mobileid.id.helper.ORM_JPA.database.objects.DatabaseResponse;
 //import vn.mobileid.id.utils.Broadcast;
 

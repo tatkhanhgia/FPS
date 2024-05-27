@@ -6,8 +6,8 @@ package vn.mobileid.id.FPS.component.util;
 
 import java.util.HashSet;
 import java.util.Set;
-import vn.mobileid.id.general.database.DatabaseFactory;
-import vn.mobileid.id.general.database.DatabaseImpl;
+import vn.mobileid.id.FPS.database.DatabaseFactory;
+import vn.mobileid.id.FPS.database.DatabaseImpl;
 import vn.mobileid.id.helper.ORM_JPA.database.objects.DatabaseResponse;
 
 /**

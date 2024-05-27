@@ -46,10 +46,10 @@ public class QryptoService {
 
     private QryptoService(int i) throws Throwable {
         prop = new Property(
-                vn.mobileid.id.general
+                vn.mobileid.id.FPS.systemManagement
                         .Configuration.getInstance()
                         .getHostQrypto(),
-                vn.mobileid.id.general.Configuration.
+                vn.mobileid.id.FPS.systemManagement.Configuration.
                         getInstance()
                         .getQryptoAuthentication());
         System.out.println("Base URL:"+prop.getBaseUrl());

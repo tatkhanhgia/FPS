@@ -15,7 +15,7 @@ import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
-import vn.mobileid.id.general.LogHandler;
+import vn.mobileid.id.FPS.systemManagement.LogHandler;
 import vn.mobileid.id.FPS.component.document.process.interfaces.IDocumentProcessing;
 import vn.mobileid.id.FPS.services.MyServices;
 

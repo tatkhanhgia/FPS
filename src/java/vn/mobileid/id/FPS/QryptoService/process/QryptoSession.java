@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import vn.mobileid.id.general.LogHandler;
+import vn.mobileid.id.FPS.systemManagement.LogHandler;
 import vn.mobileid.id.FPS.QryptoService.object.Configuration;
 import vn.mobileid.id.FPS.exception.LoginException;
 import vn.mobileid.id.FPS.QryptoService.object.QRSchema;

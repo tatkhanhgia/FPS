@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import vn.mobileid.id.FMS;
 import vn.mobileid.id.FPS.object.InternalResponse;
-import vn.mobileid.id.general.LogHandler;
+import vn.mobileid.id.FPS.systemManagement.LogHandler;
 import vn.mobileid.id.utils.Utils;
 
 /**

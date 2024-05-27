@@ -8,8 +8,8 @@ import fps_core.enumration.DocumentStatus;
 import fps_core.objects.FileManagement;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.InternalResponse;
-import vn.mobileid.id.general.Configuration;
-import vn.mobileid.id.general.database.DatabaseFactory;
+import vn.mobileid.id.FPS.systemManagement.Configuration;
+import vn.mobileid.id.FPS.database.DatabaseFactory;
 import vn.mobileid.id.helper.ORM_JPA.database.objects.DatabaseResponse;
 
 /**

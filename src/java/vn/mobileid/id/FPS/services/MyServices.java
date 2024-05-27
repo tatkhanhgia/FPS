@@ -6,6 +6,8 @@ package vn.mobileid.id.FPS.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import vn.mobileid.id.FPS.services.impls.JacksonJsonService;
+import vn.mobileid.id.FPS.services.impls.databaseConnection.DatabaseConnectionManager;
+import vn.mobileid.id.FPS.services.interfaces.IDatabaseConnection;
 import vn.mobileid.id.FPS.services.interfaces.IJsonService;
 
 /**
@@ -44,4 +46,13 @@ public class MyServices {
     }
     //</editor-fold>
      
+    //<editor-fold defaultstate="collapsed" desc="Get Database Connection">
+    /**
+     * Get database Connection
+     * @return IDatabaseConnection
+     */
+    public static IDatabaseConnection getDatabaseConnection(){
+        return new DatabaseConnectionManager();
+    }
+    //</editor-fold>
 }

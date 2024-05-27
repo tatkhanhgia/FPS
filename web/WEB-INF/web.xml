@@ -20,7 +20,7 @@
     <!--REST-->
     <servlet>
         <servlet-name>ManagementController</servlet-name>
-        <servlet-class>vn.mobileid.id.general.api.ManagementController</servlet-class>
+        <servlet-class>vn.mobileid.id.FPS.systemManagement.ManagementController</servlet-class>
         <init-param>
             <param-name>documentPattern</param-name>
             <param-value>^/fps/(v1|v2)/(documents|synchronize)[/]{0,1}(base64|pre){0,1}[0-9]*[/]{0,1}(sign|details|images|verification|base64|hash){0,1}[/]{0,1}[0-9]*[/]{0,1}(base64){0,1}$</param-value>
@@ -40,7 +40,7 @@
     </servlet>
     <filter>
         <filter-name>CorsFilter</filter-name>
-        <filter-class>vn.mobileid.id.general.api.CORSFilter</filter-class>
+        <filter-class>vn.mobileid.id.FPS.systemManagement.CORSFilter</filter-class>
     </filter>
     <!--    <servlet>
         <servlet-name>documentController</servlet-name>
@@ -48,17 +48,16 @@
     </servlet>-->
     <servlet>
         <servlet-name>resourcesLoad</servlet-name>
-        <servlet-class>vn.mobileid.id.general.Resources</servlet-class>
+        <servlet-class>vn.mobileid.id.FPS.systemManagement.Resources</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
-    
     <filter-mapping>
         <filter-name>CorsFilter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
     <servlet-mapping>
         <servlet-name>ManagementController</servlet-name>
-        <url-pattern>/*</url-pattern>       
+        <url-pattern>/*</url-pattern>
     </servlet-mapping>
     <!--END REST-->
     <!--    <error-page>

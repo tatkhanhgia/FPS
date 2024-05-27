@@ -54,8 +54,8 @@ import vn.mobileid.id.FPS.component.field.ConnectorField_Internal;
 import vn.mobileid.id.FPS.enumeration.QryptoVariable;
 import vn.mobileid.id.FPS.serializer.IgnoreIngeritedIntrospector;
 import vn.mobileid.id.FPS.services.MyServices;
-import vn.mobileid.id.general.LogHandler;
-import vn.mobileid.id.general.PolicyConfiguration;
+import vn.mobileid.id.FPS.systemManagement.LogHandler;
+import vn.mobileid.id.FPS.systemManagement.PolicyConfiguration;
 
 /**
  *
@@ -100,6 +100,49 @@ class QryptoProcessing implements IDocumentProcessing {
         file = (byte[]) response.getData();
         //</editor-fold>
 
+        //<editor-fold defaultstate="collapsed" desc="Update 2024-05-27: Add logic read Signature in PDF and replace SigningTime @FirstSigner and @SecondSigner">
+        List<ItemDetails> itemsInField = field.getItems();
+        List<Signature> signatures = null;
+        //Create Thread run parallel
+        Future<Object> callVerify = taskCompletion.submit(new TaskV2(new Object[]{file}, transactionId
+        ) {
+            @Override
+            public List<Signature> call() {
+                try {
+                    List<Signature> signatures = DocumentUtils_itext7.verifyDocument_i7((byte[]) this.get()[0]);
+                    return signatures;
+                } catch (Exception e) {
+                    return null;
+                }
+            }
+        });
+        if(callVerify!=null){
+//            signatures = callVerify.get();
+        }
+
+//        if (!Utils.isNullOrEmpty(itemsInField) && callVerify != null) {
+//            for (ItemDetails itemInField : itemsInField) {
+//                //<editor-fold defaultstate="collapsed" desc="Update 2024-04-30: Add Logic read Signature in PDF and replace SigningTime @FirstSigner and @SecondSigner in QRSchema">
+//                String temp = MyServices.getJsonService().writeValueAsString(itemInField);
+//
+//                try {
+//                    temp = temp.replaceAll(
+//                            QryptoVariable.FIRST_SIGNER.getAnnotationName(),
+//                            new SimpleDateFormat("dd/MM/yyyy hh:mm:ss")
+//                                    .format(signatures.get(0).getSigningTime()));
+//                    temp = temp.replaceAll(
+//                            QryptoVariable.SECOND_SIGNER.getAnnotationName(),
+//                            new SimpleDateFormat("dd/MM/yyyy hh:mm:ss")
+//                                    .format(signatures.get(1).getSigningTime()));
+//                } catch (Exception e) {
+//                } finally {
+//                    itemInField = MyServices.getJsonService().readValue(temp, ItemDetails.class);
+//                }
+//                //</editor-fold>
+//            }
+//        }
+        //</editor-fold>
+
         //<editor-fold defaultstate="collapsed" desc="Create Config + Schema">
         FileDataDetails fileDataDetail = new FileDataDetails();
         fileDataDetail.setValue(file);
@@ -122,14 +165,15 @@ class QryptoProcessing implements IDocumentProcessing {
         positionQR.setQrDimension(Math.round(field.getDimension().getWidth()));
         positionQR.setPageNumber(Arrays.asList(field.getPage()));
 
-        Configuration config = CreateQRSchema.createConfiguration(
+        CreateQRSchema createQRSchema = new CreateQRSchema(true, signatures);
+        Configuration config = createQRSchema.createConfiguration(
                 field,
                 user,
                 items.size() * 120,
                 transactionId);
         QRSchema schema = null;
         try {
-            schema = CreateQRSchema.createQRSchema(
+            schema = createQRSchema.createQRSchema(
                     Arrays.asList(fileDataDetail),
                     items,
                     positionQR,
@@ -201,7 +245,7 @@ class QryptoProcessing implements IDocumentProcessing {
                             //</editor-fold>
                         }
                     }
-                    return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS,"");
+                    return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, "");
                 } catch (Exception ex) {
                     LogHandler.error(ConnectorField.class, transactionId, ex);
                     return new InternalResponse(
@@ -214,26 +258,6 @@ class QryptoProcessing implements IDocumentProcessing {
         });
         //</editor-fold>
 
-        //<editor-fold defaultstate="collapsed" desc="Update 2024-04-30: Add Logic read Signature in PDF and replace SigningTime @FirstSigner and @SecondSigner in QRSchema">
-        List<Signature> signatures = DocumentUtils_itext7.verifyDocument_i7(file);
-
-        String temp = MyServices.getJsonService().writeValueAsString(schema);
-
-        try {
-            temp = temp.replaceAll(
-                    QryptoVariable.FIRST_SIGNER.getAnnotationName(),
-                    new SimpleDateFormat("dd/MM/yyyy hh:mm:ss")
-                            .format(signatures.get(0).getSigningTime()));
-            temp = temp.replaceAll(
-                    QryptoVariable.SECOND_SIGNER.getAnnotationName(),
-                    new SimpleDateFormat("dd/MM/yyyy hh:mm:ss")
-                            .format(signatures.get(1).getSigningTime()));
-        } catch (Exception e) {
-        } finally {
-//            schema = MyServices.getJsonService().readValue(temp, QRSchema.class);
-        }
-        //</editor-fold>
-
         //<editor-fold defaultstate="collapsed" desc="Call Qrypto">
         IssueQryptoWithFileAttachResponse QRdata = null;
         try {
@@ -241,7 +265,8 @@ class QryptoProcessing implements IDocumentProcessing {
                 QRdata = QryptoService
                         .getInstance(1)
                         .generateQR(
-                                temp,
+//                                temp,
+                                MyServices.getJsonService().writeValueAsString(schema),
                                 schema.getHeader(),
                                 schema.getFormat(),
                                 config,

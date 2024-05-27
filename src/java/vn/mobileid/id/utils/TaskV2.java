@@ -11,7 +11,7 @@ import vn.mobileid.id.FPS.object.InternalResponse;
  *
  * @author GiaTK
  */
-public class TaskV2 implements Callable<Object>{
+public class TaskV2<T> implements Callable<T>{
     private InternalResponse response;
     private Object[] data;
     private String transactionId;
@@ -30,7 +30,7 @@ public class TaskV2 implements Callable<Object>{
     }
     
     @Override
-    public Object call() throws Exception {
+    public T call() throws Exception {
         throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
     

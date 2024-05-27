@@ -60,8 +60,8 @@ import vn.mobileid.id.FPS.component.util.CreateAPILog;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
-import vn.mobileid.id.general.LogHandler;
-import vn.mobileid.id.general.PolicyConfiguration;
+import vn.mobileid.id.FPS.systemManagement.LogHandler;
+import vn.mobileid.id.FPS.systemManagement.PolicyConfiguration;
 
 /**
  *

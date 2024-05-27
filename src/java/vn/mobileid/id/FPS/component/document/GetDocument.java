@@ -12,9 +12,9 @@ import vn.mobileid.id.FMS;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
-import vn.mobileid.id.general.database.DatabaseFactory;
+import vn.mobileid.id.FPS.database.DatabaseFactory;
 import vn.mobileid.id.FPS.groupdoc.Conversion_22_8_1;
-import vn.mobileid.id.general.database.DatabaseImpl_document;
+import vn.mobileid.id.FPS.database.DatabaseImpl_document;
 import vn.mobileid.id.helper.ORM_JPA.database.objects.DatabaseResponse;
 
 /**

@@ -15,7 +15,7 @@ import org.apache.hc.core5.http.HttpHeaders;
 import vn.mobileid.id.FPS.component.document.ConnectorDocument;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
-import vn.mobileid.id.general.LogHandler;
+import vn.mobileid.id.FPS.systemManagement.LogHandler;
 import vn.mobileid.id.utils.Utils;
 
 /**

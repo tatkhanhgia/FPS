@@ -4,15 +4,15 @@
  */
 package vn.mobileid.id.FPS.QryptoService.process;
 
+import fps_core.objects.core.Signature;
 import vn.mobileid.id.FPS.QryptoService.object.ItemsType;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
-import vn.mobileid.id.general.PolicyConfiguration;
+import vn.mobileid.id.FPS.systemManagement.PolicyConfiguration;
 import vn.mobileid.id.FPS.QryptoService.object.Configuration;
 import vn.mobileid.id.FPS.QryptoService.object.FileDataDetails;
 import vn.mobileid.id.FPS.QryptoService.object.ItemDetails;
@@ -21,21 +21,47 @@ import vn.mobileid.id.FPS.QryptoService.object.Item_Choice.Element;
 import vn.mobileid.id.FPS.QryptoService.object.Item_IDPicture4Label.IDPicture4Label;
 import vn.mobileid.id.FPS.QryptoService.object.Item_Table;
 import vn.mobileid.id.FPS.QryptoService.object.Item_URL;
+import static vn.mobileid.id.FPS.QryptoService.object.ItemsType.Binary;
+import static vn.mobileid.id.FPS.QryptoService.object.ItemsType.Choice;
+import static vn.mobileid.id.FPS.QryptoService.object.ItemsType.Date;
+import static vn.mobileid.id.FPS.QryptoService.object.ItemsType.File;
+import static vn.mobileid.id.FPS.QryptoService.object.ItemsType.ID_Picture_with_4_labels;
+import static vn.mobileid.id.FPS.QryptoService.object.ItemsType.Non_Editable;
+import static vn.mobileid.id.FPS.QryptoService.object.ItemsType.Table;
+import static vn.mobileid.id.FPS.QryptoService.object.ItemsType.TextBold;
+import static vn.mobileid.id.FPS.QryptoService.object.ItemsType.URL;
 import vn.mobileid.id.FPS.QryptoService.object.QRSchema;
 import vn.mobileid.id.FPS.QryptoService.object.qryptoEffectiveDate;
+import vn.mobileid.id.FPS.enumeration.QryptoVariable;
 import vn.mobileid.id.FPS.exception.InvalidFormatOfItems;
 import vn.mobileid.id.utils.Utils;
 import vn.mobileid.id.FPS.object.fieldAttribute.QryptoFieldAttribute;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.FPS.services.MyServices;
-import vn.mobileid.id.general.LogHandler;
+import vn.mobileid.id.FPS.systemManagement.LogHandler;
 
 /**
  *
  * @author GiaTK
  * Using for create QR Scheme to call Qrypto
+ * Update 2024-05-27: add replaceSigningTime
  */
 public class CreateQRSchema {
+
+    private final boolean replaceSigningTime;
+    private final List<Signature> listSignature;
+
+    public CreateQRSchema() {
+        replaceSigningTime = false;
+        listSignature = null;
+    }
+
+    public CreateQRSchema(
+            boolean replaceSigningTime,
+            List<Signature> listSignature) {
+        this.replaceSigningTime = replaceSigningTime;
+        this.listSignature = listSignature;
+    }
 
     //<editor-fold defaultstate="collapsed" desc="Create QR Schema">
     /**
@@ -48,7 +74,7 @@ public class CreateQRSchema {
      * @return
      * @throws InvalidFormatOfItems
      */
-    public static QRSchema createQRSchema(
+    public QRSchema createQRSchema(
             List<FileDataDetails> fileData,
             List<ItemDetails> items,
             QRSchema.QR_META_DATA positionQR,
@@ -65,7 +91,8 @@ public class CreateQRSchema {
 
         for (ItemDetails item : items) {
             //<editor-fold defaultstate="collapsed" desc="Remove all case the item.getValue() is not satisfied">
-            if (item.getValue() == null && item.getType()!=6) {
+            if (item.getValue() == null
+                    && item.getType() != 6) {
                 continue;
             }
             try {
@@ -104,7 +131,7 @@ public class CreateQRSchema {
 
                         String random = Utils.generateRandomString(6);
                         data.setName(random);
-                        String urlValidator = vn.mobileid.id.general.PolicyConfiguration
+                        String urlValidator = vn.mobileid.id.FPS.systemManagement.PolicyConfiguration
                                 .getInstant()
                                 .getSystemConfig()
                                 .getAttributes()
@@ -123,11 +150,11 @@ public class CreateQRSchema {
                         //<editor-fold defaultstate="collapsed" desc="Processing">
                         String random = Utils.generateRandomString(6);
                         data.setName(random);
-                        if (!Utils.isNullOrEmpty(item.getValue())) {
-                            data.setValue((String) item.getValue());
-                        } else {
-                            data.setValue(item.getField());
-                        }
+//                        if (!Utils.isNullOrEmpty((String)item.getValue())) {
+//                            data.setValue((String) item.getValue());
+//                        } else {
+                        data.setValue(item.getField());
+//                        }
                         field.setName(item.getField());
                         field.setKvalue(random);
                         field.setType(QRSchema.fieldType.t2);
@@ -234,9 +261,24 @@ public class CreateQRSchema {
                         //</editor-fold>
                     }
                     case Table: {
+                        //Update 2024-05-27 add SigningTime
                         //<editor-fold defaultstate="collapsed" desc="Processing">
                         String temp = "{\"value\":" + MyServices.getJsonService().writeValueAsString(item.getValue()) + "}";
+                        if (replaceSigningTime && !Utils.isNullOrEmpty(listSignature)) {
+                            try {
+                                temp = temp.replaceAll(
+                                        QryptoVariable.FIRST_SIGNER.getAnnotationName(),
+                                        new SimpleDateFormat("dd/MM/yyyy hh:mm:ss")
+                                                .format(listSignature.get(0).getSigningTime()));
+                                temp = temp.replaceAll(
+                                        QryptoVariable.SECOND_SIGNER.getAnnotationName(),
+                                        new SimpleDateFormat("dd/MM/yyyy hh:mm:ss")
+                                                .format(listSignature.get(1).getSigningTime()));
+                            } catch (Exception e) {
+                            } 
+                        }
                         Item_Table itemTable = MyServices.getJsonService().readValue(temp, Item_Table.class);
+                        item.setValue(itemTable);
 
                         String random = Utils.generateRandomString(6);
                         data.setName(random);
@@ -329,7 +371,7 @@ public class CreateQRSchema {
      * @return
      * @throws Exception
      */
-    public static Configuration createConfiguration(
+    public Configuration createConfiguration(
             QryptoFieldAttribute field,
             User user,
             int pixel,
@@ -343,7 +385,7 @@ public class CreateQRSchema {
         String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(now.getTime());
 
         now.add(Calendar.DATE,
-                Integer.parseInt(
+                java.lang.Integer.parseInt(
                         PolicyConfiguration
                                 .getInstant()
                                 .getSystemConfig()

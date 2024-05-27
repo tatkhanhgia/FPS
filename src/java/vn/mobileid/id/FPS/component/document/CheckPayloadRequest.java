@@ -16,7 +16,7 @@ import vn.mobileid.id.FPS.object.ProcessFileField;
 import vn.mobileid.id.FPS.object.ProcessInitialField;
 import vn.mobileid.id.FPS.object.ProcessingRequest;
 import vn.mobileid.id.FPS.services.MyServices;
-import vn.mobileid.id.general.Resources;
+import vn.mobileid.id.FPS.systemManagement.Resources;
 import vn.mobileid.id.utils.Utils;
 
 /**

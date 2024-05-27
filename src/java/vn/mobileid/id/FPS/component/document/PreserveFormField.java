@@ -20,7 +20,7 @@ import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.FPS.services.MyServices;
-import vn.mobileid.id.general.Resources;
+import vn.mobileid.id.FPS.systemManagement.Resources;
 
 /**
  *
