@@ -17,7 +17,7 @@ import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.InternalResponse.InternalData;
 import vn.mobileid.id.FPS.object.User;
-import vn.mobileid.id.utils.TaskV2;
+import vn.mobileid.id.FPS.services.impls.threadManagement.TaskV2;
 import vn.mobileid.id.utils.Utils;
 
 /**

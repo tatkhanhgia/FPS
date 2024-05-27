@@ -46,7 +46,7 @@ import vn.mobileid.id.FPS.object.fieldAttribute.QryptoFieldAttribute;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
-import vn.mobileid.id.utils.TaskV2;
+import vn.mobileid.id.FPS.services.impls.threadManagement.TaskV2;
 import vn.mobileid.id.utils.Utils;
 import vn.mobileid.id.FPS.component.document.process.interfaces.IDocumentProcessing;
 import vn.mobileid.id.FPS.component.field.ConnectorField;
@@ -101,11 +101,10 @@ class QryptoProcessing implements IDocumentProcessing {
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Update 2024-05-27: Add logic read Signature in PDF and replace SigningTime @FirstSigner and @SecondSigner">
-        List<ItemDetails> itemsInField = field.getItems();
         List<Signature> signatures = null;
+
         //Create Thread run parallel
-        Future<Object> callVerify = taskCompletion.submit(new TaskV2(new Object[]{file}, transactionId
-        ) {
+        TaskV2 getSignature = new TaskV2(new Object[]{file}, transactionId) {
             @Override
             public List<Signature> call() {
                 try {
@@ -115,9 +114,13 @@ class QryptoProcessing implements IDocumentProcessing {
                     return null;
                 }
             }
-        });
-        if(callVerify!=null){
-//            signatures = callVerify.get();
+        };
+        try {
+            signatures = MyServices.getThreadManagement().executeTask(getSignature);
+        } catch (Exception ex) {
+            LogHandler.error(QryptoProcessing.class,
+                    transactionId,
+                    "Cannot get List Signature in file PDF! Not replace QryptoAnnotation");
         }
 
 //        if (!Utils.isNullOrEmpty(itemsInField) && callVerify != null) {
@@ -142,7 +145,7 @@ class QryptoProcessing implements IDocumentProcessing {
 //            }
 //        }
         //</editor-fold>
-
+        
         //<editor-fold defaultstate="collapsed" desc="Create Config + Schema">
         FileDataDetails fileDataDetail = new FileDataDetails();
         fileDataDetail.setValue(file);
@@ -265,7 +268,7 @@ class QryptoProcessing implements IDocumentProcessing {
                 QRdata = QryptoService
                         .getInstance(1)
                         .generateQR(
-//                                temp,
+                                //                                temp,
                                 MyServices.getJsonService().writeValueAsString(schema),
                                 schema.getHeader(),
                                 schema.getFormat(),

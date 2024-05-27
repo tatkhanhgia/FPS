@@ -46,7 +46,7 @@ import vn.mobileid.id.FPS.serializer.IgnoreIngeritedIntrospector;
 import vn.mobileid.id.FPS.systemManagement.Configuration;
 import vn.mobileid.id.FPS.systemManagement.Resources;
 import vn.mobileid.id.utils.ManagementTemporal;
-import vn.mobileid.id.utils.TaskV2;
+import vn.mobileid.id.FPS.services.impls.threadManagement.TaskV2;
 import vn.mobileid.id.utils.Utils;
 import fps_core.objects.core.InitialsFieldAttribute;
 import fps_core.objects.core.TextFieldAttribute;

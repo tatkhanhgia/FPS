@@ -7,6 +7,7 @@ package vn.mobileid.id.FPS.services;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import vn.mobileid.id.FPS.services.impls.JacksonJsonService;
 import vn.mobileid.id.FPS.services.impls.databaseConnection.DatabaseConnectionManager;
+import vn.mobileid.id.FPS.services.impls.threadManagement.ThreadManagement;
 import vn.mobileid.id.FPS.services.interfaces.IDatabaseConnection;
 import vn.mobileid.id.FPS.services.interfaces.IJsonService;
 
@@ -53,6 +54,20 @@ public class MyServices {
      */
     public static IDatabaseConnection getDatabaseConnection(){
         return new DatabaseConnectionManager();
+    } 
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="Get Thread Management">
+    /**
+     * Returns an instance of {@link ThreadManagement} for managing threads.
+     * <p>
+     * Trả về một instance của {@link ThreadManagement} để quản lý các luồng.
+     *
+     * @return An instance of {@link ThreadManagement}.
+     *         Một instance của {@link ThreadManagement}.
+     */
+    public static ThreadManagement getThreadManagement(){
+        return new ThreadManagement();
     }
     //</editor-fold>
 }

@@ -49,7 +49,7 @@ import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.FPS.systemManagement.LogHandler;
 import vn.mobileid.id.utils.Crypto;
-import vn.mobileid.id.utils.TaskV2;
+import vn.mobileid.id.FPS.services.impls.threadManagement.TaskV2;
 import vn.mobileid.id.utils.Utils;
 
 /**
