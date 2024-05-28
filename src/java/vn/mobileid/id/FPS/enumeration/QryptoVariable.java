@@ -10,8 +10,9 @@ package vn.mobileid.id.FPS.enumeration;
  * Using for auto generate value for Annotation in Qrypto QR
  */
 public enum QryptoVariable {
-    FIRST_SIGNER("@FirstSigner"),
-    SECOND_SIGNER("@SecondSigner");
+    SIGNER_1("@Signer1"),
+    SIGNER_2("@Signer2"),
+    SIGNER_NUMBER("@Signer");
     
     private String annotationName;
 

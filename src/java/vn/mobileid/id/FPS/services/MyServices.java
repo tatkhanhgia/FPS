@@ -7,9 +7,10 @@ package vn.mobileid.id.FPS.services;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import vn.mobileid.id.FPS.services.impls.JacksonJsonService;
 import vn.mobileid.id.FPS.services.impls.databaseConnection.DatabaseConnectionManager;
-import vn.mobileid.id.FPS.services.impls.threadManagement.ThreadManagement;
+import vn.mobileid.id.FPS.services.others.threadManagement.ThreadManagement;
 import vn.mobileid.id.FPS.services.interfaces.IDatabaseConnection;
 import vn.mobileid.id.FPS.services.interfaces.IJsonService;
+import vn.mobileid.id.FPS.services.others.threadManagement.ThreadFactory;
 
 /**
  * Provides static factory methods to obtain instances of service interfaces.
@@ -67,7 +68,7 @@ public class MyServices {
      *         Một instance của {@link ThreadManagement}.
      */
     public static ThreadManagement getThreadManagement(){
-        return new ThreadManagement();
+        return ThreadFactory.newCachedThreadPool();
     }
     //</editor-fold>
 }

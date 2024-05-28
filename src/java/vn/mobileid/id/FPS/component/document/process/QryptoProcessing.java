@@ -46,7 +46,7 @@ import vn.mobileid.id.FPS.object.fieldAttribute.QryptoFieldAttribute;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
-import vn.mobileid.id.FPS.services.impls.threadManagement.TaskV2;
+import vn.mobileid.id.FPS.services.others.threadManagement.TaskV2;
 import vn.mobileid.id.utils.Utils;
 import vn.mobileid.id.FPS.component.document.process.interfaces.IDocumentProcessing;
 import vn.mobileid.id.FPS.component.field.ConnectorField;
@@ -440,14 +440,21 @@ class QryptoProcessing implements IDocumentProcessing {
                             .writeValueAsString(field);
                     if (!Utils.isNullOrEmpty(signatures)) {
                         try {
-                            temp = temp.replaceAll(
-                                    QryptoVariable.FIRST_SIGNER.getAnnotationName(),
-                                    new SimpleDateFormat("dd/MM/yyyy hh:mm:ss")
-                                            .format(signatures.get(0).getSigningTime()));
-                            temp = temp.replaceAll(
-                                    QryptoVariable.SECOND_SIGNER.getAnnotationName(),
-                                    new SimpleDateFormat("dd/MM/yyyy hh:mm:ss")
-                                            .format(signatures.get(1).getSigningTime()));
+                            for(int i = 0; i<=signatures.size() ; i++){
+                                int position = i + 1;
+                                temp = temp.replaceAll(
+                                        QryptoVariable.SIGNER_NUMBER.getAnnotationName()+position, 
+                                        new SimpleDateFormat("dd/MM/yyyy hh:mm:ss")
+                                            .format(signatures.get(i).getSigningTime()));
+                            }
+//                            temp = temp.replaceAll(
+//                                    QryptoVariable.SIGNER_1.getAnnotationName(),
+//                                    new SimpleDateFormat("dd/MM/yyyy hh:mm:ss")
+//                                            .format(signatures.get(0).getSigningTime()));
+//                            temp = temp.replaceAll(
+//                                    QryptoVariable.SIGNER_2.getAnnotationName(),
+//                                    new SimpleDateFormat("dd/MM/yyyy hh:mm:ss")
+//                                            .format(signatures.get(1).getSigningTime()));
                         } catch (Exception e) {
                         }
                     }

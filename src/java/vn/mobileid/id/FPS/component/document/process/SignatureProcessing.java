@@ -39,7 +39,7 @@ import vn.mobileid.id.FPS.serializer.IgnoreIngeritedIntrospector;
 import vn.mobileid.id.FPS.systemManagement.LogHandler;
 import vn.mobileid.id.FPS.systemManagement.PolicyConfiguration;
 import vn.mobileid.id.utils.Crypto;
-import vn.mobileid.id.FPS.services.impls.threadManagement.TaskV2;
+import vn.mobileid.id.FPS.services.others.threadManagement.TaskV2;
 import vn.mobileid.id.utils.Utils;
 import vn.mobileid.id.FPS.component.document.process.interfaces.IDocumentProcessing;
 import vn.mobileid.id.FPS.component.document.process.interfaces.IModuleProcessing;

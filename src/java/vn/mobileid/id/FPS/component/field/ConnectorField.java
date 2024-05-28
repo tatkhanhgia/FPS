@@ -67,7 +67,7 @@ import vn.mobileid.id.FPS.systemManagement.LogHandler;
 import vn.mobileid.id.FPS.systemManagement.PolicyConfiguration;
 import vn.mobileid.id.FPS.systemManagement.Resources;
 import vn.mobileid.id.utils.ManagementTemporal;
-import vn.mobileid.id.FPS.services.impls.threadManagement.TaskV2;
+import vn.mobileid.id.FPS.services.others.threadManagement.TaskV2;
 import vn.mobileid.id.utils.Utils;
 
 /**

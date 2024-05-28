@@ -11,7 +11,6 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -41,7 +40,6 @@ import org.apache.commons.io.IOUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import vn.mobileid.id.FPS.component.enterprise.ConnectorEnterprise;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
-import vn.mobileid.id.FPS.controller.ResponseMessageController;
 import vn.mobileid.id.FPS.object.Enterprise;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.Token;
@@ -49,7 +47,8 @@ import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.FPS.systemManagement.LogHandler;
 import vn.mobileid.id.utils.Crypto;
-import vn.mobileid.id.FPS.services.impls.threadManagement.TaskV2;
+import vn.mobileid.id.FPS.services.others.threadManagement.TaskV2;
+import vn.mobileid.id.FPS.services.others.threadManagement.ThreadManagement;
 import vn.mobileid.id.utils.Utils;
 
 /**
@@ -157,8 +156,9 @@ class ManageTokenWithDB {
             String signature,
             String transactionID,
             boolean isRefreshToken) throws Exception {
-        ExecutorService executor = Executors.newFixedThreadPool(2);
-        Future<?> verify = executor.submit(new TaskV2(new Object[]{stringToBeVerify, signature, getPublicKey()}, transactionID) {
+//        ExecutorService executor = Executors.newFixedThreadPool(2);
+        ThreadManagement threadPool = MyServices.getThreadManagement();
+        Future<?> verify = threadPool.submitTask(new TaskV2(new Object[]{stringToBeVerify, signature, getPublicKey()}, transactionID) {
             @Override
             public Object call() {
                 InternalResponse response = new InternalResponse();
@@ -182,7 +182,7 @@ class ManageTokenWithDB {
             }
         });
 
-        Future<?> date = executor.submit(new TaskV2(new Object[]{data}, transactionID) {
+        Future<?> date = threadPool.submitTask(new TaskV2(new Object[]{data}, transactionID) {
             @Override
             public Object call() {
                 InternalResponse response = new InternalResponse();
