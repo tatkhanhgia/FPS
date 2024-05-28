@@ -54,6 +54,7 @@ import vn.mobileid.id.FPS.component.document.process.interfaces.IVersion;
 import vn.mobileid.id.FPS.object.ProcessFileField;
 import vn.mobileid.id.FPS.object.ProcessInitialField;
 import vn.mobileid.id.FPS.services.MyServices;
+import vn.mobileid.id.FPS.services.others.threadManagement.ThreadManagement;
 
 /**
  *
@@ -106,8 +107,9 @@ public class ConnectorDocument {
         long packageId = (long) response.getData();
 
         //Pool Upload + Analysis
-        ExecutorService executor = Executors.newFixedThreadPool(2);
-        Future<?> upload = executor.submit(new TaskV2(new Object[]{fileData}, transactionId) {
+//        ExecutorService executor = Executors.newFixedThreadPool(2);
+        ThreadManagement threadPool = MyServices.getThreadManagement();
+        Future<?> upload = threadPool.submitTask(new TaskV2(new Object[]{fileData}, transactionId) {
             @Override
             public Object call() {
                 InternalResponse res = new InternalResponse();
@@ -125,7 +127,7 @@ public class ConnectorDocument {
                 return res;
             }
         });
-        Future<?> analysis = executor.submit(new TaskV2(new Object[]{fileData}, transactionId) {
+        Future<?> analysis = threadPool.submitTask(new TaskV2(new Object[]{fileData}, transactionId) {
             @Override
             public Object call() {
                 try {

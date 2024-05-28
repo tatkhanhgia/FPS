@@ -18,19 +18,17 @@ public class CachedThreadPool implements IThreadPool {
     
     private final ExecutorService executor;
 
+    public CachedThreadPool(boolean allowCoreThreadTimeOut){
+        executor = generateThreadPool(false);
+    }
+    
     public CachedThreadPool() {
         executor = generateThreadPool();
     }
 
     @Override
     public ExecutorService generateThreadPool() {
-        return new ThreadPoolExecutor(
-                0, // corePoolSize: 0 (không có thread nào được tạo sẵn)
-                10, // maximumPoolSize: 10 (giới hạn số lượng thread tối đa)
-                60L, // keepAliveTime: 60 giây (thread nhàn rỗi sẽ bị hủy sau 60 giây)
-                TimeUnit.SECONDS,
-                new LinkedBlockingQueue<Runnable>() // Không lưu trữ tác vụ trong queue
-        );
+        return generateThreadPool(true);
     }
 
     @Override
@@ -38,4 +36,21 @@ public class CachedThreadPool implements IThreadPool {
         return this.executor;
     }
 
+    private ExecutorService generateThreadPool(boolean allowCoreThreadTimeOut){
+        ThreadPoolExecutor executor =  new ThreadPoolExecutor(
+                2, // corePoolSize: 0 (không có thread nào được tạo sẵn)
+                10, // maximumPoolSize: 10 (giới hạn số lượng thread tối đa)
+                10L, // keepAliveTime: 60 giây (thread nhàn rỗi sẽ bị hủy sau 60 giây)
+                TimeUnit.SECONDS,
+                new LinkedBlockingQueue<Runnable>() // Không lưu trữ tác vụ trong queue
+        );
+        executor.allowCoreThreadTimeOut(allowCoreThreadTimeOut);
+        
+        return executor;
+    }
+
+    @Override
+    public ThreadPoolExecutor getThreadPoolExecutor() {
+        return (ThreadPoolExecutor) this.executor;
+    }
 }

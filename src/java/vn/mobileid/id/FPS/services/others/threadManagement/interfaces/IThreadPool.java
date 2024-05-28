@@ -5,6 +5,7 @@
 package vn.mobileid.id.FPS.services.others.threadManagement.interfaces;
 
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
 import vn.mobileid.id.FPS.services.others.threadManagement.TaskV2;
 
 /**
@@ -15,4 +16,6 @@ public interface IThreadPool {
     ExecutorService generateThreadPool();
     
     ExecutorService getExecutorService();
+    
+    ThreadPoolExecutor getThreadPoolExecutor();
 }

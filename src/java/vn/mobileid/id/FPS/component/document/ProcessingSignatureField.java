@@ -32,6 +32,7 @@ import vn.mobileid.id.FPS.systemManagement.LogHandler;
 import vn.mobileid.id.FPS.systemManagement.PolicyConfiguration;
 import vn.mobileid.id.utils.ManagementTemporal;
 import vn.mobileid.id.FPS.services.others.threadManagement.TaskV2;
+import vn.mobileid.id.FPS.services.others.threadManagement.ThreadManagement;
 import vn.mobileid.id.utils.Utils;
 
 /**
@@ -169,10 +170,11 @@ public class ProcessingSignatureField {
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Create Thread Pool to handle 3 thread. Upload TemporaData ; Update Status of Document and update Value of QR Field if existed">
-        ExecutorService executors = Executors.newFixedThreadPool(3);
+//        ExecutorService executors = Executors.newFixedThreadPool(3);
+        ThreadManagement threadPool = MyServices.getThreadManagement();
 
         //Upload temporal data
-        Future<?> uploadTemporalData = executors.submit(new TaskV2(new Object[]{
+        Future<?> uploadTemporalData = threadPool.submitTask(new TaskV2(new Object[]{
             (byte[]) ((Object[]) response.getData())[2],
             hash,
             document_.getId()}, transactionId) {
@@ -205,7 +207,7 @@ public class ProcessingSignatureField {
         });
 
         //Update status of Document
-        Future<?> updateStatusOfDocument = executors.submit(new TaskV2(new Object[]{
+        Future<?> updateStatusOfDocument = threadPool.submitTask(new TaskV2(new Object[]{
             document_.getId(),
             user}, transactionId) {
             @Override
@@ -232,7 +234,7 @@ public class ProcessingSignatureField {
 
         //<editor-fold defaultstate="collapsed" desc="Update value of the QRField if existed">
         if (qrField != null) {
-            Future<?> uploadValueOfQR = executors.submit(new TaskV2(new Object[]{
+            Future<?> uploadValueOfQR = threadPool.submitTask(new TaskV2(new Object[]{
                 qrField_ex,
                 qrField}, transactionId) {
                 @Override
@@ -267,7 +269,7 @@ public class ProcessingSignatureField {
                 return ((InternalResponse) uploadValueOfQR.get()).setUser(user);
             }
         }
-        executors.shutdown();
+        threadPool.shutdown();
         //</editor-fold>
 
         InternalResponse response1 = (InternalResponse) uploadTemporalData.get();
@@ -382,10 +384,10 @@ public class ProcessingSignatureField {
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Create Thread Pool to handle 3 thread. Upload TemporaData ; Update Status of Document and update Value of QR Field if existed">
-        ExecutorService executors = Executors.newFixedThreadPool(3);
-
+//        ExecutorService executors = Executors.newFixedThreadPool(3);
+        ThreadManagement threadPool = MyServices.getThreadManagement();
         //Upload temporal data
-        Future<?> uploadTemporalData = executors.submit(new TaskV2(new Object[]{
+        Future<?> uploadTemporalData = threadPool.submitTask(new TaskV2(new Object[]{
             (byte[]) ((Object[]) response.getData())[2],
             hash,
             document_.getId()}, transactionId) {
@@ -418,7 +420,7 @@ public class ProcessingSignatureField {
         });
 
         //Update status of Document
-        Future<?> updateStatusOfDocument = executors.submit(new TaskV2(new Object[]{
+        Future<?> updateStatusOfDocument = threadPool.submitTask(new TaskV2(new Object[]{
             document_.getId(),
             user}, transactionId) {
             @Override
@@ -445,7 +447,7 @@ public class ProcessingSignatureField {
 
         //<editor-fold defaultstate="collapsed" desc="Update value of the QRField if existed">
         if (qrField != null) {
-            Future<?> uploadValueOfQR = executors.submit(new TaskV2(new Object[]{
+            Future<?> uploadValueOfQR = threadPool.submitTask(new TaskV2(new Object[]{
                 qrField_ex,
                 qrField}, transactionId) {
                 @Override
@@ -480,7 +482,7 @@ public class ProcessingSignatureField {
                 return ((InternalResponse) uploadValueOfQR.get()).setUser(user);
             }
         }
-        executors.shutdown();
+        threadPool.shutdown();
         //</editor-fold>
 
         InternalResponse response1 = (InternalResponse) uploadTemporalData.get();
