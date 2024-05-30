@@ -721,7 +721,7 @@ public class ConnectorField {
         UpdateField.updateFieldDetails(
                 fieldOld.getDocumentFieldId(),
                 user,
-                temp,
+                temp2,
                 "hmac",
                 transactionId);
         if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
