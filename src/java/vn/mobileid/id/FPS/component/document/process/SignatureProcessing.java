@@ -44,6 +44,7 @@ import vn.mobileid.id.utils.Utils;
 import vn.mobileid.id.FPS.component.document.process.interfaces.IDocumentProcessing;
 import vn.mobileid.id.FPS.component.document.process.interfaces.IModuleProcessing;
 import vn.mobileid.id.FPS.services.MyServices;
+import vn.mobileid.id.FPS.services.others.threadManagement.ThreadManagement;
 
 /**
  *
@@ -96,7 +97,9 @@ class SignatureProcessing implements IDocumentProcessing, IModuleProcessing {
         //Append data into field 
         try {
             //Analys file 
-            ExecutorService executor = Executors.newFixedThreadPool(2);
+//            ExecutorService executor = Executors.newFixedThreadPool(2);
+            ThreadManagement executor = MyServices.getThreadManagement();
+            
             Future<?> analysis = executor.submit(new TaskV2(new Object[]{file}, transactionId) {
                 @Override
                 public Object call() {
@@ -438,7 +441,9 @@ class SignatureProcessing implements IDocumentProcessing, IModuleProcessing {
         //Append data into field 
         try {
             //Analys file 
-            ExecutorService executor = Executors.newFixedThreadPool(2);
+//            ExecutorService executor = Executors.newFixedThreadPool(2);
+            ThreadManagement executor = MyServices.getThreadManagement();
+            
             Future<?> analysis = executor.submit(new TaskV2(new Object[]{file}, transactionId) {
                 @Override
                 public Object call() {

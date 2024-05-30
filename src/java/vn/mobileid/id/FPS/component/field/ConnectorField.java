@@ -68,6 +68,7 @@ import vn.mobileid.id.FPS.systemManagement.PolicyConfiguration;
 import vn.mobileid.id.FPS.systemManagement.Resources;
 import vn.mobileid.id.utils.ManagementTemporal;
 import vn.mobileid.id.FPS.services.others.threadManagement.TaskV2;
+import vn.mobileid.id.FPS.services.others.threadManagement.ThreadManagement;
 import vn.mobileid.id.utils.Utils;
 
 /**
@@ -344,7 +345,9 @@ public class ConnectorField {
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Processing append field form into file ">
-        ExecutorService executor = Executors.newFixedThreadPool(2);
+//        ExecutorService executor = Executors.newFixedThreadPool(2);
+        ThreadManagement executor = MyServices.getThreadManagement();
+
         Future<?> appended = executor.submit(
                 new TaskV2(
                         new Object[]{user, document_, documents.size(), field, transactionId},

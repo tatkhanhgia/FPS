@@ -108,79 +108,82 @@ public class ConnectorDocument {
 
         //Pool Upload + Analysis
 //        ExecutorService executor = Executors.newFixedThreadPool(2);
-        ThreadManagement threadPool = MyServices.getThreadManagement();
-        Future<?> upload = threadPool.submitTask(new TaskV2(new Object[]{fileData}, transactionId) {
-            @Override
-            public Object call() {
-                InternalResponse res = new InternalResponse();
-                try {
-                    res = FMS.uploadToFMS(
-                            fileData,
-                            DocumentType.PDF.getType(),
-                            transactionId);
-                } catch (Exception ex) {
-                    res.setStatus(A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR);
-                    res.setException(ex);
-                    res.setCode(A_FPSConstant.CODE_FMS);
-                    res.setCodeDescription(A_FPSConstant.SUBCODE_ERROR_WHILE_UPLOAD_FMS);
+        try (ThreadManagement threadPool = MyServices.getThreadManagement()) {
+            Future<?> upload = threadPool.submit(new TaskV2(new Object[]{fileData}, transactionId) {
+                @Override
+                public Object call() {
+                    InternalResponse res = new InternalResponse();
+                    try {
+                        res = FMS.uploadToFMS(
+                                fileData,
+                                DocumentType.PDF.getType(),
+                                transactionId);
+                    } catch (Exception ex) {
+                        res.setStatus(A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR);
+                        res.setException(ex);
+                        res.setCode(A_FPSConstant.CODE_FMS);
+                        res.setCodeDescription(A_FPSConstant.SUBCODE_ERROR_WHILE_UPLOAD_FMS);
+                    }
+                    return res;
                 }
-                return res;
-            }
-        });
-        Future<?> analysis = threadPool.submitTask(new TaskV2(new Object[]{fileData}, transactionId) {
-            @Override
-            public Object call() {
-                try {
-                    return DocumentUtils_itext7.analysisPDF_i7(fileData);
-                } catch (Exception ex) {
-                    return null;
+            });
+            Future<?> analysis = threadPool.submit(new TaskV2(new Object[]{fileData}, transactionId) {
+                @Override
+                public Object call() {
+                    try {
+                        return DocumentUtils_itext7.analysisPDF_i7(fileData);
+                    } catch (Exception ex) {
+                        return null;
+                    }
                 }
+            });
+
+            response = (InternalResponse) upload.get();
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                response.setUser(user);
+                return response;
             }
-        });
 
-        response = (InternalResponse) upload.get();
-        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+            FileManagement file = (FileManagement) analysis.get();
+            if (file == null) {
+                response = new InternalResponse(
+                        A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                        A_FPSConstant.CODE_FAIL,
+                        A_FPSConstant.SUBCODE_CANNOT_ANALYSIS_FILE
+                );
+                response.setUser(user);
+                return response;
+            }
+
+            file.setName(fileName);
+            String uuid = (String) response.getData();
+
+            //Upload file to DB
+            response = UploadDocument.uploadDocument(
+                    packageId,
+                    1,
+                    file,
+                    DocumentStatus.UPLOADED,
+                    "none",
+                    "none",
+                    uuid,
+                    "Uploaded to FMS",
+                    "hmac",
+                    user.getAzp(),
+                    transactionId);
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                response.setUser(user);
+                return response;
+            }
             response.setUser(user);
+            response.setStatus(A_FPSConstant.HTTP_CODE_CREATED);
+            response.setMessage(new ResponseMessageController()
+                    .writeNumberField("document_id", packageId)
+                    .build());
             return response;
+        } catch (Exception ex) {
+            throw ex;
         }
-
-        FileManagement file = (FileManagement) analysis.get();
-        if (file == null) {
-            response = new InternalResponse(
-                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                    A_FPSConstant.CODE_FAIL,
-                    A_FPSConstant.SUBCODE_CANNOT_ANALYSIS_FILE
-            );
-            response.setUser(user);
-            return response;
-        }
-
-        file.setName(fileName);
-        String uuid = (String) response.getData();
-
-        //Upload file to DB
-        response = UploadDocument.uploadDocument(
-                packageId,
-                1,
-                file,
-                DocumentStatus.UPLOADED,
-                "none",
-                "none",
-                uuid,
-                "Uploaded to FMS",
-                "hmac",
-                user.getAzp(),
-                transactionId);
-        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
-            response.setUser(user);
-            return response;
-        }
-        response.setUser(user);
-        response.setStatus(A_FPSConstant.HTTP_CODE_CREATED);
-        response.setMessage(new ResponseMessageController()
-                .writeNumberField("document_id", packageId)
-                .build());
-        return response;
     }
     // </editor-fold>
 

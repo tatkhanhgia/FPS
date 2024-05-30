@@ -157,8 +157,8 @@ class ManageTokenWithDB {
             String transactionID,
             boolean isRefreshToken) throws Exception {
 //        ExecutorService executor = Executors.newFixedThreadPool(2);
-        ThreadManagement threadPool = MyServices.getThreadManagement();
-        Future<?> verify = threadPool.submitTask(new TaskV2(new Object[]{stringToBeVerify, signature, getPublicKey()}, transactionID) {
+        try(ThreadManagement threadPool = MyServices.getThreadManagement()){
+        Future<?> verify = threadPool.submit(new TaskV2(new Object[]{stringToBeVerify, signature, getPublicKey()}, transactionID) {
             @Override
             public Object call() {
                 InternalResponse response = new InternalResponse();
@@ -182,7 +182,7 @@ class ManageTokenWithDB {
             }
         });
 
-        Future<?> date = threadPool.submitTask(new TaskV2(new Object[]{data}, transactionID) {
+        Future<?> date = threadPool.submit(new TaskV2(new Object[]{data}, transactionID) {
             @Override
             public Object call() {
                 InternalResponse response = new InternalResponse();
@@ -221,6 +221,9 @@ class ManageTokenWithDB {
             return temp;
         }
         return temp2;
+        } catch (Exception ex){
+            throw ex;
+        }
     }
     //</editor-fold>
 

@@ -39,6 +39,7 @@ import vn.mobileid.id.FPS.component.document.process.interfaces.IVersion;
 import static vn.mobileid.id.FPS.component.document.process.interfaces.IVersion.Version.V1;
 import static vn.mobileid.id.FPS.component.document.process.interfaces.IVersion.Version.V2;
 import vn.mobileid.id.FPS.services.MyServices;
+import vn.mobileid.id.FPS.services.others.threadManagement.ThreadManagement;
 
 /**
  *
@@ -136,7 +137,8 @@ public class AbstractReplicateProcessing<T extends AbstractReplicateField> exten
         //Append data into field 
         try {
             //<editor-fold defaultstate="collapsed" desc="Analysis File">
-            ExecutorService executor = Executors.newFixedThreadPool(2);
+//            ExecutorService executor = Executors.newFixedThreadPool(2);
+            ThreadManagement executor = MyServices.getThreadManagement();
             Future<?> analysis = executor.submit(new TaskV2(new Object[]{file}, transactionId) {
                 @Override
                 public Object call() {

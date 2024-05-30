@@ -40,6 +40,7 @@ import vn.mobileid.id.FPS.component.document.process.interfaces.IVersion;
 import static vn.mobileid.id.FPS.component.document.process.interfaces.IVersion.Version.V1;
 import static vn.mobileid.id.FPS.component.document.process.interfaces.IVersion.Version.V2;
 import vn.mobileid.id.FPS.services.MyServices;
+import vn.mobileid.id.FPS.services.others.threadManagement.ThreadManagement;
 
 /**
  *
@@ -85,7 +86,8 @@ class InitialsProcessing extends IVersion implements IModuleProcessing, IDocumen
 
         //Append data into field 
         try {
-            ExecutorService executor = Executors.newFixedThreadPool(2);
+//            ExecutorService executor = Executors.newFixedThreadPool(2);
+            ThreadManagement executor = MyServices.getThreadManagement();
 
             //<editor-fold defaultstate="collapsed" desc="Analysis file">
             Future<?> analysis = executor.submit(new TaskV2(new Object[]{file}, transactionId) {
@@ -207,7 +209,9 @@ class InitialsProcessing extends IVersion implements IModuleProcessing, IDocumen
         //Append data into field 
         try {
             //Analys file
-            ExecutorService executor = Executors.newFixedThreadPool(2);
+//            ExecutorService executor = Executors.newFixedThreadPool(2);
+            ThreadManagement executor = MyServices.getThreadManagement();
+            
             Future<?> analysis = executor.submit(new TaskV2(new Object[]{file}, transactionId) {
                 @Override
                 public Object call() {
@@ -364,7 +368,9 @@ class InitialsProcessing extends IVersion implements IModuleProcessing, IDocumen
         //Append data into field 
         try {
             //Analys file
-            ExecutorService executor = Executors.newFixedThreadPool(2);
+//            ExecutorService executor = Executors.newFixedThreadPool(2);
+            ThreadManagement executor = MyServices.getThreadManagement();
+
             Future<?> analysis = executor.submit(new TaskV2(new Object[]{file}, transactionId) {
                 @Override
                 public Object call() {
@@ -531,7 +537,9 @@ class InitialsProcessing extends IVersion implements IModuleProcessing, IDocumen
         //Append data into field 
         try {
             //<editor-fold defaultstate="collapsed" desc="Analysis File">
-            ExecutorService executor = Executors.newFixedThreadPool(2);
+//            ExecutorService executor = Executors.newFixedThreadPool(2);
+            ThreadManagement executor = MyServices.getThreadManagement();
+            
             Future<?> analysis = executor.submit(new TaskV2(new Object[]{file}, transactionId) {
                 @Override
                 public Object call() {
@@ -801,7 +809,9 @@ class InitialsProcessing extends IVersion implements IModuleProcessing, IDocumen
         //Append data into field 
         try {
             //<editor-fold defaultstate="collapsed" desc="Analysis File">
-            ExecutorService executor = Executors.newFixedThreadPool(2);
+//            ExecutorService executor = Executors.newFixedThreadPool(2);
+            ThreadManagement executor = MyServices.getThreadManagement();
+            
             Future<?> analysis = executor.submit(new TaskV2(new Object[]{file}, transactionId) {
                 @Override
                 public Object call() {
@@ -1068,7 +1078,9 @@ class InitialsProcessing extends IVersion implements IModuleProcessing, IDocumen
         //Append data into field 
         try {
             //<editor-fold defaultstate="collapsed" desc="Analysis File">
-            ExecutorService executor = Executors.newFixedThreadPool(2);
+//            ExecutorService executor = Executors.newFixedThreadPool(2);
+            ThreadManagement executor = MyServices.getThreadManagement();
+
             Future<?> analysis = executor.submit(new TaskV2(new Object[]{file}, transactionId) {
                 @Override
                 public Object call() {

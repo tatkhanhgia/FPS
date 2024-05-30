@@ -201,6 +201,36 @@ public class CheckPayloadRequest {
     }
     //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="CheckBasicField when update field">
+    /**
+     * Kiểm tra dữ liệu bắt buộc phải có của field (name, ...) 
+     * Check the mandatory variables in field.
+     *<p>
+     * @param object
+     * @param transactionId
+     * @return
+     */
+    public static InternalResponse checkBasicFieldWhenUpdateField(BasicFieldAttribute object, String transactionId) {
+        LogHandler.HierarchicalLog log = new LogHandler.HierarchicalLog("Check basic field");
+        
+//        log.addStartHeading1("Start checking field name");
+        if (object.getFieldName() == null) {
+            log.addEndHeading1("Checked field name fail");
+            return new InternalResponse(
+                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                    A_FPSConstant.CODE_FIELD,
+                    A_FPSConstant.SUBCODE_MISSING_FIELD_NAME
+            ).setHierarchicalLog(log);
+        }
+        log.addEndHeading1("Checked field name successfully");        
+        
+        return new InternalResponse(
+                A_FPSConstant.HTTP_CODE_SUCCESS,
+                object
+        ).setHierarchicalLog(log);
+    }
+    //</editor-fold>
+    
     //<editor-fold defaultstate="collapsed" desc="CheckBasicField with T type">
     /**
      * Kiểm tra dữ liệu bắt buộc phải có của field (name, ...) 
@@ -239,7 +269,7 @@ public class CheckPayloadRequest {
     }
     //</editor-fold>
     
-    //<editor-fold defaultstate="collapsed" desc="Check Field based on String">
+    //<editor-fold defaultstate="collapsed" desc="Check Field type based on String">
     /**
      * Dùng để kiểm tra dữ liệu xem là Field nhập vào có tồn tại parentType và
      * có đúng dạng đúng với trong hệ thống 
@@ -258,7 +288,7 @@ public class CheckPayloadRequest {
     }
     //</editor-fold>
 
-    //<editor-fold defaultstate="collapsed" desc="Check Field based on Object">
+    //<editor-fold defaultstate="collapsed" desc="Check Field type based on Object">
     /**
      * Dùng để kiểm tra dữ liệu xem là Field nhập vào có tồn tại parentType đúng
      * với trong hệ thống Use for check the parentType of input "textField".

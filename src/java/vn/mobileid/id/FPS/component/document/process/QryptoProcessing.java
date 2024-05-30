@@ -54,6 +54,7 @@ import vn.mobileid.id.FPS.component.field.ConnectorField_Internal;
 import vn.mobileid.id.FPS.enumeration.QryptoVariable;
 import vn.mobileid.id.FPS.serializer.IgnoreIngeritedIntrospector;
 import vn.mobileid.id.FPS.services.MyServices;
+import vn.mobileid.id.FPS.services.others.threadManagement.ThreadManagement;
 import vn.mobileid.id.FPS.systemManagement.LogHandler;
 import vn.mobileid.id.FPS.systemManagement.PolicyConfiguration;
 
@@ -77,6 +78,7 @@ class QryptoProcessing implements IDocumentProcessing {
         byte[] file;
 
         ExecutorService executors = Executors.newFixedThreadPool(3);
+        
         CompletionService<Object> taskCompletion = new ExecutorCompletionService<>(executors);
         InternalResponse errorResponse = null;
 

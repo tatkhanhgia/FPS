@@ -28,6 +28,7 @@ import vn.mobileid.id.utils.Crypto;
 import vn.mobileid.id.FPS.services.others.threadManagement.TaskV2;
 import vn.mobileid.id.FPS.component.document.process.interfaces.IDocumentProcessing;
 import vn.mobileid.id.FPS.services.MyServices;
+import vn.mobileid.id.FPS.services.others.threadManagement.ThreadManagement;
 
 /**
  *
@@ -75,7 +76,8 @@ class AttachmentProcessing implements IDocumentProcessing {
             //</editor-fold>
             
             //<editor-fold defaultstate="collapsed" desc="Analysis file">
-            ExecutorService executor = Executors.newFixedThreadPool(2);
+//            ExecutorService executor = Executors.newFixedThreadPool(2);
+            ThreadManagement executor = MyServices.getThreadManagement();
             Future<?> analysis = executor.submit(new TaskV2(new Object[]{resultODF}, transactionId) {
                 @Override
                 public Object call() {

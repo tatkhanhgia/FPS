@@ -29,6 +29,7 @@ import vn.mobileid.id.FPS.services.others.threadManagement.TaskV2;
 import vn.mobileid.id.FPS.component.document.process.interfaces.IDocumentProcessing;
 import vn.mobileid.id.FPS.component.document.process.interfaces.IModuleProcessing;
 import vn.mobileid.id.FPS.services.MyServices;
+import vn.mobileid.id.FPS.services.others.threadManagement.ThreadManagement;
 
 /**
  *
@@ -69,7 +70,8 @@ class RadioProcessing implements IModuleProcessing, IDocumentProcessing {
 
         //Append data into field 
         try {
-            ExecutorService executor = Executors.newFixedThreadPool(2);
+//            ExecutorService executor = Executors.newFixedThreadPool(2);
+            ThreadManagement executor = MyServices.getThreadManagement();
 
             //<editor-fold defaultstate="collapsed" desc="Analysis file">
             Future<?> analysis = executor.submit(new TaskV2(new Object[]{file}, transactionId) {
@@ -206,7 +208,8 @@ class RadioProcessing implements IModuleProcessing, IDocumentProcessing {
         //Append data into field 
         try {
             //Analys file
-            ExecutorService executor = Executors.newFixedThreadPool(2);
+//            ExecutorService executor = Executors.newFixedThreadPool(2);
+            ThreadManagement executor = MyServices.getThreadManagement();
 
             //Append CheckBoxField into file
             byte[] appendedFile = DocumentUtils_itext7.createRadioBoxFormField_gtk(file, field, transactionId);

@@ -52,10 +52,12 @@ public abstract class ParseToField {
     //<editor-fold defaultstate="collapsed" desc="ParseToField">
     /**
      * Từ url xác định loại field và parse vào loại đó Determine the type of
-     * field and parse into that type. Based on URL
+     * field and parse into that type.Based on URL
      *
      * @param url
      * @param payload
+     * @param isCheckBasicField
+     * @param isUpdate
      * @param transactionId
      * @return
      */
@@ -96,13 +98,16 @@ public abstract class ParseToField {
 
                 //<editor-fold defaultstate="collapsed" desc="Check basic field">
                 hierarchicalLog.addStartHeading1("Start check basic");
-                if (isCheckBasicField) {
-                    InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
-                    hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
-                    if (!response.isValid()) {
-                        hierarchicalLog.addEndHeading1("Checked fail");
-                        return response.setHierarchicalLog(hierarchicalLog);
-                    }
+                InternalResponse response = null;
+                if (isCheckBasicField && !isUpdate) {
+                    response = CheckPayloadRequest.checkBasicField(field, transactionId);
+                } else {
+                    response = CheckPayloadRequest.checkBasicFieldWhenUpdateField(field, transactionId);
+                }
+                hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
+                if (!response.isValid()) {
+                    hierarchicalLog.addEndHeading1("Checked fail");
+                    return response.setHierarchicalLog(hierarchicalLog);
                 }
                 hierarchicalLog.addEndHeading1("Checked successfully");
                 //</editor-fold>
@@ -141,13 +146,16 @@ public abstract class ParseToField {
 
                 //<editor-fold defaultstate="collapsed" desc="Check basic field">
                 hierarchicalLog.addStartHeading1("Start check basic");
-                if (isCheckBasicField) {
-                    InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
-                    hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
-                    if (!response.isValid()) {
-                        hierarchicalLog.addEndHeading1("Checked fail");
-                        return response.setHierarchicalLog(hierarchicalLog);
-                    }
+                InternalResponse response = null;
+                if (isCheckBasicField && !isUpdate) {
+                    response = CheckPayloadRequest.checkBasicField(field, transactionId);
+                } else {
+                    response = CheckPayloadRequest.checkBasicFieldWhenUpdateField(field, transactionId);
+                }
+                hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
+                if (!response.isValid()) {
+                    hierarchicalLog.addEndHeading1("Checked fail");
+                    return response.setHierarchicalLog(hierarchicalLog);
                 }
                 hierarchicalLog.addEndHeading1("Checked successfully");
                 //</editor-fold>
@@ -242,13 +250,16 @@ public abstract class ParseToField {
 
                 //<editor-fold defaultstate="collapsed" desc="Check basic field">
                 hierarchicalLog.addStartHeading1("Start check basic");
-                if (isCheckBasicField) {
-                    InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
-                    hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
-                    if (!response.isValid()) {
-                        hierarchicalLog.addEndHeading1("Checked fail");
-                        return response.setHierarchicalLog(hierarchicalLog);
-                    }
+                InternalResponse response = null;
+                if (isCheckBasicField && !isUpdate) {
+                    response = CheckPayloadRequest.checkBasicField(field, transactionId);
+                } else {
+                    response = CheckPayloadRequest.checkBasicFieldWhenUpdateField(field, transactionId);
+                }
+                hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
+                if (!response.isValid()) {
+                    hierarchicalLog.addEndHeading1("Checked fail");
+                    return response.setHierarchicalLog(hierarchicalLog);
                 }
                 hierarchicalLog.addEndHeading1("Checked successfully");
                 //</editor-fold>
@@ -329,13 +340,16 @@ public abstract class ParseToField {
 
                 //<editor-fold defaultstate="collapsed" desc="Check basic field">
                 hierarchicalLog.addStartHeading1("Start check basic");
-                if (isCheckBasicField) {
-                    InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
-                    hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
-                    if (!response.isValid()) {
-                        hierarchicalLog.addEndHeading1("Checked fail");
-                        return response.setHierarchicalLog(hierarchicalLog);
-                    }
+                InternalResponse response = null;
+                if (isCheckBasicField && !isUpdate) {
+                    response = CheckPayloadRequest.checkBasicField(field, transactionId);
+                } else {
+                    response = CheckPayloadRequest.checkBasicFieldWhenUpdateField(field, transactionId);
+                }
+                hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
+                if (!response.isValid()) {
+                    hierarchicalLog.addEndHeading1("Checked fail");
+                    return response.setHierarchicalLog(hierarchicalLog);
                 }
                 hierarchicalLog.addEndHeading1("Checked successfully");
                 //</editor-fold>
@@ -399,13 +413,16 @@ public abstract class ParseToField {
 
                 //<editor-fold defaultstate="collapsed" desc="Check basic field">
                 hierarchicalLog.addStartHeading1("Start check basic");
-                if (isCheckBasicField) {
-                    InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
-                    hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
-                    if (!response.isValid()) {
-                        hierarchicalLog.addEndHeading1("Checked fail");
-                        return response.setHierarchicalLog(hierarchicalLog);
-                    }
+                InternalResponse response = null;
+                if (isCheckBasicField && !isUpdate) {
+                    response = CheckPayloadRequest.checkBasicField(field, transactionId);
+                } else {
+                    response = CheckPayloadRequest.checkBasicFieldWhenUpdateField(field, transactionId);
+                }
+                hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
+                if (!response.isValid()) {
+                    hierarchicalLog.addEndHeading1("Checked fail");
+                    return response.setHierarchicalLog(hierarchicalLog);
                 }
                 hierarchicalLog.addEndHeading1("Checked successfully");
                 //</editor-fold>
@@ -453,13 +470,16 @@ public abstract class ParseToField {
 
                 //<editor-fold defaultstate="collapsed" desc="Check basic field">
                 hierarchicalLog.addStartHeading1("Start check basic");
-                if (isCheckBasicField) {
-                    InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
-                    hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
-                    if (!response.isValid()) {
-                        hierarchicalLog.addEndHeading1("Checked fail");
-                        return response.setHierarchicalLog(hierarchicalLog);
-                    }
+                InternalResponse response = null;
+                if (isCheckBasicField && !isUpdate) {
+                    response = CheckPayloadRequest.checkBasicField(field, transactionId);
+                } else {
+                    response = CheckPayloadRequest.checkBasicFieldWhenUpdateField(field, transactionId);
+                }
+                hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
+                if (!response.isValid()) {
+                    hierarchicalLog.addEndHeading1("Checked fail");
+                    return response.setHierarchicalLog(hierarchicalLog);
                 }
                 hierarchicalLog.addEndHeading1("Checked successfully");
                 //</editor-fold>
@@ -521,14 +541,18 @@ public abstract class ParseToField {
                 hierarchicalLog.addEndHeading1("Parse into field successfully");
                 //</editor-fold>
 
-                //<editor-fold defaultstate="collapsed" desc="Check basic field for initial">
+                //<editor-fold defaultstate="collapsed" desc="Check basic field">
                 hierarchicalLog.addStartHeading1("Start check basic");
-                if (isCheckBasicField) {
-                    InternalResponse response = CheckPayloadRequest.checkAddInitialField(field, transactionId);
-                    if (!response.isValid()) {
-                        hierarchicalLog.addEndHeading1("Checked fail");
-                        return response.setHierarchicalLog(hierarchicalLog);
-                    }
+                InternalResponse response = null;
+                if (isCheckBasicField && !isUpdate) {
+                    response = CheckPayloadRequest.checkBasicField(field, transactionId);
+                } else {
+                    response = CheckPayloadRequest.checkBasicFieldWhenUpdateField(field, transactionId);
+                }
+                hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
+                if (!response.isValid()) {
+                    hierarchicalLog.addEndHeading1("Checked fail");
+                    return response.setHierarchicalLog(hierarchicalLog);
                 }
                 hierarchicalLog.addEndHeading1("Checked successfully");
                 //</editor-fold>
@@ -563,7 +587,7 @@ public abstract class ParseToField {
                                 .getMaximumFile()) {
                     try {
                         hierarchicalLog.addStartHeading1("Start upload to FMS");
-                        InternalResponse response = vn.mobileid.id.FMS.uploadToFMS(
+                        response = vn.mobileid.id.FMS.uploadToFMS(
                                 Base64.decode(field.getImage()),
                                 "png",
                                 transactionId);
@@ -603,13 +627,16 @@ public abstract class ParseToField {
 
                 //<editor-fold defaultstate="collapsed" desc="Check basic field">
                 hierarchicalLog.addStartHeading1("Start check basic");
-                if (isCheckBasicField) {
-                    InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
-                    hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
-                    if (!response.isValid()) {
-                        hierarchicalLog.addEndHeading1("Checked fail");
-                        return response.setHierarchicalLog(hierarchicalLog);
-                    }
+                InternalResponse response = null;
+                if (isCheckBasicField && !isUpdate) {
+                    response = CheckPayloadRequest.checkBasicField(field, transactionId);
+                } else {
+                    response = CheckPayloadRequest.checkBasicFieldWhenUpdateField(field, transactionId);
+                }
+                hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
+                if (!response.isValid()) {
+                    hierarchicalLog.addEndHeading1("Checked fail");
+                    return response.setHierarchicalLog(hierarchicalLog);
                 }
                 hierarchicalLog.addEndHeading1("Checked successfully");
                 //</editor-fold>
@@ -663,7 +690,7 @@ public abstract class ParseToField {
                                 .getMaximumFile()) {
                     try {
                         hierarchicalLog.addStartHeading1("Start upload to FMS");
-                        InternalResponse response = vn.mobileid.id.FMS.uploadToFMS(
+                        response = vn.mobileid.id.FMS.uploadToFMS(
                                 Base64.decode(field.getImageQR()),
                                 "png",
                                 transactionId);
@@ -702,13 +729,16 @@ public abstract class ParseToField {
 
                 //<editor-fold defaultstate="collapsed" desc="Check basic field">
                 hierarchicalLog.addStartHeading1("Start check basic");
-                if (isCheckBasicField) {
-                    InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
-                    hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
-                    if (!response.isValid()) {
-                        hierarchicalLog.addEndHeading1("Checked fail");
-                        return response.setHierarchicalLog(hierarchicalLog);
-                    }
+                InternalResponse response = null;
+                if (isCheckBasicField && !isUpdate) {
+                    response = CheckPayloadRequest.checkBasicField(field, transactionId);
+                } else {
+                    response = CheckPayloadRequest.checkBasicFieldWhenUpdateField(field, transactionId);
+                }
+                hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
+                if (!response.isValid()) {
+                    hierarchicalLog.addEndHeading1("Checked fail");
+                    return response.setHierarchicalLog(hierarchicalLog);
                 }
                 hierarchicalLog.addEndHeading1("Checked successfully");
                 //</editor-fold>
@@ -764,7 +794,7 @@ public abstract class ParseToField {
                                                 .getMaximumFile()) {
                                     try {
                                         hierarchicalLog.addStartHeading2("Upload image/file into FMS");
-                                        InternalResponse response = vn.mobileid.id.FMS.uploadToFMS(
+                                        response = vn.mobileid.id.FMS.uploadToFMS(
                                                 Base64.decode(file),
                                                 "png",
                                                 transactionId);
@@ -824,13 +854,16 @@ public abstract class ParseToField {
 
                 //<editor-fold defaultstate="collapsed" desc="Check basic field">
                 hierarchicalLog.addStartHeading1("Start check basic");
-                if (isCheckBasicField) {
-                    InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
-                    hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
-                    if (!response.isValid()) {
-                        hierarchicalLog.addEndHeading1("Checked fail");
-                        return response.setHierarchicalLog(hierarchicalLog);
-                    }
+                InternalResponse response = null;
+                if (isCheckBasicField && !isUpdate) {
+                    response = CheckPayloadRequest.checkBasicField(field, transactionId);
+                } else {
+                    response = CheckPayloadRequest.checkBasicFieldWhenUpdateField(field, transactionId);
+                }
+                hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
+                if (!response.isValid()) {
+                    hierarchicalLog.addEndHeading1("Checked fail");
+                    return response.setHierarchicalLog(hierarchicalLog);
                 }
                 hierarchicalLog.addEndHeading1("Checked successfully");
                 //</editor-fold>
@@ -880,7 +913,7 @@ public abstract class ParseToField {
                                     .getMaximumFile()) {
                         try {
                             hierarchicalLog.addStartHeading2("Start upload image/file into FMS");
-                            InternalResponse response = vn.mobileid.id.FMS.uploadToFMS(
+                            response = vn.mobileid.id.FMS.uploadToFMS(
                                     Base64.decode(field.getFile()),
                                     "png",
                                     transactionId);
@@ -922,13 +955,16 @@ public abstract class ParseToField {
 
                 //<editor-fold defaultstate="collapsed" desc="Check basic field">
                 hierarchicalLog.addStartHeading1("Start check basic");
-                if (isCheckBasicField) {
-                    InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
-                    hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
-                    if (!response.isValid()) {
-                        hierarchicalLog.addEndHeading1("Checked fail");
-                        return response.setHierarchicalLog(hierarchicalLog);
-                    }
+                InternalResponse response = null;
+                if (isCheckBasicField && !isUpdate) {
+                    response = CheckPayloadRequest.checkBasicField(field, transactionId);
+                } else {
+                    response = CheckPayloadRequest.checkBasicFieldWhenUpdateField(field, transactionId);
+                }
+                hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
+                if (!response.isValid()) {
+                    hierarchicalLog.addEndHeading1("Checked fail");
+                    return response.setHierarchicalLog(hierarchicalLog);
                 }
                 hierarchicalLog.addEndHeading1("Checked successfully");
                 //</editor-fold>
@@ -982,7 +1018,7 @@ public abstract class ParseToField {
                                     .getMaximumFile() / 2) {
                         try {
                             hierarchicalLog.addStartHeading2("Upload image into FMS");
-                            InternalResponse response = vn.mobileid.id.FMS.uploadToFMS(
+                            response = vn.mobileid.id.FMS.uploadToFMS(
                                     Base64.decode(field.getFile()),
                                     "png",
                                     transactionId);
@@ -1024,13 +1060,16 @@ public abstract class ParseToField {
 
                 //<editor-fold defaultstate="collapsed" desc="Check basic field">
                 hierarchicalLog.addStartHeading1("Start check basic");
-                if (isCheckBasicField) {
-                    InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
-                    hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
-                    if (!response.isValid()) {
-                        hierarchicalLog.addEndHeading1("Checked fail");
-                        return response.setHierarchicalLog(hierarchicalLog);
-                    }
+                InternalResponse response = null;
+                if (isCheckBasicField && !isUpdate) {
+                    response = CheckPayloadRequest.checkBasicField(field, transactionId);
+                } else {
+                    response = CheckPayloadRequest.checkBasicFieldWhenUpdateField(field, transactionId);
+                }
+                hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
+                if (!response.isValid()) {
+                    hierarchicalLog.addEndHeading1("Checked fail");
+                    return response.setHierarchicalLog(hierarchicalLog);
                 }
                 hierarchicalLog.addEndHeading1("Checked successfully");
                 //</editor-fold>
@@ -1126,7 +1165,7 @@ public abstract class ParseToField {
                                     .getMaximumFile()) {
                         try {
                             hierarchicalLog.addStartHeading2("Upload file into FMS");
-                            InternalResponse response = vn.mobileid.id.FMS.uploadToFMS(
+                            response = vn.mobileid.id.FMS.uploadToFMS(
                                     Base64.decode(field.getFile()),
                                     field.getFileExtension(),
                                     transactionId);
@@ -1170,13 +1209,16 @@ public abstract class ParseToField {
 
                 //<editor-fold defaultstate="collapsed" desc="Check basic field">
                 hierarchicalLog.addStartHeading1("Start check basic");
-                if (isCheckBasicField) {
-                    InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
-                    hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
-                    if (!response.isValid()) {
-                        hierarchicalLog.addEndHeading1("Checked fail");
-                        return response.setHierarchicalLog(hierarchicalLog);
-                    }
+                InternalResponse response = null;
+                if (isCheckBasicField && !isUpdate) {
+                    response = CheckPayloadRequest.checkBasicField(field, transactionId);
+                } else {
+                    response = CheckPayloadRequest.checkBasicFieldWhenUpdateField(field, transactionId);
+                }
+                hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
+                if (!response.isValid()) {
+                    hierarchicalLog.addEndHeading1("Checked fail");
+                    return response.setHierarchicalLog(hierarchicalLog);
                 }
                 hierarchicalLog.addEndHeading1("Checked successfully");
                 //</editor-fold>
@@ -1247,13 +1289,16 @@ public abstract class ParseToField {
 
                 //<editor-fold defaultstate="collapsed" desc="Check basic field">
                 hierarchicalLog.addStartHeading1("Start check basic");
-                if (isCheckBasicField) {
-                    InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
-                    hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
-                    if (!response.isValid()) {
-                        hierarchicalLog.addEndHeading1("Checked fail");
-                        return response.setHierarchicalLog(hierarchicalLog);
-                    }
+                InternalResponse response = null;
+                if (isCheckBasicField && !isUpdate) {
+                    response = CheckPayloadRequest.checkBasicField(field, transactionId);
+                } else {
+                    response = CheckPayloadRequest.checkBasicFieldWhenUpdateField(field, transactionId);
+                }
+                hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
+                if (!response.isValid()) {
+                    hierarchicalLog.addEndHeading1("Checked fail");
+                    return response.setHierarchicalLog(hierarchicalLog);
                 }
                 hierarchicalLog.addEndHeading1("Checked successfully");
                 //</editor-fold>
@@ -1324,13 +1369,16 @@ public abstract class ParseToField {
 
                 //<editor-fold defaultstate="collapsed" desc="Check basic field">
                 hierarchicalLog.addStartHeading1("Start check basic");
-                if (isCheckBasicField) {
-                    InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
-                    hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
-                    if (!response.isValid()) {
-                        hierarchicalLog.addEndHeading1("Checked fail");
-                        return response.setHierarchicalLog(hierarchicalLog);
-                    }
+                InternalResponse response = null;
+                if (isCheckBasicField && !isUpdate) {
+                    response = CheckPayloadRequest.checkBasicField(field, transactionId);
+                } else {
+                    response = CheckPayloadRequest.checkBasicFieldWhenUpdateField(field, transactionId);
+                }
+                hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
+                if (!response.isValid()) {
+                    hierarchicalLog.addEndHeading1("Checked fail");
+                    return response.setHierarchicalLog(hierarchicalLog);
                 }
                 hierarchicalLog.addEndHeading1("Checked successfully");
                 //</editor-fold>
@@ -1402,13 +1450,16 @@ public abstract class ParseToField {
 
                 //<editor-fold defaultstate="collapsed" desc="Check basic field">
                 hierarchicalLog.addStartHeading1("Start check basic");
-                if (isCheckBasicField) {
-                    InternalResponse response = CheckPayloadRequest.checkBasicField(field, transactionId);
-                    hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
-                    if (!response.isValid()) {
-                        hierarchicalLog.addEndHeading1("Checked fail");
-                        return response.setHierarchicalLog(hierarchicalLog);
-                    }
+                InternalResponse response = null;
+                if (isCheckBasicField && !isUpdate) {
+                    response = CheckPayloadRequest.checkBasicField(field, transactionId);
+                } else {
+                    response = CheckPayloadRequest.checkBasicFieldWhenUpdateField(field, transactionId);
+                }
+                hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
+                if (!response.isValid()) {
+                    hierarchicalLog.addEndHeading1("Checked fail");
+                    return response.setHierarchicalLog(hierarchicalLog);
                 }
                 hierarchicalLog.addEndHeading1("Checked successfully");
                 //</editor-fold>
@@ -1499,7 +1550,8 @@ public abstract class ParseToField {
                         .parseAndValidateField(
                                 FieldTypeName.INPERSON,
                                 payload,
-                                true,
+                                isCheckBasicField,
+                                isUpdate,
                                 transactionId);
 
                 hierarchicalLog.addChildHierarchicalLog(parseV2.getHierarchicalLog());
@@ -1512,7 +1564,8 @@ public abstract class ParseToField {
                         .parseAndValidateField(
                                 FieldTypeName.SIGNATURE,
                                 payload,
-                                true,
+                                isCheckBasicField,
+                                isUpdate,
                                 transactionId);
 
                 hierarchicalLog.addChildHierarchicalLog(parseV2.getHierarchicalLog());
@@ -1542,7 +1595,8 @@ public abstract class ParseToField {
                         .parseAndValidateField(
                                 FieldTypeName.DATETIME,
                                 payload,
-                                true,
+                                isCheckBasicField,
+                                isUpdate,
                                 transactionId);
 
                 hierarchicalLog.addChildHierarchicalLog(parseV2.getHierarchicalLog());
@@ -1577,7 +1631,8 @@ public abstract class ParseToField {
                         .parseAndValidateField(
                                 FieldTypeName.TEXTBOX,
                                 payload,
-                                true,
+                                isCheckBasicField,
+                                isUpdate,
                                 transactionId);
 
                 hierarchicalLog.addChildHierarchicalLog(parseV2.getHierarchicalLog());
@@ -1600,7 +1655,8 @@ public abstract class ParseToField {
                         .parseAndValidateField(
                                 FieldTypeName.CHECKBOX,
                                 payload,
-                                true,
+                                isCheckBasicField,
+                                isUpdate,
                                 transactionId);
 
                 hierarchicalLog.addChildHierarchicalLog(parseV2.getHierarchicalLog());
@@ -1614,7 +1670,8 @@ public abstract class ParseToField {
                         .parseAndValidateField(
                                 FieldTypeName.CHECKBOX,
                                 payload,
-                                true,
+                                isCheckBasicField,
+                                isUpdate,
                                 transactionId);
 
                 hierarchicalLog.addChildHierarchicalLog(parseV2.getHierarchicalLog());
@@ -1637,7 +1694,8 @@ public abstract class ParseToField {
                         .parseAndValidateField(
                                 FieldTypeName.RADIOBOX,
                                 payload,
-                                true,
+                                isCheckBasicField,
+                                isUpdate,
                                 transactionId);
 
                 hierarchicalLog.addChildHierarchicalLog(parseV2.getHierarchicalLog());
@@ -1684,7 +1742,8 @@ public abstract class ParseToField {
                         .parseAndValidateField(
                                 FieldTypeName.INITIAL,
                                 payload,
-                                true,
+                                isCheckBasicField,
+                                isUpdate,
                                 transactionId);
 
                 hierarchicalLog.addChildHierarchicalLog(parseV2.getHierarchicalLog());
@@ -1750,7 +1809,8 @@ public abstract class ParseToField {
                         .parseAndValidateField(
                                 FieldTypeName.QR,
                                 payload,
-                                true,
+                                isCheckBasicField,
+                                isUpdate,
                                 transactionId);
 
                 hierarchicalLog.addChildHierarchicalLog(parseV2.getHierarchicalLog());
@@ -1834,7 +1894,8 @@ public abstract class ParseToField {
                         .parseAndValidateField(
                                 FieldTypeName.QRYPTO,
                                 payload,
-                                true,
+                                isCheckBasicField,
+                                isUpdate,
                                 transactionId);
 
                 hierarchicalLog.addChildHierarchicalLog(parseV2.getHierarchicalLog());
@@ -1896,7 +1957,8 @@ public abstract class ParseToField {
                         .parseAndValidateField(
                                 FieldTypeName.STAMP,
                                 payload,
-                                true,
+                                isCheckBasicField,
+                                isUpdate,
                                 transactionId);
 
                 hierarchicalLog.addChildHierarchicalLog(parseV2.getHierarchicalLog());
@@ -1962,7 +2024,8 @@ public abstract class ParseToField {
                         .parseAndValidateField(
                                 FieldTypeName.CAMERA,
                                 payload,
-                                true,
+                                isCheckBasicField,
+                                isUpdate,
                                 transactionId);
 
                 hierarchicalLog.addChildHierarchicalLog(parseV2.getHierarchicalLog());
@@ -2072,7 +2135,8 @@ public abstract class ParseToField {
                         .parseAndValidateField(
                                 FieldTypeName.ATTACHMENT,
                                 payload,
-                                true,
+                                isCheckBasicField,
+                                isUpdate,
                                 transactionId);
 
                 hierarchicalLog.addChildHierarchicalLog(parseV2.getHierarchicalLog());
@@ -2109,7 +2173,8 @@ public abstract class ParseToField {
                         .parseAndValidateField(
                                 FieldTypeName.HYPERLINK,
                                 payload,
-                                true,
+                                isCheckBasicField,
+                                isUpdate,
                                 transactionId);
 
                 hierarchicalLog.addChildHierarchicalLog(parseV2.getHierarchicalLog());
@@ -2146,7 +2211,8 @@ public abstract class ParseToField {
                         .parseAndValidateField(
                                 FieldTypeName.COMBOBOX,
                                 payload,
-                                true,
+                                isCheckBasicField,
+                                isUpdate,
                                 transactionId);
 
                 hierarchicalLog.addChildHierarchicalLog(parseV2.getHierarchicalLog());
@@ -2183,7 +2249,8 @@ public abstract class ParseToField {
                         .parseAndValidateField(
                                 FieldTypeName.TOGGLE,
                                 payload,
-                                true,
+                                isCheckBasicField,
+                                isUpdate,
                                 transactionId);
 
                 hierarchicalLog.addChildHierarchicalLog(parseV2.getHierarchicalLog());
@@ -2220,7 +2287,8 @@ public abstract class ParseToField {
                         .parseAndValidateField(
                                 FieldTypeName.TOGGLE,
                                 payload,
-                                true,
+                                isCheckBasicField,
+                                isUpdate,
                                 transactionId);
 
                 hierarchicalLog.addChildHierarchicalLog(parseV2.getHierarchicalLog());
@@ -2235,20 +2303,20 @@ public abstract class ParseToField {
     //</editor-fold>
 
     //=====================INTERNAL METHOD======================================
+    //<editor-fold defaultstate="collapsed" desc="Create Bufferer first (T type and Consumer initial)">
+    private static <T extends BasicFieldAttribute> Bufferer createBufferer(
+            T data,
+            Consumer<T> checker) {
+        return new Bufferer(data, checker);
+    }
+    //</editor-fold>
+
     //<editor-fold defaultstate="collapsed" desc="Create Bufferer first (T type and Consumer initial and Function<> checker)">
     private static <T extends BasicFieldAttribute> Bufferer createBufferer(
             T data,
             Consumer<T> initial,
             Function<T, InternalResponse> checker) {
         return new Bufferer(data, initial, checker);
-    }
-    //</editor-fold>
-
-    //<editor-fold defaultstate="collapsed" desc="Create Bufferer first (T type and Consumer initial)">
-    private static <T extends BasicFieldAttribute> Bufferer createBufferer(
-            T data,
-            Consumer<T> checker) {
-        return new Bufferer(data, checker);
     }
     //</editor-fold>
 
@@ -2271,14 +2339,30 @@ public abstract class ParseToField {
 
         //<editor-fold defaultstate="collapsed" desc="Template of Parse to Ffield">
         /**
-         * Craete Template for parse to Field
+         * Parses a payload string into a field of type T, validates the field, and performs additional checks.
+         * <p>
+         * Phân tích một chuỗi payload thành một trường kiểu T, xác thực trường và thực hiện các kiểm tra bổ sung.
          *
-         * @return
+         * @param parentType The parent type of the field.
+         * Kiểu cha của trường.
+         * @param payload The payload string to parse.
+         * Chuỗi payload cần phân tích.
+         * @param isCheckBasicField Flag indicating whether to perform basic field checks.
+         * Cờ cho biết có thực hiện kiểm tra trường cơ bản hay không.
+         * @param isUpdate Flag indicating whether this is an update operation.
+         * Cờ cho biết đây có phải là thao tác cập nhật hay không.
+         * @param transactionId The ID of the transaction.
+         * ID của giao dịch.
+         * @param <T> The type of the field.
+         * Kiểu của trường.
+         * @return An InternalResponse object containing the parsed and validated field if successful, or an error response otherwise.
+         * Một đối tượng InternalResponse chứa trường đã phân tích và xác thực nếu thành công, hoặc phản hồi lỗi nếu không.
          */
         private InternalResponse parseAndValidateField(
                 FieldTypeName parentType,
                 String payload,
                 boolean isCheckBasicField,
+                boolean isUpdate,
                 String transactionId
         ) {
             fps_core.utils.LogHandler.HierarchicalLog hierarchicalLog = new fps_core.utils.LogHandler.HierarchicalLog("Parse to Field");
@@ -2302,13 +2386,16 @@ public abstract class ParseToField {
 
             //<editor-fold defaultstate="collapsed" desc="Check basic field">
             hierarchicalLog.addStartHeading1("Start check basic");
-            if (isCheckBasicField) {
-                InternalResponse response = CheckPayloadRequest.checkBasicField(fieldType, transactionId);
-                hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
-                if (!response.isValid()) {
-                    hierarchicalLog.addEndHeading1("Checked fail");
-                    return response.setHierarchicalLog(hierarchicalLog);
-                }
+            InternalResponse response = null;
+            if (isCheckBasicField && !isUpdate) {
+                response = CheckPayloadRequest.checkBasicField(fieldType, transactionId);
+            } else {
+                response = CheckPayloadRequest.checkBasicFieldWhenUpdateField(fieldType, transactionId);
+            }
+            hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
+            if (!response.isValid()) {
+                hierarchicalLog.addEndHeading1("Checked fail");
+                return response.setHierarchicalLog(hierarchicalLog);
             }
             hierarchicalLog.addEndHeading1("Checked successfully");
             //</editor-fold>

@@ -17,7 +17,9 @@ import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.InternalResponse.InternalData;
 import vn.mobileid.id.FPS.object.User;
+import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.FPS.services.others.threadManagement.TaskV2;
+import vn.mobileid.id.FPS.services.others.threadManagement.ThreadManagement;
 import vn.mobileid.id.utils.Utils;
 
 /**
@@ -166,7 +168,9 @@ public class ReplicateInitialField {
         }
 
         //<editor-fold defaultstate="collapsed" desc="Create Child Field">
-        ExecutorService executors = Executors.newFixedThreadPool(2);
+//        ExecutorService executors = Executors.newFixedThreadPool(2);
+        ThreadManagement executors = MyServices.getThreadManagement();
+        
         final List<InternalResponse.InternalData> problemOccur = new ArrayList<>();
 
         //Split into 2 thread => increase performance
@@ -367,23 +371,25 @@ public class ReplicateInitialField {
     }
     //</editor-fold>
 
-    public static void main(String[] args) {
-        for (int i = 0; i <= 10; i++) {
-            System.out.println("First:" + i);
-        }
-        ExecutorService executors = Executors.newFixedThreadPool(1);
-        executors.submit(new TaskV2(null, null) {
-            @Override
-            public Object call() {
-                for (int i = 0; i <= 100; i++) {
-                    System.out.println("Thread:" + i);
-                }
-                return null;
-            }
-        });
-        executors.shutdown();
-        for (int i = 0; i <= 100; i++) {
-            System.out.println("After:" + i);
-        }
-    }
+//    public static void main(String[] args) {
+//        for (int i = 0; i <= 10; i++) {
+//            System.out.println("First:" + i);
+//        }
+////        ExecutorService executors = Executors.newFixedThreadPool(1);
+//        ThreadManagement executors = MyServices.getThreadManagement();
+//        
+//        executors.submit(new TaskV2(null, null) {
+//            @Override
+//            public Object call() {
+//                for (int i = 0; i <= 100; i++) {
+//                    System.out.println("Thread:" + i);
+//                }
+//                return null;
+//            }
+//        });
+//        executors.shutdown();
+//        for (int i = 0; i <= 100; i++) {
+//            System.out.println("After:" + i);
+//        }
+//    }
 }

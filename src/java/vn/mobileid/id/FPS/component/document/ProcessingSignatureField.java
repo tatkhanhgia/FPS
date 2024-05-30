@@ -14,8 +14,6 @@ import fps_core.objects.core.SignatureFieldAttribute;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import vn.mobileid.id.FPS.component.document.process.ProcessingFactory;
 import vn.mobileid.id.FPS.component.field.CheckFieldProcessedYet;
@@ -174,7 +172,7 @@ public class ProcessingSignatureField {
         ThreadManagement threadPool = MyServices.getThreadManagement();
 
         //Upload temporal data
-        Future<?> uploadTemporalData = threadPool.submitTask(new TaskV2(new Object[]{
+        Future<?> uploadTemporalData = threadPool.submit(new TaskV2(new Object[]{
             (byte[]) ((Object[]) response.getData())[2],
             hash,
             document_.getId()}, transactionId) {
@@ -207,7 +205,7 @@ public class ProcessingSignatureField {
         });
 
         //Update status of Document
-        Future<?> updateStatusOfDocument = threadPool.submitTask(new TaskV2(new Object[]{
+        Future<?> updateStatusOfDocument = threadPool.submit(new TaskV2(new Object[]{
             document_.getId(),
             user}, transactionId) {
             @Override
@@ -234,7 +232,7 @@ public class ProcessingSignatureField {
 
         //<editor-fold defaultstate="collapsed" desc="Update value of the QRField if existed">
         if (qrField != null) {
-            Future<?> uploadValueOfQR = threadPool.submitTask(new TaskV2(new Object[]{
+            Future<?> uploadValueOfQR = threadPool.submit(new TaskV2(new Object[]{
                 qrField_ex,
                 qrField}, transactionId) {
                 @Override
@@ -387,7 +385,7 @@ public class ProcessingSignatureField {
 //        ExecutorService executors = Executors.newFixedThreadPool(3);
         ThreadManagement threadPool = MyServices.getThreadManagement();
         //Upload temporal data
-        Future<?> uploadTemporalData = threadPool.submitTask(new TaskV2(new Object[]{
+        Future<?> uploadTemporalData = threadPool.submit(new TaskV2(new Object[]{
             (byte[]) ((Object[]) response.getData())[2],
             hash,
             document_.getId()}, transactionId) {
@@ -420,7 +418,7 @@ public class ProcessingSignatureField {
         });
 
         //Update status of Document
-        Future<?> updateStatusOfDocument = threadPool.submitTask(new TaskV2(new Object[]{
+        Future<?> updateStatusOfDocument = threadPool.submit(new TaskV2(new Object[]{
             document_.getId(),
             user}, transactionId) {
             @Override
@@ -447,7 +445,7 @@ public class ProcessingSignatureField {
 
         //<editor-fold defaultstate="collapsed" desc="Update value of the QRField if existed">
         if (qrField != null) {
-            Future<?> uploadValueOfQR = threadPool.submitTask(new TaskV2(new Object[]{
+            Future<?> uploadValueOfQR = threadPool.submit(new TaskV2(new Object[]{
                 qrField_ex,
                 qrField}, transactionId) {
                 @Override
