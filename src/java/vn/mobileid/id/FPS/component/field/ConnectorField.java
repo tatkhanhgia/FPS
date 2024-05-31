@@ -34,8 +34,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import javax.servlet.http.HttpServletRequest;
 import org.bouncycastle.util.encoders.Base64;
@@ -346,7 +344,7 @@ public class ConnectorField {
 
         //<editor-fold defaultstate="collapsed" desc="Processing append field form into file ">
 //        ExecutorService executor = Executors.newFixedThreadPool(2);
-        ThreadManagement executor = MyServices.getThreadManagement();
+        ThreadManagement executor = MyServices.getThreadManagement(2);
 
         Future<?> appended = executor.submit(
                 new TaskV2(
@@ -648,17 +646,17 @@ public class ConnectorField {
         hierarchicalLog.addStartHeading2("H:" + field.getDimension().getHeight());
 
         //<editor-fold defaultstate="collapsed" desc="Merge 2 JSON - 1 in DB as ExternalFieldAtrtibute.getDetailValue - 1 in Payload">
-        String temp = MyServices.getJsonService(
+        String jsonUpdate = MyServices.getJsonService(
                 new ObjectMapper().setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
         )
                 .writeValueAsString(field);
         JsonNode merge = Utils.merge(
                 fieldOld.getDetailValue(),
-                temp);
-        String temp2 = merge.toPrettyString();
+                jsonUpdate);
+        String finalJson = merge.toPrettyString();
         hierarchicalLog.addStartHeading1("Json Original:" + fieldOld.getDetailValue().replaceAll(" ", ""));
-        hierarchicalLog.addStartHeading1("Json Update:" + temp.replaceAll(" ", ""));
-        hierarchicalLog.addStartHeading1("FinalJSON:" + temp2.replaceAll(" ", ""));
+        hierarchicalLog.addStartHeading1("Json Update:" + jsonUpdate.replaceAll(" ", ""));
+        hierarchicalLog.addStartHeading1("FinalJSON:" + finalJson.replaceAll(" ", ""));
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Merge Payload vs Field Value Old">
@@ -721,7 +719,7 @@ public class ConnectorField {
         UpdateField.updateFieldDetails(
                 fieldOld.getDocumentFieldId(),
                 user,
-                temp2,
+                finalJson,
                 "hmac",
                 transactionId);
         if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {

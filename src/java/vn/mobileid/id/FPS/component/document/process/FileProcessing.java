@@ -11,8 +11,6 @@ import fps_core.module.DocumentUtils_itext7;
 import fps_core.objects.FileManagement;
 import fps_core.objects.core.FileFieldAttribute;
 import java.util.Base64;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.apache.commons.codec.binary.Hex;
 import vn.mobileid.id.FMS;
@@ -95,7 +93,7 @@ class FileProcessing extends IVersion implements IDocumentProcessing {
             //</editor-fold>
             
             //<editor-fold defaultstate="collapsed" desc="Analysis file">
-            ThreadManagement executor = MyServices.getThreadManagement();
+            ThreadManagement executor = MyServices.getThreadManagement(2);
             
             Future<?> analysis = executor.submit(new TaskV2(new Object[]{resultODF}, transactionId) {
                 @Override
@@ -283,7 +281,7 @@ class FileProcessing extends IVersion implements IDocumentProcessing {
             
             //<editor-fold defaultstate="collapsed" desc="Analysis file">
 //            ExecutorService executor = Executors.newFixedThreadPool(2);
-            ThreadManagement executor = MyServices.getThreadManagement();
+            ThreadManagement executor = MyServices.getThreadManagement(2);
 
             Future<?> analysis = executor.submit(new TaskV2(new Object[]{resultODF}, transactionId) {
                 @Override

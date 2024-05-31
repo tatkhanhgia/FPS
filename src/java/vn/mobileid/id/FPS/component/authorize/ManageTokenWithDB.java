@@ -157,7 +157,7 @@ class ManageTokenWithDB {
             String transactionID,
             boolean isRefreshToken) throws Exception {
 //        ExecutorService executor = Executors.newFixedThreadPool(2);
-        try(ThreadManagement threadPool = MyServices.getThreadManagement()){
+        try(ThreadManagement threadPool = MyServices.getThreadManagement(2)){
         Future<?> verify = threadPool.submit(new TaskV2(new Object[]{stringToBeVerify, signature, getPublicKey()}, transactionID) {
             @Override
             public Object call() {

@@ -11,7 +11,7 @@ import vn.mobileid.id.FPS.services.others.threadManagement.impls.CachedThreadPoo
  * @author GiaTK
  */
 public class ThreadFactory {
-    public static ThreadManagement newCachedThreadPool(){
-        return new ThreadManagement(new CachedThreadPool());
+    public static ThreadManagement newCachedThreadPool(int numberTask){
+        return new ThreadManagement(new CachedThreadPool(), numberTask);
     }
 }

@@ -13,14 +13,14 @@ import vn.mobileid.id.FPS.services.others.threadManagement.interfaces.IThreadPoo
  *
  * @author GiaTK
  */
-public class ThreadManagement implements AutoCloseable{
+public class ThreadManagement implements AutoCloseable {
 
     private IThreadPool threadPool;
     private final static IThreadPool systemPool = new CachedThreadPool(false);
 
-    public ThreadManagement(IThreadPool threadPool) {
+    public ThreadManagement(IThreadPool threadPool, int numberTask) {
         ThreadPoolExecutor executor = systemPool.getThreadPoolExecutor();
-        if (executor.getActiveCount() < executor.getMaximumPoolSize() && executor.getQueue().isEmpty()) {
+        if (executor.getActiveCount() < executor.getMaximumPoolSize() && executor.getQueue().isEmpty() && executor.getMaximumPoolSize() >= numberTask) {
         } else {
             System.out.println("Create new");
             this.threadPool = threadPool;
@@ -35,18 +35,20 @@ public class ThreadManagement implements AutoCloseable{
         Future<T> response = getPoolActive().getExecutorService().submit(working);
         return response.get();
     }
-    
-    public IThreadPool getPoolActive(){ 
+
+    public IThreadPool getPoolActive() {
         return threadPool == null ? systemPool : threadPool;
     }
 
     public void shutdown() {
-        this.threadPool.getExecutorService().shutdown();
+        if (this.threadPool != null) {
+            this.threadPool.getExecutorService().shutdown();
+        }
     }
 
     @Override
     public void close() throws Exception {
-        if(threadPool!=null){
+        if (threadPool != null) {
             threadPool.getExecutorService().shutdown();
         }
     }

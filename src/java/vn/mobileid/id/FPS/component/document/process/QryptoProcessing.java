@@ -123,7 +123,7 @@ class QryptoProcessing implements IDocumentProcessing {
             }
         };
         try {
-            signatures = MyServices.getThreadManagement().executeTask(getSignature);
+            signatures = MyServices.getThreadManagement(1).executeTask(getSignature);
         } catch (Exception ex) {
             LogHandler.error(QryptoProcessing.class,
                     transactionId,

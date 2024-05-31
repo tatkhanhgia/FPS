@@ -13,8 +13,6 @@ import fps_core.objects.core.ExtendedFieldAttribute;
 import fps_core.objects.FileManagement;
 import fps_core.objects.core.BasicFieldAttribute;
 import fps_core.objects.core.CheckBoxFieldAttributeV2;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.apache.commons.codec.binary.Hex;
 import vn.mobileid.id.FMS;
@@ -83,7 +81,7 @@ class CheckboxProcessing extends IVersion implements IModuleProcessing, IDocumen
         //Append data into field 
         try {
 //            ExecutorService executor = Executors.newFixedThreadPool(2);
-            ThreadManagement executor = MyServices.getThreadManagement();
+            ThreadManagement executor = MyServices.getThreadManagement(2);
             
             //<editor-fold defaultstate="collapsed" desc="Analysis file">
             Future<?> analysis = executor.submit(new TaskV2(new Object[]{file}, transactionId) {
@@ -204,7 +202,7 @@ class CheckboxProcessing extends IVersion implements IModuleProcessing, IDocumen
         try {
             //Analys file
 //            ExecutorService executor = Executors.newFixedThreadPool(2);
-            ThreadManagement executor = MyServices.getThreadManagement();
+            ThreadManagement executor = MyServices.getThreadManagement(2);
             
             Future<?> analysis = executor.submit(new TaskV2(new Object[]{file}, transactionId) {
                 @Override
@@ -339,7 +337,7 @@ class CheckboxProcessing extends IVersion implements IModuleProcessing, IDocumen
         try {
             //Analys file
 //            ExecutorService executor = Executors.newFixedThreadPool(2);
-            ThreadManagement executor = MyServices.getThreadManagement();
+            ThreadManagement executor = MyServices.getThreadManagement(2);
 
             //<editor-fold defaultstate="collapsed" desc="Append CheckBoxField into file">
             byte[] appendedFile = createCheckbox(file, field, transactionId);

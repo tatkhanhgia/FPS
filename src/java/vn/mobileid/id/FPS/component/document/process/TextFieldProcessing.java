@@ -13,8 +13,6 @@ import fps_core.objects.core.ExtendedFieldAttribute;
 import fps_core.objects.FileManagement;
 import fps_core.objects.core.BasicFieldAttribute;
 import fps_core.objects.core.TextFieldAttribute;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.apache.commons.codec.binary.Hex;
 import vn.mobileid.id.FMS;
@@ -82,7 +80,7 @@ class TextFieldProcessing<T extends BasicFieldAttribute>  implements IDocumentPr
         //Append data into field 
         try {
 //            ExecutorService executor = Executors.newFixedThreadPool(2);
-            ThreadManagement executor = MyServices.getThreadManagement();
+            ThreadManagement executor = MyServices.getThreadManagement(2);
             
             Future<?> analysis = executor.submit(new TaskV2(new Object[]{file}, transactionId) {
                 @Override
@@ -251,7 +249,7 @@ class TextFieldProcessing<T extends BasicFieldAttribute>  implements IDocumentPr
         try {
             //Analys file
 //            ExecutorService executor = Executors.newFixedThreadPool(2);
-            ThreadManagement executor = MyServices.getThreadManagement();
+            ThreadManagement executor = MyServices.getThreadManagement(2);
             
             Future<?> analysis = executor.submit(new TaskV2(new Object[]{file}, transactionId) {
                 @Override
@@ -369,7 +367,7 @@ class TextFieldProcessing<T extends BasicFieldAttribute>  implements IDocumentPr
         try {
             //Analys file
 //            ExecutorService executor = Executors.newFixedThreadPool(2);
-            ThreadManagement executor = MyServices.getThreadManagement();
+            ThreadManagement executor = MyServices.getThreadManagement(2);
 
             Future<?> analysis = executor.submit(new TaskV2(new Object[]{file}, transactionId) {
                 @Override

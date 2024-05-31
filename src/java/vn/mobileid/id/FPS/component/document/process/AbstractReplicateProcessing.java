@@ -15,8 +15,6 @@ import fps_core.objects.interfaces.AbstractReplicateField;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -138,7 +136,7 @@ public class AbstractReplicateProcessing<T extends AbstractReplicateField> exten
         try {
             //<editor-fold defaultstate="collapsed" desc="Analysis File">
 //            ExecutorService executor = Executors.newFixedThreadPool(2);
-            ThreadManagement executor = MyServices.getThreadManagement();
+            ThreadManagement executor = MyServices.getThreadManagement(2);
             Future<?> analysis = executor.submit(new TaskV2(new Object[]{file}, transactionId) {
                 @Override
                 public Object call() {

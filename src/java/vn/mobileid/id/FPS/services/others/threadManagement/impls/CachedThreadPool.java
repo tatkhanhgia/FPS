@@ -39,7 +39,7 @@ public class CachedThreadPool implements IThreadPool {
 
     private ExecutorService generateThreadPool(boolean allowCoreThreadTimeOut){
         ThreadPoolExecutor executor =  new ThreadPoolExecutor(
-                1, // corePoolSize: 0 (không có thread nào được tạo sẵn)
+                2, // corePoolSize: 0 (không có thread nào được tạo sẵn)
                 5, // maximumPoolSize: 10 (giới hạn số lượng thread tối đa)
                 10L, // keepAliveTime: 60 giây (thread nhàn rỗi sẽ bị hủy sau 60 giây)
                 TimeUnit.SECONDS,

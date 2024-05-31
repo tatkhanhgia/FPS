@@ -117,6 +117,34 @@ public abstract class ParseToField {
                                 ? FieldTypeName.SIGNATURE.getParentName()
                                 : temp
                 ));
+                
+                if (!Utils.isNullOrEmpty(field.getHandSignatureImage())) {
+                    //<editor-fold defaultstate="collapsed" desc="Upload into FMS if need">
+                    if (field.getHandSignatureImage() != null && field.getHandSignatureImage().length()
+                            > PolicyConfiguration.getInstant()
+                                    .getSystemConfig()
+                                    .getAttributes()
+                                    .get(0)
+                                    .getMaximumFile()) {
+                        try {
+                            hierarchicalLog.addStartHeading2("Start upload image/file into FMS");
+                            response = vn.mobileid.id.FMS.uploadToFMS(
+                                    Base64.decode(field.getHandSignatureImage()),
+                                    "png",
+                                    transactionId);
+                            if (response.getStatus() == A_FPSConstant.HTTP_CODE_SUCCESS) {
+                                hierarchicalLog.addEndHeading2("Upload successfully");
+                                String uuid = (String) response.getData();
+                                field.setHandSignatureImage(uuid);
+                            } else {
+                                hierarchicalLog.addEndHeading2("Upload fail");
+                            }
+                        } catch (Exception ex) {
+                            hierarchicalLog.addEndHeading2("Cannot upload image from ImageField to FMS!. Using default");
+                        }
+                    }
+                    //</editor-fold>
+                }
 
                 hierarchicalLog.addStartHeading1("Final field type: " + field.getType().getTypeName());
 

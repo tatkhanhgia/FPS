@@ -98,7 +98,7 @@ class SignatureProcessing implements IDocumentProcessing, IModuleProcessing {
         try {
             //Analys file 
 //            ExecutorService executor = Executors.newFixedThreadPool(2);
-            ThreadManagement executor = MyServices.getThreadManagement();
+            ThreadManagement executor = MyServices.getThreadManagement(2);
             
             Future<?> analysis = executor.submit(new TaskV2(new Object[]{file}, transactionId) {
                 @Override
@@ -442,7 +442,7 @@ class SignatureProcessing implements IDocumentProcessing, IModuleProcessing {
         try {
             //Analys file 
 //            ExecutorService executor = Executors.newFixedThreadPool(2);
-            ThreadManagement executor = MyServices.getThreadManagement();
+            ThreadManagement executor = MyServices.getThreadManagement(2);
             
             Future<?> analysis = executor.submit(new TaskV2(new Object[]{file}, transactionId) {
                 @Override

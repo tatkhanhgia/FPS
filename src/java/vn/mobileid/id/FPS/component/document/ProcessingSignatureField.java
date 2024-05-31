@@ -169,7 +169,7 @@ public class ProcessingSignatureField {
 
         //<editor-fold defaultstate="collapsed" desc="Create Thread Pool to handle 3 thread. Upload TemporaData ; Update Status of Document and update Value of QR Field if existed">
 //        ExecutorService executors = Executors.newFixedThreadPool(3);
-        ThreadManagement threadPool = MyServices.getThreadManagement();
+        ThreadManagement threadPool = MyServices.getThreadManagement(3);
 
         //Upload temporal data
         Future<?> uploadTemporalData = threadPool.submit(new TaskV2(new Object[]{
@@ -383,7 +383,7 @@ public class ProcessingSignatureField {
 
         //<editor-fold defaultstate="collapsed" desc="Create Thread Pool to handle 3 thread. Upload TemporaData ; Update Status of Document and update Value of QR Field if existed">
 //        ExecutorService executors = Executors.newFixedThreadPool(3);
-        ThreadManagement threadPool = MyServices.getThreadManagement();
+        ThreadManagement threadPool = MyServices.getThreadManagement(3);
         //Upload temporal data
         Future<?> uploadTemporalData = threadPool.submit(new TaskV2(new Object[]{
             (byte[]) ((Object[]) response.getData())[2],

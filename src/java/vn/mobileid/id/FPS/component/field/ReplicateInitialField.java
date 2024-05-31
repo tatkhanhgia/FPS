@@ -9,8 +9,6 @@ import fps_core.objects.interfaces.AbstractReplicateField;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.Document;
@@ -169,7 +167,7 @@ public class ReplicateInitialField {
 
         //<editor-fold defaultstate="collapsed" desc="Create Child Field">
 //        ExecutorService executors = Executors.newFixedThreadPool(2);
-        ThreadManagement executors = MyServices.getThreadManagement();
+        ThreadManagement executors = MyServices.getThreadManagement(2);
         
         final List<InternalResponse.InternalData> problemOccur = new ArrayList<>();
 

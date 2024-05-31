@@ -67,8 +67,8 @@ public class MyServices {
      * @return An instance of {@link ThreadManagement}.
      *         Một instance của {@link ThreadManagement}.
      */
-    public static ThreadManagement getThreadManagement(){
-        return ThreadFactory.newCachedThreadPool();
+    public static ThreadManagement getThreadManagement(int numberTask){
+        return ThreadFactory.newCachedThreadPool(numberTask);
     }
     //</editor-fold>
 }

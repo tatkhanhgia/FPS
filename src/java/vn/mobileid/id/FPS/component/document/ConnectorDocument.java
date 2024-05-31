@@ -108,7 +108,7 @@ public class ConnectorDocument {
 
         //Pool Upload + Analysis
 //        ExecutorService executor = Executors.newFixedThreadPool(2);
-        try (ThreadManagement threadPool = MyServices.getThreadManagement()) {
+        try (ThreadManagement threadPool = MyServices.getThreadManagement(2)) {
             Future<?> upload = threadPool.submit(new TaskV2(new Object[]{fileData}, transactionId) {
                 @Override
                 public Object call() {
