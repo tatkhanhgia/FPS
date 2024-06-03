@@ -13,10 +13,12 @@ import javax.servlet.http.HttpServlet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
-import vn.mobileid.id.FPS.database.DatabaseImpl;
+import vn.mobileid.id.FPS.database.implement.DatabaseImpl;
 import vn.mobileid.id.FPS.object.ResponseCode;
 import vn.mobileid.id.FPS.database.DatabaseFactory;
-import vn.mobileid.id.FPS.database.DatabaseImpl_field;
+import vn.mobileid.id.FPS.database.implement.FieldDBImpl;
+import vn.mobileid.id.FPS.database.interfaces.IDatabase;
+import vn.mobileid.id.FPS.database.interfaces.IFieldDB;
 import vn.mobileid.id.helper.ORM_JPA.database.objects.DatabaseResponse;
 
 /**
@@ -77,7 +79,7 @@ public class Resources extends HttpServlet {
     }
 
     public static void reloadResponseCodes() throws Exception {
-        DatabaseImpl db = DatabaseFactory.getDatabaseImpl();
+        IDatabase db = DatabaseFactory.getDatabaseImpl();
         responseCodes = new HashMap<>();
         DatabaseResponse response = db.getListResponseCode();
         if (response.getStatus() != A_FPSConstant.CODE_SUCCESS && response.getObject()==null) {
@@ -90,7 +92,7 @@ public class Resources extends HttpServlet {
     }
 
     public static void reloadFieldTypes() throws Exception{
-        DatabaseImpl_field db = DatabaseFactory.getDatabaseImpl_field();
+        IFieldDB db = DatabaseFactory.getDatabaseImpl_field();
         fieldTypes = new HashMap<>();
         DatabaseResponse response = db.getFieldType("TransactionId");
         if (response.getStatus() != A_FPSConstant.CODE_SUCCESS && response.getObject()==null) {

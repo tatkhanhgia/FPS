@@ -26,12 +26,13 @@ import javax.mail.util.ByteArrayDataSource;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import vn.mobileid.id.FPS.systemManagement.LogHandler;
-import vn.mobileid.id.FPS.database.DatabaseImpl;
+import vn.mobileid.id.FPS.database.implement.DatabaseImpl;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.systemManagement.Configuration;
 import vn.mobileid.id.FPS.object.Attachment;
 import vn.mobileid.id.FPS.database.DatabaseFactory;
-import vn.mobileid.id.utils.Utils;
+import vn.mobileid.id.FPS.database.interfaces.IDatabase;
+import vn.mobileid.id.FPS.utils.Utils;
 //import org.apache.log4j.Logger;
 //import vn.mobileid.esigncloud.dao.Attachment;
 //import vn.mobileid.esigncloud.dao.DatabaseResponse;
@@ -68,7 +69,7 @@ public class Email {
 
     public EmailResp send(EmailReq emailReq) {
         EmailResp emailResponse = new EmailResp();
-        DatabaseImpl db = DatabaseFactory.getDatabaseImpl();        
+        IDatabase db = DatabaseFactory.getDatabaseImpl();        
 //        DatabaseResponse dpresp = db.getP2PLogID();
 //        String billCode = Utils.generateBillCode(emailReq.getEntityName(), dpresp.getLogId(), dpresp.getLogDatetime());
         String billCode = Utils.generateOneTimePassword(5);

@@ -11,7 +11,7 @@ import java.util.Properties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import vn.mobileid.id.FPS.object.email.SMTPProperties;
-import vn.mobileid.id.utils.Utils;
+import vn.mobileid.id.FPS.utils.Utils;
 
 /**
  *

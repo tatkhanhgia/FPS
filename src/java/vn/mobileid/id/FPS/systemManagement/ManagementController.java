@@ -10,12 +10,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
-import vn.mobileid.id.FPS.controller.AuthorizeController;
-import vn.mobileid.id.FPS.controller.DocumentController;
-import vn.mobileid.id.FPS.controller.FMSController;
-import vn.mobileid.id.FPS.controller.FieldController;
-import vn.mobileid.id.FPS.controller.UtilsController;
-import vn.mobileid.id.utils.Utils;
+import vn.mobileid.id.FPS.controller.authorize.AuthorizeController;
+import vn.mobileid.id.FPS.controller.document.DocumentController;
+import vn.mobileid.id.FPS.controller.fms.FMSController;
+import vn.mobileid.id.FPS.controller.field.FieldController;
+import vn.mobileid.id.FPS.controller.util.UtilsController;
+import vn.mobileid.id.FPS.utils.Utils;
 
 /**
  *

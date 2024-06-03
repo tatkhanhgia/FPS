@@ -10,7 +10,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import vn.mobileid.id.FPS.systemManagement.Configuration;
-import vn.mobileid.id.utils.Utils;
+import vn.mobileid.id.FPS.utils.Utils;
 
 /**
  * Servlet Filter implementation class CORSFilter

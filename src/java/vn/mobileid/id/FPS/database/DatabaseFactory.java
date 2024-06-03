@@ -4,28 +4,40 @@
  */
 package vn.mobileid.id.FPS.database;
 
+import vn.mobileid.id.FPS.database.implement.AuthorizeDBImpl;
+import vn.mobileid.id.FPS.database.implement.DatabaseImpl;
+import vn.mobileid.id.FPS.database.implement.DocumentDBImpl;
+import vn.mobileid.id.FPS.database.implement.EnterpriseDBImpl;
+import vn.mobileid.id.FPS.database.implement.FieldDBImpl;
+import vn.mobileid.id.FPS.database.interfaces.IAuthorizeDB;
+import vn.mobileid.id.FPS.database.interfaces.IDatabase;
+import vn.mobileid.id.FPS.database.interfaces.IDocumentDB;
+import vn.mobileid.id.FPS.database.interfaces.IEnterpriseDB;
+import vn.mobileid.id.FPS.database.interfaces.IFieldDB;
+
+
 /**
  *
  * @author GiaTK
  */
 public class DatabaseFactory {
-    public static DatabaseImpl getDatabaseImpl(){
-        return new DatabaseImpl_();
+    public static IDatabase getDatabaseImpl(){
+        return new DatabaseImpl();
     }
     
-    public static DatabaseImpl_authorize getDatabaseImpl_authorize(){
-        return new DatabaseImpl_authorize_();
+    public static IAuthorizeDB getDatabaseImpl_authorize(){
+        return new AuthorizeDBImpl();
     }
     
-    public static DatabaseImpl_enterprise getDatabaseImpl_enterprise(){
-        return new DatabaseImpl_enterprise_();
+    public static IEnterpriseDB getDatabaseImpl_enterprise(){
+        return new EnterpriseDBImpl();
     }
     
-    public static DatabaseImpl_document getDatabaseImpl_document(){
-        return new DatabaseImpl_document_();
+    public static IDocumentDB getDatabaseImpl_document(){
+        return new DocumentDBImpl();
     }
     
-    public static DatabaseImpl_field getDatabaseImpl_field(){
-        return new DatabaseImpl_field_();
+    public static IFieldDB getDatabaseImpl_field(){
+        return new FieldDBImpl();
     }
 }

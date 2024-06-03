@@ -10,8 +10,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import fps_core.objects.core.SignatureFieldAttribute;
 import java.util.ArrayList;
 import java.util.List;
-import vn.mobileid.id.FPS.QryptoService.object.ItemDetails;
-import vn.mobileid.id.utils.Utils;
+import vn.mobileid.id.FPS.services.others.qryptoService.object.ItemDetails;
+import vn.mobileid.id.FPS.utils.Utils;
 
 /**
  *
