@@ -18,7 +18,7 @@ public class GetAPIKeyRule {
     //<editor-fold defaultstate="collapsed" desc="Get API Key Rule">
     /**
      * Trả về thông tin của API Key Rule - Return the rule of API Key
-     * @param id
+     * @param apiKeyType
      * @param transactionId
      * @return Enterprise
      * @throws Exception 

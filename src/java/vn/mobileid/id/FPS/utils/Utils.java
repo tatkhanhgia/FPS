@@ -58,8 +58,13 @@ import org.apache.hc.core5.http.HttpHeaders;
 import vn.mobileid.id.FPS.controller.authorize.summary.AuthorizeSummary;
 import vn.mobileid.id.FPS.controller.util.summary.micro.CreateAPILog;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.controller.fms.FMS;
+import vn.mobileid.id.FPS.object.FileCached;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
+import vn.mobileid.id.FPS.services.MyServices;
+import vn.mobileid.id.FPS.services.others.threadManagement.TaskV2;
+import vn.mobileid.id.FPS.services.others.threadManagement.ThreadManagement;
 import vn.mobileid.id.FPS.systemManagement.LogHandler;
 import vn.mobileid.id.FPS.systemManagement.PolicyConfiguration;
 
@@ -281,7 +286,7 @@ public class Utils {
         }
         return value.isEmpty();
     }
-    
+
     public static boolean isNullOrEmpty(Object obj) {
         if (obj == null) {
             return true;
@@ -531,18 +536,24 @@ public class Utils {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Summarize payload">   
-    public static JsonNode summarizePayload(String payload) {
+    public static HashMap<JsonNode, List<FileCached>> summarizePayload(
+            String payload,
+            boolean storeFile) {
         try {
             ObjectMapper mapper = new ObjectMapper();
             JsonNode rootNode = mapper.readTree(payload);
-            return summarizeNode(rootNode);
+            return summarizeNode(rootNode, storeFile);
         } catch (Exception ex) {
             return null;
-        } 
+        }
     }
 
-    private static JsonNode summarizeNode(JsonNode node) {
+    private static HashMap<JsonNode, List<FileCached>> summarizeNode(
+            JsonNode node,
+            boolean storeFile
+    ) {
         ObjectMapper mapper = new ObjectMapper();
+        List<FileCached> listFileCached = new ArrayList<>();
         if (node.isObject()) {
             ObjectNode summarizedObject = mapper.createObjectNode();
             node.fields().forEachRemaining(entry -> {
@@ -550,21 +561,70 @@ public class Utils {
                 JsonNode value = entry.getValue();
                 if (value.isTextual()) {
                     String originalValue = value.asText();
-                    String summarizedValue = originalValue.length() > 150 ? originalValue.substring(0, 150) + "..." : originalValue;
-                    summarizedObject.put(key, summarizedValue);
+
+                    //<editor-fold defaultstate="collapsed" desc="Update 2024 06 03 - Upload String into FMS">
+                    InternalResponse response = null;
+                    if (originalValue.length() > 150 && storeFile) {
+                        try {
+                            ThreadManagement threads = MyServices.getThreadManagement(1);
+                            response = threads.executeTask(new TaskV2(new Object[]{originalValue}, null) {
+                                @Override
+                                public Object call() {
+                                    try {
+                                        return FMS.uploadToFMS(
+                                                Base64.getDecoder().decode((String) this.get()[0]),
+                                                "tmp",
+                                                "null");
+                                    } catch (Exception ex) {
+                                        return new InternalResponse(A_FPSConstant.HTTP_CODE_BAD_REQUEST, "");
+                                    }
+                                }
+                            });
+                            threads.shutdown();
+                        } catch (Exception ex) {
+                            LogHandler.info(Utils.class, "Cannot upload file in payload into FMS");
+                        }
+                        if (response.isValid()) {
+                            FileCached fileCached = new FileCached(
+                                    (String) response.getData(),
+                                    A_FPSConstant.TIME_STORE_FILE_CACHE,
+                                    Utils.getTimestamp()
+                            );
+                            listFileCached.add(fileCached);
+                        }
+                        summarizedObject.put(key, response.getMessage());
+                    } else {
+                        String summarizedValue = originalValue.length() > 150 ? originalValue.substring(0, 150) + "..." : originalValue;
+                        summarizedObject.put(key, summarizedValue);
+                    }
+
+                    //</editor-fold>
                 } else if (value.isObject()) {
-                    summarizedObject.set(key, summarizeNode(value));
+                    Map<JsonNode, List<FileCached>> temp = summarizeNode(value, storeFile);
+                    JsonNode key_ = temp.keySet().iterator().next();
+                    summarizedObject.set(key, key_);
+                    listFileCached.addAll(temp.get(key_));
                 } else if (value.isArray()) {
                     ArrayNode summarizedArray = mapper.createArrayNode();
-                    value.elements().forEachRemaining(element -> summarizedArray.add(summarizeNode(element)));
+                    value.elements().forEachRemaining(element -> {
+                        Map<JsonNode, List<FileCached>> temp = summarizeNode(value, storeFile);
+                        JsonNode key_ = temp.keySet().iterator().next();
+                        summarizedObject.set(key, key_);
+                        listFileCached.addAll(temp.get(key_));
+                        summarizedArray.add(key_);
+                    });
                     summarizedObject.set(key, summarizedArray);
                 } else {
                     summarizedObject.set(key, value);
                 }
             });
-            return summarizedObject;
+            HashMap<JsonNode, List<FileCached>> map = new HashMap<>();
+            map.put(summarizedObject, listFileCached);
+            return map;
         } else {
-            return node;
+            HashMap<JsonNode, List<FileCached>> map = new HashMap<>();
+            map.put(node, listFileCached);
+            return map;
         }
     }
     //</editor-fold>
@@ -679,7 +739,7 @@ public class Utils {
     ) {
         //Show hierarchical log
         LogHandler.showHierarchicalLog(response.getHierarchicalLog());
-        
+
         int entId = 0;
         String apiKey = "";
         if (response.getEnt() != null) {
@@ -694,8 +754,41 @@ public class Utils {
         String exceptionSummary = Utils.summaryException(ex);
 
         //<editor-fold defaultstate="collapsed" desc="Summarize all data which is long data">
-        JsonNode summary = Utils.summarizePayload(payload);
-        JsonNode summary2 = Utils.summarizePayload(response.getMessage());
+//        JsonNode summary = Utils.summarizePayload(payload);
+//        JsonNode summary2 = Utils.summarizePayload(response.getMessage());
+        HashMap<JsonNode, List<FileCached>> summary = Utils.summarizePayload(payload, true);
+        HashMap<JsonNode, List<FileCached>> summary2 = Utils.summarizePayload(response.getMessage(), false);
+        JsonNode requestPayload = null;
+        JsonNode responsePayload = null;
+        try {
+            requestPayload = summary.keySet().iterator().next();
+        } catch (Exception e) {
+        }
+        try {
+            responsePayload = summary2.keySet().iterator().next();
+        } catch (Exception e) {
+        }
+        List<FileCached> temp = summary.get(requestPayload);
+        //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="Get Header">
+        Enumeration<String> headerNames = req.getHeaderNames();
+        StringBuilder headers = new StringBuilder();
+        while (headerNames.hasMoreElements()) {
+            String header = headerNames.nextElement();
+            headers.append(header).append(": ").append(req.getHeader(header)).append("\n");
+        }
+        //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="Generate File Cache if need">
+        String fileCached = null;
+        try {
+            if (!Utils.isNullOrEmpty(temp)) {
+                fileCached = MyServices.getJsonService().writeValueAsString(temp);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         //</editor-fold>
 
         CreateAPILog.createAPILog(
@@ -709,8 +802,10 @@ public class Utils {
                 req.getRequestURI(),
                 req.getMethod(),
                 response.getStatus(),
-                summary == null ? null : summary.toPrettyString(),
-                summary2 == null ? null : summary2.toPrettyString(),
+                headers.toString(),
+                fileCached,
+                requestPayload == null ? null : requestPayload.toPrettyString(),
+                responsePayload == null ? null : responsePayload.toPrettyString(),
                 exceptionSummary,
                 "HMAC",
                 Utils.getIp(req),

@@ -7,6 +7,7 @@ package vn.mobileid.id.FPS.services.others.threadManagement;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import vn.mobileid.id.FPS.services.others.threadManagement.impls.CachedThreadPool;
+import vn.mobileid.id.FPS.services.others.threadManagement.impls.ScheduledThreadPool;
 import vn.mobileid.id.FPS.services.others.threadManagement.interfaces.IThreadPool;
 
 /**

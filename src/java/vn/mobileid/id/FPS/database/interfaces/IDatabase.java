@@ -53,6 +53,8 @@ public interface  IDatabase {
             String pURL,
             String pHTTP_VERB,
             int pSTATUS_CODE,
+            String pHEADERS,
+            String pFILECACHED,
             String pREQUEST,
             String pRESPONSE,
             String pException,
@@ -66,4 +68,15 @@ public interface  IDatabase {
             String name,
             String languageName,
             String transactionId) throws Exception;
+    
+    public DatabaseResponse getAPILogs(
+            String transactionId
+    )throws Exception;
+    
+    public DatabaseResponse updateFileCatchAPILog(
+            String apiLogId,
+            String fileCatch,
+            String modifiedBy,
+            String transactionId
+    )throws Exception;
 }

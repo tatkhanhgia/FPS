@@ -33,4 +33,9 @@ public interface  IAuthorizeDB {
             String sessionId,
             String transactionId
     ) throws Exception;
+    
+    public DatabaseResponse deleteToken(
+            String sessionId,
+            String transactionId
+    ) throws Exception;
 }

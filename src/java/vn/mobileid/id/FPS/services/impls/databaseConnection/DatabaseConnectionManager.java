@@ -119,12 +119,12 @@ public class DatabaseConnectionManager implements IDatabaseConnection{
 
     @Override
     public Connection getReadOnlyConnection() throws Exception {
-        return this.openWriteOnlyConnection();
+        return this.openReadOnlyConnection();
     }
 
     @Override
     public Connection getWriteOnlyConnection() throws Exception {
-        return this.getWriteOnlyConnection();
+        return this.openWriteOnlyConnection();
     }
 
     @Override

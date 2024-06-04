@@ -15,6 +15,7 @@ import vn.mobileid.id.FPS.object.Token;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.FPS.systemManagement.LogHandler;
+import vn.mobileid.id.FPS.utils.CreateInternalResponse;
 import vn.mobileid.id.FPS.utils.Utils;
 
 /**
@@ -26,21 +27,20 @@ public class AuthorizeSummary {
     //<editor-fold defaultstate="collapsed" desc="Process Login">
     /**
      * Process login request of the client
+     *
      * @param request
      * @param payload
      * @param transactionID
      * @return
-     * @throws Exception 
+     * @throws Exception
      */
     public static InternalResponse processLogin(
             HttpServletRequest request,
             String payload,
             String transactionID) throws Exception {
-        if (Utils.isNullOrEmpty(payload)) {
-            return new InternalResponse(
-                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                    A_FPSConstant.CODE_FAIL,
-                    A_FPSConstant.SUBCODE_NO_PAYLOAD_FOUND);
+        InternalResponse response = Checker.checkRevokeRequest(payload);
+        if (!response.isValid()) {
+            return response;
         }
 
         Token object = new Token();
@@ -51,43 +51,31 @@ public class AuthorizeSummary {
                     ManageTokenWithDB.class,
                     transactionID,
                     "Cannot parse payload!");
-            return new InternalResponse(
-                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                    A_FPSConstant.CODE_FAIL,
-                    A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE
-            );
+            return CreateInternalResponse.createErrorInternalResponse(A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE)
+                    .setException(ex);
         }
 
         //Login 
         if (Utils.isNullOrEmpty(object.getGrantType())) {
-            return new InternalResponse(
-                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                    A_FPSConstant.CODE_KEYCLOAK,
+            return CreateInternalResponse.createErrorInternalResponse(A_FPSConstant.CODE_KEYCLOAK,
                     A_FPSConstant.SUBCODE_MISSING_GRANT_TYPE);
         }
         switch (object.getGrantType()) {
             case "client_credentials": {
                 if (Utils.isNullOrEmpty(object.getClientId())) {
-                    return new InternalResponse(
-                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                            A_FPSConstant.CODE_KEYCLOAK,
+                    return CreateInternalResponse.createErrorInternalResponse(A_FPSConstant.CODE_KEYCLOAK,
                             A_FPSConstant.SUBCODE_MISSING_CLIENT_ID);
                 }
                 if (Utils.isNullOrEmpty(object.getClientSecret())) {
-                    return new InternalResponse(
-                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                            A_FPSConstant.CODE_KEYCLOAK,
-                            A_FPSConstant.SUBCODE_MISSING_CLIENT_SECRET
-                    );
+                    return CreateInternalResponse.createErrorInternalResponse(A_FPSConstant.CODE_KEYCLOAK,
+                            A_FPSConstant.SUBCODE_MISSING_CLIENT_SECRET);
                 }
                 return ManageTokenWithDB.login(
                         object,
                         transactionID);
             }
             default: {
-                return new InternalResponse(
-                        A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                        A_FPSConstant.CODE_KEYCLOAK,
+                return CreateInternalResponse.createErrorInternalResponse(A_FPSConstant.CODE_KEYCLOAK,
                         A_FPSConstant.SUBCODE_UNSUPPORTED_GRANT_TYPE);
             }
         }
@@ -97,21 +85,18 @@ public class AuthorizeSummary {
     //<editor-fold defaultstate="collapsed" desc="Process Verify">
     /**
      * Process verify request from the client
+     *
      * @param token
      * @param transactionID
      * @return
-     * @throws Exception 
+     * @throws Exception
      */
     public static InternalResponse processVerify(
             String token,
             String transactionID
     ) throws Exception {
         if (Utils.isNullOrEmpty(token)) {
-            return new InternalResponse(
-                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                    A_FPSConstant.CODE_FAIL,
-                    A_FPSConstant.SUBCODE_MISSING_ACCESS_TOKEN
-            );
+            return CreateInternalResponse.createErrorInternalResponse(A_FPSConstant.SUBCODE_MISSING_ACCESS_TOKEN);
         }
         token = token.replaceAll("Bearer ", "");
 
@@ -137,20 +122,19 @@ public class AuthorizeSummary {
                     ManageTokenWithDB.class,
                     transactionID,
                     "Error while decode token!");
-            return new InternalResponse(
+            return CreateInternalResponse.createErrorInternalResponse(
                     A_FPSConstant.HTTP_CODE_UNAUTHORIZED,
                     A_FPSConstant.CODE_KEYCLOAK,
-                    A_FPSConstant.SUBCODE_INVALID_TOKEN);
+                    A_FPSConstant.SUBCODE_INVALID_TOKEN).setException(e);
         } catch (Exception e) {
             LogHandler.error(
                     ManageTokenWithDB.class,
                     transactionID,
                     "Error while parsing Data!");
-            return new InternalResponse(
+            return CreateInternalResponse.createErrorInternalResponse(
                     A_FPSConstant.HTTP_CODE_UNAUTHORIZED,
                     A_FPSConstant.CODE_KEYCLOAK,
-                    A_FPSConstant.SUBCODE_INVALID_TOKEN
-            );
+                    A_FPSConstant.SUBCODE_INVALID_TOKEN).setException(e);
         }
         String stringToBeVerify = chunks[0] + "." + chunks[1];
         return ManageTokenWithDB.verify(
@@ -162,4 +146,61 @@ public class AuthorizeSummary {
     }
     //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="Process Revoke Token">
+    /**
+     * Process revoke token of the client
+     *
+     * @param request
+     * @param payload
+     * @param transactionID
+     * @return
+     * @throws Exception
+     */
+    public static InternalResponse processRevoke(
+            HttpServletRequest request,
+            String payload,
+            String transactionID) throws Exception {
+        InternalResponse response = Checker.checkRevokeRequest(payload);
+        if (!response.isValid()) {
+            return response;
+        }
+
+        Token object = new Token();
+        try {
+            object = MyServices.getJsonService().readValue(payload, Token.class);
+        } catch (JsonProcessingException ex) {
+            LogHandler.error(
+                    ManageTokenWithDB.class,
+                    transactionID,
+                    "Cannot parse payload!");
+            return CreateInternalResponse.createErrorInternalResponse(A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE)
+                    .setException(ex);
+        }
+
+        //Login 
+        if (Utils.isNullOrEmpty(object.getGrantType())) {
+            return CreateInternalResponse.createErrorInternalResponse(A_FPSConstant.CODE_KEYCLOAK,
+                    A_FPSConstant.SUBCODE_MISSING_GRANT_TYPE);
+        }
+        switch (object.getGrantType()) {
+            case "client_credentials": {
+                if (Utils.isNullOrEmpty(object.getClientId())) {
+                    return CreateInternalResponse.createErrorInternalResponse(A_FPSConstant.CODE_KEYCLOAK,
+                            A_FPSConstant.SUBCODE_MISSING_CLIENT_ID);
+                }
+                if (Utils.isNullOrEmpty(object.getClientSecret())) {
+                    return CreateInternalResponse.createErrorInternalResponse(A_FPSConstant.CODE_KEYCLOAK,
+                            A_FPSConstant.SUBCODE_MISSING_CLIENT_SECRET);
+                }
+                return ManageTokenWithDB.login(
+                        object,
+                        transactionID);
+            }
+            default: {
+                return CreateInternalResponse.createErrorInternalResponse(A_FPSConstant.CODE_KEYCLOAK,
+                        A_FPSConstant.SUBCODE_UNSUPPORTED_GRANT_TYPE);
+            }
+        }
+    }
+    //</editor-fold>
 }

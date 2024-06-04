@@ -13,13 +13,16 @@ import java.util.List;
 import vn.mobileid.id.FPS.systemManagement.Configuration;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.database.interfaces.IDatabase;
+import vn.mobileid.id.FPS.object.APILog;
 import vn.mobileid.id.FPS.object.ResponseCode;
 import vn.mobileid.id.FPS.object.TemporalObject;
 import vn.mobileid.id.FPS.systemManagement.LogHandler;
 import vn.mobileid.id.FPS.object.policy.PolicyResponse;
+import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.helper.ORM_JPA.database.CreateConnection;
 import vn.mobileid.id.helper.ORM_JPA.database.objects.DatabaseResponse;
 import vn.mobileid.id.FPS.utils.Utils;
+import vn.mobileid.id.helper.ORM_JPA.database.CreateConnectionV2;
 
 /**
  *
@@ -249,13 +252,15 @@ public class DatabaseImpl implements IDatabase {
             String pURL,
             String pHTTP_VERB,
             int pSTATUS_CODE,
+            String pHEADERS,
+            String pFILECACHED,
             String pREQUEST,
             String pRESPONSE,
             String pEXCEPTION,
             String pHMAC,
             String pCREATED_BY,
             String transactionId) throws Exception {
-        String nameStore = "{ CALL USP_API_LOG_ADD(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}";
+        String nameStore = "{ CALL USP_API_LOG_ADD(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}";
 
         HashMap<String, Object> datas = new HashMap<>();
         datas.put("pENTERPRISE_ID", pENTERPRISE_ID);
@@ -268,6 +273,8 @@ public class DatabaseImpl implements IDatabase {
         datas.put("pURL", pURL);
         datas.put("pHTTP_VERB", pHTTP_VERB);
         datas.put("pSTATUS_CODE", pSTATUS_CODE);
+        datas.put("pHEADERS", pHEADERS);
+        datas.put("pFILE_CACHED", pFILECACHED);
         datas.put("pREQUEST", pREQUEST);
         datas.put("pRESPONSE", pRESPONSE);
         datas.put("pEXCEPTION", pEXCEPTION);
@@ -323,5 +330,49 @@ public class DatabaseImpl implements IDatabase {
         }
         
         return response;
+    }
+
+    @Override
+    public DatabaseResponse getAPILogs(String transactionId) throws Exception {
+        String nameStore = "{ CALL USP_API_LOG_GET_FILE_CACHED_LIST()}";
+
+        DatabaseResponse response = CreateConnection.executeStoreProcedure(
+                MyServices.getDatabaseConnection().getReadOnlyConnection(),                
+                nameStore,
+                null,
+                null,
+                "Get API Logs");
+
+        LogHandler.debug(this.getClass(), transactionId + " _ " + response.getDebugString());
+        
+        if(response.getStatus() == A_FPSConstant.CODE_SUCCESS){
+            List<HashMap<String, Object>> rows = response.getRows();
+            List<APILog> apiLogs = new ArrayList<>();
+            for(HashMap<String, Object> row : rows){
+                if(row.containsKey("ID") && row.containsKey("FILE_CACHED")){
+                    APILog apiLog = new APILog();
+                    String fileCached = (String)row.get("FILE_CACHED");
+                    String id = (String)row.get("ID");
+                    try{
+                        Long idNumber = Long.parseLong(id);
+                        apiLog.setId(idNumber);
+                    }catch(Exception ex){}
+                    apiLog.setFileCache(fileCached);
+                    apiLogs.add(apiLog);
+                }
+            }
+            response.setObject(apiLogs);
+        }
+        
+        return response;
+    }
+
+    @Override
+    public DatabaseResponse updateFileCatchAPILog(
+            String apiLogId, 
+            String fileCatch, 
+            String modifiedBy, 
+            String transactionId) throws Exception {
+        return null;
     }
 }

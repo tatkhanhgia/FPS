@@ -6,6 +6,7 @@ package vn.mobileid.id.FPS.controller.authorize.summary;
 
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.InternalResponse;
+import vn.mobileid.id.FPS.utils.CreateInternalResponse;
 import vn.mobileid.id.FPS.utils.Utils;
 
 /**
@@ -21,10 +22,21 @@ class Checker {
      */
     public static InternalResponse checkLoginRequest(String payload){
         if (Utils.isNullOrEmpty(payload)) {
-            return new InternalResponse(
-                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                    A_FPSConstant.CODE_FAIL,
-                    A_FPSConstant.SUBCODE_NO_PAYLOAD_FOUND);
+            return CreateInternalResponse.createErrorInternalResponse(A_FPSConstant.SUBCODE_NO_PAYLOAD_FOUND);
+        }
+        return new InternalResponse();
+    }
+    //</editor-fold>
+    
+    //<editor-fold defaultstate="collapsed" desc="Check Revoke request">
+    /**
+     * Check Revoke request 
+     * @param payload
+     * @return 
+     */
+    public static InternalResponse checkRevokeRequest(String payload){
+        if (Utils.isNullOrEmpty(payload)) {
+            return CreateInternalResponse.createErrorInternalResponse(A_FPSConstant.SUBCODE_NO_PAYLOAD_FOUND);
         }
         return new InternalResponse();
     }

@@ -16,6 +16,9 @@ public class A_FPSConstant {
     final public static int STATUS_DELETED = 4;
     final public static int STATUS_MARK_DELETED = 5;
     
+    //Time Store file cached
+    final public static int TIME_STORE_FILE_CACHE = 86400; 
+    
     final public static String INTERNAL_EXP_MESS = "{[\"Internal server exception\"]}";
     final public static String DEFAULT_MESS = "Message is not defined";
 //    final public static int DEFAULT_ROW_COUNT = PolicyConfiguration
@@ -104,6 +107,7 @@ public class A_FPSConstant {
     final public static int CODE_FIELD_NUMERIC_STEPPER = 19;
     final public static int CODE_FIELD_DATETIME = 20;
     final public static int CODE_FIELD_TOGGLE = 21;
+    final public static int CODE_API_LOG = 22;
     
     //SubCode
     final public static int SUBCODE_NO_PAYLOAD_FOUND = 1;
@@ -224,8 +228,10 @@ public class A_FPSConstant {
     final public static int SUBCODE_INVALID_NUMERIC_TYPE = 2;
     
     //Subcode DateTime - 20
-     
     
     //Subcode Toggle - 21
     final public static int SUBCODE_INVALID_TOGGLE_TYPE = 1;
+    
+    //Subcode API Log - 22
+    final public static int SUBCODE_CANNOT_GET_APILOG = 1;
 }

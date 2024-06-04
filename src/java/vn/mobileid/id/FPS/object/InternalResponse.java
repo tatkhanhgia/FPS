@@ -62,6 +62,8 @@ public class InternalResponse {
     }       
 
     public InternalResponse() {
+        this.status = A_FPSConstant.HTTP_CODE_SUCCESS;
+        this.message = "";
     }
 
     public int getStatus() {
@@ -93,8 +95,9 @@ public class InternalResponse {
         return data;
     }
 
-    public void setData(Object data) {
+    public InternalResponse setData(Object data) {
         this.data = data;
+        return this;
     }
 
     public HashMap<String, Object> getHeaders() {

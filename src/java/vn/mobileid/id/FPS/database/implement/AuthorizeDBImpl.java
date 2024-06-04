@@ -12,6 +12,7 @@ import vn.mobileid.id.FPS.systemManagement.Configuration;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.database.interfaces.IAuthorizeDB;
 import vn.mobileid.id.FPS.object.Enterprise;
+import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.FPS.systemManagement.LogHandler;
 import vn.mobileid.id.helper.ORM_JPA.database.CreateConnection;
 import vn.mobileid.id.helper.ORM_JPA.database.objects.DatabaseResponse;
@@ -71,7 +72,7 @@ public class AuthorizeDBImpl implements IAuthorizeDB{
         HashMap<String, Object> datas = new HashMap<>();
         datas.put("pCLIENT_ID", clientId);
         DatabaseResponse response = CreateConnection.executeStoreProcedure(
-                DatabaseConnectionManager.getInstance().openReadOnlyConnection(),
+                MyServices.getDatabaseConnection().getReadOnlyConnection(),
                 nameStore,
                 datas,
                 null,
@@ -123,7 +124,7 @@ public class AuthorizeDBImpl implements IAuthorizeDB{
         datas.put("pCREATED_BY", createdBy);
 
         DatabaseResponse response = CreateConnection.executeStoreProcedure(
-                DatabaseConnectionManager.getInstance().openReadOnlyConnection(),
+                MyServices.getDatabaseConnection().getWriteOnlyConnection(),
                 nameStore,
                 datas,
                 null,
@@ -149,11 +150,32 @@ public class AuthorizeDBImpl implements IAuthorizeDB{
         datas.put("pJWT_ID", jwtId);
         datas.put("pSESSION_TOKEN", sessionId);
         DatabaseResponse response = CreateConnection.executeStoreProcedure(
-                DatabaseConnectionManager.getInstance().openReadOnlyConnection(),
+                MyServices.getDatabaseConnection().getReadOnlyConnection(),
                 nameStore,
                 datas,
                 null,
                 "check existed of Token");
+
+        LogHandler.debug(this.getClass(), transactionId + " _ " + response.getDebugString());
+
+        return response;
+    }
+
+    @Override
+    public DatabaseResponse deleteToken(
+            String sessionId, 
+            String transactionId) throws Exception {
+        String nameStore = "{ call USP_REFRESH_TOKEN_DELETE(?,?)}";
+
+        HashMap<String, Object> datas = new HashMap<>();
+        datas.put("pSESSION_TOKEN", sessionId);
+        
+        DatabaseResponse response = CreateConnection.executeStoreProcedure(
+                MyServices.getDatabaseConnection().getWriteOnlyConnection(),
+                nameStore,
+                datas,
+                null,
+                "Delete Token");
 
         LogHandler.debug(this.getClass(), transactionId + " _ " + response.getDebugString());
 

@@ -1283,7 +1283,7 @@ public class FieldSummary {
             Boolean isCheckBasicField,
             Boolean isUpdate,
             String transactionId) {
-        if (url.contains("v2") || url.contains("V2")) {
+        if (url.contains("/v2/") || url.contains("/V2/")) {
             return ParseToField.parseToFieldV2(url, payload, isCheckBasicField, isUpdate, transactionId);
         } else {
             return ParseToField.parseToField(url, payload, isCheckBasicField, isUpdate, transactionId);

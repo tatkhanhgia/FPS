@@ -9,6 +9,7 @@ import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.database.DatabaseFactory;
 import vn.mobileid.id.FPS.database.interfaces.IAuthorizeDB;
+import vn.mobileid.id.FPS.utils.CreateInternalResponse;
 import vn.mobileid.id.helper.ORM_JPA.database.objects.DatabaseResponse;
 
 /**
@@ -17,6 +18,7 @@ import vn.mobileid.id.helper.ORM_JPA.database.objects.DatabaseResponse;
  */
 public class ManageRefreshToken {
 
+    //<editor-fold defaultstate="collapsed" desc="Write Token">
     /**
      * Write a refresh token into DB
      *
@@ -55,46 +57,86 @@ public class ManageRefreshToken {
                 createdBy,
                 transactionId);
         if (res.getStatus() != A_FPSConstant.CODE_SUCCESS) {
-//            String message = ResponseMessageController.getErrorMessageAdvanced(
-//                    A_FPSConstant.CODE_FAIL,
-//                    res.getStatus(),
-//                    "en",
-//                    null);
-            return new InternalResponse(
-                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                    A_FPSConstant.CODE_FAIL,
-                    res.getStatus()
-            );
+            return CreateInternalResponse.createErrorInternalResponse(res.getStatus());
         }
-        return new InternalResponse(
-                A_FPSConstant.HTTP_CODE_SUCCESS,
-                ""
-        );
+        return new InternalResponse();
     }
+    //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="Check valid of Session Token">
+    /**
+     * Checks the validity of a token (JWT ID) and its associated session ID for a given transaction.
+     * <p>
+     * Kiểm tra tính hợp lệ của một mã token (JWT ID) và ID phiên liên kết của nó cho một giao dịch cụ thể.
+     *
+     * @param jwtId The JWT ID to check.
+     *              Mã JWT cần kiểm tra.
+     * @param sessionId The session ID associated with the JWT.
+     *                  ID phiên liên kết với JWT.
+     * @param transactionId The ID of the transaction.
+     *                      ID của giao dịch.
+     * @return An InternalResponse indicating the result of the token check:
+     *          - If the token and session ID are valid, returns a successful response (HTTP code 200, status code SUCCESS).
+     *          - If the token or session ID is invalid, returns an error response (HTTP code 400, status code indicating the specific error).
+     * <p>
+     *         Một InternalResponse cho biết kết quả kiểm tra mã token:
+     *         - Nếu mã token và ID phiên hợp lệ, trả về phản hồi thành công (mã HTTP 200, mã trạng thái SUCCESS).
+     *         - Nếu mã token hoặc ID phiên không hợp lệ, trả về phản hồi lỗi (mã HTTP 400, mã trạng thái cho biết lỗi cụ thể).
+     * @throws Exception If an unexpected error occurs during the token check.
+     *         Nếu có lỗi bất ngờ xảy ra trong quá trình kiểm tra mã token.
+     */
     public static InternalResponse checkToken(
             String jwtId,
             String sessionId,
             String transactionId
-    ) throws Exception{
+    ) throws Exception {
         DatabaseResponse response = DatabaseFactory.getDatabaseImpl_authorize().checkSessionId(
                 jwtId,
                 sessionId,
                 transactionId);
-        
-        if(response.getStatus() != A_FPSConstant.CODE_SUCCESS){
-            return new InternalResponse(
-                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                    A_FPSConstant.CODE_FAIL,
-                    response.getStatus()
-            );
+
+        if (response.getStatus() != A_FPSConstant.CODE_SUCCESS) {
+            return CreateInternalResponse.createErrorInternalResponse(response.getStatus());
         }
-        return new InternalResponse(
-                A_FPSConstant.HTTP_CODE_SUCCESS,
-                ""
-        );
+        return new InternalResponse();
     }
-            
+    //</editor-fold>
+    
+    //<editor-fold defaultstate="collapsed" desc="Delete Token">
+    /**
+    * Deletes a token associated with the given session ID for a specific transaction.
+    * <p>
+    * Xóa một mã token liên kết với ID phiên được cung cấp cho một giao dịch cụ thể.
+    *
+    * @param sessionId     The ID of the session whose token should be deleted.
+    *                      ID của phiên mà mã token cần được xóa.
+    * @param transactionId The ID of the transaction.
+    *                      ID của giao dịch.
+    * @return An InternalResponse indicating the result of the deletion:
+    *         - If the deletion is successful, returns a successful response (HTTP code 200, status code SUCCESS).
+    *         - If the deletion fails, returns an error response (HTTP code 400, status code indicating the specific error).
+    *         <p>
+    *         Một InternalResponse cho biết kết quả của việc xóa:
+    *         - Nếu xóa thành công, trả về phản hồi thành công (mã HTTP 200, mã trạng thái SUCCESS).
+    *         - Nếu xóa không thành công, trả về phản hồi lỗi (mã HTTP 400, mã trạng thái cho biết lỗi cụ thể).
+    * @throws Exception If an unexpected error occurs during the deletion process.
+    *                   Nếu có lỗi bất ngờ xảy ra trong quá trình xóa.
+    */
+    public static InternalResponse deleteToken(
+            String sessionId,
+            String transactionId
+    ) throws Exception {
+        DatabaseResponse response = DatabaseFactory.getDatabaseImpl_authorize().deleteToken(
+                sessionId,
+                transactionId);
+ 
+        if (response.getStatus() != A_FPSConstant.CODE_SUCCESS) {
+            return CreateInternalResponse.createErrorInternalResponse(response.getStatus());
+        }  
+        return new InternalResponse();
+    }
+    //</editor-fold>
+
     public static void main(String[] args) throws Exception {
 //        InternalResponse response = ManageRefreshToken.write(
 //                "helo",
@@ -107,7 +149,11 @@ public class ManageRefreshToken {
 //                "GiaTK",
 //                "transaction1");
 //        System.out.println("status:" + response.getStatus());
-        InternalResponse response = ManageRefreshToken.checkToken("jwtids", "sessionid", "transaction");
-        System.out.println("Status:"+response.getStatus());
+//        InternalResponse response = ManageRefreshToken.checkToken("jwtids", "sessionid", "transaction");
+//        System.out.println("Status:" + response.getStatus());
+
+          InternalResponse response  = ManageRefreshToken.deleteToken("1686-16354-27159", "");
+          System.out.println(response.getStatus());
+          
     }
 }
