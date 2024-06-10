@@ -35,7 +35,8 @@ public class FieldsSerializer implements JsonSerializable {
         "hyperlink",
         "toggle",
         "stepper",
-        "checkboxV2"};
+        "checkboxV2",
+        "radioboxV2"};
 
     @Override
     public void serialize(JsonGenerator jg, SerializerProvider sp) throws IOException {

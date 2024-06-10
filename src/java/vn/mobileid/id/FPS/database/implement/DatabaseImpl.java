@@ -295,9 +295,9 @@ public class DatabaseImpl implements IDatabase {
 
     @Override
     public DatabaseResponse getRemarkLanguage(
-            String table, 
-            String name, 
-            String languageName, 
+            String table,
+            String name,
+            String languageName,
             String transactionId) throws Exception {
         String nameStore = "{ CALL USP_REMARK_LANGUAGE_GET(?,?,?,?,?)}";
 
@@ -305,30 +305,30 @@ public class DatabaseImpl implements IDatabase {
         datas.put("pTABLE_NAME", table);
         datas.put("pNAME", name);
         datas.put("pLANGUAGE_NAME", languageName);
-        
+
         HashMap<String, Integer> output = new HashMap<>();
         output.put("pVALUE", java.sql.Types.VARCHAR);
         output.put("pRESPONSE_CODE", java.sql.Types.VARCHAR);
-        
+
         DatabaseResponse response = CreateConnection.executeStoreProcedure(
-                DatabaseConnectionManager.getInstance().openReadOnlyConnection(),                
+                DatabaseConnectionManager.getInstance().openReadOnlyConnection(),
                 nameStore,
                 datas,
                 output,
                 "Get Remark Language");
 
         LogHandler.debug(this.getClass(), transactionId + " _ " + response.getDebugString());
-        
-        if(response.getStatus() == A_FPSConstant.CODE_SUCCESS){
+
+        if (response.getStatus() == A_FPSConstant.CODE_SUCCESS) {
             List<HashMap<String, Object>> rows = response.getRows();
-            for(HashMap<String, Object> row : rows){
-                if(row.containsKey("pVALUE")){
-                    String value = (String)row.get("pVALUE");
+            for (HashMap<String, Object> row : rows) {
+                if (row.containsKey("pVALUE")) {
+                    String value = (String) row.get("pVALUE");
                     response.setObject(value);
                 }
             }
         }
-        
+
         return response;
     }
 
@@ -337,42 +337,55 @@ public class DatabaseImpl implements IDatabase {
         String nameStore = "{ CALL USP_API_LOG_GET_FILE_CACHED_LIST()}";
 
         DatabaseResponse response = CreateConnection.executeStoreProcedure(
-                MyServices.getDatabaseConnection().getReadOnlyConnection(),                
+                MyServices.getDatabaseConnection().getReadOnlyConnection(),
                 nameStore,
                 null,
                 null,
                 "Get API Logs");
 
         LogHandler.debug(this.getClass(), transactionId + " _ " + response.getDebugString());
-        
-        if(response.getStatus() == A_FPSConstant.CODE_SUCCESS){
+
+        if (response.getStatus() == A_FPSConstant.CODE_SUCCESS) {
             List<HashMap<String, Object>> rows = response.getRows();
             List<APILog> apiLogs = new ArrayList<>();
-            for(HashMap<String, Object> row : rows){
-                if(row.containsKey("ID") && row.containsKey("FILE_CACHED")){
+            for (HashMap<String, Object> row : rows) {
+                if (row.containsKey("ID") && row.containsKey("FILE_CACHED")) {
                     APILog apiLog = new APILog();
-                    String fileCached = (String)row.get("FILE_CACHED");
-                    String id = (String)row.get("ID");
-                    try{
-                        Long idNumber = Long.parseLong(id);
-                        apiLog.setId(idNumber);
-                    }catch(Exception ex){}
+                    String fileCached = (String) row.get("FILE_CACHED");
+                    long id = (Long) row.get("ID");
+                    apiLog.setId(id);
                     apiLog.setFileCache(fileCached);
                     apiLogs.add(apiLog);
                 }
             }
             response.setObject(apiLogs);
         }
-        
+
         return response;
     }
 
     @Override
     public DatabaseResponse updateFileCatchAPILog(
-            String apiLogId, 
-            String fileCatch, 
-            String modifiedBy, 
+            String apiLogId,
+            String fileCatch,
+            String modifiedBy,
             String transactionId) throws Exception {
-        return null;
+        String nameStore = "{ CALL USP_API_LOG_UPDATE_FILE_CACHED(?,?,?,?)}";
+
+        HashMap<String, Object> inputs = new HashMap<>();
+        inputs.put("pAPI_LOG_ID", apiLogId);
+        inputs.put("pFILE_CACHED", fileCatch);
+        inputs.put("pLAST_MODIFIED_BY", modifiedBy);
+        
+        DatabaseResponse response = CreateConnection.executeStoreProcedure(
+                MyServices.getDatabaseConnection().getWriteOnlyConnection(),
+                nameStore,
+                inputs,
+                null,
+                "Update API Logs");
+
+        LogHandler.debug(this.getClass(), transactionId + " _ " + response.getDebugString());
+
+        return response;
     }
 }

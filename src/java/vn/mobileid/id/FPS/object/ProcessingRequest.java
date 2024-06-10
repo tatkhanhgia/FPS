@@ -37,6 +37,7 @@ public class ProcessingRequest {
     //Data for fillFormField
     private List<ProcessingFormFillRequest> text = new ArrayList<>();
     private List<ProcessingFormFillRequest> radio = new ArrayList<>();
+    private List<ProcessingFormFillRequest> radioV2 = new ArrayList<>();
     private List<ProcessingFormFillRequest> checkbox = new ArrayList<>();
     private List<ProcessingFormFillRequest> checkboxV2 = new ArrayList<>();
     private List<ProcessingFormFillRequest> dropdown = new ArrayList<>();
@@ -95,7 +96,11 @@ public class ProcessingRequest {
     public void setRadio(List<ProcessingFormFillRequest> radio) {
         this.radio = radio;
     }
-
+    
+    public void setRadioV2(List<ProcessingFormFillRequest> radio) {
+        this.radioV2 = radio;
+    }
+    
     public void setCheckbox(List<ProcessingFormFillRequest> checkbox) {
         this.checkbox = checkbox;
     }
@@ -237,6 +242,11 @@ public class ProcessingRequest {
         return checkboxV2;
     }
 
+    @JsonProperty("radioboxV2")
+    public List<ProcessingFormFillRequest> getRadioBoxV2() {
+        return radioV2;
+    }
+    
     @JsonProperty("dropdown")
     public List<ProcessingFormFillRequest> getDropdown() {
         return dropdown;

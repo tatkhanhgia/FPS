@@ -51,7 +51,7 @@ public class ProcessingFactory<T extends BasicFieldAttribute> {
                 return new FileProcessing(version);
             }
             case RADIO:{
-                return new RadioProcessing();
+                return new RadioProcessing(version);
             }
             case ATTACHMENT:{
                 return new AttachmentProcessing();

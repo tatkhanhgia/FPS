@@ -929,10 +929,24 @@ public class DocumentSummary {
 
         //<editor-fold defaultstate="collapsed" desc="Process Radio Form Field">
         if (!Utils.isNullOrEmpty(processRequest.getRadio())) {
-            response = ProcessingRadioboxFormField.processRadioField(
+            response = new ProcessingRadioboxFormField().processRadioField(
                     Utils.getIdFromURL(request.getRequestURI()),
                     user,
                     processRequest.getRadio(),
+                    transactionId);
+
+            if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                return response;
+            }
+        }
+        //</editor-fold>
+        
+        //<editor-fold defaultstate="collapsed" desc="Process Radio Form Field Version 2">
+        if (!Utils.isNullOrEmpty(processRequest.getRadioBoxV2())) {
+            response = new ProcessingRadioboxFormField(IVersion.Version.V2).processRadioField(
+                    Utils.getIdFromURL(request.getRequestURI()),
+                    user,
+                    processRequest.getRadioBoxV2(),
                     transactionId);
 
             if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {

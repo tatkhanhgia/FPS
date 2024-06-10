@@ -14,6 +14,7 @@ import fps_core.objects.child.ComboBoxFieldAttribute;
 import fps_core.objects.child.DateTimeFieldAttribute;
 import fps_core.objects.child.HyperLinkFieldAttribute;
 import fps_core.objects.child.NumericStepperAttribute;
+import fps_core.objects.child.RadioBoxFieldAttributeV2;
 import fps_core.objects.child.RadioFieldAttribute;
 import fps_core.objects.child.ToggleFieldAttribute;
 import fps_core.objects.core.BasicFieldAttribute;
@@ -532,20 +533,61 @@ public abstract class ParseToField {
                 hierarchicalLog.addStartHeading1("Final field type: " + field.getType().getTypeName());
                 //</editor-fold>
 
-                //<editor-fold defaultstate="collapsed" desc="Initial data of field">
-                if (!isUpdate) {
-                    if (field.isChecked() == null) {
-                        field.setChecked(false);
-                    }
-                    if (field.isReadOnly() == null) {
-                        field.setReadOnly(false);
-                    }
+                return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field).setHierarchicalLog(hierarchicalLog);
+                //</editor-fold>
+            }
+            case "radioboxV2": {
+                //<editor-fold defaultstate="collapsed" desc="Generate RadioBoxFieldAttributeV2 from Payload">
+                hierarchicalLog.addStartHeading1("Start parse into " + typeField);
 
-                    //<editor-fold defaultstate="collapsed" desc="Logger">
-                    hierarchicalLog.addStartHeading1("Read Only: " + field.isReadOnly());
-                    hierarchicalLog.addStartHeading1("Checked: " + field.isChecked());
-                    //</editor-fold>
+                //<editor-fold defaultstate="collapsed" desc="Parse String into Field">
+                RadioBoxFieldAttributeV2 field = null;
+                try {
+                    field = MyServices.getJsonService().readValue(payload, RadioBoxFieldAttributeV2.class);
+                } catch (JsonProcessingException ex) {
+                    hierarchicalLog.addEndHeading1("Parse into field fail");
+                    return new InternalResponse(
+                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                            A_FPSConstant.CODE_FAIL,
+                            A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE
+                    ).setHierarchicalLog(hierarchicalLog);
                 }
+                hierarchicalLog.addEndHeading1("Parse into field successfully");
+                //</editor-fold>
+
+                //<editor-fold defaultstate="collapsed" desc="Check basic field">
+                hierarchicalLog.addStartHeading1("Start check basic");
+                InternalResponse response = null;
+                if (isCheckBasicField && !isUpdate) {
+                    response = CheckPayloadRequest.checkBasicField(field, transactionId);
+                } else {
+                    response = CheckPayloadRequest.checkBasicFieldWhenUpdateField(field, transactionId);
+                }
+                hierarchicalLog.addChildHierarchicalLog(response.getHierarchicalLog());
+                if (!response.isValid()) {
+                    hierarchicalLog.addEndHeading1("Checked fail");
+                    return response.setHierarchicalLog(hierarchicalLog);
+                }
+                hierarchicalLog.addEndHeading1("Checked successfully");
+                //</editor-fold>
+
+                //<editor-fold defaultstate="collapsed" desc="Check field type">
+                if (!Utils.isNullOrEmpty(field.getTypeName())) {
+                    boolean check = CheckPayloadRequest.checkField(field, FieldTypeName.RADIOBOXV2);
+
+                    if (!check) {
+                        hierarchicalLog.addEndHeading1("Check field type fail");
+                        return new InternalResponse(
+                                A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                                A_FPSConstant.CODE_FIELD_CHECKBOX,
+                                A_FPSConstant.SUBCODE_INVALID_CHECKBOX_FIELD_TYPE
+                        ).setHierarchicalLog(hierarchicalLog);
+                    }
+                    field.setType(Resources.getFieldTypes().get(field.getTypeName()));
+                } else {
+                    field.setType(Resources.getFieldTypes().get(FieldTypeName.RADIOBOXV2.getParentName()));
+                }
+                hierarchicalLog.addStartHeading1("Final field type: " + field.getType().getTypeName());
                 //</editor-fold>
 
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field).setHierarchicalLog(hierarchicalLog);
@@ -1711,17 +1753,24 @@ public abstract class ParseToField {
                 //<editor-fold defaultstate="collapsed" desc="Generate RadioFieldAttribute from Payload">
                 parseV2 = createBufferer(new RadioFieldAttribute(),
                         field -> {
-                            //<editor-fold defaultstate="collapsed" desc="Initial lambda method">
-                            if (field.isChecked() == null) {
-                                field.setChecked(false);
-                            }
-                            if (field.isReadOnly() == null) {
-                                field.setReadOnly(false);
-                            }
-                            //</editor-fold>
                         })
                         .parseAndValidateField(
                                 FieldTypeName.RADIOBOX,
+                                payload,
+                                isCheckBasicField,
+                                isUpdate,
+                                transactionId);
+
+                hierarchicalLog.addChildHierarchicalLog(parseV2.getHierarchicalLog());
+                return parseV2.setHierarchicalLog(hierarchicalLog);
+                //</editor-fold>
+            }
+            case "radioboxV2": {
+                //<editor-fold defaultstate="collapsed" desc="Generate RadioBoxFieldAttribute from Payload">
+                parseV2 = createBufferer(new RadioBoxFieldAttributeV2(),
+                        null)
+                        .parseAndValidateField(
+                                FieldTypeName.RADIOBOXV2,
                                 payload,
                                 isCheckBasicField,
                                 isUpdate,

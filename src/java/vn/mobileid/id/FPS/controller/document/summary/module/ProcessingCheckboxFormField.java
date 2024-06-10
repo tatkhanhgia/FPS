@@ -5,7 +5,6 @@
 package vn.mobileid.id.FPS.controller.document.summary.module;
 
 import vn.mobileid.id.FPS.controller.document.summary.micro.GetDocument;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fps_core.enumration.FieldTypeName;
 import fps_core.objects.core.BasicFieldAttribute;
 import fps_core.objects.core.CheckBoxFieldAttribute;

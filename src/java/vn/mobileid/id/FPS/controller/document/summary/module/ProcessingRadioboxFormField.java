@@ -6,8 +6,10 @@ package vn.mobileid.id.FPS.controller.document.summary.module;
 
 import vn.mobileid.id.FPS.controller.document.summary.micro.GetDocument;
 import fps_core.enumration.FieldTypeName;
+import fps_core.objects.child.RadioBoxFieldAttributeV2;
 import fps_core.objects.core.ExtendedFieldAttribute;
 import fps_core.objects.child.RadioFieldAttribute;
+import fps_core.objects.core.BasicFieldAttribute;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -17,6 +19,7 @@ import vn.mobileid.id.FPS.controller.document.summary.processingImpl.ProcessingF
 import vn.mobileid.id.FPS.controller.field.summary.module.CheckFieldProcessedYet;
 import vn.mobileid.id.FPS.controller.field.summary.FieldSummaryInternal;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.controller.document.summary.processingImpl.interfaces.IVersion;
 import vn.mobileid.id.FPS.services.others.responseMessage.ResponseMessageController;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
@@ -32,7 +35,15 @@ import vn.mobileid.id.FPS.utils.Utils;
  *
  * @author GiaTK
  */
-public class ProcessingRadioboxFormField {
+public class ProcessingRadioboxFormField extends IVersion {
+
+    public ProcessingRadioboxFormField(Version version) {
+        super(version);
+    }
+
+    public ProcessingRadioboxFormField() {
+        super(IVersion.Version.V1);
+    }
 
     //<editor-fold defaultstate="collapsed" desc="Processing Radiobox Form Field">
     /**
@@ -48,7 +59,7 @@ public class ProcessingRadioboxFormField {
      * error while processed
      * @throws Exception
      */
-    public static InternalResponse processRadioField(
+    public InternalResponse processRadioField(
             long packageId,
             User user,
             List<ProcessingRequest.ProcessingFormFillRequest> fields,
@@ -94,7 +105,7 @@ public class ProcessingRadioboxFormField {
 
             ExtendedFieldAttribute fieldData = (ExtendedFieldAttribute) response.getData();
             //</editor-fold>
-            
+
             //<editor-fold defaultstate="collapsed" desc="Check data in ExtendedField is sastified">
             if (CheckFieldProcessedYet.checkProcessed(fieldData.getFieldValue()).getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
                 errorField.setValue(
@@ -105,7 +116,8 @@ public class ProcessingRadioboxFormField {
                 continue;
             }
 
-            if (!fieldData.getType().getParentType().equals(FieldTypeName.RADIOBOX.getParentName())) {
+            if (!fieldData.getType().getParentType().equals(FieldTypeName.RADIOBOX.getParentName()) &&
+                    !fieldData.getType().getParentType().equals(FieldTypeName.RADIOBOXV2.getParentName())) {
                 errorField.setValue(ResponseMessageController.getErrorMessageAdvanced(
                         A_FPSConstant.CODE_FIELD,
                         A_FPSConstant.SUBCODE_THIS_TYPE_OF_FIELD_IS_NOT_VALID_FOR_THIS_PROCESSION,
@@ -125,18 +137,18 @@ public class ProcessingRadioboxFormField {
                 continue;
             }
             //</editor-fold>
-            
+
             //<editor-fold defaultstate="collapsed" desc="Convert ExtendField into RadiobField">
-            RadioFieldAttribute radioField = null;
+            BasicFieldAttribute radioField = null;
             try {
                 if (field.getValue() != null && !(field.getValue() instanceof Boolean)) {
                     field.setValue(null);
                     LogHandler.info(
-                            ProcessingCheckboxFormField.class, 
-                            transactionId, 
+                            ProcessingCheckboxFormField.class,
+                            transactionId,
                             "The value is not a boolean => Using default");
                 }
-                radioField = convertExtendIntoRadioField(user, fieldData, field.getValue()==null?null:(boolean)field.getValue());
+                radioField = convertExtendIntoRadioField(user, fieldData, field.getValue() == null ? null : (boolean) field.getValue());
             } catch (Exception ex) {
                 errorField.setValue(Utils.summaryException(ex));
                 listOfErrorField.add(errorField);
@@ -145,7 +157,7 @@ public class ProcessingRadioboxFormField {
             //</editor-fold>
 
             //Processing
-            response = new ProcessingFactory().createType(ProcessingFactory.TypeProcess.RADIO).processField(
+            response = new ProcessingFactory().createType(ProcessingFactory.TypeProcess.RADIO, getVersion()).processField(
                     user,
                     document_,
                     documents.size(),
@@ -181,22 +193,30 @@ public class ProcessingRadioboxFormField {
 
     //==========================================================================
     //<editor-fold defaultstate="collapsed" desc="Convert ExtendedField into RadioField">
-    private static RadioFieldAttribute convertExtendIntoRadioField(
+    private BasicFieldAttribute convertExtendIntoRadioField(
             User user,
             ExtendedFieldAttribute fieldData,
             Boolean value) throws Exception {
         //Read details
-        RadioFieldAttribute checkboxField = MyServices.getJsonService().readValue(fieldData.getDetailValue(), RadioFieldAttribute.class);
-        checkboxField = (RadioFieldAttribute) fieldData.clone(checkboxField, fieldData.getDimension());
-
-        checkboxField.setProcessBy(user.getAzp());
-        SimpleDateFormat dateFormat = new SimpleDateFormat(PolicyConfiguration.getInstant().getSystemConfig().getAttributes().get(0).getDateFormat());
-        checkboxField.setProcessOn(dateFormat.format(Date.from(Instant.now())));
-        if (value != null) {
-            checkboxField.setChecked(value);
+        BasicFieldAttribute radioBox = null;
+        if (!this.getVersion().equals(Version.V2)) {
+            radioBox = new RadioFieldAttribute();
+            radioBox = MyServices.getJsonService().readValue(fieldData.getDetailValue(), RadioFieldAttribute.class);
+        } else {
+            radioBox = new RadioBoxFieldAttributeV2();
+            radioBox = MyServices.getJsonService().readValue(fieldData.getDetailValue(), RadioBoxFieldAttributeV2.class);
         }
+        radioBox = (BasicFieldAttribute) fieldData.clone(radioBox, fieldData.getDimension());
 
-        return checkboxField;
+        radioBox.setProcessBy(user.getAzp());
+        SimpleDateFormat dateFormat = new SimpleDateFormat(PolicyConfiguration.getInstant().getSystemConfig().getAttributes().get(0).getDateFormat());
+        radioBox.setProcessOn(dateFormat.format(Date.from(Instant.now())));
+//        if (value != null) {
+//            checkboxField.setChecked(value);
+//        }
+
+        return radioBox;
     }
     //</editor-fold>
+
 }

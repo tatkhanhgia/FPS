@@ -20,6 +20,7 @@ import fps_core.objects.child.ComboBoxFieldAttribute;
 import fps_core.objects.child.DateTimeFieldAttribute;
 import fps_core.objects.child.HyperLinkFieldAttribute;
 import fps_core.objects.child.NumericStepperAttribute;
+import fps_core.objects.child.RadioBoxFieldAttributeV2;
 import fps_core.objects.core.FileFieldAttribute;
 import fps_core.objects.core.InitialsFieldAttribute;
 import fps_core.objects.core.QRFieldAttribute;
@@ -926,6 +927,7 @@ public class FieldSummary {
         List<ToggleFieldAttribute> toogles = new ArrayList<>();
         List<NumericStepperAttribute> steppers = new ArrayList<>();
         List<CheckBoxFieldAttributeV2> checkboxV2s = new ArrayList<>();
+        List<RadioBoxFieldAttributeV2> radioboxV2s = new ArrayList<>();
 
         for (ExtendedFieldAttribute field : fields) {
             try {
@@ -1001,6 +1003,12 @@ public class FieldSummary {
                         radio.setDimension(ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
                         radio = (RadioFieldAttribute) field.clone(radio, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
                         radios.add(radio);
+                        break;
+                    }
+                    case 51: {
+                        RadioBoxFieldAttributeV2 radio = MyServices.getJsonService().readValue(field.getDetailValue(), RadioBoxFieldAttributeV2.class);
+                        radio = (RadioBoxFieldAttributeV2) field.clone(radio, ProcessModuleForEnterprise.getInstance(user).reverseParse(document, field.getDimension()));
+                        radioboxV2s.add(radio);
                         break;
                     }
                     case 37: {
@@ -1245,7 +1253,7 @@ public class FieldSummary {
                 return null;
             }
         }
-        Object[] array = new Object[17];
+        Object[] array = new Object[18];
         array[0] = textboxs;
         array[1] = checkboxs;
         array[2] = radios;
@@ -1263,6 +1271,7 @@ public class FieldSummary {
         array[14] = toogles;
         array[15] = steppers;
         array[16] = checkboxV2s;
+        array[17] = radioboxV2s;
         return array;
     }
     //</editor-fold>

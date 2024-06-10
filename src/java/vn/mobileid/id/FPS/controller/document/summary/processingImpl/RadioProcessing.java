@@ -10,7 +10,9 @@ import fps_core.enumration.ProcessStatus;
 import fps_core.module.DocumentUtils_itext7;
 import fps_core.objects.core.ExtendedFieldAttribute;
 import fps_core.objects.FileManagement;
+import fps_core.objects.child.RadioBoxFieldAttributeV2;
 import fps_core.objects.child.RadioFieldAttribute;
+import fps_core.objects.core.BasicFieldAttribute;
 import java.util.concurrent.Future;
 import org.apache.commons.codec.binary.Hex;
 import vn.mobileid.id.FPS.controller.fms.FMS;
@@ -26,6 +28,7 @@ import vn.mobileid.id.FPS.utils.Crypto;
 import vn.mobileid.id.FPS.services.others.threadManagement.TaskV2;
 import vn.mobileid.id.FPS.controller.document.summary.processingImpl.interfaces.IDocumentProcessing;
 import vn.mobileid.id.FPS.controller.document.summary.processingImpl.interfaces.IModuleProcessing;
+import vn.mobileid.id.FPS.controller.document.summary.processingImpl.interfaces.IVersion;
 import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.FPS.services.others.threadManagement.ThreadManagement;
 
@@ -33,7 +36,11 @@ import vn.mobileid.id.FPS.services.others.threadManagement.ThreadManagement;
  *
  * @author GiaTK
  */
-class RadioProcessing implements IModuleProcessing, IDocumentProcessing {
+class RadioProcessing extends IVersion implements IModuleProcessing, IDocumentProcessing {
+
+    public RadioProcessing(Version version) {
+        super(version);
+    }
 
     @Override
     public InternalResponse createFormField(Object... objects) throws Exception {
@@ -180,7 +187,7 @@ class RadioProcessing implements IModuleProcessing, IDocumentProcessing {
         Document document = (Document) objects[1];
         int revision = (int) objects[2];
         long documentFieldId = (long) objects[3];
-        RadioFieldAttribute field = (RadioFieldAttribute) objects[4];
+        BasicFieldAttribute field = (BasicFieldAttribute) objects[4];
         ExtendedFieldAttribute extendField = (ExtendedFieldAttribute) objects[5];
         String transactionId = (String) objects[6];
         byte[] file;
@@ -210,7 +217,7 @@ class RadioProcessing implements IModuleProcessing, IDocumentProcessing {
             ThreadManagement executor = MyServices.getThreadManagement(2);
 
             //Append CheckBoxField into file
-            byte[] appendedFile = DocumentUtils_itext7.createRadioBoxFormField_gtk(file, field, transactionId);
+            byte[] appendedFile = createRadioBox(file, field, transactionId);
 
             Future<?> analysis = executor.submit(new TaskV2(new Object[]{appendedFile}, transactionId) {
                 @Override
@@ -332,4 +339,34 @@ class RadioProcessing implements IModuleProcessing, IDocumentProcessing {
             ).setException(ex);
         }
     }
+    
+    //=======================INTERNAL METHOD====================================
+    
+    //<editor-fold defaultstate="collapsed" desc="Call DocumentUtils to create RadioBox with Version">
+    /**
+     * Call DocumentUtils_i7.createRadioBox with Version
+     *
+     * @param pdf
+     * @param field
+     * @param transactionId
+     * @return null if error
+     */
+    private byte[] createRadioBox(
+            byte[] pdf,
+            Object field,
+            String transactionId
+    ) throws Exception {
+        switch (getVersion()) {
+            case V1: {
+                return DocumentUtils_itext7.createRadioBoxFormField_i7(pdf, (RadioFieldAttribute) field, transactionId);
+            }
+            case V2: {
+                return DocumentUtils_itext7.createRadioBoxFormField_i7V2(pdf, (RadioBoxFieldAttributeV2) field, transactionId);
+            }
+            default: {
+                return DocumentUtils_itext7.createRadioBoxFormField_i7(pdf, (RadioFieldAttribute) field, transactionId);
+            }
+        }
+    }
+    //</editor-fold>
 }
