@@ -153,7 +153,7 @@ class QryptoProcessing implements IDocumentProcessing {
         positionQR.setQrDimension(Math.round(field.getDimension().getWidth()));
         positionQR.setPageNumber(Arrays.asList(field.getPage()));
 
-        CreateQRSchema createQRSchema = new CreateQRSchema(true, signatures);
+        CreateQRSchema createQRSchema = new CreateQRSchema(user, signatures);
         Configuration config = createQRSchema.createConfiguration(
                 field,
                 user,

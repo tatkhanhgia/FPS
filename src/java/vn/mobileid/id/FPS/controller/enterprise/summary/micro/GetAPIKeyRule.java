@@ -20,10 +20,10 @@ public class GetAPIKeyRule {
      * Trả về thông tin của API Key Rule - Return the rule of API Key
      * @param apiKeyType
      * @param transactionId
-     * @return Enterprise
+     * @return InternalResponse with APIKeyRule as an Object
      * @throws Exception 
      */
-    public  static InternalResponse getAPIKeyRule(
+    public static InternalResponse getAPIKeyRule(
             long apiKeyType,
             String transactionId
     ) throws Exception {
@@ -42,11 +42,4 @@ public class GetAPIKeyRule {
     }
     //</editor-fold>
     
-    public static void main(String[] args) throws Exception{
-        InternalResponse response = GetAPIKeyRule.getAPIKeyRule(1, "");
-        if(response.isValid()){
-            APIKeyRule rule = (APIKeyRule) response.getData(); 
-            System.out.println(rule.getAttributes().get(0).isEnabled());
-        }
-    }
 }

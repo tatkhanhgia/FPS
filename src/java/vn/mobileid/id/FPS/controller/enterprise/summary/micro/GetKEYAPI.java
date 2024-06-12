@@ -17,6 +17,14 @@ import vn.mobileid.id.helper.ORM_JPA.database.objects.DatabaseResponse;
  */
 public class GetKEYAPI{
 
+    //<editor-fold defaultstate="collapsed" desc="Get Key API">
+    /**
+     * Get Key API of the ClientID/Enterprise
+     * @param clientID
+     * @param transactionID
+     * @return InternalResponse with Enterprise as an Object
+     * @throws Exception 
+     */
     public static InternalResponse getKEYAPI(            
             String clientID,
             String transactionID) throws Exception {
@@ -27,8 +35,6 @@ public class GetKEYAPI{
                 transactionID);
 
         if (res.getStatus() != A_FPSConstant.CODE_SUCCESS) {
-            System.out.println("Get that bai:");
-            System.out.println("Code:"+res.getStatus());
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                     A_FPSConstant.CODE_FAIL,
@@ -41,6 +47,7 @@ public class GetKEYAPI{
                 A_FPSConstant.HTTP_CODE_SUCCESS,
                 user).setEnt(user);
     }
+    //</editor-fold>
     
     public static void main(String[] arhs) throws Exception{
         InternalResponse res = GetKEYAPI.getKEYAPI("MI_MobileApp", "h9fSyjob8OF2SjlLSJY0");

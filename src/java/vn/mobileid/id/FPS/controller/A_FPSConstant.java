@@ -196,7 +196,7 @@ public class A_FPSConstant {
     final public static int SUBCODE_CANNOT_DOWNLOAD_FILE_FROM_QRYPTO = 4;
     final public static int SUBCODE_MISSING_ITEMS = 5;
     final public static int SUBCODE_INVALID_TYPE_OF_ITEM = 6;
-    
+     
     //Subcode Error while calling thread - 12
     final public static int SUBCODE_THREAD_GET_FIELDS_IN_UPDATE_INITIALFIELD = 1;
     

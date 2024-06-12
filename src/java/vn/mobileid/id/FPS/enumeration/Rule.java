@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,27 +23,28 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 //@JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum Rule {
-    IS_CONVERT_DATE(false); //Convert Date with Format Date in DATE_DATETIME field
+    IS_CONVERT_DATE(false), //Convert Date with Format Date in DATE_DATETIME field
+    QRYPTO_DATE_FORMAT("temp");
 
-    private boolean isConvertDate;
+    private Object dataRule;
 
-    private Rule(boolean isConvertDate) {
-        this.isConvertDate = isConvertDate;
+    private Rule(Object dataRule) {
+        this.dataRule = dataRule;
     }
 
-    public boolean isEnabled() {
-        return isConvertDate;
+    public Object getData() {
+        return dataRule;
     }
 
-    public Rule setEnabled(boolean isConvertDate) {
-        this.isConvertDate = isConvertDate;
+    public Rule setData(Object dataRule) {
+        this.dataRule = dataRule;
         return this;
     }
 
     @JsonValue
     public Map<String, Object> toValue() {
         Map<String, Object> value = new HashMap<>();
-        value.put(this.name(), isEnabled());
+        value.put(this.name(), getData());
         return value;
     }
 
@@ -55,8 +57,15 @@ public enum Rule {
             String fieldName = node.fieldNames().next();
             while (fieldName != null) {
                 try {
-                    boolean fieldValue = node.get(fieldName).asBoolean();
-                    return Rule.valueOf(fieldName.toUpperCase()).setEnabled(fieldValue);
+                    JsonNodeType type = node.get(fieldName).getNodeType();
+                    switch (type) {
+                        case BOOLEAN:
+                            return Rule.valueOf(fieldName.toUpperCase()).setData(node.get(fieldName).asBoolean());
+                        case STRING:
+                            return Rule.valueOf(fieldName.toUpperCase()).setData(node.get(fieldName).asText());
+                        default:
+                            throw new AssertionError();
+                    }
                 } catch (Exception ex) {
                 }
                 fieldName = node.fieldNames().next();
@@ -68,7 +77,7 @@ public enum Rule {
         return null;
     }
 
-    public boolean checkSameRule(Rule ruleCheck){
-         return this.name().equalsIgnoreCase(ruleCheck.name());
+    public boolean checkSameRule(Rule ruleCheck) {
+        return this.name().equalsIgnoreCase(ruleCheck.name());
     }
 }
