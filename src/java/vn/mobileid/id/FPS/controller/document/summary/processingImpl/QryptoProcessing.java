@@ -54,6 +54,7 @@ import vn.mobileid.id.FPS.controller.field.summary.FieldSummaryInternal;
 import vn.mobileid.id.FPS.enumeration.QryptoVariable;
 import vn.mobileid.id.FPS.serializer.IgnoreIngeritedIntrospector;
 import vn.mobileid.id.FPS.services.MyServices;
+import vn.mobileid.id.FPS.services.others.qryptoService.process.ReplaceSigningTime;
 import vn.mobileid.id.FPS.services.others.threadManagement.ThreadManagement;
 import vn.mobileid.id.FPS.systemManagement.LogHandler;
 import vn.mobileid.id.FPS.systemManagement.PolicyConfiguration;
@@ -436,30 +437,14 @@ class QryptoProcessing implements IDocumentProcessing {
                     field.setImageQR(uuid);
 
                     //<editor-fold defaultstate="collapsed" desc="Update 2024-05-27: Add logic read Signature in PDF and replace SigningTime @FirstSigner and @SecondSigner">
-                    String temp = MyServices.getJsonService(
+                    String json = MyServices.getJsonService(
                             new ObjectMapper().setAnnotationIntrospector(new IgnoreIngeritedIntrospector())
                     )
                             .writeValueAsString(field);
-                    if (!Utils.isNullOrEmpty(signatures)) {
-                        try {
-                            for(int i = 0; i<=signatures.size() ; i++){
-                                int position = i + 1;
-                                temp = temp.replaceAll(
-                                        QryptoVariable.SIGNER_NUMBER.getAnnotationName()+position, 
-                                        new SimpleDateFormat("dd/MM/yyyy hh:mm:ss")
-                                            .format(signatures.get(i).getSigningTime()));
-                            }
-//                            temp = temp.replaceAll(
-//                                    QryptoVariable.SIGNER_1.getAnnotationName(),
-//                                    new SimpleDateFormat("dd/MM/yyyy hh:mm:ss")
-//                                            .format(signatures.get(0).getSigningTime()));
-//                            temp = temp.replaceAll(
-//                                    QryptoVariable.SIGNER_2.getAnnotationName(),
-//                                    new SimpleDateFormat("dd/MM/yyyy hh:mm:ss")
-//                                            .format(signatures.get(1).getSigningTime()));
-                        } catch (Exception e) {
-                        }
-                    }
+                    ReplaceSigningTime replaceSigningTime = new ReplaceSigningTime(
+                            user, signatures
+                    );
+                    String temp = replaceSigningTime.replaceSigningTimeReturnString(json);
                     //</editor-fold>
 
                     response = FieldSummaryInternal.updateFieldDetail(

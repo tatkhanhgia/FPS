@@ -6,10 +6,12 @@ package vn.mobileid.id.FPS.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import vn.mobileid.id.FPS.services.impls.JacksonJsonService;
+import vn.mobileid.id.FPS.services.impls.ZipService;
 import vn.mobileid.id.FPS.services.impls.databaseConnection.DatabaseConnectionManager;
 import vn.mobileid.id.FPS.services.others.threadManagement.ThreadManagement;
 import vn.mobileid.id.FPS.services.interfaces.IDatabaseConnection;
 import vn.mobileid.id.FPS.services.interfaces.IJsonService;
+import vn.mobileid.id.FPS.services.interfaces.IZip;
 import vn.mobileid.id.FPS.services.others.threadManagement.ThreadFactory;
 
 /**
@@ -28,12 +30,12 @@ public class MyServices {
      * Trả về một instance của {@link IJsonService} được triển khai bởi {@link JacksonJsonService}.
      *
      * @return An implementation of {@link IJsonService} for JSON serialization and deserialization.
-     *         Một implementation của {@link IJsonService} cho việc chuyển đổi đối tượng Java thành chuỗi JSON và ngược lại. 
+     * Một implementation của {@link IJsonService} cho việc chuyển đổi đối tượng Java thành chuỗi JSON và ngược lại.
      */
     public static IJsonService getJsonService() {
         return new JacksonJsonService();
     }
-    
+
     /**
      * Returns an instance of {@link IJsonService} implemented by {@link JacksonJsonService}.
      * <p>
@@ -41,21 +43,22 @@ public class MyServices {
      *
      * @param objectMapper
      * @return An implementation of {@link IJsonService} for JSON serialization and deserialization.
-     *         Một implementation của {@link IJsonService} cho việc chuyển đổi đối tượng Java thành chuỗi JSON và ngược lại. 
+     * Một implementation của {@link IJsonService} cho việc chuyển đổi đối tượng Java thành chuỗi JSON và ngược lại.
      */
     public static IJsonService getJsonService(ObjectMapper objectMapper) {
         return new JacksonJsonService(objectMapper);
     }
     //</editor-fold>
-     
+
     //<editor-fold defaultstate="collapsed" desc="Get Database Connection">
     /**
      * Get database Connection
+     *
      * @return IDatabaseConnection
      */
-    public static IDatabaseConnection getDatabaseConnection(){
+    public static IDatabaseConnection getDatabaseConnection() {
         return new DatabaseConnectionManager();
-    } 
+    }
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Get Thread Management">
@@ -65,10 +68,24 @@ public class MyServices {
      * Trả về một instance của {@link ThreadManagement} để quản lý các luồng.
      *
      * @return An instance of {@link ThreadManagement}.
-     *         Một instance của {@link ThreadManagement}.
+     * Một instance của {@link ThreadManagement}.
      */
-    public static ThreadManagement getThreadManagement(int numberTask){
+    public static ThreadManagement getThreadManagement(int numberTask) {
         return ThreadFactory.newCachedThreadPool(numberTask);
+    }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="Get Zip Service">
+    /**
+     * Returns an instance of the {@link IZip} interface implemented by the {@link ZipService} class.
+     * <p>
+     * Trả về một phiên bản của giao diện {@link IZip} được triển khai bởi lớp {@link ZipService}.
+     *
+     * @return An instance of {@link IZip} for performing ZIP compression and extraction operations.
+     * Một phiên bản của {@link IZip} để thực hiện các thao tác nén và giải nén ZIP.
+     */
+    public static IZip getZipService() {
+        return new ZipService();
     }
     //</editor-fold>
 }

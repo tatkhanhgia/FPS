@@ -86,7 +86,12 @@ public class ProcessingDateTimeField extends ProcessingTextFormField<DateTimeFie
                 );
             }
             if (rule != null && rule.isRuleEnabled(Rule.IS_CONVERT_DATE)) {
-                dateTime.setValue(Utils.convertISOStringToCustom((String) processField.getValue(), dateFormat2));
+                Rule temp = rule.getRule(Rule.IS_CONVERT_DATE);
+                if (temp.getData() instanceof Boolean) {
+                    if (true == ((boolean) temp.getData())) {
+                        dateTime.setValue(Utils.convertISOStringToCustom((String) processField.getValue(), dateFormat2));
+                    }
+                }
             } else {
                 dateTime.setValue((String) processField.getValue());
             }
@@ -99,7 +104,12 @@ public class ProcessingDateTimeField extends ProcessingTextFormField<DateTimeFie
                 );
             }
             if (rule != null && rule.isRuleEnabled(Rule.IS_CONVERT_DATE)) {
-                dateTime.setValue(Utils.convertISOStringToCustom(dateTime.getDefaultDate(), dateFormat2));
+                Rule temp = rule.getRule(Rule.IS_CONVERT_DATE);
+                if (temp.getData() instanceof Boolean) {
+                    if (true == ((boolean) temp.getData())) {
+                        dateTime.setValue(Utils.convertISOStringToCustom(dateTime.getDefaultDate(), dateFormat2));
+                    }
+                }
             } else {
                 dateTime.setValue(dateTime.getDefaultDate());
             }
