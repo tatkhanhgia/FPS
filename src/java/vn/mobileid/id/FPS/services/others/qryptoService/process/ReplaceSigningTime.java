@@ -85,6 +85,11 @@ public class ReplaceSigningTime {
         }
     }
 
+    //<editor-fold defaultstate="collapsed" desc="Get Date Format of User in DB">
+    /**
+     * Get DateFormat of APIKey in DB
+     * @return String date format
+     */
     private String getDateFormat() {
         InternalResponse response = new GetAPIKeyRuleOfEnterprise().getAPIKeyRule(user, "transactionId");
         if (response.isValid()) {
@@ -93,11 +98,25 @@ public class ReplaceSigningTime {
         }
         return null;
     }
+    //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="Check rule of User">
+    /**
+     * Check the Rule IS_CONVERT_DATE is enable?
+     * @param rule
+     * @return True if the rule is enable
+     */
     private boolean checkRuleOfUser(APIKeyRule rule) {
         return rule != null && rule.isRuleEnabled(Rule.IS_CONVERT_DATE);
     }
-
+    //</editor-fold>    
+    
+    //<editor-fold defaultstate="collapsed" desc="Get Date Format">
+    /**
+     * Get Date Format of the APIKeyRule
+     * @param rule
+     * @return String date format
+     */
     private String getDateFormat(APIKeyRule rule) {
         if (rule.isRuleEnabled(Rule.QRYPTO_DATE_FORMAT)) {
             Object dateFormatData = rule.getRule(Rule.QRYPTO_DATE_FORMAT).getData();
@@ -105,4 +124,5 @@ public class ReplaceSigningTime {
         }
         return "dd/MM/yyyy hh:mm:ss";
     }
+    //</editor-fold>
 }

@@ -426,6 +426,7 @@ class QryptoProcessing implements IDocumentProcessing {
                     field.setQryptoBase45(qryptoBase45);
 
                     String imageQR = (String) this.get()[1];
+                    
                     //<editor-fold defaultstate="collapsed" desc="Upload to FMS">
                     response = FMS.uploadToFMS(imageQR.getBytes(), DocumentType.PNG.getType(), transactionId);
                     if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {

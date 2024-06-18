@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.Optional;
 import vn.mobileid.id.FPS.controller.enterprise.summary.EnterpriseSummary;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.controller.enterprise.summary.EnterpriseSummaryInternal;
@@ -21,6 +22,7 @@ import vn.mobileid.id.FPS.object.APIKeyRule;
 import vn.mobileid.id.FPS.object.Enterprise;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.ProcessingRequest;
+import vn.mobileid.id.FPS.object.ProcessingRequest.ProcessingFormFillRequest;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.FPS.systemManagement.LogHandler;
@@ -77,7 +79,7 @@ public class ProcessingDateTimeField extends ProcessingTextFormField<DateTimeFie
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Check value in ProcessField and default value in Field is valid">
-        if (processField != null && !Utils.isNullOrEmpty(processField.getValue())) {
+        /*if (processField != null && !Utils.isNullOrEmpty(processField.getValue())) {
             if (!(processField.getValue() instanceof String) && Utils.isNullOrEmpty(dateTime.getDefaultDate())) {
                 return new InternalResponse(
                         A_FPSConstant.HTTP_CODE_BAD_REQUEST,
@@ -87,10 +89,10 @@ public class ProcessingDateTimeField extends ProcessingTextFormField<DateTimeFie
             }
             if (rule != null && rule.isRuleEnabled(Rule.IS_CONVERT_DATE)) {
                 Rule temp = rule.getRule(Rule.IS_CONVERT_DATE);
-                if (temp.getData() instanceof Boolean) {
-                    if (true == ((boolean) temp.getData())) {
-                        dateTime.setValue(Utils.convertISOStringToCustom((String) processField.getValue(), dateFormat2));
-                    }
+                if (temp.getData() instanceof Boolean && true == ((boolean) temp.getData())) {
+                    dateTime.setValue(Utils.convertISOStringToCustom((String) processField.getValue(), dateFormat2));
+                } else {
+                    dateTime.setValue((String) processField.getValue());
                 }
             } else {
                 dateTime.setValue((String) processField.getValue());
@@ -113,32 +115,60 @@ public class ProcessingDateTimeField extends ProcessingTextFormField<DateTimeFie
             } else {
                 dateTime.setValue(dateTime.getDefaultDate());
             }
+        }*/
+        //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="Check value in ProcessField and default value in Field is valid (Using Optional)">
+        Optional<ProcessingFormFillRequest> optional = Optional.ofNullable(processField);
+
+        if (optional.isPresent() && !Utils.isNullOrEmpty(optional.get().getValue())) {
+            ProcessingFormFillRequest processFieldTemp = optional.get();
+            if (!(processFieldTemp.getValue() instanceof String) && Utils.isNullOrEmpty(dateTime.getDefaultDate())) {
+                return new InternalResponse(
+                        A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                        A_FPSConstant.CODE_FIELD,
+                        A_FPSConstant.SUBCODE_VALUE_MUST_BE_ENCODE_BASE64_FORMAT
+                );
+            }
+
+            Optional<APIKeyRule> optionalRule = Optional.ofNullable(rule);
+            Optional<?> check = optionalRule.filter(r -> r.isRuleEnabled(Rule.IS_CONVERT_DATE))
+                    .map(r -> r.getRule(Rule.IS_CONVERT_DATE))
+                    .map(r -> r.getData())
+                    .filter(r -> Boolean.class.isInstance(r))
+                    .filter(r -> Boolean.class.cast(r));
+            if (check.isPresent()) {
+                dateTime.setValue(
+                        Utils.convertISOStringToCustom((String) processFieldTemp.getValue(),
+                                dateFormat2));
+            } else {
+                dateTime.setValue((String) processField.getValue());
+            }
+        } else {
+            if (Utils.isNullOrEmpty(dateTime.getDefaultDate())) {
+                return new InternalResponse(
+                        A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                        A_FPSConstant.CODE_FIELD_DATETIME,
+                        A_FPSConstant.SUBCODE_MISSING_DEFAULT_ITEMS_FOR_PROCESS
+                );
+            }
+            
+            Optional<APIKeyRule> optionalRule = Optional.ofNullable(rule);
+            Optional<?> check = optionalRule.filter(r -> r.isRuleEnabled(Rule.IS_CONVERT_DATE))
+                    .map(r -> r.getRule(Rule.IS_CONVERT_DATE))
+                    .map(r -> r.getData())
+                    .filter(r -> Boolean.class.isInstance(r))
+                    .filter(r -> Boolean.class.cast(r));
+            if (check.isPresent()) {
+                dateTime.setValue(
+                        Utils.convertISOStringToCustom(dateTime.getDefaultDate(),
+                                dateFormat2));
+            } else {
+                dateTime.setValue(dateTime.getDefaultDate());
+            }
         }
         //</editor-fold>
 
-//        if (!Utils.isNullOrEmpty(value)) {
-////            dateTime.setValue(Utils.convertISOStringToCustom(value, dateFormat2));
-//            if (enterprise != null && rule != null && rule.isRuleEnabled(Rule.IS_CONVERT_DATE)) {
-//                dateTime.setValue(Utils.convertISOStringToCustom(value, dateFormat2));
-//            } else {
-//                dateTime.setValue(value);
-//            }
-//        } else { 
-//            try {
-////                dateTime.setValue(Utils.convertISOStringToCustom(value, dateFormat2));
-//                if (enterprise != null && rule != null && rule.isRuleEnabled(Rule.IS_CONVERT_DATE)) {
-//                    dateTime.setValue(Utils.convertISOStringToCustom(dateTime.getDefaultDate(), dateFormat2));
-//                } else {
-//                    dateTime.setValue(dateTime.getDefaultDate());
-//                }
-//            } catch (Exception ex) {
-//                return new InternalResponse(
-//                        A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-//                        A_FPSConstant.CODE_FIELD_DATETIME,
-//                        A_FPSConstant.SUBCODE_MISSING_DEFAULT_ITEMS_FOR_PROCESS
-//                );
-//            }
-//        }
         return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, dateTime);
     }
 
