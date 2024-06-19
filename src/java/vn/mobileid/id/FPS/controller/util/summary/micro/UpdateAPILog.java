@@ -52,7 +52,7 @@ public class UpdateAPILog {
                     transactionId);
 
             if (response.getStatus() != A_FPSConstant.CODE_SUCCESS) {
-                return CreateInternalResponse.createErrorInternalResponse(response.getStatus());
+                return CreateInternalResponse.createBadRequestInternalResponse(response.getStatus());
             }
             return new InternalResponse().setData(response.getObject());
         } catch (Exception ex) {

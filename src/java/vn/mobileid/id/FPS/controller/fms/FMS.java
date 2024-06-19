@@ -160,6 +160,59 @@ public class FMS {
     }
     //</editor-fold>
     
+    //<editor-fold defaultstate="collapsed" desc="Upload to FMS with Temp Folder">
+    /**
+     * Tải file lên hệ thống FMS - Upload the file into FMS
+     *
+     * @param data
+     * @param type
+     * @param transactionId
+     * @param isTempFile
+     * @return
+     * @throws Exception
+     */
+    public static InternalResponse uploadToFMS(
+            byte[] data,
+            String type,
+            String transactionId,
+            boolean isTempFile
+    ) throws Exception {
+        FMSClient client = new FMSClient();
+        if(Configuration.getInstance().IsGTK_Dev()){
+            client.setGTK_Dev();
+        }
+        if(isTempFile){
+            client.setTempFile(isTempFile);
+        }
+        client.setURL(Configuration.getInstance().getUrlFMS());
+        client.setData(data);
+        client.setFormat(type);
+        try {
+            client.uploadFile();
+        } catch (Exception ex) {
+            LogHandler.error(
+                    FMS.class,
+                    transactionId,
+                    ex);
+            return new InternalResponse(
+                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                            A_FPSConstant.CODE_FMS,
+                            A_FPSConstant.SUBCODE_ERROR_WHILE_UPLOAD_FMS);
+        }
+        if (client.getHttpCode() != 200) {
+            return new InternalResponse(
+                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                            A_FPSConstant.CODE_FMS,
+                            A_FPSConstant.SUBCODE_FMS_REJECT_UPLOAD);
+        }
+        String uuid = client.getUUID();
+        return new InternalResponse(
+                A_FPSConstant.HTTP_CODE_SUCCESS,
+                (Object) uuid
+        );
+    }
+    //</editor-fold>
+    
     //<editor-fold defaultstate="collapsed" desc="Download Document From FMS">
     /**
      * Tải file từ FMS về - Download the file from the FMS

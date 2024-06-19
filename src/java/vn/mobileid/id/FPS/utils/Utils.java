@@ -574,7 +574,8 @@ public class Utils {
                                         return FMS.uploadToFMS(
                                                 Base64.getDecoder().decode((String) this.get()[0]),
                                                 "tmp",
-                                                "null");
+                                                "null",
+                                                true);
                                     } catch (Exception ex) {
                                         return new InternalResponse(A_FPSConstant.HTTP_CODE_BAD_REQUEST, "");
                                     }

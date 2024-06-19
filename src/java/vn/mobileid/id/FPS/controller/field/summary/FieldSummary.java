@@ -195,8 +195,8 @@ public class FieldSummary {
                 hierarchicalLog.addEndHeading2("Value QR: " + qr.getValue());
                 byte[] imageQR = QRGenerator.generateQR(
                         qr.getValue(),
-                        Math.round(qr.getDimension().getWidth()),
-                        Math.round(qr.getDimension().getWidth()),
+                        Math.round((float) qr.getDimension().getWidth()),
+                        Math.round((float) qr.getDimension().getWidth()),
                         qr.IsTransparent());
                 if (Utils.isNullOrEmpty(qr.getImageQR())) {
                     qr.setImageQR(Base64.toBase64String(imageQR));
@@ -600,6 +600,7 @@ public class FieldSummary {
                                     ? (Integer) y == -1
                                     : false)) {
                         float Y = (fieldOld.getDimension().getY() + fieldOld.getDimension().getHeight()) / document_.getDocumentHeight();
+//                        double Y = (fieldOld.getDimension().getY() + fieldOld.getDimension().getHeight()) / document_.getDocumentHeight();
                         field.getDimension().setY((1 - Y) * 100);
                     }
                     if (w == null
@@ -678,8 +679,8 @@ public class FieldSummary {
                 if (!Utils.isNullOrEmpty(qr.getValue())) {
                     byte[] imageQR = QRGenerator.generateQR(
                             (String) Utils.getFromJson_("value", merge2.toPrettyString()),
-                            Math.round(qr.getDimension().getWidth()),
-                            Math.round(qr.getDimension().getWidth()),
+                            Math.round((float)qr.getDimension().getWidth()),
+                            Math.round((float)qr.getDimension().getWidth()),
                             qr.IsTransparent() == null ? false : qr.IsTransparent());
                     qr.setImageQR(Base64.toBase64String(imageQR));
                     hierarchicalLog.addEndHeading1("Generate QR successfully");
@@ -705,10 +706,10 @@ public class FieldSummary {
                 merge2.toPrettyString(),
                 null,
                 field.getPage() <= 0 ? fieldOld.getPage() : field.getPage(),
-                field.getDimension().getWidth(),
-                field.getDimension().getHeight(),
-                field.getDimension().getY() + field.getDimension().getHeight(),
-                field.getDimension().getX(),
+                (float)field.getDimension().getWidth(),
+                (float)field.getDimension().getHeight(),
+                (float)(field.getDimension().getY() + field.getDimension().getHeight()),
+                (float)field.getDimension().getX(),
                 Utils.getFromJson("rotate", payload) == null
                 ? null
                 : RotateDegree.getRotateDegree(field.getRotate()),

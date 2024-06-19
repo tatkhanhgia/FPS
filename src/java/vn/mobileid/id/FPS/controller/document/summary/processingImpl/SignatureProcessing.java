@@ -324,10 +324,10 @@ class SignatureProcessing implements IDocumentProcessing, IModuleProcessing {
                                 file,
                                 imageQR,
                                 qr.getPage(),
-                                qr.getDimension().getX(),
-                                qr.getDimension().getY(),
-                                qr.getDimension().getWidth(),
-                                qr.getDimension().getWidth());
+                                (float)qr.getDimension().getX(),
+                                (float)qr.getDimension().getY(),
+                                (float)qr.getDimension().getWidth(),
+                                (float)qr.getDimension().getWidth());
 
                         internalData = new InternalData();
                         internalData.setName("qr");

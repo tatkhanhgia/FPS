@@ -51,23 +51,23 @@ public class AuthorizeSummary {
                     ManageTokenWithDB.class,
                     transactionID,
                     "Cannot parse payload!");
-            return CreateInternalResponse.createErrorInternalResponse(A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE)
+            return CreateInternalResponse.createBadRequestInternalResponse(A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE)
                     .setException(ex);
         }
 
         //Login 
         if (Utils.isNullOrEmpty(object.getGrantType())) {
-            return CreateInternalResponse.createErrorInternalResponse(A_FPSConstant.CODE_KEYCLOAK,
+            return CreateInternalResponse.createBadRequestInternalResponse(A_FPSConstant.CODE_KEYCLOAK,
                     A_FPSConstant.SUBCODE_MISSING_GRANT_TYPE);
         }
         switch (object.getGrantType()) {
             case "client_credentials": {
                 if (Utils.isNullOrEmpty(object.getClientId())) {
-                    return CreateInternalResponse.createErrorInternalResponse(A_FPSConstant.CODE_KEYCLOAK,
+                    return CreateInternalResponse.createBadRequestInternalResponse(A_FPSConstant.CODE_KEYCLOAK,
                             A_FPSConstant.SUBCODE_MISSING_CLIENT_ID);
                 }
                 if (Utils.isNullOrEmpty(object.getClientSecret())) {
-                    return CreateInternalResponse.createErrorInternalResponse(A_FPSConstant.CODE_KEYCLOAK,
+                    return CreateInternalResponse.createBadRequestInternalResponse(A_FPSConstant.CODE_KEYCLOAK,
                             A_FPSConstant.SUBCODE_MISSING_CLIENT_SECRET);
                 }
                 return ManageTokenWithDB.login(
@@ -75,7 +75,7 @@ public class AuthorizeSummary {
                         transactionID);
             }
             default: {
-                return CreateInternalResponse.createErrorInternalResponse(A_FPSConstant.CODE_KEYCLOAK,
+                return CreateInternalResponse.createBadRequestInternalResponse(A_FPSConstant.CODE_KEYCLOAK,
                         A_FPSConstant.SUBCODE_UNSUPPORTED_GRANT_TYPE);
             }
         }
@@ -96,7 +96,7 @@ public class AuthorizeSummary {
             String transactionID
     ) throws Exception {
         if (Utils.isNullOrEmpty(token)) {
-            return CreateInternalResponse.createErrorInternalResponse(A_FPSConstant.SUBCODE_MISSING_ACCESS_TOKEN);
+            return CreateInternalResponse.createBadRequestInternalResponse(A_FPSConstant.SUBCODE_MISSING_ACCESS_TOKEN);
         }
         token = token.replaceAll("Bearer ", "");
 
@@ -173,23 +173,23 @@ public class AuthorizeSummary {
                     ManageTokenWithDB.class,
                     transactionID,
                     "Cannot parse payload!");
-            return CreateInternalResponse.createErrorInternalResponse(A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE)
+            return CreateInternalResponse.createBadRequestInternalResponse(A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE)
                     .setException(ex);
         }
 
         //Login 
         if (Utils.isNullOrEmpty(object.getGrantType())) {
-            return CreateInternalResponse.createErrorInternalResponse(A_FPSConstant.CODE_KEYCLOAK,
+            return CreateInternalResponse.createBadRequestInternalResponse(A_FPSConstant.CODE_KEYCLOAK,
                     A_FPSConstant.SUBCODE_MISSING_GRANT_TYPE);
         }
         switch (object.getGrantType()) {
             case "client_credentials": {
                 if (Utils.isNullOrEmpty(object.getClientId())) {
-                    return CreateInternalResponse.createErrorInternalResponse(A_FPSConstant.CODE_KEYCLOAK,
+                    return CreateInternalResponse.createBadRequestInternalResponse(A_FPSConstant.CODE_KEYCLOAK,
                             A_FPSConstant.SUBCODE_MISSING_CLIENT_ID);
                 }
                 if (Utils.isNullOrEmpty(object.getClientSecret())) {
-                    return CreateInternalResponse.createErrorInternalResponse(A_FPSConstant.CODE_KEYCLOAK,
+                    return CreateInternalResponse.createBadRequestInternalResponse(A_FPSConstant.CODE_KEYCLOAK,
                             A_FPSConstant.SUBCODE_MISSING_CLIENT_SECRET);
                 }
                 return ManageTokenWithDB.login(
@@ -197,7 +197,7 @@ public class AuthorizeSummary {
                         transactionID);
             }
             default: {
-                return CreateInternalResponse.createErrorInternalResponse(A_FPSConstant.CODE_KEYCLOAK,
+                return CreateInternalResponse.createBadRequestInternalResponse(A_FPSConstant.CODE_KEYCLOAK,
                         A_FPSConstant.SUBCODE_UNSUPPORTED_GRANT_TYPE);
             }
         }

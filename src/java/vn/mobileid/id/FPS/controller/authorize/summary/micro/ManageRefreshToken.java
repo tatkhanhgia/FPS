@@ -57,7 +57,7 @@ public class ManageRefreshToken {
                 createdBy,
                 transactionId);
         if (res.getStatus() != A_FPSConstant.CODE_SUCCESS) {
-            return CreateInternalResponse.createErrorInternalResponse(res.getStatus());
+            return CreateInternalResponse.createBadRequestInternalResponse(res.getStatus());
         }
         return new InternalResponse();
     }
@@ -96,7 +96,7 @@ public class ManageRefreshToken {
                 transactionId);
 
         if (response.getStatus() != A_FPSConstant.CODE_SUCCESS) {
-            return CreateInternalResponse.createErrorInternalResponse(response.getStatus());
+            return CreateInternalResponse.createBadRequestInternalResponse(response.getStatus());
         }
         return new InternalResponse();
     }
@@ -131,7 +131,7 @@ public class ManageRefreshToken {
                 transactionId);
  
         if (response.getStatus() != A_FPSConstant.CODE_SUCCESS) {
-            return CreateInternalResponse.createErrorInternalResponse(response.getStatus());
+            return CreateInternalResponse.createBadRequestInternalResponse(response.getStatus());
         }  
         return new InternalResponse();
     }

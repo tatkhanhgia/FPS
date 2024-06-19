@@ -4,13 +4,18 @@
  */
 package vn.mobileid.id.FPS.object;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import java.util.List;
+import vn.mobileid.id.FPS.services.MyServices;
+
 /**
  *
  * @author GiaTK
  */
 public class APILog {
     private long id;
-    private String fileCache;
+    private List<FileCached> fileCaches;
+    private String fileCacheString;
      
     public APILog(){}
 
@@ -22,11 +27,30 @@ public class APILog {
         this.id = id;
     }
 
-    public String getFileCache() {
-        return fileCache;
+    public String getFileCacheString() {
+        return fileCacheString;
     }
 
-    public void setFileCache(String fileCache) {
-        this.fileCache = fileCache;
+    public void setFileCacheString(String fileCacheString) {
+        this.fileCacheString = fileCacheString;
+        try{
+            
+        }
+        catch(Exception ex){
+            ex.printStackTrace();
+        }
+    }
+    
+    public List<FileCached> getFileCaches() {
+        return fileCaches;
+    }
+
+    public void setFileCaches(List<FileCached> fileCaches) {
+        this.fileCaches = fileCaches;
+    }
+    
+    public static void main(String[] args)throws Exception{
+        APILog log = new APILog();
+        log.setFileCacheString("[{\"uuid\":\"CBFC9BF3924F769390EC2C2436866167\",\"time\":86400,\"timeStamp\":\"12/06/2024 03:33:44\"}]");
     }
 }

@@ -5,6 +5,8 @@
  */
 package vn.mobileid.id.FPS.database.implement;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.groupdocs.conversion.caching.FileCache;
 import vn.mobileid.id.FPS.services.impls.databaseConnection.DatabaseConnectionManager;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -14,6 +16,7 @@ import vn.mobileid.id.FPS.systemManagement.Configuration;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.database.interfaces.IDatabase;
 import vn.mobileid.id.FPS.object.APILog;
+import vn.mobileid.id.FPS.object.FileCached;
 import vn.mobileid.id.FPS.object.ResponseCode;
 import vn.mobileid.id.FPS.object.TemporalObject;
 import vn.mobileid.id.FPS.systemManagement.LogHandler;
@@ -22,7 +25,6 @@ import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.helper.ORM_JPA.database.CreateConnection;
 import vn.mobileid.id.helper.ORM_JPA.database.objects.DatabaseResponse;
 import vn.mobileid.id.FPS.utils.Utils;
-import vn.mobileid.id.helper.ORM_JPA.database.CreateConnectionV2;
 
 /**
  *
@@ -354,7 +356,7 @@ public class DatabaseImpl implements IDatabase {
                     String fileCached = (String) row.get("FILE_CACHED");
                     long id = (Long) row.get("ID");
                     apiLog.setId(id);
-                    apiLog.setFileCache(fileCached);
+                    apiLog.setFileCacheString(fileCached);
                     apiLogs.add(apiLog);
                 }
             }

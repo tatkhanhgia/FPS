@@ -5,6 +5,10 @@
 package vn.mobileid.id.FPS.services.interfaces;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import java.util.Collection;
+import java.util.Map;
+import vn.mobileid.id.FPS.services.objects.JSAtomic;
+import vn.mobileid.id.FPS.services.objects.JSObject;
 
 /**
  * Provides methods for serializing objects to JSON strings and deserializing JSON strings to objects.
@@ -44,4 +48,19 @@ public interface IJsonService {
      *                                 Nếu có lỗi xảy ra trong quá trình chuyển đổi.
      */
     <T> T readValue(String json, Class<T> type) throws JsonProcessingException;
+    
+    /**
+     * Deserializes a JSON string to an object of the specified type.
+     * <p>
+     * Chuyển đổi một chuỗi JSON thành một đối tượng thuộc kiểu được chỉ định.
+     *
+     * @param json The JSON string to deserialize.
+     *             Chuỗi JSON cần chuyển đổi.
+     * @return The deserialized object.
+     *         Đối tượng đã được chuyển đổi.
+     * @throws JsonProcessingException If an error occurs during deserialization.
+     *                                 Nếu có lỗi xảy ra trong quá trình chuyển đổi.
+     */
+    JSAtomic readTree(String json) throws JsonProcessingException;
+
 }

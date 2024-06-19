@@ -12,7 +12,7 @@ import vn.mobileid.id.FPS.object.InternalResponse;
  * @author GiaTK
  */
 public class CreateInternalResponse {
-    //<editor-fold defaultstate="collapsed" desc="Create  Error Internal Response">
+    //<editor-fold defaultstate="collapsed" desc="Create BadRequest Error Internal Response">
     /**
     * Creates an `InternalResponse` object representing a Bad Request (HTTP 400) error with the specified sub-code.
     * <p>
@@ -23,7 +23,7 @@ public class CreateInternalResponse {
     * @return An InternalResponse object representing a Bad Request error with the given sub-code.
     *         Một đối tượng InternalResponse đại diện cho lỗi Bad Request với mã phụ đã cho.
     */
-    public static InternalResponse createErrorInternalResponse(
+    public static InternalResponse createBadRequestInternalResponse(
             int subCode
     ){
         return new InternalResponse(
@@ -34,7 +34,7 @@ public class CreateInternalResponse {
     }
     //</editor-fold>
     
-    //<editor-fold defaultstate="collapsed" desc="Create Error Internal Response">
+    //<editor-fold defaultstate="collapsed" desc="Create Bad Request Error Internal Response">
     /**
     * Creates an `InternalResponse` object representing an error condition.
     * <p>
@@ -47,7 +47,7 @@ public class CreateInternalResponse {
     * @return An InternalResponse object representing the error with the specified codes.
     *         Một đối tượng InternalResponse đại diện cho lỗi với các mã được chỉ định.
     */
-    public static InternalResponse createErrorInternalResponse(
+    public static InternalResponse createBadRequestInternalResponse(
             int code,
             int subCode
     ){

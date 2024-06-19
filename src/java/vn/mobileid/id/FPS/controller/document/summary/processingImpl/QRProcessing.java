@@ -58,18 +58,18 @@ class QRProcessing implements IDocumentProcessing{
             //Create QR Image
             byte[] qr = QRGenerator.generateQR(
                     field.getValue(), 
-                    Math.round(field.getDimension().getWidth()), 
-                    Math.round(field.getDimension().getHeight()), 
+                    Math.round((float)field.getDimension().getWidth()), 
+                    Math.round((float)field.getDimension().getHeight()), 
                     field.IsTransparent());
             
             byte[] resultODF = DocumentUtils_itext7.addImage(
                     file, 
                     qr, 
                     field.getPage(), 
-                    field.getDimension().getX(), 
-                    field.getDimension().getY(), 
-                    field.getDimension().getWidth(), 
-                    field.getDimension().getHeight());
+                    (float)field.getDimension().getX(), 
+                    (float)field.getDimension().getY(), 
+                    (float)field.getDimension().getWidth(), 
+                    (float)field.getDimension().getHeight());
             
            
             //Update field after processing

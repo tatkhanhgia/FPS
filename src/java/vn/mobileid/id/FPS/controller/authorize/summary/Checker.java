@@ -22,7 +22,7 @@ class Checker {
      */
     public static InternalResponse checkLoginRequest(String payload){
         if (Utils.isNullOrEmpty(payload)) {
-            return CreateInternalResponse.createErrorInternalResponse(A_FPSConstant.SUBCODE_NO_PAYLOAD_FOUND);
+            return CreateInternalResponse.createBadRequestInternalResponse(A_FPSConstant.SUBCODE_NO_PAYLOAD_FOUND);
         }
         return new InternalResponse();
     }
@@ -36,7 +36,7 @@ class Checker {
      */
     public static InternalResponse checkRevokeRequest(String payload){
         if (Utils.isNullOrEmpty(payload)) {
-            return CreateInternalResponse.createErrorInternalResponse(A_FPSConstant.SUBCODE_NO_PAYLOAD_FOUND);
+            return CreateInternalResponse.createBadRequestInternalResponse(A_FPSConstant.SUBCODE_NO_PAYLOAD_FOUND);
         }
         return new InternalResponse();
     }
