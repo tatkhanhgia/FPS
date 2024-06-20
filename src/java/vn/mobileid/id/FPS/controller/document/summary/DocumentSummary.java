@@ -1893,7 +1893,7 @@ public class DocumentSummary {
         //<editor-fold defaultstate="collapsed" desc="Process QR Qrypto Field">
         if (!Utils.isNullOrEmpty(processRequest.getItem())) {
             //<editor-fold defaultstate="collapsed" desc="Flow 1 => Gen Qrypto from payload">
-            response = ProcessingQRQryptoField.processQRQryptoField(
+            response = new ProcessingQRQryptoField().processQRQryptoField(
                     packageId,
                     processRequest.getFieldName(),
                     user,
@@ -1906,7 +1906,7 @@ public class DocumentSummary {
             //</editor-fold>
         } else {
             //<editor-fold defaultstate="collapsed" desc="Version 2 - Generate from old items in field">
-            response = ProcessingQRQryptoField.processQRQryptoFieldV2(
+            response = new ProcessingQRQryptoField().processQRQryptoFieldV2(
                     packageId,
                     processRequest.getFieldName(),
                     user,

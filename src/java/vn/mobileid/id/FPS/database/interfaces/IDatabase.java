@@ -74,7 +74,7 @@ public interface  IDatabase {
     )throws Exception;
     
     public DatabaseResponse updateFileCatchAPILog(
-            String apiLogId,
+            long apiLogId,
             String fileCatch,
             String modifiedBy,
             String transactionId

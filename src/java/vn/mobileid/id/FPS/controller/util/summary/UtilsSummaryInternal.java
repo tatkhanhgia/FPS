@@ -40,7 +40,7 @@ public class UtilsSummaryInternal {
         if(response.isValid()){
             List<APILog> list = (List<APILog>)response.getData();
             for(APILog log : list){
-                System.out.println(log.getId() +"-"+log.getFileCache());
+                System.out.println(log.getId() +"-"+log.getFileCaches().get(0).getUuid());
             }
         } else {
             System.out.println("Status:"+response.getStatus());

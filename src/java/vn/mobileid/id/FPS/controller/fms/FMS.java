@@ -294,4 +294,46 @@ public class FMS {
         );
     }
     //</editor-fold>
+    
+    //<editor-fold defaultstate="collapsed" desc="Delete Document">
+    /**
+     * Tải file từ FMS về - Download the file from the FMS
+     * @param uuid
+     * @param isTemp
+     * @param transactionId
+     * @return byte[]
+     * @throws Exception 
+     */
+    public  static InternalResponse deleteDocument(
+            String uuid,
+            boolean isTemp,
+            String transactionId
+    )throws Exception{
+        FMSClient client = new FMSClient();
+        client.setUUID(uuid);
+        client.setTempFile(isTemp);
+        try{
+            client.deleteFile();
+        } catch(Exception ex){
+            LogHandler.error(
+                    FMS.class,
+                    transactionId,
+                    ex);
+            return new InternalResponse(
+                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                            A_FPSConstant.CODE_FMS,
+                            A_FPSConstant.SUBCODE_ERROR_WHILE_DOWNLOAD_FMS);
+        }
+        if(client.getHttpCode() != 200){
+            return new InternalResponse(
+                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                            A_FPSConstant.CODE_FMS,
+                            A_FPSConstant.SUBCODE_FMS_REJECT_DOWNLOAD);
+        }
+        return new InternalResponse(
+                A_FPSConstant.HTTP_CODE_SUCCESS,
+                ""
+        );
+    }
+    //</editor-fold>
 }

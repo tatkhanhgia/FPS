@@ -54,7 +54,7 @@ public class GetAPILog {
         List<APILog> apiLogs = (List<APILog>)internalResponse.getData();
         for(APILog apiLog : apiLogs){
             System.out.println("ID:"+apiLog.getId());
-            System.out.println("FileCache:"+apiLog.getFileCache());
+//            System.out.println("FileCache:"+apiLog.getFileCache());
         }
     }
 }

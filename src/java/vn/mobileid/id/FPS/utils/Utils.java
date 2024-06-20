@@ -928,6 +928,22 @@ public class Utils {
     }
     //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="Get TimeStamp from String">
+    public static long getTimeStamp(String dateTimeString){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        LocalDateTime dateTime = LocalDateTime.parse(dateTimeString, formatter);
+        return dateTime.toEpochSecond(ZoneOffset.UTC); 
+    }
+    //</editor-fold>
+    
+    //<editor-fold defaultstate="collapsed" desc="Get TimeStamp in MilisSecond from String">
+    public static long getTimeStampInMilis(String dateTimeString){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        LocalDateTime dateTime = LocalDateTime.parse(dateTimeString, formatter);
+        return dateTime.toInstant(ZoneOffset.UTC).toEpochMilli(); 
+    }
+    //</editor-fold>
+    
     //<editor-fold defaultstate="collapsed" desc="Hash field in Dokobit rule">
     public static String hashAndExtractMiddleSixChars(String input) throws NoSuchAlgorithmException {
         // Sử dụng thuật toán SHA-256 để hash

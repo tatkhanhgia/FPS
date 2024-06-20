@@ -49,13 +49,12 @@ import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.FPS.services.others.threadManagement.TaskV2;
 import vn.mobileid.id.FPS.utils.Utils;
 import vn.mobileid.id.FPS.controller.document.summary.processingImpl.interfaces.IDocumentProcessing;
+import vn.mobileid.id.FPS.controller.document.summary.processingImpl.interfaces.IVersion;
 import vn.mobileid.id.FPS.controller.field.summary.FieldSummary;
 import vn.mobileid.id.FPS.controller.field.summary.FieldSummaryInternal;
-import vn.mobileid.id.FPS.enumeration.QryptoVariable;
 import vn.mobileid.id.FPS.serializer.IgnoreIngeritedIntrospector;
 import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.FPS.services.others.qryptoService.process.ReplaceSigningTime;
-import vn.mobileid.id.FPS.services.others.threadManagement.ThreadManagement;
 import vn.mobileid.id.FPS.systemManagement.LogHandler;
 import vn.mobileid.id.FPS.systemManagement.PolicyConfiguration;
 
@@ -64,7 +63,15 @@ import vn.mobileid.id.FPS.systemManagement.PolicyConfiguration;
  * @author GiaTK
  * Core of the QryptoProcessing
  */
-class QryptoProcessing implements IDocumentProcessing {
+class QryptoProcessing extends IVersion implements IDocumentProcessing {
+
+    public QryptoProcessing(Version version) {
+        super(version);
+    }
+    
+    public QryptoProcessing() {
+        super(IVersion.Version.V1);
+    }
 
     @Override
     public InternalResponse processField(Object... objects) throws Exception {
@@ -501,7 +508,98 @@ class QryptoProcessing implements IDocumentProcessing {
                 ""
         );
     }
+    
+    //==========================INTERNAL METHOD=================================
+    
+    //<editor-fold defaultstate="collapsed" desc="Create Configuration">
+    /**
+     * Create Configuration to call Qrypto
+     * @param file
+     * @param items
+     * @param field
+     * @param user
+     * @param signatures
+     * @param transactionId
+     * @return
+     * @throws Exception 
+     */
+    private Configuration createConfiguration(
+            byte[] file,
+            List<ItemDetails> items,
+            QryptoFieldAttribute field,
+            User user,
+            List<Signature> signatures,
+            String transactionId
+    )throws Exception{
+        FileDataDetails fileDataDetail = new FileDataDetails();
+        fileDataDetail.setValue(file);
+        fileDataDetail.setFile_field("fileprocessingservice");
 
+        ItemDetails file_ = new ItemDetails();
+        file_.setField("FilePDF");
+        file_.setType(5);
+        file_.setFile_format("application/pdf");
+        file_.setFile_name("PDFStamping.pdf");
+        file_.setFile_field("fileprocessingservice");
+        file_.setValue("none");
+
+        items.add(file_);
+
+        QRSchema.QR_META_DATA positionQR = new QRSchema.QR_META_DATA();
+        positionQR.setxCoordinator(Math.round(field.getDimension().getX()));
+        positionQR.setyCoordinator(Math.round(field.getDimension().getY()));
+        positionQR.setIsTransparent(field.IsTransparent());
+        positionQR.setQrDimension(Math.round(field.getDimension().getWidth()));
+        positionQR.setPageNumber(Arrays.asList(field.getPage()));
+
+        CreateQRSchema createQRSchema = new CreateQRSchema(user, signatures);
+        Configuration config = createQRSchema.createConfiguration(
+                field,
+                user,
+                items.size() * 120,
+                transactionId);
+        return config;
+    }
+    //</editor-fold>
+    
+    //<editor-fold defaultstate="collapsed" desc="Create QRSchema">
+    /**
+     * Create QRSchema to call Qrypto
+     * @param user
+     * @param createQRSchema
+     * @param fileDataDetail
+     * @param items
+     * @param positionQR
+     * @param transactionId
+     * @return InternalResponse with QRSchema as an Object
+     */
+    private InternalResponse createQRSchema(
+            User user,
+            CreateQRSchema createQRSchema,
+            FileDataDetails fileDataDetail,
+            List<ItemDetails> items,
+            QRSchema.QR_META_DATA positionQR,
+            String transactionId
+    ){
+        
+        QRSchema schema = null;
+        try {
+            schema = createQRSchema.createQRSchema(
+                    Arrays.asList(fileDataDetail),
+                    items,
+                    positionQR,
+                    transactionId);
+            return new InternalResponse().setData(schema);
+        } catch (InvalidFormatOfItems ex) {
+            return new InternalResponse(
+                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                    A_FPSConstant.CODE_FIELD_QR_Qrypto,
+                    A_FPSConstant.SUBCODE_INVALID_FORMAT_OF_ITEM
+            ).setUser(user);
+        }
+    }
+    //</editor-fold>
+    
     public static void main(String[] args) throws Exception {
         Signature sig = new Signature();
         sig.setSigningTime(new Date(System.currentTimeMillis()));

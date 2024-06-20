@@ -17,6 +17,7 @@ import vn.mobileid.id.FPS.controller.field.summary.FieldSummaryInternal;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import fps_core.enumration.FieldTypeName;
 import java.util.Base64;
+import vn.mobileid.id.FPS.controller.document.summary.processingImpl.interfaces.IVersion;
 import vn.mobileid.id.FPS.controller.fms.FMS;
 import vn.mobileid.id.FPS.services.others.qryptoService.object.Item_IDPicture4Label.IDPicture4Label;
 import vn.mobileid.id.FPS.services.others.qryptoService.object.ItemsType;
@@ -38,8 +39,16 @@ import vn.mobileid.id.FPS.utils.Utils;
  * + Get ExtendFieldAttribute and parse it into QryptoFieldAttribute
  * + Call submethod QryptoProcessing
  */
-public class ProcessingQRQryptoField {
-
+public class ProcessingQRQryptoField extends IVersion{
+    
+    public ProcessingQRQryptoField(Version version) {
+        super(version);
+    }
+    
+    public ProcessingQRQryptoField() {
+        super(IVersion.Version.V1);
+    }
+    
     //<editor-fold defaultstate="collapsed" desc="Processing QR Qrypto Form Field">
     /**
      * Processing QR Qrypto Form Field in Payload
@@ -55,7 +64,7 @@ public class ProcessingQRQryptoField {
      * error while processed
      * @throws Exception
      */
-    public static InternalResponse processQRQryptoField(
+    public InternalResponse processQRQryptoField(
             long packageId,
             String fieldName,
             User user,
@@ -166,7 +175,7 @@ public class ProcessingQRQryptoField {
      * error while processed
      * @throws Exception
      */
-    public static InternalResponse processQRQryptoFieldV2(
+    public InternalResponse processQRQryptoFieldV2(
             long packageId,
             String fieldName,
             User user,
@@ -288,7 +297,7 @@ public class ProcessingQRQryptoField {
      * @throws Exception If an error occurs during conversion.
      * Nếu có lỗi xảy ra trong quá trình chuyển đổi.
      */
-    private static InternalResponse convertExtendIntoQryptoField(
+    private InternalResponse convertExtendIntoQryptoField(
             User user,
             ExtendedFieldAttribute fieldData,
             boolean ignoreMissingItem) throws Exception {
@@ -386,4 +395,5 @@ public class ProcessingQRQryptoField {
         return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, QRField);
     }
     //</editor-fold>
+    
 }

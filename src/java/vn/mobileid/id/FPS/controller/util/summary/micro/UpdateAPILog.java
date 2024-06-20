@@ -39,7 +39,7 @@ public class UpdateAPILog {
      *         - Nếu xảy ra lỗi, trả về phản hồi lỗi với mã HTTP thích hợp và chi tiết lỗi.
      */
     public static InternalResponse updateAPILog(
-            String apiLogId,
+            long apiLogId,
             String fileCatch,
             String modifiedBy,
             String transactionId
@@ -68,7 +68,7 @@ public class UpdateAPILog {
 
     public static void main(String[] args) throws Exception{
         InternalResponse response  = UpdateAPILog.updateAPILog(
-                "112",
+                44681,
                 "helklo new", 
                 "modified",
                 "tran");

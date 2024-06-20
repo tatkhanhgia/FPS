@@ -5,11 +5,13 @@
 package vn.mobileid.id.FPS.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import vn.mobileid.id.FPS.services.impls.FmsService;
 import vn.mobileid.id.FPS.services.impls.JacksonJsonService;
 import vn.mobileid.id.FPS.services.impls.ZipService;
 import vn.mobileid.id.FPS.services.impls.databaseConnection.DatabaseConnectionManager;
 import vn.mobileid.id.FPS.services.others.threadManagement.ThreadManagement;
 import vn.mobileid.id.FPS.services.interfaces.IDatabaseConnection;
+import vn.mobileid.id.FPS.services.interfaces.IFms;
 import vn.mobileid.id.FPS.services.interfaces.IJsonService;
 import vn.mobileid.id.FPS.services.interfaces.IZip;
 import vn.mobileid.id.FPS.services.others.threadManagement.ThreadFactory;
@@ -86,6 +88,12 @@ public class MyServices {
      */
     public static IZip getZipService() {
         return new ZipService();
+    }
+    //</editor-fold>
+    
+    //<editor-fold defaultstate="collapsed" desc="Get FMS Service">
+    public static IFms getFMSService(){
+        return new FmsService();
     }
     //</editor-fold>
 }
