@@ -8,6 +8,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import vn.mobileid.id.FPS.controller.fms.FMS;
 import vn.mobileid.id.FPS.controller.util.summary.UtilsSummaryInternal;
@@ -32,6 +33,21 @@ public class ScheduledThreadManagement {
 
     private static volatile ScheduledThreadManagement instance;
 
+    private static final int[] delayTimeInSeconds = new int[5];
+
+    private static final int maxErrorCanNegotiate = 10;
+    
+    //Auto reconnection to DB
+    private static final boolean isInProcessingReconnectDB = false;
+
+    static {
+        delayTimeInSeconds[0] = 60; //1 minute
+        delayTimeInSeconds[1] = 60; //1 minute
+        delayTimeInSeconds[2] = 300; //5 minute
+        delayTimeInSeconds[3] = 900; //15 minute
+        delayTimeInSeconds[4] = 3600;//1 hour
+    }
+
     public static ScheduledThreadManagement getInstance() {
         if (instance == null) {
             instance = new ScheduledThreadManagement();
@@ -44,6 +60,7 @@ public class ScheduledThreadManagement {
     }
 
     public void initial() {
+        try{
         //<editor-fold defaultstate="collapsed" desc="Initial">
         System.out.println("\n=====Start Initial Scheduled Task=====");
         InternalResponse getAPILogs = new UtilsSummaryInternal().getAPILogs();
@@ -51,6 +68,7 @@ public class ScheduledThreadManagement {
             LogHandler.error(ScheduledThreadManagement.class,
                     "",
                     "Cannot initial Scheduled Thread Management");
+            return;
         }
         List<APILog> apiLogs = (List<APILog>) getAPILogs.getData();
         for (APILog apiLog : apiLogs) {
@@ -67,50 +85,57 @@ public class ScheduledThreadManagement {
             }
         }
         //</editor-fold>
-        System.out.println("TimeStamp:"+timestamp);
-        System.out.println("Now:"+System.currentTimeMillis());
-        System.out.println("\n=====Scheduled Task===== => Create thread delete File Cache after:"+(timestamp - System.currentTimeMillis())+" second");
+
+        System.out.println("\n=====Scheduled Task===== => Create thread delete File Cache after:" + (timestamp - System.currentTimeMillis()) + " second");
         getThread().schedule(generateTaskDeleteFileCache(), timestamp - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
+        } catch(RuntimeException ex){
+            autoReloadSheduledWhenHaveTheProblem(generateInitial(), 1);
+        }
     }
 
     private TaskV2 generateTaskDeleteFileCache() {
         return new TaskV2(null, null) {
             @Override
             public Object call() {
-                long now = System.currentTimeMillis();
-                InternalResponse getAPILogs = new UtilsSummaryInternal().getAPILogs();
-                if (!getAPILogs.isValid()) {
-                    LogHandler.error(ScheduledThreadManagement.class,
-                            "",
-                            "Cannot initial Scheduled Thread Management");
-                }
-                List<APILog> apiLogs = (List<APILog>) getAPILogs.getData();
-                for (APILog apiLog : apiLogs) {
-                    List<FileCached> fileCaches = apiLog.getFileCaches();
+                try {
+                    long now = System.currentTimeMillis();
+                    InternalResponse getAPILogs = new UtilsSummaryInternal().getAPILogs();
+                    if (!getAPILogs.isValid()) {
+                        LogHandler.error(ScheduledThreadManagement.class,
+                                "",
+                                "Cannot initial Scheduled Thread Management");
+                    }
+                    List<APILog> apiLogs = (List<APILog>) getAPILogs.getData();
+                    for (APILog apiLog : apiLogs) {
+                        List<FileCached> fileCaches = apiLog.getFileCaches();
 
-                    for (FileCached fileCache : fileCaches) {
-                        long timeStampOfFileCached = vn.mobileid.id.FPS.utils.Utils.getTimeStampInMilis(fileCache.getTimeStamp());
+                        for (FileCached fileCache : fileCaches) {
+                            long timeStampOfFileCached = vn.mobileid.id.FPS.utils.Utils.getTimeStampInMilis(fileCache.getTimeStamp());
 
-                        if (now >= timeStampOfFileCached) {
-                            try {
-                                FMS.deleteDocument(fileCache.getUuid(), true, "");
-                                UpdateAPILog.updateAPILog(apiLog.getId(), null, "System FPS", "");
-                            } catch (Exception ex) {
+                            if (now >= timeStampOfFileCached) {
+                                try {
+                                    FMS.deleteDocument(fileCache.getUuid(), true, "");
+                                    UpdateAPILog.updateAPILog(apiLog.getId(), null, "System FPS", "");
+                                } catch (Exception ex) {
+                                }
                             }
                         }
                     }
-                }
 //                System.out.println("=======");
-                System.out.println("\n=====Scheduled Task ===== => Delete file cache successfull");
-                System.out.println("\n=====Scheduled Task===== => Start create schedule for initial after " + nextTimeInSecond + " second");
-                getThread().schedule(new TaskV2(null, null) {
-                    @Override
-                    public Object call() {
-                        initial();
-                        return null;
-                    }
-                }, nextTimeInSecond, TimeUnit.SECONDS);
-                return null;
+                    System.out.println("\n=====Scheduled Task ===== => Delete file cache successfull");
+                    System.out.println("\n=====Scheduled Task===== => Start create schedule for initial after " + nextTimeInSecond + " second");
+                    getThread().schedule(new TaskV2(null, null) {
+                        @Override
+                        public Object call() {
+                            initial();
+                            return null;
+                        }
+                    }, nextTimeInSecond, TimeUnit.SECONDS);
+                    return null;
+                } catch (Exception e) {
+                    LogHandler.error(ScheduledThreadManagement.class, "", e);
+                    return null;
+                }
             }
         };
     }
@@ -118,19 +143,21 @@ public class ScheduledThreadManagement {
     private TaskV2 generateInitial() {
         return new TaskV2(null, null) {
             @Override
-            public Object call() {
+            public Object call() throws Exception {
+                System.out.println("\n=====Start Initial Scheduled Task=====");
                 InternalResponse getAPILogs = new UtilsSummaryInternal().getAPILogs();
                 if (!getAPILogs.isValid()) {
                     LogHandler.error(ScheduledThreadManagement.class,
                             "",
                             "Cannot initial Scheduled Thread Management");
+                    return null;
                 }
                 List<APILog> apiLogs = (List<APILog>) getAPILogs.getData();
                 for (APILog apiLog : apiLogs) {
                     List<FileCached> fileCaches = apiLog.getFileCaches();
 
                     for (FileCached fileCache : fileCaches) {
-                        long timeStampOfFileCached = vn.mobileid.id.FPS.utils.Utils.getTimeStamp(fileCache.getTimeStamp());
+                        long timeStampOfFileCached = vn.mobileid.id.FPS.utils.Utils.getTimeStampInMilis(fileCache.getTimeStamp());
                         if (timestamp > timeStampOfFileCached) {
                             timestamp = timeStampOfFileCached;
                         }
@@ -139,7 +166,10 @@ public class ScheduledThreadManagement {
                         }
                     }
                 }
+                //</editor-fold>
 
+                System.out.println("\n=====Scheduled Task===== => Create thread delete File Cache after:" + (timestamp - System.currentTimeMillis()) + " second");
+                getThread().schedule(generateTaskDeleteFileCache(), timestamp - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
                 return null;
             }
         };
@@ -149,9 +179,27 @@ public class ScheduledThreadManagement {
         return (ScheduledExecutorService) scheduledPool.getExecutorService();
     }
 
+    public void autoReloadSheduledWhenHaveTheProblem(TaskV2 task, int errorTime) {
+        try {
+            if (errorTime == maxErrorCanNegotiate) {
+                LogHandler.error(
+                        ScheduledThreadManagement.class,
+                        "",
+                        "Cannot execute Task anymore => reach max time delay");
+                return;
+            }
+            if (errorTime >= 5) {
+                getThread().schedule(task, delayTimeInSeconds[4], TimeUnit.SECONDS);
+            } else {
+                getThread().schedule(task, delayTimeInSeconds[errorTime], TimeUnit.SECONDS);
+            }
+        } catch (Exception e) {
+            autoReloadSheduledWhenHaveTheProblem(task, errorTime + 1);
+        }
+    }
+
     public static void main(String[] args) throws Exception {
-        ScheduledThreadManagement temp = ScheduledThreadManagement.getInstance();
-        
+
     }
 
 }

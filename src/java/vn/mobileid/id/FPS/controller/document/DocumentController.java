@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.hc.core5.http.HttpHeaders;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.controller.CatchException;
 import vn.mobileid.id.FPS.controller.field.FieldController;
 import vn.mobileid.id.FPS.services.others.responseMessage.ResponseMessageController;
 import vn.mobileid.id.FPS.controller.document.summary.DocumentSummary;
@@ -93,7 +94,7 @@ public class DocumentController extends HttpServlet {
                         transactionId);
 
             } catch (Exception ex) {
-                catchException(ex, req, res, "", (int) packageId, transactionId);
+                CatchException.catchException(ex, req, res, "", (int) packageId, transactionId);
             }
             return;
         }
@@ -142,7 +143,7 @@ public class DocumentController extends HttpServlet {
                         response.getException(),
                         transactionId);
             } catch (Exception ex) {
-                catchException(ex, req, res, "", (int) packageId, transactionId);
+                CatchException.catchException(ex, req, res, "", (int) packageId, transactionId);
             }
             return;
         }
@@ -184,7 +185,7 @@ public class DocumentController extends HttpServlet {
                         response.getMessage(),
                         transactionId);
             } catch (Exception ex) {
-                catchException(ex, req, res, "", (int) packageId, transactionId);
+                CatchException.catchException(ex, req, res, "", (int) packageId, transactionId);
             }
             return;
         }
@@ -226,7 +227,7 @@ public class DocumentController extends HttpServlet {
                         response.getMessage(),
                         transactionId);
             } catch (Exception ex) {
-                catchException(ex, req, res, "", (int) packageId, transactionId);
+                CatchException.catchException(ex, req, res, "", (int) packageId, transactionId);
             }
             return;
         }
@@ -277,7 +278,7 @@ public class DocumentController extends HttpServlet {
                         transactionId);
 
             } catch (Exception ex) {
-                catchException(ex, req, res, "", (int) packageId, transactionId);
+                CatchException.catchException(ex, req, res, "", (int) packageId, transactionId);
             }
             return;
         }
@@ -318,7 +319,7 @@ public class DocumentController extends HttpServlet {
                         transactionId);
 
             } catch (Exception ex) {
-                catchException(ex, req, res, "", (int) packageId, transactionId);
+                CatchException.catchException(ex, req, res, "", (int) packageId, transactionId);
             }
             return;
         } //</editor-fold>
@@ -368,7 +369,7 @@ public class DocumentController extends HttpServlet {
                         response.getMessage(),
                         transactionId);
             } catch (Exception ex) {
-                catchException(ex, req, res, "", 0, transactionId);
+                CatchException.catchException(ex, req, res, "", 0, transactionId);
             }
             return;
         }
@@ -410,7 +411,7 @@ public class DocumentController extends HttpServlet {
                             response.getMessage(),
                             transactionId);
                 } catch (Exception ex) {
-                    catchException(ex, req, res, payload, 0, transactionId);
+                    CatchException.catchException(ex, req, res, payload, 0, transactionId);
                 }
             } else {
                 Utils.sendMessage(
@@ -459,7 +460,7 @@ public class DocumentController extends HttpServlet {
                             response.getMessage(),
                             transactionId);
                 } catch (Exception ex) {
-                    catchException(ex, req, res, "", 0, transactionId);
+                    CatchException.catchException(ex, req, res, "", 0, transactionId);
                 }
             } else {
                 Utils.sendMessage(
@@ -503,7 +504,7 @@ public class DocumentController extends HttpServlet {
                             response.getMessage(),
                             transactionId);
                 } catch (Exception ex) {
-                    catchException(ex, req, res, payload, 0, transactionId);
+                    CatchException.catchException(ex, req, res, payload, 0, transactionId);
                 }
             } else {
                 Utils.sendMessage(
@@ -556,7 +557,7 @@ public class DocumentController extends HttpServlet {
                             response.getMessage(),
                             transactionId);
                 } catch (Exception ex) {
-                    catchException(ex, req, res, payload, (int) packageId, transactionId);
+                    CatchException.catchException(ex, req, res, payload, (int) packageId, transactionId);
                 }
             } else {
                 Utils.sendMessage(
@@ -607,7 +608,7 @@ public class DocumentController extends HttpServlet {
                             response.getMessage(),
                             transactionId);
                 } catch (Exception ex) {
-                    catchException(ex, req, res, payload, (int) packageId, transactionId);
+                    CatchException.catchException(ex, req, res, payload, (int) packageId, transactionId);
                 }
             } else {
                 Utils.sendMessage(
@@ -630,38 +631,4 @@ public class DocumentController extends HttpServlet {
     }
 
     //==========================================================================
-    //<editor-fold defaultstate="collapsed" desc="Catch Exception">
-    private static void catchException(
-            Exception ex,
-            HttpServletRequest req,
-            HttpServletResponse res,
-            String payload,
-            int documentId,
-            String transactionId) {
-        try {
-            User user = Utils.getUserFromBearerToken(req.getHeader("Authorization"));
-
-            InternalResponse response = new InternalResponse();
-            response.setUser(user);
-            response.setMessage("INTERNAL EXCEPTION");
-            response.setException(ex);
-
-            LogHandler.error(
-                    DocumentController.class,
-                    transactionId,
-                    ex);
-
-            Utils.sendMessage(
-                    res,
-                    A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
-                    "application/json",
-                    A_FPSConstant.INTERNAL_EXP_MESS,
-                    transactionId);
-
-            Utils.createAPILog(req, payload, documentId, response, response.getException(), transactionId);
-        } catch (IOException ex1) {
-            Logger.getLogger(DocumentController.class.getName()).log(Level.SEVERE, null, ex1);
-        }
-    }
-    //</editor-fold>
 }

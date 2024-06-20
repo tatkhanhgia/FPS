@@ -81,12 +81,16 @@ public class Utils {
             int status,
             String contentType,
             Object message,
-            String transactionId) throws IOException {
+            String transactionId) {
         switch (contentType) {
             case "application/json": {
                 if (Utils.isNullOrEmpty((String) message)) {
                     if (status != 200) {
-                        response.sendError(status);
+                        try {
+                            response.sendError(status);
+                        } catch (Exception ex) {
+                            response.setStatus(500);
+                        }
                     } else {
                         response.setStatus(status);
                     }
@@ -94,32 +98,49 @@ public class Utils {
                     response.setStatus(status);
                     response.addHeader(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
                     response.addHeader("x-transaction-id", transactionId);
-                    response.getOutputStream()
-                            .write(((String) message).getBytes());
+                    try {
+                        response.getOutputStream()
+                                .write(((String) message).getBytes());
+                    } catch (Exception ex) {
+                    }
                 }
                 return;
             }
             case "application/octet-stream": {
                 if (Utils.isNullOrEmpty((byte[]) message)) {
-                    response.sendError(status);
+                    try {
+                            response.sendError(status);
+                        } catch (Exception ex) {
+                            response.setStatus(500);
+                        }
                 } else {
                     response.setStatus(status);
                     response.addHeader(HttpHeaders.CONTENT_TYPE, "application/octet-stream");
                     response.addHeader("x-transaction-id", transactionId);
-                    response.getOutputStream()
-                            .write((byte[]) message);
+                    try {
+                        response.getOutputStream()
+                                .write(((String) message).getBytes());
+                    } catch (Exception ex) {
+                    }
                 }
                 return;
             }
             default: {
                 if (Utils.isNullOrEmpty((String) message)) {
-                    response.sendError(status);
+                    try {
+                            response.sendError(status);
+                        } catch (Exception ex) {
+                            response.setStatus(500);
+                        }
                 } else {
                     response.setStatus(status);
                     response.addHeader(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
                     response.addHeader("x-transaction-id", transactionId);
-                    response.getOutputStream()
-                            .write(((String) message).getBytes());
+                    try {
+                        response.getOutputStream()
+                                .write(((String) message).getBytes());
+                    } catch (Exception ex) {
+                    }
                 }
                 return;
             }
@@ -929,21 +950,21 @@ public class Utils {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Get TimeStamp from String">
-    public static long getTimeStamp(String dateTimeString){
+    public static long getTimeStamp(String dateTimeString) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         LocalDateTime dateTime = LocalDateTime.parse(dateTimeString, formatter);
-        return dateTime.toEpochSecond(ZoneOffset.UTC); 
+        return dateTime.toEpochSecond(ZoneOffset.UTC);
     }
     //</editor-fold>
-    
+
     //<editor-fold defaultstate="collapsed" desc="Get TimeStamp in MilisSecond from String">
-    public static long getTimeStampInMilis(String dateTimeString){
+    public static long getTimeStampInMilis(String dateTimeString) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         LocalDateTime dateTime = LocalDateTime.parse(dateTimeString, formatter);
-        return dateTime.toInstant(ZoneOffset.UTC).toEpochMilli(); 
+        return dateTime.toInstant(ZoneOffset.UTC).toEpochMilli();
     }
     //</editor-fold>
-    
+
     //<editor-fold defaultstate="collapsed" desc="Hash field in Dokobit rule">
     public static String hashAndExtractMiddleSixChars(String input) throws NoSuchAlgorithmException {
         // Sử dụng thuật toán SHA-256 để hash

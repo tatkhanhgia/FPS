@@ -39,7 +39,7 @@ public class ScheduledThreadPool implements IThreadPool {
     }
 
     private ExecutorService generateThreadPool(boolean allowCoreThreadTimeOut){
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
         return scheduler;
     }
 

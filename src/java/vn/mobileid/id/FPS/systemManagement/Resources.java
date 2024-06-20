@@ -53,33 +53,10 @@ public class Resources extends HttpServlet {
                 reloadFieldTypes();
             }
 
+        } catch (RuntimeException runTimeException){
+            LogHandler.error(Resources.class, "", runTimeException);
         } catch (Exception ex) {
-            ex.printStackTrace();
-            StringBuilder sb = new StringBuilder();
-            sb.append("Error while init! \n");
-            sb.append(ex.getLocalizedMessage());
-            sb.append("\n");
-            sb.append("Cause by:"+ ex.getCause().getMessage());
-            sb.append("\n");
-            StackTraceElement[] trace = ex.getCause().getStackTrace();
-            List<String> temp = new ArrayList<>();
-            for (int i = trace.length - 1; i >= 0; i--) {
-                if (trace[i].getClassName().equals(Resources.class.getCanonicalName())) {
-                    for (int j = i; j >= 0; j--) {
-                        if (trace[j].getClassName().equals("CreateConnection")) {
-                            temp.add(trace[j].getClassName()+ " at("+ trace[j].getMethodName() + ":" + trace[j].getLineNumber() + ")");                            
-                            break;
-                        }
-                        temp.add(trace[j].getClassName()+ " at("+ trace[j].getMethodName() + ":" + trace[j].getLineNumber() + ")");                                                    
-                    }
-                    break;
-                }
-            }
-            for(int i=(temp.size()-1);i>=0;i--){
-                sb.append(String.format("%5s", temp.get(i))); 
-                sb.append("\n");
-            }
-            System.out.println(sb.toString());            
+            LogHandler.error(Resources.class, "", ex);
         }
     }
 
