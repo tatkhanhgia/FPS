@@ -57,6 +57,7 @@ import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.FPS.services.others.qryptoService.process.ReplaceSigningTime;
 import vn.mobileid.id.FPS.systemManagement.LogHandler;
 import vn.mobileid.id.FPS.systemManagement.PolicyConfiguration;
+import vn.mobileid.id.FPS.utils.CreateInternalResponse;
 
 /**
  *
@@ -68,7 +69,7 @@ class QryptoProcessing extends IVersion implements IDocumentProcessing {
     public QryptoProcessing(Version version) {
         super(version);
     }
-    
+
     public QryptoProcessing() {
         super(IVersion.Version.V1);
     }
@@ -86,7 +87,7 @@ class QryptoProcessing extends IVersion implements IDocumentProcessing {
         byte[] file;
 
         ExecutorService executors = Executors.newFixedThreadPool(3);
-        
+
         CompletionService<Object> taskCompletion = new ExecutorCompletionService<>(executors);
         InternalResponse errorResponse = null;
 
@@ -111,11 +112,11 @@ class QryptoProcessing extends IVersion implements IDocumentProcessing {
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Update 2024-05-27: Add the items in Fill API into QryptoFieldAttribute if items in Field is null">
-        if(Utils.isNullOrEmpty(field.getItems())){
+        if (Utils.isNullOrEmpty(field.getItems())) {
             field.setItems(items);
         }
         //</editor-fold>
-        
+
         //<editor-fold defaultstate="collapsed" desc="Update 2024-05-27: Add logic read Signature in PDF and replace SigningTime @FirstSigner and @SecondSigner">
         List<Signature> signatures = null;
 
@@ -139,6 +140,7 @@ class QryptoProcessing extends IVersion implements IDocumentProcessing {
         }
         //</editor-fold>
 
+        //Update 2024-06-20: Add logic createConfig + Schema based on IVersion
         //<editor-fold defaultstate="collapsed" desc="Create Config + Schema">
         FileDataDetails fileDataDetail = new FileDataDetails();
         fileDataDetail.setValue(file);
@@ -161,26 +163,30 @@ class QryptoProcessing extends IVersion implements IDocumentProcessing {
         positionQR.setQrDimension(Math.round(field.getDimension().getWidth()));
         positionQR.setPageNumber(Arrays.asList(field.getPage()));
 
-        CreateQRSchema createQRSchema = new CreateQRSchema(user, signatures);
+        //=> If version = V2 , do not append the QRMetadata into Schema
+        CreateQRSchema createQRSchema = new CreateQRSchema(
+                user,
+                signatures,
+                getVersion().equals(IVersion.Version.V1));
+
         Configuration config = createQRSchema.createConfiguration(
                 field,
                 user,
                 items.size() * 120,
                 transactionId);
-        QRSchema schema = null;
-        try {
-            schema = createQRSchema.createQRSchema(
-                    Arrays.asList(fileDataDetail),
-                    items,
-                    positionQR,
-                    transactionId);
-        } catch (InvalidFormatOfItems ex) {
-            return new InternalResponse(
-                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                    A_FPSConstant.CODE_FIELD_QR_Qrypto,
-                    A_FPSConstant.SUBCODE_INVALID_FORMAT_OF_ITEM
-            ).setUser(user);
+
+        InternalResponse createSchema = createQRSchema(
+                user,
+                createQRSchema,
+                fileDataDetail,
+                items,
+                positionQR,
+                transactionId);
+
+        if (!createSchema.isValid()) {
+            return createSchema;
         }
+        QRSchema schema = (QRSchema) createSchema.getData();
         //</editor-fold>
 
         //<editor-fold defaultstate="collapsed" desc="Run first Thread to summary the field (make Image/File turn from Base64 into UUID FMS)">
@@ -264,7 +270,6 @@ class QryptoProcessing extends IVersion implements IDocumentProcessing {
                 QRdata = QryptoService
                         .getInstance(1)
                         .generateQR(
-                                //                                temp,
                                 MyServices.getJsonService().writeValueAsString(schema),
                                 schema.getHeader(),
                                 schema.getFormat(),
@@ -305,33 +310,13 @@ class QryptoProcessing extends IVersion implements IDocumentProcessing {
         }
         //</editor-fold>
 
-        //<editor-fold defaultstate="collapsed" desc="Download PDF from Qrypto">
-        byte[] filePDFFinal = null;
-        try {
-            DownloadFileTokenResponse qryptoResponse = QryptoService.getInstance(1).downloadFileToken(
-                    QRdata.getFileTokenList().get(QRdata.getFileTokenList().size() - 1));
-            if (qryptoResponse.getContent().isEmpty()) {
-                return new InternalResponse(
-                        A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                        A_FPSConstant.CODE_FIELD_QR_Qrypto,
-                        A_FPSConstant.SUBCODE_CANNOT_DOWNLOAD_FILE_FROM_QRYPTO
-                );
-            }
-            filePDFFinal = Base64.getDecoder().decode(qryptoResponse.getContent());
-        } catch (Exception ex) {
-            return new InternalResponse(
-                    A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
-                    A_FPSConstant.CODE_FIELD_QR_Qrypto,
-                    A_FPSConstant.SUBCODE_CANNOT_DOWNLOAD_FILE_FROM_QRYPTO
-            ).setException(ex);
-        } catch (Throwable ex) {
-            ex.printStackTrace();
-            return new InternalResponse(
-                    A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
-                    A_FPSConstant.CODE_FIELD_QR_Qrypto,
-                    A_FPSConstant.SUBCODE_CANNOT_DOWNLOAD_FILE_FROM_QRYPTO
-            );
+        //Update 2024-06-21: Add Logic process PDF based on Version
+        //<editor-fold defaultstate="collapsed" desc="Processing file PDF">
+        InternalResponse generateFinalPDF = processingFilePDF(QRdata, file, field);
+        if(!generateFinalPDF.isValid()){
+            return generateFinalPDF;
         }
+        byte[] filePDFFinal = (byte[]) generateFinalPDF.getData();
         //</editor-fold>
 
         //Run thread after process
@@ -433,7 +418,7 @@ class QryptoProcessing extends IVersion implements IDocumentProcessing {
                     field.setQryptoBase45(qryptoBase45);
 
                     String imageQR = (String) this.get()[1];
-                    
+
                     //<editor-fold defaultstate="collapsed" desc="Upload to FMS">
                     response = FMS.uploadToFMS(imageQR.getBytes(), DocumentType.PNG.getType(), transactionId);
                     if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
@@ -508,63 +493,12 @@ class QryptoProcessing extends IVersion implements IDocumentProcessing {
                 ""
         );
     }
-    
+
     //==========================INTERNAL METHOD=================================
-    
-    //<editor-fold defaultstate="collapsed" desc="Create Configuration">
-    /**
-     * Create Configuration to call Qrypto
-     * @param file
-     * @param items
-     * @param field
-     * @param user
-     * @param signatures
-     * @param transactionId
-     * @return
-     * @throws Exception 
-     */
-    private Configuration createConfiguration(
-            byte[] file,
-            List<ItemDetails> items,
-            QryptoFieldAttribute field,
-            User user,
-            List<Signature> signatures,
-            String transactionId
-    )throws Exception{
-        FileDataDetails fileDataDetail = new FileDataDetails();
-        fileDataDetail.setValue(file);
-        fileDataDetail.setFile_field("fileprocessingservice");
-
-        ItemDetails file_ = new ItemDetails();
-        file_.setField("FilePDF");
-        file_.setType(5);
-        file_.setFile_format("application/pdf");
-        file_.setFile_name("PDFStamping.pdf");
-        file_.setFile_field("fileprocessingservice");
-        file_.setValue("none");
-
-        items.add(file_);
-
-        QRSchema.QR_META_DATA positionQR = new QRSchema.QR_META_DATA();
-        positionQR.setxCoordinator(Math.round(field.getDimension().getX()));
-        positionQR.setyCoordinator(Math.round(field.getDimension().getY()));
-        positionQR.setIsTransparent(field.IsTransparent());
-        positionQR.setQrDimension(Math.round(field.getDimension().getWidth()));
-        positionQR.setPageNumber(Arrays.asList(field.getPage()));
-
-        CreateQRSchema createQRSchema = new CreateQRSchema(user, signatures);
-        Configuration config = createQRSchema.createConfiguration(
-                field,
-                user,
-                items.size() * 120,
-                transactionId);
-        return config;
-    }
-    //</editor-fold>
-    
     //<editor-fold defaultstate="collapsed" desc="Create QRSchema">
     /**
      * Create QRSchema to call Qrypto
+     *
      * @param user
      * @param createQRSchema
      * @param fileDataDetail
@@ -580,8 +514,8 @@ class QryptoProcessing extends IVersion implements IDocumentProcessing {
             List<ItemDetails> items,
             QRSchema.QR_META_DATA positionQR,
             String transactionId
-    ){
-        
+    ) {
+
         QRSchema schema = null;
         try {
             schema = createQRSchema.createQRSchema(
@@ -599,7 +533,82 @@ class QryptoProcessing extends IVersion implements IDocumentProcessing {
         }
     }
     //</editor-fold>
-    
+
+    //<editor-fold defaultstate="collapsed" desc="Processing file PDF based on Version">
+    /**
+     * Process Qrypto based on Version
+     * @param QRdata
+     * @param filePDF
+     * @param field
+     * @return InternalResponse with byte[] as an Object
+     */
+    private InternalResponse processingFilePDF(
+            IssueQryptoWithFileAttachResponse QRdata,
+            byte[] filePDF,
+            QryptoFieldAttribute field
+    ) {
+        try {
+            switch (getVersion()) {
+                case V1: {
+                    //<editor-fold defaultstate="collapsed" desc="Download PDF from Qrypto">
+                    byte[] filePDFFinal = null;
+                    try {
+                        DownloadFileTokenResponse qryptoResponse = QryptoService.getInstance(1).downloadFileToken(
+                                QRdata.getFileTokenList().get(QRdata.getFileTokenList().size() - 1));
+                        if (qryptoResponse.getContent().isEmpty()) {
+                            return new InternalResponse(
+                                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                                    A_FPSConstant.CODE_FIELD_QR_Qrypto,
+                                    A_FPSConstant.SUBCODE_CANNOT_DOWNLOAD_FILE_FROM_QRYPTO
+                            );
+                        }
+                        filePDFFinal = Base64.getDecoder().decode(qryptoResponse.getContent());
+                        return new InternalResponse().setData(filePDFFinal);
+                    } catch (Exception ex) {
+                        return new InternalResponse(
+                                A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
+                                A_FPSConstant.CODE_FIELD_QR_Qrypto,
+                                A_FPSConstant.SUBCODE_CANNOT_DOWNLOAD_FILE_FROM_QRYPTO
+                        ).setException(ex);
+                    } catch (Throwable ex) {
+                        ex.printStackTrace();
+                        return new InternalResponse(
+                                A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
+                                A_FPSConstant.CODE_FIELD_QR_Qrypto,
+                                A_FPSConstant.SUBCODE_CANNOT_DOWNLOAD_FILE_FROM_QRYPTO
+                        );
+                    }
+                    //</editor-fold>
+                }
+                case V2: {
+                    //<editor-fold defaultstate="collapsed" desc="comment">
+                    try {
+                        byte[] imageQR = Base64.getDecoder().decode(QRdata.getQryptoBase64());
+                        byte[] finalFilePDF = DocumentUtils_itext7.sign(
+                                filePDF,
+                                imageQR,
+                                field);
+                        return new InternalResponse().setData(finalFilePDF);
+                    } catch (Exception ex) {
+                        return CreateInternalResponse.createErrorInternalResponse(
+                                A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
+                                A_FPSConstant.CODE_FIELD_QR_Qrypto,
+                                A_FPSConstant.SUBCODE_CANNOT_SIGN_QRYPTO);
+                    }
+                    //</editor-fold>
+                }
+                default:
+                    throw new AssertionError();
+            }
+        } catch (Exception e) {
+        }
+        return CreateInternalResponse.createErrorInternalResponse(
+                A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
+                A_FPSConstant.CODE_FIELD_QR_Qrypto,
+                A_FPSConstant.SUBCODE_CANNOT_SIGN_QRYPTO);
+    }
+    //</editor-fold>
+
     public static void main(String[] args) throws Exception {
         Signature sig = new Signature();
         sig.setSigningTime(new Date(System.currentTimeMillis()));

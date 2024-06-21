@@ -25,7 +25,6 @@ public class ManagementController extends HttpServlet {
 
     @Override
     public void service(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
-        
         String documentPattern = getInitParameter("documentPattern");
         String fieldPattern = getInitParameter("fieldPattern");
         String authorizePattern = getInitParameter("authorizePattern");
@@ -46,7 +45,8 @@ public class ManagementController extends HttpServlet {
         } else if (uri.matches(FMSPattern)){
             FMSController.service_(req, res);
             return;
-        }
+        } 
+        System.out.println("Hehehe");
         Utils.sendMessage(
                 res,
                 A_FPSConstant.HTTP_CODE_NOT_FOUND,

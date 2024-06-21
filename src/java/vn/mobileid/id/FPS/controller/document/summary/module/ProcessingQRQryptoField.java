@@ -259,7 +259,9 @@ public class ProcessingQRQryptoField extends IVersion{
         //</editor-fold>
 
         //Processing
-        response = new ProcessingFactory().createType(ProcessingFactory.TypeProcess.QRYPTO).processField(
+        response = new ProcessingFactory().createType(
+                ProcessingFactory.TypeProcess.QRYPTO,
+                getVersion()).processField(
                 user,
                 document_,
                 documents.size(),

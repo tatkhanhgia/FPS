@@ -1890,6 +1890,14 @@ public class DocumentSummary {
         }
         //</editor-fold>
 
+        //<editor-fold defaultstate="collapsed" desc="Generate IVersion based on URL">
+        String requestURL = request.getRequestURI();
+        IVersion.Version version = IVersion.Version.V1;
+        if(requestURL.contains("v2") || requestURL.contains("V2")){
+            version = IVersion.Version.V2;
+        }
+        //</editor-fold>
+        
         //<editor-fold defaultstate="collapsed" desc="Process QR Qrypto Field">
         if (!Utils.isNullOrEmpty(processRequest.getItem())) {
             //<editor-fold defaultstate="collapsed" desc="Flow 1 => Gen Qrypto from payload">
@@ -1906,7 +1914,7 @@ public class DocumentSummary {
             //</editor-fold>
         } else {
             //<editor-fold defaultstate="collapsed" desc="Version 2 - Generate from old items in field">
-            response = new ProcessingQRQryptoField().processQRQryptoFieldV2(
+            response = new ProcessingQRQryptoField(version).processQRQryptoFieldV2(
                     packageId,
                     processRequest.getFieldName(),
                     user,
