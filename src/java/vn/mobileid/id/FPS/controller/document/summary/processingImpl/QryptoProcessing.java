@@ -590,6 +590,7 @@ class QryptoProcessing extends IVersion implements IDocumentProcessing {
                                 field);
                         return new InternalResponse().setData(finalFilePDF);
                     } catch (Exception ex) {
+                        LogHandler.error(QryptoProcessing.class, "", ex);
                         return CreateInternalResponse.createErrorInternalResponse(
                                 A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
                                 A_FPSConstant.CODE_FIELD_QR_Qrypto,

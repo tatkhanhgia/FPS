@@ -67,6 +67,9 @@
         <servlet-name>ManagementController</servlet-name>
         <url-pattern>/v1/*</url-pattern>
         <url-pattern>/v2/*</url-pattern>
+        <url-pattern>/upload/*</url-pattern>
+        <url-pattern>/download/*</url-pattern>
+        <url-pattern>/delete/*</url-pattern>
     </servlet-mapping>
     <!--END REST-->
     <!--    <error-page>

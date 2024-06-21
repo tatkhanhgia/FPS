@@ -119,7 +119,7 @@ public class Utils {
                     response.addHeader("x-transaction-id", transactionId);
                     try {
                         response.getOutputStream()
-                                .write(((String) message).getBytes());
+                                .write(((byte[]) message));
                     } catch (Exception ex) {
                     }
                 }
