@@ -122,8 +122,51 @@ public class UtilsController extends HttpServlet{
                         null,
                         "none");
             }
+        }
         //</editor-fold>
         
+        //<editor-fold defaultstate="collapsed" desc="Reload Thread Management">
+        if (req.getRequestURI().matches("^/fps/threads/reload*$")) {
+            String transactionId = Utils.getTransactionId(req, null);
+            String payload = Utils.getPayload(req);
+            LogHandler.request(
+                    UtilsController.class,
+                    Utils.getDataRequestToLog(req, transactionId, "Reload Thread Management", payload));
+            if (!Utils.isNullOrEmpty(req.getContentType()) && req.getContentType().contains("application/json")) {
+                try {
+                    InternalResponse response = UtilsSummary.reloadThreadManagement(req, transactionId);
+                    
+                    Utils.createAPILog(req,
+                            payload, 
+                            (int) Utils.getIdFromURL(req.getRequestURI()),
+                            response,
+                            response.getException(),
+                            transactionId);
+                    
+                    Utils.sendMessage(
+                            res,
+                            response.getStatus(),
+                            "application/json",
+                            response.getMessage(),
+                            transactionId);
+                } catch (Exception ex) {
+                    CatchException.catchException(
+                            ex,
+                            req,
+                            res,
+                            payload, 
+                            (int)Utils.getIdFromURL(req.getRequestURI()),
+                            transactionId);
+                }
+            } else {
+                Utils.sendMessage(
+                        res,
+                        HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE,
+                        "application/json",
+                        null,
+                        "none");
+            }
+        //</editor-fold>
         
         } else {
             Utils.sendMessage(

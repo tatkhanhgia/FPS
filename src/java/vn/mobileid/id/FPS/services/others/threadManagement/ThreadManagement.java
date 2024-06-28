@@ -7,7 +7,6 @@ package vn.mobileid.id.FPS.services.others.threadManagement;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 import vn.mobileid.id.FPS.services.others.threadManagement.impls.CachedThreadPool;
-import vn.mobileid.id.FPS.services.others.threadManagement.impls.ScheduledThreadPool;
 import vn.mobileid.id.FPS.services.others.threadManagement.interfaces.IThreadPool;
 
 /**
@@ -23,11 +22,16 @@ public class ThreadManagement implements AutoCloseable {
         ThreadPoolExecutor executor = systemPool.getThreadPoolExecutor();
         if (executor.getActiveCount() < executor.getMaximumPoolSize() && executor.getQueue().isEmpty() && executor.getMaximumPoolSize() >= numberTask) {
         } else {
-            System.out.println("Create new");
             this.threadPool = threadPool;
         }
     }
 
+    public void reloadAllThread(){
+        if(threadPool != null){
+            this.threadPool.getExecutorService().shutdown();
+        }
+    }
+    
     public <T> Future<T> submit(TaskV2 working) throws Exception {
         return getPoolActive().getExecutorService().submit(working);
     }
