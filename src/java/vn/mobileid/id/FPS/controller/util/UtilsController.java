@@ -4,10 +4,7 @@
  */
 package vn.mobileid.id.FPS.controller.util;
 
-import vn.mobileid.id.FPS.controller.document.DocumentController;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -16,14 +13,14 @@ import org.apache.hc.core5.http.HttpHeaders;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.controller.CatchException;
 import vn.mobileid.id.FPS.controller.field.summary.FieldSummary;
+import vn.mobileid.id.FPS.controller.util.summary.UtilsSummary;
 import vn.mobileid.id.FPS.object.InternalResponse;
-import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.FPS.systemManagement.LogHandler;
 import vn.mobileid.id.FPS.utils.Utils;
 
 /**
  *
- * @author Admin
+ * @author GiaTK
  */
 public class UtilsController extends HttpServlet{
     
@@ -32,6 +29,10 @@ public class UtilsController extends HttpServlet{
         switch (method) {
             case "GET": {
                 new UtilsController().doGet(req, res);
+                break;
+            }
+            case "POST":{
+                new UtilsController().doPost(req, res);
                 break;
             }
            
@@ -79,15 +80,17 @@ public class UtilsController extends HttpServlet{
     
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-        if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/fields.*$")) {
+        
+        //<editor-fold defaultstate="collapsed" desc="Reload Resources">
+        if (req.getRequestURI().matches("^/fps/resources/reload*$")) {
             String transactionId = Utils.getTransactionId(req, null);
             String payload = Utils.getPayload(req);
             LogHandler.request(
                     UtilsController.class,
-                    Utils.getDataRequestToLog(req, transactionId, "Add Field", payload));
+                    Utils.getDataRequestToLog(req, transactionId, "Reload Resources", payload));
             if (!Utils.isNullOrEmpty(req.getContentType()) && req.getContentType().contains("application/json")) {
                 try {
-                    InternalResponse response = FieldSummary.addField(req, payload, transactionId);
+                    InternalResponse response = UtilsSummary.reloadResources(req, transactionId);
                     
                     Utils.createAPILog(req,
                             payload, 
@@ -119,6 +122,9 @@ public class UtilsController extends HttpServlet{
                         null,
                         "none");
             }
+        //</editor-fold>
+        
+        
         } else {
             Utils.sendMessage(
                     res,

@@ -6,7 +6,6 @@
 package vn.mobileid.id.FPS.systemManagement;
 
 import fps_core.objects.FieldType;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import javax.servlet.http.HttpServlet;
@@ -45,6 +44,8 @@ public class Resources extends HttpServlet {
     private static volatile HashMap<String, FieldType> fieldTypes = new HashMap<>();
 
     public static synchronized void init_() {
+//        LogHandler.debug(Resources.class, "=======Initial Resources======");
+        System.out.println("=======Initial Resources======");
         try {
             if (responseCodes.isEmpty()) {
                 reloadResponseCodes();
@@ -58,6 +59,8 @@ public class Resources extends HttpServlet {
         } catch (Exception ex) {
             LogHandler.error(Resources.class, "", ex);
         }
+//        LogHandler.debug(Resources.class, "======Init sucessfully======");
+        System.out.println("======Init sucessfully======");
     }
 
     public static void reloadResponseCodes() throws Exception {

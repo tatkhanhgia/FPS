@@ -29,6 +29,7 @@ public class ManagementController extends HttpServlet {
         String fieldPattern = getInitParameter("fieldPattern");
         String authorizePattern = getInitParameter("authorizePattern");
         String FMSPattern = getInitParameter("FMSPattern");
+        String UtilsPattern = getInitParameter("UtilPattern");
         String uri = req.getRequestURI();
         if (uri.matches(documentPattern)) {
             DocumentController.service_(req, res);
@@ -46,7 +47,10 @@ public class ManagementController extends HttpServlet {
             FMSController.service_(req, res);
             return;
         } 
-        System.out.println("Hehehe");
+        else if (uri.matches(UtilsPattern)){
+            UtilsController.service_(req, res);
+            return;
+        } 
         Utils.sendMessage(
                 res,
                 A_FPSConstant.HTTP_CODE_NOT_FOUND,

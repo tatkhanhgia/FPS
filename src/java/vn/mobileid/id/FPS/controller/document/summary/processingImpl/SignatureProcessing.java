@@ -345,14 +345,6 @@ class SignatureProcessing implements IDocumentProcessing, IModuleProcessing {
             }
             //</editor-fold>
 
-            //<editor-fold defaultstate="collapsed" desc="Get All Signature => If not existed, make the signature become lockac/lockper">
-            List<SignatureFieldAttribute> temp = DocumentUtils_itext7.getAllSignatures(file);
-            if(Utils.isNullOrEmpty(temp)){
-                field.getVerification().setLockAction("include");
-                field.getVerification().setLockPermission("formfillingandannotation");
-            }
-            //</editor-fold>
-            
             //<editor-fold defaultstate="collapsed" desc="Create form Signature">
             Object[] objs = null;
             if (isEsealForm) {
