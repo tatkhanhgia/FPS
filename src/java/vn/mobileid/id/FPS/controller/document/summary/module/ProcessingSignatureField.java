@@ -7,6 +7,8 @@ package vn.mobileid.id.FPS.controller.document.summary.module;
 import vn.mobileid.id.FPS.controller.document.summary.micro.UpdateDocument;
 import fps_core.enumration.DocumentStatus;
 import fps_core.enumration.FieldTypeName;
+import fps_core.enumration.LockAction;
+import fps_core.enumration.LockPermission;
 import fps_core.enumration.ProcessStatus;
 import fps_core.objects.core.ExtendedFieldAttribute;
 import fps_core.objects.core.QRFieldAttribute;
@@ -15,6 +17,7 @@ import fps_core.objects.core.SignatureFieldAttribute;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
+import java.util.Optional;
 import java.util.concurrent.Future;
 import vn.mobileid.id.FPS.controller.document.summary.processingImpl.ProcessingFactory;
 import vn.mobileid.id.FPS.controller.field.summary.module.CheckFieldProcessedYet;
@@ -22,6 +25,9 @@ import vn.mobileid.id.FPS.controller.field.summary.micro.UpdateField;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.services.others.responseMessage.ResponseMessageController;
 import vn.mobileid.id.FPS.controller.document.summary.DocumentSummary;
+import vn.mobileid.id.FPS.controller.enterprise.summary.module.GetAPIKeyRuleOfEnterprise;
+import vn.mobileid.id.FPS.enumeration.Rule;
+import vn.mobileid.id.FPS.object.APIKeyRule;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.ProcessingRequest;
@@ -79,7 +85,6 @@ public class ProcessingSignatureField {
         }
 
         //</editor-fold>
-        
         //<editor-fold defaultstate="collapsed" desc="Check Hash of Signature field is existed in Temporal Table?">
         if (!Utils.isNullOrEmpty(fieldData.getHash())) {
             InternalResponse response2 = ManagementTemporal.getTemporal(
@@ -281,14 +286,14 @@ public class ProcessingSignatureField {
             return response2;
         }
         //</editor-fold>
-        
+
         return new InternalResponse(
                 A_FPSConstant.HTTP_CODE_SUCCESS,
                 new ResponseMessageController().writeStringField("hash_value", hash).build()
         );
     }
     //</editor-fold>
-        
+
     //<editor-fold defaultstate="collapsed" desc="Processing Signature Form Field Version 2">
     /**
      * Processing Signature in Payload Vesion2 - Delete some checker that doesn't need it
@@ -494,12 +499,13 @@ public class ProcessingSignatureField {
             return response2;
         }
         //</editor-fold>
-        
+
         return new InternalResponse(
                 A_FPSConstant.HTTP_CODE_SUCCESS,
                 new ResponseMessageController().writeStringField("hash_value", hash).build()
         );
     }
+
     //</editor-fold>
     //==========================================================================
     //<editor-fold defaultstate="collapsed" desc="Convert ExtendedField into SignatureField">
@@ -519,14 +525,41 @@ public class ProcessingSignatureField {
         signatureField.setProcessOn(dateFormat.format(Date.from(Instant.now())));
         signatureField.setProcessBy(user.getAzp());
 
-        if(signatureField.getVerification() == null){
+        if (signatureField.getVerification() == null) {
             signatureField.setVerification(new Signature());
         }
         processRequest.convert(signatureField);
-        
+
         if (!Utils.isNullOrEmpty(signatureField.getHandSignatureImage())) {
             signatureField.getVerification().setImageEnabled(true);
         }
+
+        //Update 2024 - 06 - 27: Auto add lockaction and lockpermission
+        //<editor-fold defaultstate="collapsed" desc="Get and Check APIKeyRule => Set LockAction/LockPermission">
+        GetAPIKeyRuleOfEnterprise apiKeyRule_ = new GetAPIKeyRuleOfEnterprise();
+        InternalResponse getAPIKeyRule = apiKeyRule_.getAPIKeyRule(user, "transactionId");
+
+        APIKeyRule apiKeyRule = (APIKeyRule) getAPIKeyRule.getData();
+        Optional<APIKeyRule> optional = Optional.ofNullable(apiKeyRule);
+        Optional<Object> tempp = optional.filter(r -> r.isRuleEnabled(Rule.AUTO_LOCK_SIGNATURE))
+                .map(r -> r.getRule(Rule.AUTO_LOCK_SIGNATURE))
+                .map(r -> r.getData())
+                .filter(r -> Boolean.class.isInstance(r))
+                .filter(r -> Boolean.class.cast(r));
+
+        if (tempp.isPresent()) {
+            Boolean bool = (Boolean) tempp.get();
+            if (bool) {
+                System.out.println("Auto set LockAction/LockPermission");
+                if (Utils.isNullOrEmpty(signatureField.getVerification().getLockAction())) {
+                    signatureField.getVerification().setLockAction(LockAction.INCLUDE.getName());
+                }
+                if (Utils.isNullOrEmpty(signatureField.getVerification().getLockPermission())) {
+                    signatureField.getVerification().setLockPermission(LockPermission.FORM_FILLING_AND_ANNOTATION.getName());
+                }
+            }
+        }
+        //</editor-fold>
 
         return signatureField;
     }

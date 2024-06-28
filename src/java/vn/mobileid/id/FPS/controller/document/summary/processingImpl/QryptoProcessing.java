@@ -581,7 +581,7 @@ class QryptoProcessing extends IVersion implements IDocumentProcessing {
                     //</editor-fold>
                 }
                 case V2: {
-                    //<editor-fold defaultstate="collapsed" desc="comment">
+                    //<editor-fold defaultstate="collapsed" desc="Sign into PDF with Image QR">
                     try {
                         byte[] imageQR = Base64.getDecoder().decode(QRdata.getQryptoBase64());
                         byte[] finalFilePDF = DocumentUtils_itext7.sign(

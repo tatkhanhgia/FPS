@@ -24,7 +24,8 @@ import java.util.Map;
 //@JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum Rule {
     IS_CONVERT_DATE(false), //Convert Date with Format Date in DATE_DATETIME field
-    QRYPTO_DATE_FORMAT("temp");
+    QRYPTO_DATE_FORMAT("temp"),
+    AUTO_LOCK_SIGNATURE(true);
 
     private Object dataRule;
 
