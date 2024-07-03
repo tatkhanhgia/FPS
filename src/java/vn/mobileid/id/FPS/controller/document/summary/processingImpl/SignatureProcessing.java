@@ -43,6 +43,7 @@ import vn.mobileid.id.FPS.services.others.threadManagement.TaskV2;
 import vn.mobileid.id.FPS.utils.Utils;
 import vn.mobileid.id.FPS.controller.document.summary.processingImpl.interfaces.IDocumentProcessing;
 import vn.mobileid.id.FPS.controller.document.summary.processingImpl.interfaces.IModuleProcessing;
+import vn.mobileid.id.FPS.controller.field.summary.module.CheckFieldProcessedYet;
 import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.FPS.services.others.threadManagement.ThreadManagement;
 
@@ -294,6 +295,8 @@ class SignatureProcessing implements IDocumentProcessing, IModuleProcessing {
                 return response;
             }
             for (ExtendedFieldAttribute temp : (Iterable<? extends ExtendedFieldAttribute>) response.getData()) {
+                InternalResponse response_1 = CheckFieldProcessedYet.checkProcessed(temp.getFieldValue());
+                if(!response_1.isValid()){break;}
                 if (temp.getType().getParentType().equals(FieldTypeName.QR.getParentName())) {
                     QRFieldAttribute qr = MyServices.getJsonService().readValue(temp.getDetailValue(), QRFieldAttribute.class);
                     qr = (QRFieldAttribute) temp.clone(qr, temp.getDimension());

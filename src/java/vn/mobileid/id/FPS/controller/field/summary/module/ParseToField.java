@@ -1739,7 +1739,7 @@ public abstract class ParseToField {
                 parseV2 = createBufferer(new CheckBoxFieldAttributeV2(),
                         null)
                         .parseAndValidateField(
-                                FieldTypeName.CHECKBOX,
+                                FieldTypeName.CHECKBOXV2,
                                 payload,
                                 isCheckBasicField,
                                 isUpdate,

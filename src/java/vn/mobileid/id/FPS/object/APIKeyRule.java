@@ -19,7 +19,7 @@ import java.util.List;
 import vn.mobileid.id.FPS.enumeration.Rule;
 import vn.mobileid.id.FPS.services.MyServices;
 
-@JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonRootName("attributes")
 public class APIKeyRule {
 
@@ -93,7 +93,7 @@ public class APIKeyRule {
     }
     
     public static void main(String[] args) throws IOException {
-        String temp = "{\"attributes\":{\"attributes\":[{\"IS_CONVERT_DATE\":true}]}}";
+        String temp = "{\"attributes\":{\"attributes\":[{\"IS_CONVERT_DATE\":true,\"hello\":\"onetwo\"}]}}";
 
         APIKeyRule rule = MyServices.getJsonService()
 //                .enable(DeserializationFeature.UNWRAP_ROOT_VALUE)

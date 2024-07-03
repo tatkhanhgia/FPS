@@ -295,6 +295,7 @@ public class ResponseMessageController implements ResponseMessageBuilder {
 
         //ErrorDes
         builder.append(JSONAnnotation.writeString("error_description"));
+        builder.append(JSONAnnotation.Colon.getCharacter());
         builder.append(JSONAnnotation.StartArray.getCharacter());
 
         for (int i = 0; i < listOfErrorField.size(); i++) {

@@ -1004,12 +1004,17 @@ public class Utils {
     //</editor-fold>
 
     public static void main(String[] args) throws NoSuchAlgorithmException {
-        String iso = "2024-04-23T07:08:13Z";
-        System.out.println(convertISOStringToCustom(iso, "dd-MM-yyyy"));
-
-        LocalDate currentDate = LocalDate.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("DDD");
-        String formattedDate = currentDate.format(formatter);
-        System.out.println(formattedDate);
+        String json = "{\n" +
+"    \"error\": \"CANNOT FILL ALL FORM FIELD\",\n" +
+"    \"error_description\"[\n" +
+"        {\n" +
+"            \"field_error\": \"checkbox3\",\n" +
+"            \"field_error_description\": \"{\"message\":\"Cannot append checkbox value into file\"}\"\n" +
+"        }\n" +
+"    ]\n" +
+"}";
+        HashMap<JsonNode, List<FileCached>> temp = Utils.summarizePayload(json, false);
+        JsonNode node  = temp.keySet().iterator().next();
+        System.out.println(node.toPrettyString());
     }
 }
