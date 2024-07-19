@@ -344,6 +344,13 @@ public class ResponseMessageController implements ResponseMessageBuilder {
         messages.add(JSONAnnotation.writeStringField(name, data, false));
         return this;
     }
+    
+    @Override
+    public ResponseMessageBuilder writeBooleanField(String name, Boolean data
+    ) {
+        messages.add(JSONAnnotation.writeBooleanField(name, data, false));
+        return this;
+    }
 
     @Override
     public ResponseMessageBuilder writeNumberField(String name, Number data
@@ -397,6 +404,18 @@ public class ResponseMessageController implements ResponseMessageBuilder {
             return buf.toString();
         }
 
+        public static String writeBooleanField(String name, Boolean data, boolean appendComma) {
+            StringBuilder buf = new StringBuilder();
+            buf.append(writeString(name));
+            buf.append(Colon.getCharacter());
+            String temp = data!=null?"true":data?"true":"false";
+            buf.append(temp);
+            if (appendComma) {
+                buf.append(Comma.getCharacter());
+            }
+            return buf.toString();
+        }
+        
         public static String writeNumberField(String name, Number data, boolean appendComma) {
             StringBuilder buf = new StringBuilder();
             buf.append(writeString(name));

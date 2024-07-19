@@ -49,7 +49,7 @@
         </init-param>
         <init-param>
             <param-name>UtilPattern</param-name>
-            <param-value>^/fps/(resources|threads)[/]{0,1}.*$</param-value>
+            <param-value>^/fps/(resources|threads|admin)[/]{0,1}.*$</param-value>
         </init-param>
     </servlet>
     <filter>

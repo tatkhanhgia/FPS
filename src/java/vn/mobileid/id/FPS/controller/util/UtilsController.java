@@ -22,8 +22,8 @@ import vn.mobileid.id.FPS.utils.Utils;
  *
  * @author GiaTK
  */
-public class UtilsController extends HttpServlet{
-    
+public class UtilsController extends HttpServlet {
+
     public static void service_(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
         String method = req.getMethod();
         switch (method) {
@@ -31,43 +31,74 @@ public class UtilsController extends HttpServlet{
                 new UtilsController().doGet(req, res);
                 break;
             }
-            case "POST":{
+            case "POST": {
                 new UtilsController().doPost(req, res);
                 break;
             }
-           
+
             default: {
                 res.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
-                res.addHeader(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");                
+                res.addHeader(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
             }
         }
     }
-    
+
     @Override
     public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-         if (req.getRequestURI().matches("^/fps/v1/documents/fields$")) {
+        //<editor-fold defaultstate="collapsed" desc="Get Field Type">
+        if (req.getRequestURI().matches("^/fps/v1/documents/fields$")) {
             String transactionId = Utils.getTransactionId(req, null);
             String payload = Utils.getPayload(req);
             LogHandler.request(
                     UtilsController.class,
-                    Utils.getDataRequestToLog(req, transactionId, "Get Field Type", payload));            
-                try {
-                    InternalResponse response = FieldSummary.getFieldType(req, transactionId);
-                    Utils.sendMessage(
-                            res,
-                            response.getStatus(),
-                            "application/json",
-                            response.getMessage(),
-                            transactionId);
-                } catch (Exception ex) {
-                    CatchException.catchException(
-                            ex,
-                            req,
-                            res,
-                            payload, 
-                            0,
-                            transactionId);
-                }            
+                    Utils.getDataRequestToLog(req, transactionId, "Get Field Type", payload));
+            try {
+                InternalResponse response = FieldSummary.getFieldType(req, transactionId);
+                Utils.sendMessage(
+                        res,
+                        response.getStatus(),
+                        "application/json",
+                        response.getMessage(),
+                        transactionId);
+            } catch (Exception ex) {
+                CatchException.catchException(
+                        ex,
+                        req,
+                        res,
+                        payload,
+                        0,
+                        transactionId);
+            }
+            return;
+        }
+        //</editor-fold>
+
+        //<editor-fold defaultstate="collapsed" desc="Get System Parameter">
+        if (req.getRequestURI().matches("^/admin/system/configuration$")) {
+            String transactionId = Utils.getTransactionId(req, null);
+            String payload = Utils.getPayload(req);
+            LogHandler.request(
+                    UtilsController.class,
+                    Utils.getDataRequestToLog(req, transactionId, "Get System Configuration", payload));
+            try {
+                InternalResponse response = new UtilsSummary().getSystemConfiguration(req, transactionId);
+                Utils.sendMessage(
+                        res,
+                        response.getStatus(),
+                        "application/json",
+                        response.getMessage(),
+                        transactionId);
+            } catch (Exception ex) {
+                CatchException.catchException(
+                        ex,
+                        req,
+                        res,
+                        payload,
+                        0,
+                        transactionId);
+            }
+        //</editor-fold>
+
         } else {
             Utils.sendMessage(
                     res,
@@ -77,10 +108,10 @@ public class UtilsController extends HttpServlet{
                     "");
         }
     }
-    
+
     @Override
     public void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
-        
+
         //<editor-fold defaultstate="collapsed" desc="Reload Resources">
         if (req.getRequestURI().matches("^/fps/resources/reload*$")) {
             String transactionId = Utils.getTransactionId(req, null);
@@ -90,15 +121,15 @@ public class UtilsController extends HttpServlet{
                     Utils.getDataRequestToLog(req, transactionId, "Reload Resources", payload));
             if (!Utils.isNullOrEmpty(req.getContentType()) && req.getContentType().contains("application/json")) {
                 try {
-                    InternalResponse response = UtilsSummary.reloadResources(req, transactionId);
-                    
+                    InternalResponse response = new UtilsSummary().reloadResources(req, transactionId);
+
                     Utils.createAPILog(req,
-                            payload, 
+                            payload,
                             (int) Utils.getIdFromURL(req.getRequestURI()),
                             response,
                             response.getException(),
                             transactionId);
-                    
+
                     Utils.sendMessage(
                             res,
                             response.getStatus(),
@@ -110,8 +141,8 @@ public class UtilsController extends HttpServlet{
                             ex,
                             req,
                             res,
-                            payload, 
-                            (int)Utils.getIdFromURL(req.getRequestURI()),
+                            payload,
+                            (int) Utils.getIdFromURL(req.getRequestURI()),
                             transactionId);
                 }
             } else {
@@ -124,7 +155,7 @@ public class UtilsController extends HttpServlet{
             }
         }
         //</editor-fold>
-        
+
         //<editor-fold defaultstate="collapsed" desc="Reload Thread Management">
         if (req.getRequestURI().matches("^/fps/threads/reload*$")) {
             String transactionId = Utils.getTransactionId(req, null);
@@ -134,15 +165,15 @@ public class UtilsController extends HttpServlet{
                     Utils.getDataRequestToLog(req, transactionId, "Reload Thread Management", payload));
             if (!Utils.isNullOrEmpty(req.getContentType()) && req.getContentType().contains("application/json")) {
                 try {
-                    InternalResponse response = UtilsSummary.reloadThreadManagement(req, transactionId);
-                    
+                    InternalResponse response = new UtilsSummary().reloadThreadManagement(req, transactionId);
+
                     Utils.createAPILog(req,
-                            payload, 
+                            payload,
                             (int) Utils.getIdFromURL(req.getRequestURI()),
                             response,
                             response.getException(),
                             transactionId);
-                    
+
                     Utils.sendMessage(
                             res,
                             response.getStatus(),
@@ -154,8 +185,8 @@ public class UtilsController extends HttpServlet{
                             ex,
                             req,
                             res,
-                            payload, 
-                            (int)Utils.getIdFromURL(req.getRequestURI()),
+                            payload,
+                            (int) Utils.getIdFromURL(req.getRequestURI()),
                             transactionId);
                 }
             } else {
@@ -166,8 +197,8 @@ public class UtilsController extends HttpServlet{
                         null,
                         "none");
             }
-        //</editor-fold>
-        
+            //</editor-fold>
+
         } else {
             Utils.sendMessage(
                     res,
@@ -177,6 +208,6 @@ public class UtilsController extends HttpServlet{
                     "none");
         }
     }
-    
+
     //==========================================================================
 }

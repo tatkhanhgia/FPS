@@ -5,8 +5,6 @@
 package vn.mobileid.id.FPS.controller.document;
 
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -18,7 +16,6 @@ import vn.mobileid.id.FPS.controller.field.FieldController;
 import vn.mobileid.id.FPS.services.others.responseMessage.ResponseMessageController;
 import vn.mobileid.id.FPS.controller.document.summary.DocumentSummary;
 import vn.mobileid.id.FPS.object.InternalResponse;
-import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.FPS.systemManagement.LogHandler;
 import vn.mobileid.id.FPS.utils.Utils;
 

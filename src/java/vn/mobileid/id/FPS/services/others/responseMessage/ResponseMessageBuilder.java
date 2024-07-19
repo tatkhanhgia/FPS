@@ -10,6 +10,7 @@ package vn.mobileid.id.FPS.services.others.responseMessage;
  */
 public interface ResponseMessageBuilder {
     ResponseMessageBuilder writeStringField(String name, String data);
+    ResponseMessageBuilder writeBooleanField(String name, Boolean data);
     ResponseMessageBuilder writeNumberField(String name, Number data);
     String build();
 }
