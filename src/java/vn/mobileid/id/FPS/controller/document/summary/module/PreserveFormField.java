@@ -4,10 +4,8 @@
  */
 package vn.mobileid.id.FPS.controller.document.summary.module;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fps_core.enumration.FieldTypeName;
 import fps_core.module.DocumentUtils_itext7;
-import fps_core.objects.core.ExtendedFieldAttribute;
 import fps_core.objects.core.SignatureFieldAttribute;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -18,6 +16,7 @@ import vn.mobileid.id.FPS.controller.field.summary.FieldSummaryInternal;
 import vn.mobileid.id.FPS.controller.field.summary.micro.DeleteField;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.InternalResponse;
+import vn.mobileid.id.FPS.object.QryptoFieldAttribute;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.FPS.systemManagement.Resources;
@@ -29,6 +28,15 @@ import vn.mobileid.id.FPS.systemManagement.Resources;
 public class PreserveFormField {
 
     //<editor-fold defaultstate="collapsed" desc="Preserve Form Field">
+    /**
+     * Preserve all signature form field and qrypto field in file PDF
+     * @param documentId
+     * @param user
+     * @param data
+     * @param transactionId
+     * @return InternalResponse
+     * @throws Exception 
+     */
     public static InternalResponse preserve(
             long documentId,
             User user,
@@ -40,6 +48,64 @@ public class PreserveFormField {
                     A_FPSConstant.HTTP_CODE_SUCCESS, ""
             );
         }
+
+        //<editor-fold defaultstate="collapsed" desc="2024-07-23: Add logic preserve Qrypto field">
+        for (SignatureFieldAttribute signature : lists) {
+            if (signature.getFieldName().contains("QRYPTO") || signature.getFieldName().contains("qrypto")) {
+                signature.setVerification(null);
+                signature.setType(Resources.getFieldTypes().get(FieldTypeName.QRYPTO.getParentName()));
+
+                //Get field if existed in DB
+                InternalResponse response = new InternalResponse();
+                response = FieldSummaryInternal.getField(
+                        documentId,
+                        signature.getVerification().getSignatureId(),
+                        transactionId);
+
+                if (response.isValid()) {
+                    try {
+                        DeleteField.deleteField(documentId, signature.getVerification().getSignatureId(), transactionId);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }
+                response = AddField.addField(
+                        documentId,
+                        signature,
+                        "hmac",
+                        user.getEmail(),
+                        transactionId);
+                if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                    continue;
+                }
+                int fieldId = (int) response.getData();
+                response = AddField.addDetailField(
+                        fieldId,
+                        Resources.getFieldTypes().get(FieldTypeName.QRYPTO.getParentName()).getTypeId(),
+                        signature,
+                        "hmac",
+                        user.getEmail(),
+                        transactionId);
+                if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                    return response;
+                }
+
+                response = FieldSummaryInternal.updateValueOfField(
+                        fieldId,
+                        user,
+                        MyServices.getJsonService().writeValueAsString(signature),
+                        transactionId);
+                if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                    return new InternalResponse(
+                            A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                            A_FPSConstant.CODE_DOCUMENT,
+                            A_FPSConstant.SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_UPDATE_FIELD
+                    );
+                }
+                lists.remove(signature);
+            }
+        }
+        //</editor-fold>
 
         for (SignatureFieldAttribute signature : lists) {
             signature.setType(Resources.getFieldTypes().get(FieldTypeName.SIGNATURE.getParentName()));

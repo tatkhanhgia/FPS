@@ -38,7 +38,7 @@ import vn.mobileid.id.FPS.controller.document.summary.module.CheckPayloadRequest
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.services.others.responseMessage.ResponseMessageController;
 import vn.mobileid.id.FPS.object.InternalResponse;
-import vn.mobileid.id.FPS.object.fieldAttribute.QryptoFieldAttribute;
+import vn.mobileid.id.FPS.object.QryptoFieldAttribute;
 import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.FPS.systemManagement.LogHandler;
 import vn.mobileid.id.FPS.systemManagement.PolicyConfiguration;

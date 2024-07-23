@@ -418,7 +418,7 @@ public class FieldController extends HttpServlet {
 
             //<editor-fold defaultstate="collapsed" desc="Fill Form Field">
             if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/fields$")) {
-                System.out.println("");
+                System.out.println("Payload:"+payload);
                 String transactionId = Utils.getTransactionId(req, payload);
                 LogHandler.request(
                         FieldController.class,

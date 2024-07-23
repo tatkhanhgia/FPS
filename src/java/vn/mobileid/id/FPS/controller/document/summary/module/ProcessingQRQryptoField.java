@@ -22,7 +22,7 @@ import vn.mobileid.id.FPS.controller.fms.FMS;
 import vn.mobileid.id.FPS.services.others.qryptoService.object.Item_IDPicture4Label.IDPicture4Label;
 import vn.mobileid.id.FPS.services.others.qryptoService.object.ItemsType;
 import vn.mobileid.id.FPS.services.others.responseMessage.ResponseMessageController;
-import vn.mobileid.id.FPS.object.fieldAttribute.QryptoFieldAttribute;
+import vn.mobileid.id.FPS.object.QryptoFieldAttribute;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;

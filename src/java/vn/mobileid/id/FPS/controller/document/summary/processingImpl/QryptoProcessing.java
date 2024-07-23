@@ -42,7 +42,7 @@ import vn.mobileid.id.FPS.services.others.responseMessage.ResponseMessageControl
 import vn.mobileid.id.FPS.exception.InvalidFormatOfItems;
 import vn.mobileid.id.FPS.exception.LoginException;
 import vn.mobileid.id.FPS.exception.QryptoException;
-import vn.mobileid.id.FPS.object.fieldAttribute.QryptoFieldAttribute;
+import vn.mobileid.id.FPS.object.QryptoFieldAttribute;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;

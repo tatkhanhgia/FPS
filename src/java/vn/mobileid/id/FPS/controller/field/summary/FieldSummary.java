@@ -62,7 +62,7 @@ import vn.mobileid.id.FPS.controller.field.summary.micro.GetField;
 import vn.mobileid.id.FPS.controller.field.summary.module.ParseToField;
 import vn.mobileid.id.FPS.controller.field.summary.module.ReplicateInitialField;
 import vn.mobileid.id.FPS.controller.field.summary.micro.UpdateField;
-import vn.mobileid.id.FPS.object.fieldAttribute.QryptoFieldAttribute;
+import vn.mobileid.id.FPS.object.QryptoFieldAttribute;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;

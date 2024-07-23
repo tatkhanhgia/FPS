@@ -2,12 +2,13 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package vn.mobileid.id.FPS.object.fieldAttribute;
+package vn.mobileid.id.FPS.object;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import fps_core.objects.core.BasicFieldAttribute;
+import fps_core.objects.core.Signature;
 import java.util.List;
 import vn.mobileid.id.FPS.services.others.qryptoService.object.ItemDetails;
 
@@ -25,6 +26,8 @@ public class QryptoFieldAttribute extends BasicFieldAttribute {
     private boolean isTransparent;
     
     private List<ItemDetails> items;
+    
+    private Signature verification;
 
     public QryptoFieldAttribute() {
     }
@@ -52,6 +55,15 @@ public class QryptoFieldAttribute extends BasicFieldAttribute {
     @JsonProperty("items")
     public List<ItemDetails> getItems() {
         return items;
+    }
+
+    @JsonProperty("verification")
+    public Signature getVerification() {
+        return verification;
+    }
+
+    public void setVerification(Signature verification) {
+        this.verification = verification;
     }
 
     public void setItems(List<ItemDetails> items) {

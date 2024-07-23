@@ -628,8 +628,8 @@ public class Utils {
                     listFileCached.addAll(temp.get(key_));
                 } else if (value.isArray()) {
                     ArrayNode summarizedArray = mapper.createArrayNode();
-                    value.elements().forEachRemaining(element -> {
-                        Map<JsonNode, List<FileCached>> temp = summarizeNode(value, storeFile);
+                    value.iterator().forEachRemaining(element -> {
+                        Map<JsonNode, List<FileCached>> temp = summarizeNode(element, storeFile);
                         JsonNode key_ = temp.keySet().iterator().next();
                         summarizedObject.set(key, key_);
                         listFileCached.addAll(temp.get(key_));
@@ -1004,15 +1004,7 @@ public class Utils {
     //</editor-fold>
 
     public static void main(String[] args) throws NoSuchAlgorithmException {
-        String json = "{\n" +
-"    \"error\": \"CANNOT FILL ALL FORM FIELD\",\n" +
-"    \"error_description\"[\n" +
-"        {\n" +
-"            \"field_error\": \"checkbox3\",\n" +
-"            \"field_error_description\": \"{\"message\":\"Cannot append checkbox value into file\"}\"\n" +
-"        }\n" +
-"    ]\n" +
-"}";
+        String json = "{\"radioboxV2\":[{\"field_name\":\"ADMIN_PROVIDER_RADIOBOXV2_e7aa4d\",\"file_name\":null,\"value\":null,\"type\":\"RADIOBOXV2\"},{\"field_name\":\"ADMIN_PROVIDER_RADIOBOXV2_67a952\",\"file_name\":null,\"value\":null,\"type\":\"RADIOBOXV2\"},{\"field_name\":\"ADMIN_PROVIDER_RADIOBOXV2_1e7cb2\",\"file_name\":null,\"value\":null,\"type\":\"RADIOBOXV2\"}],\"visible_enabled\":true}";
         HashMap<JsonNode, List<FileCached>> temp = Utils.summarizePayload(json, false);
         JsonNode node  = temp.keySet().iterator().next();
         System.out.println(node.toPrettyString());
