@@ -59,7 +59,7 @@ public class Token {
         this.expiresIn = expiredIn;
     }
 
-    @JsonProperty("refresh_expires_in")
+    @JsonProperty("refresh_token_expires_in")
     public int getRefreshEpiresIn() {
         return refreshEpiresIn;
     }

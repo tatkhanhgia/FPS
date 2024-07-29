@@ -5,6 +5,7 @@
 package vn.mobileid.id.FPS.controller.document.summary.module;
 
 import fps_core.enumration.FieldTypeName;
+import fps_core.enumration.ProcessStatus;
 import fps_core.module.DocumentUtils_itext7;
 import fps_core.objects.core.BasicFieldAttribute;
 import fps_core.objects.core.SignatureFieldAttribute;
@@ -47,49 +48,54 @@ public class PreserveFormField {
             String transactionId) throws Exception {
         List<BasicFieldAttribute> listFields = new ArrayList<>();
         List<SignatureFieldAttribute> lists = DocumentUtils_itext7.getAllSignatures(data);
-        if (lists == null || lists.isEmpty()) {
-            return new InternalResponse(
-                    A_FPSConstant.HTTP_CODE_SUCCESS, ""
-            );
-        }
+//        if (lists == null || lists.isEmpty()) {
+//            return new InternalResponse(
+//                    A_FPSConstant.HTTP_CODE_SUCCESS, ""
+//            );
+//        }
+        
+        if (!Utils.isNullOrEmpty(lists)) {
+            //<editor-fold defaultstate="collapsed" desc="2024-07-23: Add logic preserve Qrypto field">
+            for (int i = 0; i < lists.size(); i++) {
+                SignatureFieldAttribute signature = lists.get(i);
+                if (signature.getFieldName().contains("QRYPTO") || signature.getFieldName().contains("qrypto")) {
+                    signature.setLevelOfAssurance(null);
+                    signature.setProcessStatus(ProcessStatus.PROCESSED.getName());
+                    signature.setType(Resources.getFieldTypes().get(FieldTypeName.QRYPTO.getParentName()));
 
-        //<editor-fold defaultstate="collapsed" desc="2024-07-23: Add logic preserve Qrypto field">
-        for (int i = 0; i < lists.size(); i++) {
-            SignatureFieldAttribute signature = lists.get(i);
-            if (signature.getFieldName().contains("QRYPTO") || signature.getFieldName().contains("qrypto")) {
-                signature.setLevelOfAssurance(null);
-                signature.setType(Resources.getFieldTypes().get(FieldTypeName.QRYPTO.getParentName()));
+                    listFields.add(signature);
+                    lists.remove(i);
+                }
+            }
+            //</editor-fold>
 
+            for (SignatureFieldAttribute signature : lists) {
+                signature.setType(Resources.getFieldTypes().get(FieldTypeName.SIGNATURE.getParentName()));
+                signature.setProcessStatus(ProcessStatus.PROCESSED.getName());
                 listFields.add(signature);
-                lists.remove(i);
             }
         }
-        //</editor-fold>
 
-        for (SignatureFieldAttribute signature : lists) {
-            signature.setType(Resources.getFieldTypes().get(FieldTypeName.SIGNATURE.getParentName()));
-            listFields.add(signature);
-        }
-        
         //<editor-fold defaultstate="collapsed" desc="2024-07-29: Add logic preserve other annotation(Qrypto stamp,...)">
         List<BasicFieldAttribute> temp = DocumentUtils_itext7.getAllAnnotation(data, null);
-        if(!Utils.isNullOrEmpty(temp)){
-            for(BasicFieldAttribute field : temp){
+        if (!Utils.isNullOrEmpty(temp)) {
+            for (BasicFieldAttribute field : temp) {
                 String fieldName = field.getFieldName().toLowerCase();
-                if(fieldName.contains("qrypto")){
+                if (fieldName.contains("qrypto")) {
                     field.setType(Resources.getFieldTypes().get(FieldTypeName.QRYPTO.getParentName()));
+                    field.setProcessStatus(ProcessStatus.PROCESSED.getName());
                 }
             }
             listFields.addAll(temp);
         }
         //</editor-fold>
-        
-        for(BasicFieldAttribute field : listFields){
+
+        for (BasicFieldAttribute field : listFields) {
             addField(
-                    documentId, 
+                    documentId,
                     field,
                     user,
-                    FieldTypeName.valueOf(field.getType().getParentType()), 
+                    FieldTypeName.valueOf(field.getType().getParentType()),
                     transactionId);
         }
 
