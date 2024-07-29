@@ -93,13 +93,20 @@ public class DocumentSummary {
         }
         User user = (User) response.getData();
 
-        //Get Header
+        //<editor-fold defaultstate="collapsed" desc="Get Header">
         byte[] fileData = Utils.getBinaryStream(request);
         String fileName = Utils.getRequestHeader(request, "x-file-name");
         if (fileName == null) {
             fileName = "Document" + "_" + Utils.generateUUID();
         }
         String temp = Utils.getRequestHeader(request, "x-convert-document");
+
+        String preserve_ = Utils.getRequestHeader(request, "x-preserve-document");
+        boolean preserve = false;
+        if (preserve_ != null) {
+            preserve = Boolean.parseBoolean(preserve_);
+        }
+
         Boolean isConvert = Boolean.valueOf(temp == null ? "false" : temp);
         if (fileData == null || fileData.length == 0) {
             response = new InternalResponse(
@@ -110,8 +117,9 @@ public class DocumentSummary {
             response.setUser(user);
             return response;
         }
+        //</editor-fold>
 
-        //Create Package to handle
+        //<editor-fold defaultstate="collapsed" desc="Create Package to handle document">
         response = UploadDocument.createPackage(
                 fileName,
                 user.getAid(),
@@ -124,6 +132,7 @@ public class DocumentSummary {
             return response;
         }
         long packageId = (long) response.getData();
+        //</editor-fold>
 
         //Pool Upload + Analysis
 //        ExecutorService executor = Executors.newFixedThreadPool(2);
@@ -194,6 +203,20 @@ public class DocumentSummary {
                 response.setUser(user);
                 return response;
             }
+
+            //<editor-fold defaultstate="collapsed" desc="Preserve Form Field">
+            if (preserve) {
+                InternalResponse child = PreserveFormField.preserve(
+                        (long)response.getData(),
+                        user,
+                        fileData,
+                        transactionId);
+                if (child.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+                    return child;
+                }
+            }
+            //</editor-fold>
+
             response.setUser(user);
             response.setStatus(A_FPSConstant.HTTP_CODE_CREATED);
             response.setMessage(new ResponseMessageController()
@@ -940,7 +963,7 @@ public class DocumentSummary {
             }
         }
         //</editor-fold>
-        
+
         //<editor-fold defaultstate="collapsed" desc="Process Radio Form Field Version 2">
         if (!Utils.isNullOrEmpty(processRequest.getRadioBoxV2())) {
             response = new ProcessingRadioboxFormField(IVersion.Version.V2).processRadioField(
@@ -1893,11 +1916,11 @@ public class DocumentSummary {
         //<editor-fold defaultstate="collapsed" desc="Generate IVersion based on URL">
         String requestURL = request.getRequestURI();
         IVersion.Version version = IVersion.Version.V1;
-        if(requestURL.contains("v2") || requestURL.contains("V2")){
+        if (requestURL.contains("v2") || requestURL.contains("V2")) {
             version = IVersion.Version.V2;
         }
         //</editor-fold>
-        
+
         //<editor-fold defaultstate="collapsed" desc="Process QR Qrypto Field">
         if (!Utils.isNullOrEmpty(processRequest.getItem())) {
             //<editor-fold defaultstate="collapsed" desc="Flow 1 => Gen Qrypto from payload">

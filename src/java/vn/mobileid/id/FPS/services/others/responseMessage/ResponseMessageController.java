@@ -39,7 +39,7 @@ public class ResponseMessageController implements ResponseMessageBuilder {
         StringBuilder builder = new StringBuilder();
         builder.append(JSONAnnotation.StartObject.getCharacter());
         builder.append(JSONAnnotation.writeStringField(
-                "Message",
+                "error",
                 message,
                 false));
         builder.append(JSONAnnotation.EndObject.getCharacter());
@@ -49,8 +49,8 @@ public class ResponseMessageController implements ResponseMessageBuilder {
 
     //<editor-fold defaultstate="collapsed" desc="Create Error Message Advanced">
     /**
-     * Send an advanced error Message with format: { "Error": "INVALID_TOKEN",
-     * "Message": "Your token is expired" }
+     * Send an advanced error Message with format: { "error": "INVALID_TOKEN",
+     * "error_description": "Your token is expired" }
      *
      * @param error
      * @param errorDescription
@@ -76,8 +76,8 @@ public class ResponseMessageController implements ResponseMessageBuilder {
 
     //<editor-fold defaultstate="collapsed" desc="Create Error Message Advanced with Remark">
     /**
-     * Send an advanced error Message with format: { "Error": "INVALID_TOKEN",
-     * "Message": "Your token is expired" }
+     * Send an advanced error Message with format: { "error": "INVALID_TOKEN",
+     * "error_description": "Your token is expired" ,#addRemark}
      *
      * @param error
      * @param errorDescription
@@ -139,9 +139,10 @@ public class ResponseMessageController implements ResponseMessageBuilder {
 
     //<editor-fold defaultstate="collapsed" desc="Create Error Message with Remark">
     /**
-     * Send basic error Message with format: { "Message": "ErrorDescription" }
+     * Send basic error Message with format: { "error": "ErrorDescription" }
      *
      * @param message
+     * @param remarks
      * @return
      */
     public static String errorMessage_withRemark(
@@ -151,7 +152,7 @@ public class ResponseMessageController implements ResponseMessageBuilder {
         StringBuilder builder = new StringBuilder();
         builder.append(JSONAnnotation.StartObject.getCharacter());
         builder.append(JSONAnnotation.writeStringField(
-                "Message",
+                "error",
                 message,
                 false));
         if (!Utils.isNullOrEmpty(remarks)) {

@@ -71,7 +71,7 @@ public class UploadDocument {
      * @param hmac
      * @param createdBy
      * @param transactionId
-     * @return
+     * @return InternalResponse with documentId (long) as an Object
      * @throws Exception
      */
     public  static InternalResponse uploadDocument(
@@ -120,7 +120,7 @@ public class UploadDocument {
         return new InternalResponse(
                 A_FPSConstant.HTTP_CODE_SUCCESS,
                 ""
-        );
+        ).setData(response.getObject());
     }
     //</editor-fold>
 

@@ -43,15 +43,17 @@ public class Conversion_22_8_1 {
 
     Conversion_22_8_1() {
         License license = new License();
-        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-        InputStream input = classLoader.getResourceAsStream("/resources/GroupDocs.ConversionProductFamily_newest.lic");
+//        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+//        InputStream input = classLoader.getResourceAsStream("/resources/GroupDocs.ConversionProductFamily_newest.lic");
+
 //        InputStream input = classLoader.getResourceAsStream("/resources/GroupDocs.ConversionProductFamily.lic");
-//        InputStream input = null;
-//        try {
-//            input = new FileInputStream("C:\\Users\\Admin\\Documents\\NetBeansProjects\\Library_RSSP_SDK\\ProjectRSSP_newest\\FPS\\src\\java\\resources\\GroupDocs.ConversionProductFamily.lic");
-//        } catch (FileNotFoundException ex) {
-//            Logger.getLogger(Conversion_22_8_1.class.getName()).log(Level.SEVERE, null, ex);
-//        }
+
+        InputStream input = null;
+        try {
+            input = new FileInputStream("C:\\Users\\Admin\\Documents\\NetBeansProjects\\Library_RSSP_SDK\\ProjectRSSP_newest\\FPS\\src\\java\\resources\\GroupDocs.ConversionProductFamily.lic");
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Conversion_22_8_1.class.getName()).log(Level.SEVERE, null, ex);
+        }
         license.setLicense(input);
     }
 
@@ -104,8 +106,6 @@ public class Conversion_22_8_1 {
             byte[] file) {
         Converter converter = new Converter(new ByteArrayInputStream(file));
         PossibleConversions possibleConvertion = converter.getPossibleConversions();
-        System.out.print(String.format("%s is of type %s and could be converted to:\n",
-                "C:\\Users\\Admin\\Downloads\\tesstsdsdtt.pdf", possibleConvertion.getSource().getExtension()));
         for (TargetConversion conversion : possibleConvertion.getAll()) {
             System.out.print(String.format("\t %s as %s conversion.\n",
                     conversion.getFormat().getExtension(),
@@ -115,16 +115,23 @@ public class Conversion_22_8_1 {
     }
 
     public static void main(String[] args) throws IOException {
-        for (int i = 1; i <= 90; i = i + 3) {
-            byte[] data = Conversion_22_8_1.getInstance().convertToPPT(
-                    Files.readAllBytes(Paths.get("C:\\Users\\Admin\\Downloads\\Phần Cung Cầu (1).pdf")),
-                    i,
-                    PresentationFileType.Pptx);
-
-            FileOutputStream out = new FileOutputStream("C:\\Users\\Admin\\Downloads\\"+i+".pptx");
-            out.write(data);
-            out.close();
-        }
+        PossibleConversions posibnblble = Conversion_22_8_1.getInstance().a(Files.readAllBytes(Paths.get("C:\\Users\\Admin\\Downloads\\testXML2.xml")));
+        
+        Iterable<TargetConversion> temp = posibnblble.getAll();
+        temp.forEach(key->{
+            System.out.println("key:"+key);
+        });
+        
+//        for (int i = 1; i <= 90; i = i + 3) {
+//            byte[] data = Conversion_22_8_1.getInstance().convertToPPT(
+//                    Files.readAllBytes(Paths.get("C:\\Users\\Admin\\Downloads\\testXML.xml")),
+//                    i,
+//                    PresentationFileType.Pptx);
+//
+//            FileOutputStream out = new FileOutputStream("C:\\Users\\Admin\\Downloads\\"+i+".pptx");
+//            out.write(data);
+//            out.close();
+//        }
 
 //        Conversion_22_8_1.getInstance().a(Files.readAllBytes(Paths.get("C:\\Users\\Admin\\Downloads\\tempp.pdf")));
     }
