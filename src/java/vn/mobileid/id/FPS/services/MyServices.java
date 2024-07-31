@@ -5,14 +5,17 @@
 package vn.mobileid.id.FPS.services;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fps.readqr.enumeration.InputType;
 import vn.mobileid.id.FPS.services.impls.FmsService;
 import vn.mobileid.id.FPS.services.impls.JacksonJsonService;
+import vn.mobileid.id.FPS.services.impls.QRDetectionService;
 import vn.mobileid.id.FPS.services.impls.ZipService;
 import vn.mobileid.id.FPS.services.impls.databaseConnection.DatabaseConnectionManager;
 import vn.mobileid.id.FPS.services.others.threadManagement.ThreadManagement;
 import vn.mobileid.id.FPS.services.interfaces.IDatabaseConnection;
 import vn.mobileid.id.FPS.services.interfaces.IFms;
 import vn.mobileid.id.FPS.services.interfaces.IJsonService;
+import vn.mobileid.id.FPS.services.interfaces.IQRDetectionService;
 import vn.mobileid.id.FPS.services.interfaces.IZip;
 import vn.mobileid.id.FPS.services.others.threadManagement.ThreadFactory;
 
@@ -94,6 +97,12 @@ public class MyServices {
     //<editor-fold defaultstate="collapsed" desc="Get FMS Service">
     public static IFms getFMSService(){
         return new FmsService();
+    }
+    //</editor-fold>
+    
+    //<editor-fold defaultstate="collapsed" desc="Get FMS Service">
+    public static IQRDetectionService getQRDetectionService(InputType type){
+        return new QRDetectionService(type);
     }
     //</editor-fold>
 }

@@ -593,7 +593,7 @@ public abstract class ParseToField {
                 return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, field).setHierarchicalLog(hierarchicalLog);
                 //</editor-fold>
             }
-            case "initial": {
+            case "initials": {
                 //<editor-fold defaultstate="collapsed" desc="Generate InitialsFieldAttribute from Payload">
                 hierarchicalLog.addStartHeading1("Start parse into " + typeField);
 
@@ -1780,7 +1780,7 @@ public abstract class ParseToField {
                 return parseV2.setHierarchicalLog(hierarchicalLog);
                 //</editor-fold>
             }
-            case "initial": {
+            case "initials": {
                 //<editor-fold defaultstate="collapsed" desc="Generate InitialFieldAttribute from Payload">
                 parseV2 = createBufferer(new InitialsFieldAttribute(),
                         field -> {

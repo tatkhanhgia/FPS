@@ -4,6 +4,8 @@
  */
 package vn.mobileid.id.FPS.controller.document.summary.module;
 
+import fps.readqr.enumeration.InputType;
+import fps.readqr.objects.ImageQRCode;
 import fps_core.enumration.FieldTypeName;
 import fps_core.enumration.ProcessStatus;
 import fps_core.module.DocumentUtils_itext7;
@@ -19,6 +21,7 @@ import vn.mobileid.id.FPS.controller.field.summary.FieldSummaryInternal;
 import vn.mobileid.id.FPS.controller.field.summary.micro.DeleteField;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.object.InternalResponse;
+import vn.mobileid.id.FPS.object.QryptoFieldAttribute;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.FPS.systemManagement.Resources;
@@ -48,12 +51,13 @@ public class PreserveFormField {
             String transactionId) throws Exception {
         List<BasicFieldAttribute> listFields = new ArrayList<>();
         List<SignatureFieldAttribute> lists = DocumentUtils_itext7.getAllSignatures(data);
+        List<ImageQRCode> codes = MyServices.getQRDetectionService(InputType.PDF).scanDocument(data);
 //        if (lists == null || lists.isEmpty()) {
 //            return new InternalResponse(
 //                    A_FPSConstant.HTTP_CODE_SUCCESS, ""
 //            );
 //        }
-        
+
         if (!Utils.isNullOrEmpty(lists)) {
             //<editor-fold defaultstate="collapsed" desc="2024-07-23: Add logic preserve Qrypto field">
             for (int i = 0; i < lists.size(); i++) {
@@ -80,10 +84,25 @@ public class PreserveFormField {
         List<BasicFieldAttribute> temp = DocumentUtils_itext7.getAllAnnotation(data, null);
         if (!Utils.isNullOrEmpty(temp)) {
             for (BasicFieldAttribute field : temp) {
+                if (field.getFieldName() == null) {
+                    field.setFieldName("unknown_field");
+                }
+                
                 String fieldName = field.getFieldName().toLowerCase();
                 if (fieldName.contains("qrypto")) {
-                    field.setType(Resources.getFieldTypes().get(FieldTypeName.QRYPTO.getParentName()));
-                    field.setProcessStatus(ProcessStatus.PROCESSED.getName());
+                    QryptoFieldAttribute qryptoField = (QryptoFieldAttribute) field;
+                    qryptoField.setType(Resources.getFieldTypes().get(FieldTypeName.QRYPTO.getParentName()));
+                    qryptoField.setProcessStatus(ProcessStatus.PROCESSED.getName());
+
+                    //<editor-fold defaultstate="collapsed" desc="Read from list QRCode Detect from Document">
+                    for (ImageQRCode qrCode : codes) {
+                        if (qrCode.getAnnotationName() != null) {
+                            if (qrCode.getAnnotationName().equals(qryptoField.getFieldName())) {
+                                qryptoField.setQryptoBase45(qrCode.getQrCodeText());
+                            }
+                        }
+                    }
+                    //</editor-fold>
                 }
             }
             listFields.addAll(temp);
