@@ -7,8 +7,8 @@ package vn.mobileid.id.FPS.services.interfaces;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.Collection;
 import java.util.Map;
-import vn.mobileid.id.FPS.services.objects.JSAtomic;
-import vn.mobileid.id.FPS.services.objects.JSObject;
+import vn.mobileid.id.FPS.services.impls.json.objects.JSAtomic;
+import vn.mobileid.id.FPS.services.impls.json.objects.JSObject;
 
 /**
  * Provides methods for serializing objects to JSON strings and deserializing JSON strings to objects.

@@ -69,6 +69,7 @@ import vn.mobileid.id.FPS.services.others.threadManagement.TaskV2;
 import vn.mobileid.id.FPS.utils.Utils;
 import fps_core.objects.core.InitialsFieldAttribute;
 import fps_core.objects.core.TextFieldAttribute;
+import vn.mobileid.id.FPS.controller.document.summary.module.RemoveAppearanceSignature;
 import vn.mobileid.id.FPS.controller.document.summary.processingImpl.interfaces.IVersion;
 import vn.mobileid.id.FPS.object.ProcessFileField;
 import vn.mobileid.id.FPS.object.ProcessInitialField;
@@ -207,7 +208,7 @@ public class DocumentSummary {
             //<editor-fold defaultstate="collapsed" desc="Preserve Form Field">
             if (preserve) {
                 InternalResponse child = PreserveFormField.preserve(
-                        (long)response.getData(),
+                        (long) response.getData(),
                         user,
                         fileData,
                         transactionId);
@@ -2288,4 +2289,147 @@ public class DocumentSummary {
     }
     //</editor-fold>
 
+    //=========================UPDATE 2024-08-05================================
+    //<editor-fold defaultstate="collapsed" desc="Remove Appearance of Signature">
+    /**
+     * Download file PDF that remove Appearance of Signature
+     *
+     * @param request
+     * @param packageId
+     * @param transactionId
+     * @return InternalResponse with byte[](file Pdf) as an Object
+     * @throws Exception
+     */
+    public static InternalResponse downloadRemoveAppearanceDocument(
+            HttpServletRequest request,
+            long packageId,
+            String transactionId
+    ) throws Exception {
+        //Verify
+        InternalResponse response = Utils.verifyAuthorizationToken(request, transactionId);
+        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+            return response;
+        }
+        User user = (User) response.getData();
+
+        //Get Headers
+        String temp = Utils.getRequestHeader(request, "x-original-file");
+        Boolean isOriginal = Boolean.valueOf(temp == null ? "false" : temp);
+
+        //Get documents
+        response = GetDocument.getDocuments(
+                packageId,
+                transactionId);
+        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+            response.setUser(user);
+            return response;
+        }
+
+        List<Document> listDoc = (List) response.getData();
+        String uuid = null;
+        for (Document doc : listDoc) {
+            if (isOriginal && doc.getRevision() == 1) {
+                uuid = doc.getUuid();
+            }
+            if (!isOriginal && (doc.getRevision() == listDoc.size())) {
+                uuid = doc.getUuid();
+            }
+        }
+        System.out.println("\n===Download Document from FMS===");
+        System.out.println("\tUUID:" + uuid);
+        response = FMS.downloadDocumentFromFMS(
+                uuid,
+                transactionId);
+        if (!response.isValid()) {
+            response.setUser(user);
+            return response;
+        }
+
+        //<editor-fold defaultstate="collapsed" desc="Remove Appearance">
+        InternalResponse removeAppearance = new RemoveAppearanceSignature().removeAppearance(
+                (byte[]) response.getData(),
+                transactionId);
+
+        if (!removeAppearance.isValid()) {
+            removeAppearance.setUser(user);
+            return removeAppearance;
+        }
+        //</editor-fold>
+
+        response = new InternalResponse(
+                A_FPSConstant.HTTP_CODE_SUCCESS,
+                removeAppearance.getData()
+        );
+        response.setUser(user);
+        return response;
+    }
+    //</editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="Download Documents Base64">
+    public static InternalResponse downloadDocumentRemoveApperanceBase64(
+            HttpServletRequest request,
+            long packageId,
+            String transactionId
+    ) throws Exception {
+        //Verify
+        InternalResponse response = Utils.verifyAuthorizationToken(request, transactionId);
+        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+            return response;
+        }
+        User user = (User) response.getData();
+
+        String temp = Utils.getRequestHeader(request, "x-original-file");
+        Boolean isOriginal = Boolean.valueOf(temp == null ? "false" : temp);
+
+        //Get documents
+        response = GetDocument.getDocuments(
+                packageId,
+                transactionId);
+        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+            response.setUser(user);
+            return response;
+        }
+
+        List<Document> listDoc = (List) response.getData();
+        String uuid = null;
+        for (Document doc : listDoc) {
+            if (isOriginal && doc.getRevision() == 1) {
+                uuid = doc.getUuid();
+            }
+            if (!isOriginal && (doc.getRevision() == listDoc.size())) {
+                uuid = doc.getUuid();
+            }
+        }
+        response = FMS.downloadDocumentFromFMS(
+                uuid,
+                transactionId);
+        if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
+            response.setUser(user);
+            return response;
+        }
+        
+        //<editor-fold defaultstate="collapsed" desc="Remove Appearance">
+        InternalResponse removeAppearance = new RemoveAppearanceSignature().removeAppearance(
+                (byte[]) response.getData(),
+                transactionId);
+
+        if (!removeAppearance.isValid()) {
+            removeAppearance.setUser(user);
+            return removeAppearance;
+        }
+        //</editor-fold>
+
+        response = new InternalResponse(
+                A_FPSConstant.HTTP_CODE_SUCCESS,
+                new ResponseMessageController()
+                        .writeStringField(
+                                "file_data",
+                                Base64.getEncoder().encodeToString((byte[]) removeAppearance.getData()))
+                        .build()
+        );
+        response.setUser(user);
+
+        return response;
+    }
+    // </editor-fold>
 }

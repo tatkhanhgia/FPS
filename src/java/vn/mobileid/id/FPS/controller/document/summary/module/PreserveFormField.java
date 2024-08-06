@@ -59,16 +59,34 @@ public class PreserveFormField {
 //        }
 
         if (!Utils.isNullOrEmpty(lists)) {
+            //Update 2024-07-31: Update get QR data
             //<editor-fold defaultstate="collapsed" desc="2024-07-23: Add logic preserve Qrypto field">
             for (int i = 0; i < lists.size(); i++) {
                 SignatureFieldAttribute signature = lists.get(i);
                 if (signature.getFieldName().contains("QRYPTO") || signature.getFieldName().contains("qrypto")) {
-                    signature.setLevelOfAssurance(null);
-                    signature.setProcessStatus(ProcessStatus.PROCESSED.getName());
-                    signature.setType(Resources.getFieldTypes().get(FieldTypeName.QRYPTO.getParentName()));
+                    try {
+                        QryptoFieldAttribute qryptoField = (QryptoFieldAttribute) signature.copy(QryptoFieldAttribute.class);
 
-                    listFields.add(signature);
-                    lists.remove(i);
+                        qryptoField.setVerification(signature.getVerification());
+                        qryptoField.setProcessStatus(ProcessStatus.PROCESSED.getName());
+                        qryptoField.setType(Resources.getFieldTypes().get(FieldTypeName.QRYPTO.getParentName()));
+
+                        //<editor-fold defaultstate="collapsed" desc="Add 2024-07-31:Read from list QRCode Detect from Document">
+                        for (ImageQRCode qrCode : codes) {
+                            if (qrCode.getAnnotationName() != null) {
+                                if (qrCode.getAnnotationName().equals(qryptoField.getFieldName())) {
+//                                    String[] values = qrCode.getQrCodeText().split("qrypto=");
+                                    qryptoField.setQryptoBase45(qrCode.getQrCodeText());
+                                }
+                            }
+                        }
+                        //</editor-fold>
+
+                        listFields.add(qryptoField);
+                        lists.remove(i);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
                 }
             }
             //</editor-fold>
@@ -80,21 +98,23 @@ public class PreserveFormField {
             }
         }
 
+        //Update 2024-07-31: Update get QR data
         //<editor-fold defaultstate="collapsed" desc="2024-07-29: Add logic preserve other annotation(Qrypto stamp,...)">
         List<BasicFieldAttribute> temp = DocumentUtils_itext7.getAllAnnotation(data, null);
+        List<BasicFieldAttribute> result = new ArrayList<>();
         if (!Utils.isNullOrEmpty(temp)) {
             for (BasicFieldAttribute field : temp) {
                 if (field.getFieldName() == null) {
                     field.setFieldName("unknown_field");
                 }
-                
+
                 String fieldName = field.getFieldName().toLowerCase();
                 if (fieldName.contains("qrypto")) {
-                    QryptoFieldAttribute qryptoField = (QryptoFieldAttribute) field;
+                    QryptoFieldAttribute qryptoField = (QryptoFieldAttribute) field.copy(QryptoFieldAttribute.class);
                     qryptoField.setType(Resources.getFieldTypes().get(FieldTypeName.QRYPTO.getParentName()));
                     qryptoField.setProcessStatus(ProcessStatus.PROCESSED.getName());
 
-                    //<editor-fold defaultstate="collapsed" desc="Read from list QRCode Detect from Document">
+                    //<editor-fold defaultstate="collapsed" desc="Add 2024-07-31:Read from list QRCode Detect from Document">
                     for (ImageQRCode qrCode : codes) {
                         if (qrCode.getAnnotationName() != null) {
                             if (qrCode.getAnnotationName().equals(qryptoField.getFieldName())) {
@@ -103,9 +123,11 @@ public class PreserveFormField {
                         }
                     }
                     //</editor-fold>
+
+                    result.add(qryptoField);
                 }
             }
-            listFields.addAll(temp);
+            listFields.addAll(result);
         }
         //</editor-fold>
 

@@ -1,4 +1,4 @@
-package vn.mobileid.id.FPS.services.impls;
+package vn.mobileid.id.FPS.services.impls.json;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.Map;
 import static jdk.nashorn.internal.objects.NativeArray.map;
 import vn.mobileid.id.FPS.services.interfaces.IJsonService;
-import vn.mobileid.id.FPS.services.objects.JSArray;
-import vn.mobileid.id.FPS.services.objects.JSAtomic;
-import vn.mobileid.id.FPS.services.objects.JSObject;
+import vn.mobileid.id.FPS.services.impls.json.objects.JSArray;
+import vn.mobileid.id.FPS.services.impls.json.objects.JSAtomic;
+import vn.mobileid.id.FPS.services.impls.json.objects.JSObject;
 
 /**
  * JsonService provides utility methods for serializing and deserializing Java objects

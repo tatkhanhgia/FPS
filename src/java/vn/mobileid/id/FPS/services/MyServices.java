@@ -7,7 +7,7 @@ package vn.mobileid.id.FPS.services;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fps.readqr.enumeration.InputType;
 import vn.mobileid.id.FPS.services.impls.FmsService;
-import vn.mobileid.id.FPS.services.impls.JacksonJsonService;
+import vn.mobileid.id.FPS.services.impls.json.JacksonJsonService;
 import vn.mobileid.id.FPS.services.impls.QRDetectionService;
 import vn.mobileid.id.FPS.services.impls.ZipService;
 import vn.mobileid.id.FPS.services.impls.databaseConnection.DatabaseConnectionManager;

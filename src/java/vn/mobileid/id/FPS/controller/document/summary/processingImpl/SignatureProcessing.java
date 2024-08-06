@@ -296,7 +296,7 @@ class SignatureProcessing implements IDocumentProcessing, IModuleProcessing {
             }
             for (ExtendedFieldAttribute temp : (Iterable<? extends ExtendedFieldAttribute>) response.getData()) {
                 InternalResponse response_1 = CheckFieldProcessedYet.checkProcessed(temp.getFieldValue());
-                if(!response_1.isValid()){break;}
+                if(!response_1.isValid()){continue;}
                 if (temp.getType().getParentType().equals(FieldTypeName.QR.getParentName())) {
                     QRFieldAttribute qr = MyServices.getJsonService().readValue(temp.getDetailValue(), QRFieldAttribute.class);
                     qr = (QRFieldAttribute) temp.clone(qr, temp.getDimension());

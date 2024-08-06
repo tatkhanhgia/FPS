@@ -26,12 +26,13 @@ public class ManagementController extends HttpServlet {
     @Override
     public void service(HttpServletRequest req, HttpServletResponse res) throws IOException, ServletException {
         String documentPattern = getInitParameter("documentPattern");
+        String downloadDocumentPattern = getInitParameter("downloadDocumentPattern");
         String fieldPattern = getInitParameter("fieldPattern");
         String authorizePattern = getInitParameter("authorizePattern");
         String FMSPattern = getInitParameter("FMSPattern");
         String UtilsPattern = getInitParameter("UtilPattern");
         String uri = req.getRequestURI();
-        if (uri.matches(documentPattern)) {
+        if (uri.matches(documentPattern) || uri.matches(downloadDocumentPattern)) {
             DocumentController.service_(req, res);
             return;
         } else if (uri.matches(fieldPattern)) {

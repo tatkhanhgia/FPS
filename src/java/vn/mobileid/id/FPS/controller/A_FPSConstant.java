@@ -161,6 +161,7 @@ public class A_FPSConstant {
     final public static int SUBCODE_CANNOT_ANNALYSIS_THE_DOCUMENT = 8;
     final public static int SUBCODE_THIS_DOCUMENT_DOES_NOT_HAVE_ANY_FIELD = 9;
     final public static int SUBCODE_PROCESS_SUCCESSFUL_BUT_CANNOT_CREATE_NEW_REVISION_OF_DOCUMENT = 10;
+    final public static int SUBCODE_CANNOT_REMOMVE_APPEARANCE_OF_SIGNATURE = 11;
     
     //Subcode Field text - 6
     final public static int SUBCODE_INVALID_TEXT_FIELD_TYPE = 1;

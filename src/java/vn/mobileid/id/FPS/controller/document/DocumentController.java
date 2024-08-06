@@ -97,6 +97,56 @@ public class DocumentController extends HttpServlet {
         }
         //</editor-fold>
 
+        //<editor-fold defaultstate="collapsed" desc="Download Document Remove Appearance">
+        if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/remove_appearance$")) {
+            String transactionId = Utils.getTransactionId(req, null);
+            LogHandler.request(
+                    DocumentController.class,
+                    Utils.getDataRequestToLog(req, transactionId, "Download Document Remove Appearance", ""));
+            long packageId = 0;
+            try {
+                packageId = Utils.getIdFromURL(req.getRequestURI());
+                InternalResponse response = DocumentSummary.downloadRemoveAppearanceDocument(req, packageId, transactionId);
+
+                if (response.getStatus() == A_FPSConstant.HTTP_CODE_SUCCESS) {
+                    Utils.sendMessage(
+                            res,
+                            response.getStatus(),
+                            "application/octet-stream",
+                            response.getData(),
+                            transactionId);
+                } else {
+                    String message = ResponseMessageController.getErrorMessageAdvanced(
+                            response.getCode(),
+                            response.getCodeDescription(),
+                            response.getMessage(),
+                            language,
+                            transactionId);
+                    response.setMessage(message);
+
+                    Utils.sendMessage(
+                            res,
+                            response.getStatus(),
+                            "application/json",
+                            response.getMessage(),
+                            transactionId);
+                }
+
+                Utils.createAPILog(
+                        req,
+                        "",
+                        (int) packageId,
+                        response,
+                        response.getException(),
+                        transactionId);
+
+            } catch (Exception ex) {
+                CatchException.catchException(ex, req, res, "", (int) packageId, transactionId);
+            }
+            return;
+        }
+        //</editor-fold>
+        
         //<editor-fold defaultstate="collapsed" desc="Download Document Base64">
         if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/base64$")) {
             String transactionId = Utils.getTransactionId(req, null);
@@ -146,6 +196,55 @@ public class DocumentController extends HttpServlet {
         }
         //</editor-fold>
 
+        //<editor-fold defaultstate="collapsed" desc="Download Document Remove Appearance Base64">
+        if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/base64/remove_appearance$")) {
+            String transactionId = Utils.getTransactionId(req, null);
+            LogHandler.request(
+                    DocumentController.class,
+                    Utils.getDataRequestToLog(req, transactionId, "Download Document Remove Appearance", ""));
+            long packageId = 0;
+            try {
+                packageId = Utils.getIdFromURL(req.getRequestURI());
+                InternalResponse response = DocumentSummary.downloadDocumentBase64(req, packageId, transactionId);
+
+                if (response.getStatus() == A_FPSConstant.HTTP_CODE_SUCCESS) {
+                    Utils.sendMessage(
+                            res,
+                            response.getStatus(),
+                            "application/json",
+                            response.getMessage(),
+                            transactionId);
+                } else {
+                    String message = ResponseMessageController.getErrorMessageAdvanced(
+                            response.getCode(),
+                            response.getCodeDescription(),
+                            response.getMessage(),
+                            language,
+                            transactionId);
+                    response.setMessage(message);
+
+                    Utils.sendMessage(
+                            res,
+                            response.getStatus(),
+                            "application/json",
+                            response.getMessage(),
+                            transactionId);
+                }
+
+                Utils.createAPILog(
+                        req,
+                        "",
+                        (int) packageId,
+                        response,
+                        response.getException(),
+                        transactionId);
+            } catch (Exception ex) {
+                CatchException.catchException(ex, req, res, "", (int) packageId, transactionId);
+            }
+            return;
+        }
+        //</editor-fold>
+        
         //<editor-fold defaultstate="collapsed" desc="Get Document Detail">
         if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/details$")) {
             String transactionId = Utils.getTransactionId(req, null);
