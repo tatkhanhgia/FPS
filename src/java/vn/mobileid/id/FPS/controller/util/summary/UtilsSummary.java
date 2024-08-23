@@ -159,13 +159,12 @@ public class UtilsSummary {
         //</editor-fold>
         
         //<editor-fold defaultstate="collapsed" desc="Get Data from LogHandle">
-        responseMessageBuilder.writeBooleanField(dbUrl, LogHandler.isConfigCaching());
-        responseMessageBuilder.writeBooleanField(dbUrl, LogHandler.isShowDebugLog());
-        responseMessageBuilder.writeBooleanField(dbUrl, LogHandler.isShowErrorLog());
-        responseMessageBuilder.writeBooleanField(dbUrl, LogHandler.isShowFatalLog());
-        responseMessageBuilder.writeBooleanField(dbUrl, LogHandler.isShowInfoLog());
-        responseMessageBuilder.writeBooleanField(dbUrl, LogHandler.isShowRequestLog());
-        responseMessageBuilder.writeBooleanField(dbUrl, LogHandler.isShowWarnLog());
+        responseMessageBuilder.writeBooleanField(dbUrl, LogHandler.getInstance().isShowDebugLog());
+        responseMessageBuilder.writeBooleanField(dbUrl, LogHandler.getInstance().isShowErrorLog());
+        responseMessageBuilder.writeBooleanField(dbUrl, LogHandler.getInstance().isShowFatalLog());
+        responseMessageBuilder.writeBooleanField(dbUrl, LogHandler.getInstance().isShowInfoLog());
+        responseMessageBuilder.writeBooleanField(dbUrl, LogHandler.getInstance().isShowRequestLog());
+        responseMessageBuilder.writeBooleanField(dbUrl, LogHandler.getInstance().isShowWarnLog());
         //</editor-fold>
     
         return new InternalResponse(

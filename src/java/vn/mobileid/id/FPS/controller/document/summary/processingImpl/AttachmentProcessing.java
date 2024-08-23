@@ -162,11 +162,10 @@ class AttachmentProcessing implements IDocumentProcessing {
                     field.setFile(uuid_);
                 }
             } catch (Exception ex) {
-                LogHandler.error(AttachmentProcessing.class, 
+                LogHandler.getInstance().error(AttachmentProcessing.class, 
                         transactionId, 
                         "Cannot upload new Image of Initial into FMS! Using default");
             }
-
             //</editor-fold>
             
             response = FieldSummaryInternal.updateValueOfField(
@@ -207,10 +206,6 @@ class AttachmentProcessing implements IDocumentProcessing {
                     resultODF
             );
         } catch (Exception ex) {
-            LogHandler.error(
-                    TextFieldProcessing.class,
-                    transactionId,
-                    ex);
             response = new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                     "{\"message\":\"Cannot add image into file\"}"

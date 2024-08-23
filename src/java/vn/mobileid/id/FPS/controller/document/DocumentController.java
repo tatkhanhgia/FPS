@@ -50,7 +50,7 @@ public class DocumentController extends HttpServlet {
         //<editor-fold defaultstate="collapsed" desc="Download Document">
         if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+$")) {
             String transactionId = Utils.getTransactionId(req, null);
-            LogHandler.request(
+            LogHandler.getInstance().request(
                     DocumentController.class,
                     Utils.getDataRequestToLog(req, transactionId, "Download Document", ""));
             long packageId = 0;
@@ -100,7 +100,7 @@ public class DocumentController extends HttpServlet {
         //<editor-fold defaultstate="collapsed" desc="Download Document Remove Appearance">
         if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/remove_appearance$")) {
             String transactionId = Utils.getTransactionId(req, null);
-            LogHandler.request(
+            LogHandler.getInstance().request(
                     DocumentController.class,
                     Utils.getDataRequestToLog(req, transactionId, "Download Document Remove Appearance", ""));
             long packageId = 0;
@@ -150,7 +150,7 @@ public class DocumentController extends HttpServlet {
         //<editor-fold defaultstate="collapsed" desc="Download Document Base64">
         if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/base64$")) {
             String transactionId = Utils.getTransactionId(req, null);
-            LogHandler.request(
+            LogHandler.getInstance().request(
                     DocumentController.class,
                     Utils.getDataRequestToLog(req, transactionId, "Download Document", ""));
             long packageId = 0;
@@ -199,13 +199,13 @@ public class DocumentController extends HttpServlet {
         //<editor-fold defaultstate="collapsed" desc="Download Document Remove Appearance Base64">
         if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/base64/remove_appearance$")) {
             String transactionId = Utils.getTransactionId(req, null);
-            LogHandler.request(
+            LogHandler.getInstance().request(
                     DocumentController.class,
                     Utils.getDataRequestToLog(req, transactionId, "Download Document Remove Appearance", ""));
             long packageId = 0;
             try {
                 packageId = Utils.getIdFromURL(req.getRequestURI());
-                InternalResponse response = DocumentSummary.downloadDocumentBase64(req, packageId, transactionId);
+                InternalResponse response = DocumentSummary.downloadDocumentRemoveApperanceBase64(req, packageId, transactionId);
 
                 if (response.getStatus() == A_FPSConstant.HTTP_CODE_SUCCESS) {
                     Utils.sendMessage(
@@ -248,7 +248,7 @@ public class DocumentController extends HttpServlet {
         //<editor-fold defaultstate="collapsed" desc="Get Document Detail">
         if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/details$")) {
             String transactionId = Utils.getTransactionId(req, null);
-            LogHandler.request(
+            LogHandler.getInstance().request(
                     DocumentController.class,
                     Utils.getDataRequestToLog(req, transactionId, "Get Document Details", ""));
             long packageId = 0;
@@ -290,7 +290,7 @@ public class DocumentController extends HttpServlet {
         //<editor-fold defaultstate="collapsed" desc="Get Document Verification">
         if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/verification$")) {
             String transactionId = Utils.getTransactionId(req, null);
-            LogHandler.request(
+            LogHandler.getInstance().request(
                     DocumentController.class,
                     Utils.getDataRequestToLog(req, transactionId, "Get Document Verification", ""));
             long packageId = 0;
@@ -332,7 +332,7 @@ public class DocumentController extends HttpServlet {
         //<editor-fold defaultstate="collapsed" desc="Get Document Image">
         if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/images/[0-9]+$")) {
             String transactionId = Utils.getTransactionId(req, null);
-            LogHandler.request(
+            LogHandler.getInstance().request(
                     DocumentController.class,
                     Utils.getDataRequestToLog(req, transactionId, "Get Document Image", ""));
             long packageId = 0;
@@ -383,7 +383,7 @@ public class DocumentController extends HttpServlet {
         //<editor-fold defaultstate="collapsed" desc="Get Document Image Base64">
         if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/images/[0-9]+/base64$")) {
             String transactionId = Utils.getTransactionId(req, null);
-            LogHandler.request(
+            LogHandler.getInstance().request(
                     DocumentController.class,
                     Utils.getDataRequestToLog(req, transactionId, "Get Document Image", ""));
             long packageId = 0;
@@ -436,7 +436,7 @@ public class DocumentController extends HttpServlet {
         //<editor-fold defaultstate="collapsed" desc="Pre Check Document">
         if (req.getRequestURI().matches("^/fps/v1/documents/pre$")) {
             String transactionId = Utils.getTransactionId(req, null);
-            LogHandler.request(
+            LogHandler.getInstance().request(
                     DocumentController.class,
                     Utils.getDataRequestToLog(req, transactionId, "Pre check Document", ""));
             try {
@@ -475,7 +475,7 @@ public class DocumentController extends HttpServlet {
         if (req.getRequestURI().matches("^/fps/v1/documents/base64$")) {
             String transactionId = Utils.getTransactionId(req, null);
             String payload = Utils.getPayload(req);
-            LogHandler.request(
+            LogHandler.getInstance().request(
                     DocumentController.class,
                     Utils.getDataRequestToLog(req, transactionId, "upload Document", payload));
             if (!Utils.isNullOrEmpty(req.getContentType()) && req.getContentType().contains("application/json")) {
@@ -524,7 +524,7 @@ public class DocumentController extends HttpServlet {
         //<editor-fold defaultstate="collapsed" desc="Upload Document">
         if (req.getRequestURI().matches("^/fps/v1/documents$")) {
             String transactionId = Utils.getTransactionId(req, null);
-            LogHandler.request(
+            LogHandler.getInstance().request(
                     DocumentController.class,
                     Utils.getDataRequestToLog(req, transactionId, "upload Document", ""));
             if (!Utils.isNullOrEmpty(req.getContentType()) && req.getContentType().contains("application/octet-stream")) {
@@ -574,7 +574,7 @@ public class DocumentController extends HttpServlet {
         if (req.getRequestURI().matches("^/fps/v1/synchronize")) {
             String payload = Utils.getPayload(req);
             String transactionId = Utils.getTransactionId(req, payload);
-            LogHandler.request(
+            LogHandler.getInstance().request(
                     DocumentController.class,
                     Utils.getDataRequestToLog(req, transactionId, "upload Document", payload));
             if (!Utils.isNullOrEmpty(req.getContentType()) && req.getContentType().contains("application/json")) {
@@ -619,7 +619,7 @@ public class DocumentController extends HttpServlet {
             String payload = Utils.getPayload(req);
             long packageId = Utils.getIdFromURL(req.getRequestURI());
             String transactionId = Utils.getTransactionId(req, payload);
-            LogHandler.request(
+            LogHandler.getInstance().request(
                     FieldController.class,
                     Utils.getDataRequestToLog(req, transactionId, "Get Signature Hash", payload));
             if (!Utils.isNullOrEmpty(req.getContentType()) && req.getContentType().contains("application/json")) {
@@ -672,7 +672,7 @@ public class DocumentController extends HttpServlet {
             String payload = Utils.getPayload(req);
             long packageId = Utils.getIdFromURL(req.getRequestURI());
             String transactionId = Utils.getTransactionId(req, null);
-            LogHandler.request(
+            LogHandler.getInstance().request(
                     DocumentController.class,
                     Utils.getDataRequestToLog(req, transactionId, "sign Document", ""));
             if (!Utils.isNullOrEmpty(req.getContentType()) && req.getContentType().contains("application/json")) {

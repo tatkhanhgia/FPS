@@ -56,7 +56,7 @@ public class UpdateAPILog {
             }
             return new InternalResponse().setData(response.getObject());
         } catch (Exception ex) {
-            LogHandler.error(UpdateAPILog.class, transactionId, ex);
+            
             return CreateInternalResponse.createErrorInternalResponse(
                     A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
                     A_FPSConstant.CODE_API_LOG,

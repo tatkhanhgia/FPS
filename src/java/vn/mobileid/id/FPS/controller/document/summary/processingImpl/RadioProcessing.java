@@ -154,10 +154,6 @@ class RadioProcessing extends IVersion implements IModuleProcessing, IDocumentPr
                     transactionId);
             return response;
         } catch (Exception ex) {
-            LogHandler.error(
-                    TextFieldProcessing.class,
-                    transactionId,
-                    ex);
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                     "{\"message\":\"Cannot append checkbox value into file\"}"
@@ -329,10 +325,6 @@ class RadioProcessing extends IVersion implements IModuleProcessing, IDocumentPr
                     ""
             );
         } catch (Exception ex) {
-            LogHandler.error(
-                    TextFieldProcessing.class,
-                    transactionId,
-                    ex);
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                     "{\"message\":\"Cannot append radiobox value into file\"}"

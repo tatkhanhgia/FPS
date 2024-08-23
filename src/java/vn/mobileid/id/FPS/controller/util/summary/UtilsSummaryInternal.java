@@ -27,7 +27,11 @@ public class UtilsSummaryInternal {
         try{
             return GetAPILog.getAPILog("");
         }catch(Exception ex){
-            LogHandler.error(UtilsSummaryInternal.class, "", ex);
+            LogHandler.getInstance().error(
+                    UtilsSummaryInternal.class,
+                    "",
+                    "Cannot get API Logs",
+                    ex);
             return CreateInternalResponse.createBadRequestInternalResponse(
                     0,
                     0);

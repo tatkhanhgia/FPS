@@ -134,7 +134,7 @@ class QryptoProcessing extends IVersion implements IDocumentProcessing {
         try {
             signatures = MyServices.getThreadManagement(1).executeTask(getSignature);
         } catch (Exception ex) {
-            LogHandler.error(QryptoProcessing.class,
+            LogHandler.getInstance().error(QryptoProcessing.class,
                     transactionId,
                     "Cannot get List Signature in file PDF! Not replace QryptoAnnotation");
         }
@@ -251,8 +251,6 @@ class QryptoProcessing extends IVersion implements IDocumentProcessing {
                     }
                     return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, "");
                 } catch (Exception ex) {
-                    ex.printStackTrace();
-                    LogHandler.error(FieldSummary.class, transactionId, ex);
                     return new InternalResponse(
                             A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                             A_FPSConstant.CODE_FIELD_QR_Qrypto,
@@ -590,7 +588,6 @@ class QryptoProcessing extends IVersion implements IDocumentProcessing {
                                 field);
                         return new InternalResponse().setData(finalFilePDF);
                     } catch (Exception ex) {
-                        LogHandler.error(QryptoProcessing.class, "", ex);
                         return CreateInternalResponse.createErrorInternalResponse(
                                 A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
                                 A_FPSConstant.CODE_FIELD_QR_Qrypto,

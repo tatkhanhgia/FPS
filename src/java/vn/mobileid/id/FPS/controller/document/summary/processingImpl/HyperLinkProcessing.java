@@ -193,9 +193,6 @@ class HyperLinkProcessing implements IDocumentProcessing, IModuleProcessing {
                     ""
             );
         } catch (Exception ex) {
-            LogHandler.error(HyperLinkProcessing.class,
-                    transactionId,
-                    ex);
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                     "{\"message\":\"Cannot append text value into file\"}"

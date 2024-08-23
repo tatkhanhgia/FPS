@@ -261,10 +261,10 @@ public class ResponseMessageController implements ResponseMessageBuilder {
                         String.valueOf(subCode));
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            if (LogHandler.isShowErrorLog()) {
-                LOG.error("UNKNOWN EXCEPTION.");
-            }
+            LogHandler.getInstance().error(ResponseMessageController.class,
+                    transactionID,
+                    "Cannot generate error response!",
+                    e);
             return A_FPSConstant.INTERNAL_EXP_MESS;
         }
     }

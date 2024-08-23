@@ -21,7 +21,7 @@ import vn.mobileid.id.FPS.utils.Utils;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProcessingRequest {
 
-    //Data for sign
+    //Data for sign/getHash
     private String fieldName;
     private String signingReason;
     private String signingLocation;
@@ -33,6 +33,7 @@ public class ProcessingRequest {
     private String signedHash;
     private String signerContact;
     private String handSignatureImage;
+    private String appearanceDesign;
 
     //Data for fillFormField
     private List<ProcessingFormFillRequest> text = new ArrayList<>();
@@ -96,15 +97,15 @@ public class ProcessingRequest {
     public void setRadio(List<ProcessingFormFillRequest> radio) {
         this.radio = radio;
     }
-    
+
     public void setRadioV2(List<ProcessingFormFillRequest> radio) {
         this.radioV2 = radio;
     }
-    
+
     public void setCheckbox(List<ProcessingFormFillRequest> checkbox) {
         this.checkbox = checkbox;
     }
-    
+
     public void setCheckboxV2(List<ProcessingFormFillRequest> checkbox) {
         this.checkboxV2 = checkbox;
     }
@@ -129,11 +130,20 @@ public class ProcessingRequest {
         this.signerContact = signerContact;
     }
 
+    public void setAppearanceDesign(String appearanceDesign) {
+        this.appearanceDesign = appearanceDesign;
+    }
+
+    @JsonProperty("appearance_design")
+    public String getAppearanceDesign() {
+        return appearanceDesign;
+    }
+
     @JsonProperty("signer_contact")
     public String getSignerContact() {
         return signerContact;
     }
-    
+
     @JsonProperty("field_name")
     public String getFieldName() {
         return fieldName;
@@ -217,7 +227,7 @@ public class ProcessingRequest {
         if (!Utils.isNullOrEmpty(this.signingReason)) {
             original.getVerification().setSigningReason(signingReason);
         }
-        if (!Utils.isNullOrEmpty(this.signerContact)){
+        if (!Utils.isNullOrEmpty(this.signerContact)) {
             original.getVerification().setSignerContact(signerContact);
         }
     }
@@ -236,7 +246,7 @@ public class ProcessingRequest {
     public List<ProcessingFormFillRequest> getCheckbox() {
         return checkbox;
     }
-    
+
     @JsonProperty("checkboxV2")
     public List<ProcessingFormFillRequest> getCheckboxV2() {
         return checkboxV2;
@@ -246,7 +256,7 @@ public class ProcessingRequest {
     public List<ProcessingFormFillRequest> getRadioBoxV2() {
         return radioV2;
     }
-    
+
     @JsonProperty("dropdown")
     public List<ProcessingFormFillRequest> getDropdown() {
         return dropdown;
@@ -321,9 +331,7 @@ public class ProcessingRequest {
     public void setDateTimes(List<ProcessingFormFillRequest> dateTimes) {
         this.dateTimes = dateTimes;
     }
-    
-    
-    
+
     @JsonIgnoreProperties(ignoreUnknown = true)
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class ProcessingFormFillRequest {

@@ -67,7 +67,7 @@ public class DocumentDBImpl implements IDocumentDB {
                 registerOutParam,
                 "Create Document Package");
 
-        LogHandler.debug(this.getClass(), transactionId + " _ " + response.getDebugString());
+        LogHandler.getInstance().debug(this.getClass(), transactionId + " _ " + response.getDebugString());
 
         if (response.getStatus() != A_FPSConstant.CODE_SUCCESS) {
             return response;
@@ -143,7 +143,7 @@ public class DocumentDBImpl implements IDocumentDB {
                 output,
                 "Upload Document to Package");
 
-        LogHandler.debug(this.getClass(), transactionId + " _ " + response.getDebugString());
+        LogHandler.getInstance().debug(this.getClass(), transactionId + " _ " + response.getDebugString());
 
         if (response.getStatus() != A_FPSConstant.CODE_SUCCESS) {
             return response;
@@ -177,7 +177,7 @@ public class DocumentDBImpl implements IDocumentDB {
                 registerOutParam,
                 "Get Document Package");
 
-        LogHandler.debug(this.getClass(), transactionId + " _ " + response.getDebugString());
+        LogHandler.getInstance().debug(this.getClass(), transactionId + " _ " + response.getDebugString());
 
         if (response.getStatus() != A_FPSConstant.CODE_SUCCESS) {
             return response;
@@ -209,7 +209,7 @@ public class DocumentDBImpl implements IDocumentDB {
                 null,
                 "Get Documents inside Package");
 
-        LogHandler.debug(this.getClass(), transactionId + " _ " + response.getDebugString());
+        LogHandler.getInstance().debug(this.getClass(), transactionId + " _ " + response.getDebugString());
 
         if (response.getStatus() != A_FPSConstant.CODE_SUCCESS) {
             return response;
@@ -285,7 +285,7 @@ public class DocumentDBImpl implements IDocumentDB {
                 null,
                 "Get Documents inside Package");
 
-        LogHandler.debug(this.getClass(), transactionId + " _ " + response.getDebugString());
+        LogHandler.getInstance().debug(this.getClass(), transactionId + " _ " + response.getDebugString());
 
         if (response.getStatus() != A_FPSConstant.CODE_SUCCESS) {
             return response;
@@ -350,7 +350,7 @@ public class DocumentDBImpl implements IDocumentDB {
                 registerOutParam,
                 "Get Document Package from UUID");
 
-        LogHandler.debug(this.getClass(), transactionId + " _ " + response.getDebugString());
+        LogHandler.getInstance().debug(this.getClass(), transactionId + " _ " + response.getDebugString());
 
         if (response.getStatus() != A_FPSConstant.CODE_SUCCESS) {
             return response;

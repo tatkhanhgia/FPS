@@ -137,7 +137,7 @@ public class FMS {
         try {
             client.uploadFile();
         } catch (Exception ex) {
-            LogHandler.error(
+            LogHandler.getInstance().error(
                     FMS.class,
                     transactionId,
                     ex);
@@ -190,7 +190,7 @@ public class FMS {
         try {
             client.uploadFile();
         } catch (Exception ex) {
-            LogHandler.error(
+            LogHandler.getInstance().error(
                     FMS.class,
                     transactionId,
                     ex);
@@ -233,7 +233,7 @@ public class FMS {
         try{
             client.downloadFile();
         } catch(Exception ex){
-            LogHandler.error(
+            LogHandler.getInstance().error(
                     FMS.class,
                     transactionId,
                     ex);
@@ -273,7 +273,7 @@ public class FMS {
         try{
             client.deleteFile();
         } catch(Exception ex){
-            LogHandler.error(
+            LogHandler.getInstance().error(
                     FMS.class,
                     transactionId,
                     ex);
@@ -315,7 +315,7 @@ public class FMS {
         try{
             client.deleteFile();
         } catch(Exception ex){
-            LogHandler.error(
+            LogHandler.getInstance().error(
                     FMS.class,
                     transactionId,
                     ex);

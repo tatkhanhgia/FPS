@@ -4,7 +4,6 @@
  */
 package vn.mobileid.id.FPS.controller.document.summary.processingImpl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fps_core.enumration.ProcessStatus;
 import fps_core.module.DocumentUtils_itext7;
 import fps_core.objects.core.QRFieldAttribute;
@@ -107,10 +106,6 @@ class QRProcessing implements IDocumentProcessing{
                     resultODF
             );
         } catch (Exception ex) {
-            LogHandler.error(
-                    TextFieldProcessing.class,
-                    transactionId,
-                    ex);
             response = new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                     "{\"message\":\"Cannot add QR into file\"}"

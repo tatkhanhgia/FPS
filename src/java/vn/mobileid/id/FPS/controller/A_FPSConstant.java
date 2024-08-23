@@ -108,6 +108,7 @@ public class A_FPSConstant {
     final public static int CODE_FIELD_DATETIME = 20;
     final public static int CODE_FIELD_TOGGLE = 21;
     final public static int CODE_API_LOG = 22;
+    final public static int CODE_ITEXT = 23;
     
     //SubCode
     final public static int SUBCODE_NO_PAYLOAD_FOUND = 1;
@@ -236,4 +237,7 @@ public class A_FPSConstant {
     
     //Subcode API Log - 22
     final public static int SUBCODE_CANNOT_GET_APILOG = 1;
+    
+    //Subcode ITEXT - 23
+    final public static int SUBCODE_THE_FILE_HAS_SOME_ERROR = 1;
 }

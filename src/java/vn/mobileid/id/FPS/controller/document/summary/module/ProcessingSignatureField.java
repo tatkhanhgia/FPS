@@ -4,6 +4,7 @@
  */
 package vn.mobileid.id.FPS.controller.document.summary.module;
 
+import fps_core.enumration.AppearanceDesign;
 import vn.mobileid.id.FPS.controller.document.summary.micro.UpdateDocument;
 import fps_core.enumration.DocumentStatus;
 import fps_core.enumration.FieldTypeName;
@@ -24,7 +25,6 @@ import vn.mobileid.id.FPS.controller.field.summary.module.CheckFieldProcessedYet
 import vn.mobileid.id.FPS.controller.field.summary.micro.UpdateField;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.services.others.responseMessage.ResponseMessageController;
-import vn.mobileid.id.FPS.controller.document.summary.DocumentSummary;
 import vn.mobileid.id.FPS.controller.enterprise.summary.module.GetAPIKeyRuleOfEnterprise;
 import vn.mobileid.id.FPS.enumeration.Rule;
 import vn.mobileid.id.FPS.object.APIKeyRule;
@@ -34,7 +34,6 @@ import vn.mobileid.id.FPS.object.ProcessingRequest;
 import vn.mobileid.id.FPS.object.TemporalObject;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.FPS.services.MyServices;
-import vn.mobileid.id.FPS.systemManagement.LogHandler;
 import vn.mobileid.id.FPS.systemManagement.PolicyConfiguration;
 import vn.mobileid.id.FPS.utils.ManagementTemporal;
 import vn.mobileid.id.FPS.services.others.threadManagement.TaskV2;
@@ -199,7 +198,6 @@ public class ProcessingSignatureField {
                         return response;
                     }
                 } catch (Exception ex) {
-                    LogHandler.error(DocumentSummary.class, transactionId, ex);
                     response.setStatus(A_FPSConstant.HTTP_CODE_BAD_REQUEST);
                     response.setException(ex);
                     response.setMessage(ResponseMessageController
@@ -225,7 +223,6 @@ public class ProcessingSignatureField {
                             DocumentStatus.PROCESSING,
                             transactionId);
                 } catch (Exception ex) {
-                    LogHandler.error(DocumentSummary.class, transactionId, ex);
                     response.setStatus(A_FPSConstant.HTTP_CODE_BAD_REQUEST);
                     response.setException(ex);
                     response.setMessage(ResponseMessageController
@@ -259,7 +256,6 @@ public class ProcessingSignatureField {
                             return response;
                         }
                     } catch (Exception ex) {
-                        LogHandler.error(DocumentSummary.class, transactionId, ex);
                         response.setStatus(A_FPSConstant.HTTP_CODE_BAD_REQUEST);
                         response.setException(ex);
                         response.setMessage(ResponseMessageController
@@ -327,7 +323,7 @@ public class ProcessingSignatureField {
             document_,
             documentIdOriginal,
             signatureField,
-            signatureField.getLevelOfAssurance() != null ? signatureField.getLevelOfAssurance().contains("ESEAL") : false,
+            processRequest.getAppearanceDesign(),
             transactionId
         });
         if (response.getStatus() != A_FPSConstant.HTTP_CODE_SUCCESS) {
@@ -412,7 +408,6 @@ public class ProcessingSignatureField {
                         return response;
                     }
                 } catch (Exception ex) {
-                    LogHandler.error(DocumentSummary.class, transactionId, ex);
                     response.setStatus(A_FPSConstant.HTTP_CODE_BAD_REQUEST);
                     response.setException(ex);
                     response.setMessage(ResponseMessageController
@@ -438,7 +433,6 @@ public class ProcessingSignatureField {
                             DocumentStatus.PROCESSING,
                             transactionId);
                 } catch (Exception ex) {
-                    LogHandler.error(DocumentSummary.class, transactionId, ex);
                     response.setStatus(A_FPSConstant.HTTP_CODE_BAD_REQUEST);
                     response.setException(ex);
                     response.setMessage(ResponseMessageController
@@ -472,7 +466,6 @@ public class ProcessingSignatureField {
                             return response;
                         }
                     } catch (Exception ex) {
-                        LogHandler.error(DocumentSummary.class, transactionId, ex);
                         response.setStatus(A_FPSConstant.HTTP_CODE_BAD_REQUEST);
                         response.setException(ex);
                         response.setMessage(ResponseMessageController
@@ -505,7 +498,6 @@ public class ProcessingSignatureField {
                 new ResponseMessageController().writeStringField("hash_value", hash).build()
         );
     }
-
     //</editor-fold>
     //==========================================================================
     //<editor-fold defaultstate="collapsed" desc="Convert ExtendedField into SignatureField">

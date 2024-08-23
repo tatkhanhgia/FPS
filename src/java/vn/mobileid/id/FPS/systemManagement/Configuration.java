@@ -7,6 +7,7 @@ package vn.mobileid.id.FPS.systemManagement;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.Optional;
 import java.util.Properties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,7 +18,7 @@ import vn.mobileid.id.FPS.utils.Utils;
  *
  * @author GIATK
  * Read Attribute in file Config (local)
- * 
+ *
  */
 public class Configuration {
 
@@ -25,7 +26,7 @@ public class Configuration {
 
     private static Configuration instance;
 
-    private Properties prop = new Properties();    
+    private Properties prop = new Properties();
     private Properties appInfo = new Properties();
 //    private Properties propSMTP = new Properties();
 
@@ -52,15 +53,19 @@ public class Configuration {
     private int retry = 1;
     private int appUserDBID = 1;
 
-    private boolean showDebugLog;
-    private boolean showInfoLog;
-    private boolean showWarnLog;
-    private boolean showErrorLog;
-    private boolean showFatalLog;
-    private boolean showRequestLog;
-
-    private String serverTimeType;   
+    private boolean showLog4jDebugLog;
+    private boolean showLog4jInfoLog;
+    private boolean showLog4jWarnLog;
+    private boolean showLog4jErrorLog;
+    private boolean show4jFatalLog;
+    private boolean show4jRequestLog;
     
+    //For System
+    private boolean showPrintStacktrace = true;
+    private boolean showDebug = true;
+
+    private String serverTimeType;
+
     //SMTP
 //    private boolean ssl_enable;
 //    private boolean tsl_enable;
@@ -71,15 +76,14 @@ public class Configuration {
 //    private String password;
 //    private String sendFromAddr;
 //    private String sendFromName;
-    
     //FMS
-    private String urlFMS;        
+    private String urlFMS;
     private boolean isGTK_Dev = false;
-    
+
     //Qrypto
     private String hostQrypto;
     private String qryptoAuthentication;
-    
+
     public static Configuration getInstance() {
         if (instance == null) {
             instance = new Configuration();
@@ -91,36 +95,39 @@ public class Configuration {
         try {
             ClassLoader loader = Thread.currentThread().getContextClassLoader();
             //Load Paperless Services Properties-----------------------------------
+            //<editor-fold defaultstate="collapsed" desc="Load Application Properties">
 //            if (Utils.isNullOrEmpty(System.getenv("DTIS_DB_URL"))) {            
-                InputStream appProperties = loader.getResourceAsStream(
-                        "resources/config/app.properties");
-                if (appProperties != null) {
-                    prop.load(appProperties);
-                    if (prop.keySet() == null) {
-                        String propertiesFile = Utils.getPropertiesFile("resources/config/app.properties");
-                        if (propertiesFile != null) {
-                            LOG.info("Read the configuation file from " + propertiesFile);
-                            InputStream in = new FileInputStream(propertiesFile);
-                            prop.load(in);
-                            in.close();
-                        } else {
-                            LOG.error("Cannot find any configuation file. This is a big problem");
-                        }
-                    }
-                    appProperties.close();
-                } else {
+            InputStream appProperties = loader.getResourceAsStream(
+                    "resources/config/app.properties");
+            if (appProperties != null) {
+                prop.load(appProperties);
+                if (prop.keySet() == null) {
                     String propertiesFile = Utils.getPropertiesFile("resources/config/app.properties");
                     if (propertiesFile != null) {
                         LOG.info("Read the configuation file from " + propertiesFile);
-                        prop.load(new FileInputStream(propertiesFile));
+                        InputStream in = new FileInputStream(propertiesFile);
+                        prop.load(in);
+                        in.close();
                     } else {
                         LOG.error("Cannot find any configuation file. This is a big problem");
                     }
                 }
+                appProperties.close();
+            } else {
+                String propertiesFile = Utils.getPropertiesFile("resources/config/app.properties");
+                if (propertiesFile != null) {
+                    LOG.info("Read the configuation file from " + propertiesFile);
+                    prop.load(new FileInputStream(propertiesFile));
+                } else {
+                    LOG.error("Cannot find any configuation file. This is a big problem");
+                }
+            }
 //            } else {
 //                LOG.debug("Using getenv to obtain configuration values");
 //            }
-            //Load Info Properties----------------------------------------------
+            //</editor-fold>
+
+            //<editor-fold defaultstate="collapsed" desc="Load Infor Props">
             InputStream appInfoProperties = loader.getResourceAsStream("resources/config/info.properties");
             if (appInfoProperties != null) {
                 appInfo.load(appInfoProperties);
@@ -144,13 +151,14 @@ public class Configuration {
                 } else {
                     LOG.error("Cannot find any configuation file. This is a big problem");
                 }
-            }                        
-            
-            //Load SMTP PROPERTIES====================================
+            }
+            //</editor-fold>
+
+            //<editor-fold defaultstate="collapsed" desc="Load SMTP Props">
             InputStream SMTP = loader.getResourceAsStream("resources/config/smtp.properties");
             Properties propSMTP = new Properties();
             if (SMTP != null) {
-                 propSMTP.load(SMTP);
+                propSMTP.load(SMTP);
                 if (propSMTP.keySet() == null) {
                     String propertiesFile = Utils.getPropertiesFile("resources/config/smtp.properties");
                     if (propertiesFile != null) {
@@ -171,13 +179,14 @@ public class Configuration {
                 } else {
                     LOG.error("Cannot find any configuation file. This is a big problem");
                 }
-            }             
-            
-            //Load QRYPTO PROPERTIES====================================
+            }
+            //</editor-fold>
+
+            //<editor-fold defaultstate="collapsed" desc="Load QRYPTO Properties">
             InputStream qrypto = loader.getResourceAsStream("resources/config/qrypto.properties");
             Properties propQrypto = new Properties();
             if (qrypto != null) {
-                 propQrypto.load(qrypto);
+                propQrypto.load(qrypto);
                 if (propQrypto.keySet() == null) {
                     String propertiesFile = Utils.getPropertiesFile("resources/config/qrypto.properties");
                     if (propertiesFile != null) {
@@ -198,9 +207,9 @@ public class Configuration {
                 } else {
                     LOG.error("Cannot find any configuation file. This is a big problem");
                 }
-            }      
-            
-            
+            }
+            //</editor-fold>
+
             dbUrl = prop.getProperty("FPS.db.url") == null ? System.getenv("DTIS_DB_URL") : prop.getProperty("FPS.db.url");
             dbUsername = prop.getProperty("FPS.db.username") == null ? System.getenv("DTIS_DB_USERNAME") : prop.getProperty("FPS.db.username");
             dbPassword = prop.getProperty("FPS.db.password") == null ? System.getenv("DTIS_DB_PASSWORD") : prop.getProperty("FPS.db.password");
@@ -223,29 +232,45 @@ public class Configuration {
             showProcedures = Boolean.parseBoolean(prop.getProperty("FPS.db.logging.procedures.enabled") == null ? System.getenv("DTIS_DB_LOGGING_PROCEDURES_ENABLED") : prop.getProperty("FPS.db.logging.procedures.enabled"));
             retry = Integer.parseInt(prop.getProperty("FPS.db.retry") == null ? System.getenv("DTIS_DB_RETRY") : prop.getProperty("FPS.db.retry"));
 
-            appUserDBID = Integer.parseInt(prop.getProperty("FPS.db.app.userid") == null ? System.getenv("DTIS_DB_APP_USERID") : prop.getProperty("FPS.db.app.userid"));          
-           
+            appUserDBID = Integer.parseInt(prop.getProperty("FPS.db.app.userid") == null ? System.getenv("DTIS_DB_APP_USERID") : prop.getProperty("FPS.db.app.userid"));
 
-            showDebugLog = Boolean.parseBoolean(System.getenv("DTIS_LOG4J_DEBUG") == null ? prop.getProperty("FPS.log4j.debug", "true") : System.getenv("DTIS_LOG4J_DEBUG"));
-            showInfoLog = Boolean.parseBoolean(System.getenv("DTIS_LOG4J_INFO") == null ? prop.getProperty("FPS.log4j.info", "true") : System.getenv("DTIS_LOG4J_INFO"));
-            showWarnLog = Boolean.parseBoolean(System.getenv("DTIS_LOG4J_WARN") == null ? prop.getProperty("FPS.log4j.warn", "true") : System.getenv("DTIS_LOG4J_WARN"));
-            showErrorLog = Boolean.parseBoolean(System.getenv("DTIS_LOG4J_ERROR") == null ? prop.getProperty("FPS.log4j.error", "true") : System.getenv("DTIS_LOG4J_ERROR"));
-            showFatalLog = Boolean.parseBoolean(System.getenv("DTIS_LOG4J_FATAL") == null ? prop.getProperty("FPS.log4j.fatal", "true") : System.getenv("DTIS_LOG4J_FATAL"));
-            showRequestLog = Boolean.parseBoolean(System.getenv("DTIS_LOG4J_FATAL") == null ? prop.getProperty("FPS.log4j.request", "true") : System.getenv("DTIS_LOG4J_FATAL"));
-            
-            serverTimeType = prop.getProperty("server.time.type") == null ? System.getenv("SERVER_TIME_TYPE") : prop.getProperty("server.time.type");                       
-            urlFMS = prop.getProperty("FMS.url");            
-            try{
+            showLog4jDebugLog = Boolean.parseBoolean(System.getenv("DTIS_LOG4J_DEBUG") == null ? prop.getProperty("FPS.log4j.debug", "true") : System.getenv("DTIS_LOG4J_DEBUG"));
+            showLog4jInfoLog = Boolean.parseBoolean(System.getenv("DTIS_LOG4J_INFO") == null ? prop.getProperty("FPS.log4j.info", "true") : System.getenv("DTIS_LOG4J_INFO"));
+            showLog4jWarnLog = Boolean.parseBoolean(System.getenv("DTIS_LOG4J_WARN") == null ? prop.getProperty("FPS.log4j.warn", "true") : System.getenv("DTIS_LOG4J_WARN"));
+            showLog4jErrorLog = Boolean.parseBoolean(System.getenv("DTIS_LOG4J_ERROR") == null ? prop.getProperty("FPS.log4j.error", "true") : System.getenv("DTIS_LOG4J_ERROR"));
+            show4jFatalLog = Boolean.parseBoolean(System.getenv("DTIS_LOG4J_FATAL") == null ? prop.getProperty("FPS.log4j.fatal", "true") : System.getenv("DTIS_LOG4J_FATAL"));
+            show4jRequestLog = Boolean.parseBoolean(System.getenv("DTIS_LOG4J_FATAL") == null ? prop.getProperty("FPS.log4j.request", "true") : System.getenv("DTIS_LOG4J_FATAL"));
+
+            serverTimeType = prop.getProperty("server.time.type") == null ? System.getenv("SERVER_TIME_TYPE") : prop.getProperty("server.time.type");
+            urlFMS = prop.getProperty("FMS.url");
+            try {
                 isGTK_Dev = Boolean.parseBoolean(prop.getProperty("FMS.isGTK_Dev"));
-            } catch(Exception ex){}
+            } catch (Exception ex) {
+            }
             
-            hostQrypto = propQrypto.getProperty("qrypto.host") == null ? 
-                    System.getenv("DTIS_DB_LOGGING_PROCEDURES_ENABLED") :
-                    propQrypto.getProperty("qrypto.host");
-            qryptoAuthentication = propQrypto.getProperty("qrypto.authorization") == null ? 
-                    System.getenv("DTIS_DB_LOGGING_PROCEDURES_ENABLED") :
-                    propQrypto.getProperty("qrypto.authorization");
-            
+            try {                
+                showPrintStacktrace = Boolean.parseBoolean(
+                        Optional.ofNullable(prop.getProperty("FPS.log.print.stacktrace"))
+                        .orElseGet(()->{
+                            return "false";
+                        })
+                );
+                showDebug = Boolean.parseBoolean(
+                        Optional.ofNullable(
+                                prop.getProperty("FPS.log.print.stacktrace"))
+                                .orElseGet(()->{
+                                    return "true";
+                                }));
+            } catch (Exception e) {
+            }
+
+            hostQrypto = propQrypto.getProperty("qrypto.host") == null
+                    ? System.getenv("DTIS_DB_LOGGING_PROCEDURES_ENABLED")
+                    : propQrypto.getProperty("qrypto.host");
+            qryptoAuthentication = propQrypto.getProperty("qrypto.authorization") == null
+                    ? System.getenv("DTIS_DB_LOGGING_PROCEDURES_ENABLED")
+                    : propQrypto.getProperty("qrypto.authorization");
+
 //            ssl_enable = Boolean.parseBoolean(propSMTP.getProperty("mail.smtp.ssl.enable") == null ? System.getenv("SERVER_TIME_TYPE") : propSMTP.getProperty("mail.smtp.ssl.enable"));
 //            tsl_enable = Boolean.parseBoolean(propSMTP.getProperty("mail.smtp.starttls.enable") == null ? System.getenv("SERVER_TIME_TYPE") : propSMTP.getProperty("mail.smtp.starttls.enable"));
 //            auth = Boolean.parseBoolean(propSMTP.getProperty("mail.smtp.auth") == null ? System.getenv("SERVER_TIME_TYPE") : propSMTP.getProperty("mail.smtp.auth"));
@@ -256,11 +281,11 @@ public class Configuration {
 //            sendFromAddr = propSMTP.getProperty("mail.smtp.sendfromaddr") == null ? System.getenv("SERVER_TIME_TYPE") : propSMTP.getProperty("mail.smtp.sendfromaddr");
 //            sendFromName = propSMTP.getProperty("mail.smtp.sendfromname") == null ? System.getenv("SERVER_TIME_TYPE") : propSMTP.getProperty("mail.smtp.sendfromname");
             SMTPProperties.setProp(propSMTP);
-            
+
             if (serverTimeType == null) {
                 serverTimeType = "";
-            }           
-            
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
             LOG.error("Error while loading app.properties.");
@@ -342,30 +367,29 @@ public class Configuration {
     public int getAppUserDBID() {
         return appUserDBID;
     }
-   
 
-    public Properties getAppInfo() {        
+    public Properties getAppInfo() {
         return appInfo;
     }
 
     public boolean isShowDebugLog() {
-        return showDebugLog;
+        return showLog4jDebugLog;
     }
 
     public boolean isShowInfoLog() {
-        return showInfoLog;
+        return showLog4jInfoLog;
     }
 
     public boolean isShowWarnLog() {
-        return showWarnLog;
+        return showLog4jWarnLog;
     }
 
     public boolean isShowErrorLog() {
-        return showErrorLog;
+        return showLog4jErrorLog;
     }
 
     public boolean isShowFatalLog() {
-        return showFatalLog;
+        return show4jFatalLog;
     }
 
     private void getEnvConfig() {
@@ -377,15 +401,15 @@ public class Configuration {
 
     public String getServerTimeType() {
         return serverTimeType;
-    }  
+    }
 
     public boolean isShowRequestLog() {
-        return this.showRequestLog ;
-    }      
+        return this.show4jRequestLog;
+    }
 
     public String getUrlFMS() {
         return urlFMS;
-    }        
+    }
 
     public boolean IsGTK_Dev() {
         return isGTK_Dev;
@@ -401,5 +425,21 @@ public class Configuration {
 
     public String getQryptoAuthentication() {
         return qryptoAuthentication;
+    }
+
+    public boolean isShowPrintStacktrace() {
+        return showPrintStacktrace;
+    }
+
+    public void setShowPrintStacktrace(boolean showPrintStacktrace) {
+        this.showPrintStacktrace = showPrintStacktrace;
+    }
+
+    public boolean isShowDebug() {
+        return showDebug;
+    }
+    
+    public static void main(String[] args) throws Exception{
+        System.out.println(Optional.ofNullable(null).orElseGet(()->{return "false";}));
     }
 }

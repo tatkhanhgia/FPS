@@ -181,7 +181,7 @@ class FileProcessing extends IVersion implements IDocumentProcessing {
                     field.setFile(uuid_);
                 }
             } catch (Exception ex) {
-                LogHandler.error(FileProcessing.class, 
+                LogHandler.getInstance().error(FileProcessing.class, 
                         transactionId, 
                         "Cannot upload new Image of Initial into FMS! Using default");
             }
@@ -226,10 +226,6 @@ class FileProcessing extends IVersion implements IDocumentProcessing {
                     resultODF
             );
         } catch (Exception ex) {
-            LogHandler.error(
-                    TextFieldProcessing.class,
-                    transactionId,
-                    ex);
             response = new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                     "{\"message\":\"Cannot add image into file\"}"
@@ -369,7 +365,7 @@ class FileProcessing extends IVersion implements IDocumentProcessing {
                     field.setFile(uuid_);
                 }
             } catch (Exception ex) {
-                LogHandler.error(FileProcessing.class, 
+                LogHandler.getInstance().error(FileProcessing.class, 
                         transactionId, 
                         "Cannot upload new Image of Initial into FMS! Using default");
             }
@@ -414,10 +410,6 @@ class FileProcessing extends IVersion implements IDocumentProcessing {
                     resultODF
             );
         } catch (Exception ex) {
-            LogHandler.error(
-                    TextFieldProcessing.class,
-                    transactionId,
-                    ex);
             response = new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                     "{\"message\":\"Cannot add image into file\"}"

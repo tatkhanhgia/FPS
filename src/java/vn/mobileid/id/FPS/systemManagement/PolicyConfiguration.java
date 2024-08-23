@@ -37,7 +37,7 @@ public class PolicyConfiguration {
                     "transactionId");
                         
             if (response.getStatus() != A_FPSConstant.CODE_SUCCESS) {
-                LogHandler.fatal(
+                LogHandler.getInstance().fatal(
                         PolicyConfiguration.class,
                         "Init transaction",
                         "Cannot Init Policy !!!");
@@ -50,7 +50,7 @@ public class PolicyConfiguration {
 
            
         } catch (Exception ex) {
-            LogHandler.fatal(
+            LogHandler.getInstance().fatal(
                     PolicyConfiguration.class,
                     "Init transaction",
                     "Cannot Init Policy !!!");

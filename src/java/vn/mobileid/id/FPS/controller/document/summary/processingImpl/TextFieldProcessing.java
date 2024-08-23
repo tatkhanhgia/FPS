@@ -206,10 +206,6 @@ class TextFieldProcessing<T extends BasicFieldAttribute>  implements IDocumentPr
                     ""
             );
         } catch (Exception ex) {
-            LogHandler.error(
-                    TextFieldProcessing.class,
-                    transactionId,
-                    ex);
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                     "{\"message\":\"Cannot append text value into file\"}"
@@ -324,10 +320,6 @@ class TextFieldProcessing<T extends BasicFieldAttribute>  implements IDocumentPr
                     transactionId);
             return response;
         } catch (Exception ex) {
-            LogHandler.error(
-                    TextFieldProcessing.class,
-                    transactionId,
-                    ex);
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                     "{\"message\":\"Cannot append text value into file\"}"
@@ -444,10 +436,6 @@ class TextFieldProcessing<T extends BasicFieldAttribute>  implements IDocumentPr
                     transactionId);
             return response;
         } catch (Exception ex) {
-            LogHandler.error(
-                    TextFieldProcessing.class,
-                    transactionId,
-                    ex);
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                     "{\"message\":\"Cannot append text value into file\"}"

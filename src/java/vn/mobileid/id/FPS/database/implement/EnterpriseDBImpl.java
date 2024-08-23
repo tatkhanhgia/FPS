@@ -34,7 +34,7 @@ public class EnterpriseDBImpl implements IEnterpriseDB {
                 null,
                 "Get list of ResponseCode");
                 
-        LogHandler.debug(this.getClass(), response.getDebugString());
+        LogHandler.getInstance().debug(this.getClass(), response.getDebugString());
         
         if(response.getStatus() != A_FPSConstant.CODE_SUCCESS){
             return response;
@@ -83,7 +83,7 @@ public class EnterpriseDBImpl implements IEnterpriseDB {
                 null,
                 "Get Enterprise Info");
 
-        LogHandler.debug(this.getClass(), transactionID + " _ " + response.getDebugString());
+        LogHandler.getInstance().debug(this.getClass(), transactionID + " _ " + response.getDebugString());
 
         if (response.getStatus() != A_FPSConstant.CODE_SUCCESS) {
             return response;
@@ -125,7 +125,7 @@ public class EnterpriseDBImpl implements IEnterpriseDB {
                 null,
                 "Get API Key Rule");
 
-        LogHandler.debug(this.getClass(), transactionID + " _ " + response.getDebugString());
+        LogHandler.getInstance().debug(this.getClass(), transactionID + " _ " + response.getDebugString());
 
         if (response.getStatus() != A_FPSConstant.CODE_SUCCESS) {
             return response;
@@ -137,7 +137,7 @@ public class EnterpriseDBImpl implements IEnterpriseDB {
                 APIKeyRule rule = MyServices.getJsonService().readValue(value, APIKeyRule.class);
                 response.setObject(rule);
             } catch (Exception ex) {
-                LogHandler.error(EnterpriseDBImpl.class, transactionID, ex);
+                LogHandler.getInstance().error(EnterpriseDBImpl.class, transactionID, ex);
             }
         }
 

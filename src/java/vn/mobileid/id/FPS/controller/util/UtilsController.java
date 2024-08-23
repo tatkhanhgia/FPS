@@ -49,9 +49,9 @@ public class UtilsController extends HttpServlet {
         if (req.getRequestURI().matches("^/fps/v1/documents/fields$")) {
             String transactionId = Utils.getTransactionId(req, null);
             String payload = Utils.getPayload(req);
-            LogHandler.request(
+            LogHandler.getInstance().request(
                     UtilsController.class,
-                    Utils.getDataRequestToLog(req, transactionId, "Get Field Type", payload));
+                    Utils.getDataRequestToLog(req, transactionId, "Get Field Type",  payload));
             try {
                 InternalResponse response = FieldSummary.getFieldType(req, transactionId);
                 Utils.sendMessage(
@@ -77,7 +77,7 @@ public class UtilsController extends HttpServlet {
         if (req.getRequestURI().matches("^/admin/system/configuration$")) {
             String transactionId = Utils.getTransactionId(req, null);
             String payload = Utils.getPayload(req);
-            LogHandler.request(
+            LogHandler.getInstance().request(
                     UtilsController.class,
                     Utils.getDataRequestToLog(req, transactionId, "Get System Configuration", payload));
             try {
@@ -116,7 +116,7 @@ public class UtilsController extends HttpServlet {
         if (req.getRequestURI().matches("^/fps/resources/reload*$")) {
             String transactionId = Utils.getTransactionId(req, null);
             String payload = Utils.getPayload(req);
-            LogHandler.request(
+            LogHandler.getInstance().request(
                     UtilsController.class,
                     Utils.getDataRequestToLog(req, transactionId, "Reload Resources", payload));
             if (!Utils.isNullOrEmpty(req.getContentType()) && req.getContentType().contains("application/json")) {
@@ -160,7 +160,7 @@ public class UtilsController extends HttpServlet {
         if (req.getRequestURI().matches("^/fps/threads/reload*$")) {
             String transactionId = Utils.getTransactionId(req, null);
             String payload = Utils.getPayload(req);
-            LogHandler.request(
+            LogHandler.getInstance().request(
                     UtilsController.class,
                     Utils.getDataRequestToLog(req, transactionId, "Reload Thread Management", payload));
             if (!Utils.isNullOrEmpty(req.getContentType()) && req.getContentType().contains("application/json")) {

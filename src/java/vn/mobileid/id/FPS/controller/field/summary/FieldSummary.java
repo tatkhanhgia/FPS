@@ -203,7 +203,6 @@ public class FieldSummary {
                 }
                 hierarchicalLog.addEndHeading1("Create QR successfully");
             } catch (Exception ex) {
-                LogHandler.error(FieldSummary.class, transactionId, ex);
                 hierarchicalLog.addEndHeading1("Create QR fail");
                 response = new InternalResponse(
                         A_FPSConstant.HTTP_CODE_BAD_REQUEST,
@@ -1250,7 +1249,6 @@ public class FieldSummary {
                     }
                 }
             } catch (Exception ex) {
-                LogHandler.error(FieldSummary.class, "transactionId", ex);
                 return null;
             }
         }

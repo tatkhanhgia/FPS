@@ -65,9 +65,9 @@ public class ScheduledThreadManagement {
         System.out.println("\n=====Start Initial Scheduled Task=====");
         InternalResponse getAPILogs = new UtilsSummaryInternal().getAPILogs();
         if (!getAPILogs.isValid()) {
-            LogHandler.error(ScheduledThreadManagement.class,
+            LogHandler.getInstance().error(ScheduledThreadManagement.class,
                     "",
-                    "Cannot initial Scheduled Thread Management");
+                    "Cannot initial Scheduled Thread Management because cannot get API Logs");
             return;
         }
         List<APILog> apiLogs = (List<APILog>) getAPILogs.getData();
@@ -101,9 +101,9 @@ public class ScheduledThreadManagement {
                     long now = System.currentTimeMillis();
                     InternalResponse getAPILogs = new UtilsSummaryInternal().getAPILogs();
                     if (!getAPILogs.isValid()) {
-                        LogHandler.error(ScheduledThreadManagement.class,
+                        LogHandler.getInstance().error(ScheduledThreadManagement.class,
                                 "",
-                                "Cannot initial Scheduled Thread Management");
+                                "Cannot initial Scheduled Thread Management because cannot get API Logs");
                     }
                     List<APILog> apiLogs = (List<APILog>) getAPILogs.getData();
                     for (APILog apiLog : apiLogs) {
@@ -122,8 +122,8 @@ public class ScheduledThreadManagement {
                         }
                     }
 //                System.out.println("=======");
-                    System.out.println("\n=====Scheduled Task ===== => Delete file cache successfull");
-                    System.out.println("\n=====Scheduled Task===== => Start create schedule for initial after " + nextTimeInSecond + " second");
+                    System.out.println("\n=====Scheduled Task======> Delete file cache successfull");
+                    System.out.println("\n=====Scheduled Task======> Start create schedule for initial after " + nextTimeInSecond + " second");
                     getThread().schedule(new TaskV2(null, null) {
                         @Override
                         public Object call() {
@@ -133,7 +133,7 @@ public class ScheduledThreadManagement {
                     }, nextTimeInSecond, TimeUnit.SECONDS);
                     return null;
                 } catch (Exception e) {
-                    LogHandler.error(ScheduledThreadManagement.class, "", e);
+                    LogHandler.getInstance().error(ScheduledThreadManagement.class, "", e);
                     return null;
                 }
             }
@@ -147,7 +147,7 @@ public class ScheduledThreadManagement {
                 System.out.println("\n=====Start Initial Scheduled Task=====");
                 InternalResponse getAPILogs = new UtilsSummaryInternal().getAPILogs();
                 if (!getAPILogs.isValid()) {
-                    LogHandler.error(ScheduledThreadManagement.class,
+                    LogHandler.getInstance().error(ScheduledThreadManagement.class,
                             "",
                             "Cannot initial Scheduled Thread Management");
                     return null;
@@ -182,7 +182,7 @@ public class ScheduledThreadManagement {
     public void autoReloadSheduledWhenHaveTheProblem(TaskV2 task, int errorTime) {
         try {
             if (errorTime == maxErrorCanNegotiate) {
-                LogHandler.error(
+                LogHandler.getInstance().error(
                         ScheduledThreadManagement.class,
                         "",
                         "Cannot execute Task anymore => reach max time delay");

@@ -19,21 +19,21 @@ public class FieldsSerializer implements JsonSerializable {
 
     private Object[] types;
     private String[] names = new String[]{
-        "textbox",
-        "checkbox", 
-        "radiobox",
-        "qr", 
-        "initial",
-        "inperson", 
-        "signature", 
-        "combobox", 
-        "datetime",
-        "qrypto",
-        "stamp",
-        "camera",
-        "attachment",
-        "hyperlink",
-        "toggle",
+        "textbox",//
+        "checkbox", //
+        "radiobox",//
+        "qr", //
+        "initial",//
+        "inperson", //
+        "signature", // 
+        "combobox", //
+        "datetime",//
+        "qrypto",//
+        "stamp",//
+        "camera",//
+        "attachment",//
+        "hyperlink",//
+        "toggle",//
         "stepper",
         "checkboxV2",
         "radioboxV2"};

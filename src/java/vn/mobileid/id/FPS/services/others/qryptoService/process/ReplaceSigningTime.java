@@ -53,7 +53,11 @@ public class ReplaceSigningTime {
             }
             return MyServices.getJsonService().readValue(json, Item_Table.class);
         } catch (Exception ex) {
-            LogHandler.error(CreateQRSchema.class, json, ex);
+            LogHandler.getInstance().error(
+                    ReplaceSigningTime.class,
+                    null, 
+                    "Cannot replace signing time in json",
+                    ex);
             return null;
         }
     }
@@ -80,7 +84,11 @@ public class ReplaceSigningTime {
             }
             return json;
         } catch (Exception ex) {
-            LogHandler.error(CreateQRSchema.class, json, ex);
+            LogHandler.getInstance().error(
+                    ReplaceSigningTime.class,
+                    null, 
+                    "Cannot replace signing time in json",
+                    ex);
             return null;
         }
     }

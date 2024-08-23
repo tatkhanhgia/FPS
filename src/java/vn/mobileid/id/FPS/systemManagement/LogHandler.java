@@ -13,65 +13,81 @@ import org.apache.logging.log4j.Logger;
 /**
  *
  * @author GiaTK
- * Manage all Log in System. 
+ * Manage all Log in System.
  * Note: can manage the log in FPS_Core too
  */
 public class LogHandler {
 
-    private static boolean showDebugLog;
-    private static boolean showInfoLog;
-    private static boolean showWarnLog;
-    private static boolean showErrorLog;
-    private static boolean showFatalLog;
-    private static boolean showRequestLog;
+    private static boolean showLog4jDebugLog;
+    private static boolean showLog4jInfoLog;
+    private static boolean showLog4jWarnLog;
+    private static boolean showLog4jErrorLog;
+    private static boolean showLog4jFatalLog;
+    private static boolean showLog4jRequestLog;
 
-    private static boolean configCaching;
+    private static boolean isPrintStackTrace;
+    private static boolean isPrintDebug;
 
+//    private static boolean configCaching;
     private static LogHandler instance;
-    
+
+    public static LogHandler getInstance() {
+        if (instance == null) {
+            instance = new LogHandler();
+        }
+        return instance;
+    }
+
+    private LogHandler() {
+        readConfig();
+    }
+
     private static void readConfig() {
-        showDebugLog = Configuration.getInstance().isShowDebugLog();
-        showInfoLog = Configuration.getInstance().isShowInfoLog();
-        showWarnLog = Configuration.getInstance().isShowWarnLog();
-        showErrorLog = Configuration.getInstance().isShowErrorLog();
-        showRequestLog = Configuration.getInstance().isShowRequestLog();
+        showLog4jDebugLog = Configuration.getInstance().isShowDebugLog();
+        showLog4jInfoLog = Configuration.getInstance().isShowInfoLog();
+        showLog4jWarnLog = Configuration.getInstance().isShowWarnLog();
+        showLog4jErrorLog = Configuration.getInstance().isShowErrorLog();
+        showLog4jRequestLog = Configuration.getInstance().isShowRequestLog();
+        isPrintStackTrace = Configuration.getInstance().isShowPrintStacktrace();
+        isPrintDebug = Configuration.getInstance().isShowDebug();
     }
 
-    public static boolean isShowRequestLog() {
-        readConfig();
-        return showRequestLog;
+    public boolean isShowRequestLog() {
+        return showLog4jRequestLog;
     }
 
-    public static boolean isShowDebugLog() {
-        readConfig();
-        return showDebugLog;
+    public boolean isShowDebugLog() {
+        return showLog4jDebugLog;
     }
 
-    public static boolean isShowInfoLog() {
-        readConfig();
-        return showInfoLog;
+    public boolean isShowInfoLog() {
+        return showLog4jInfoLog;
     }
 
-    public static boolean isShowWarnLog() {
-        readConfig();
-        return showWarnLog;
+    public boolean isShowWarnLog() {
+        return showLog4jWarnLog;
     }
 
-    public static boolean isShowErrorLog() {
-        readConfig();
-        return showErrorLog;
+    public boolean isShowErrorLog() {
+        return showLog4jErrorLog;
     }
 
-    public static boolean isShowFatalLog() {
-        readConfig();
-        return showFatalLog;
+    public boolean isShowFatalLog() {
+        return showLog4jFatalLog;
     }
 
-    public static boolean isConfigCaching() {
-        readConfig();
-        return configCaching;
+    private boolean isPrintDebug() {
+        return isPrintDebug;
     }
 
+    public static boolean isPrintStackTrace() {
+        return isPrintStackTrace;
+    }
+
+//    public static boolean isConfigCaching() {
+//        readConfig();
+//        return configCaching;
+//    }
     //<editor-fold defaultstate="collapsed" desc="Using for log the request/response into file">
     /**
      * Using for log the request/response into file
@@ -79,7 +95,7 @@ public class LogHandler {
      * @param object defines the class
      * @param message
      */
-    public static void request(Class object, String message) {
+    public void request(Class object, String message) {
         if (isShowRequestLog()) {
             Logger LOG = LogManager.getLogger(object);
             LOG.log(Level.forName("REQUEST", 350), message);
@@ -94,15 +110,22 @@ public class LogHandler {
      * @param object
      * @param message
      */
-    public static void debug(Class object, String message) {
+    public void debug(Class object, String message) {
         if (isShowDebugLog()) {
             Logger LOG = LogManager.getLogger(object);
             LOG.debug(message);
         }
+        if (isPrintDebug()) {
+            StringBuilder builder = new StringBuilder();
+            builder.append("Class:").append(object.getCanonicalName());
+            builder.append("\n");
+            builder.append("Message:").append(message);
+            System.out.println(builder.toString());
+        }
     }
     //</editor-fold>
 
-    //<editor-fold defaultstate="collapsed" desc="Using for log the debug into file with Transaction">
+    //<editor-fold defaultstate="collapsed" desc="Using for log the debug into file with Transaction(Class,Transaction,Message)">
     /**
      * Using for log the debug into file
      *
@@ -110,7 +133,7 @@ public class LogHandler {
      * @param transactionID
      * @param message
      */
-    public static void debug(
+    public void debug(
             Class object,
             String transactionID,
             String message) {
@@ -118,30 +141,34 @@ public class LogHandler {
             Logger LOG = LogManager.getLogger(object);
             LOG.debug("TransactionID:" + transactionID + "\n" + message);
         }
+        if (isPrintDebug()) {
+            StringBuilder builder = new StringBuilder();
+            builder.append("Class:").append(object.getCanonicalName());
+            builder.append("\n");
+            builder.append("Transaction:").append(transactionID);
+            builder.append("\n");
+            builder.append("Message:").append(message);
+            System.out.println(builder.toString());
+        }
     }
     //</editor-fold>
 
-    //<editor-fold defaultstate="collapsed" desc="Using for log the error into file with transaction">
+    //<editor-fold defaultstate="collapsed" desc="Using for log the error into file with transaction (Class, Transaction, Message)">
     /**
      * Using for log the error into file
      *
      * @param object
      * @param message
      */
-    public static void error(
+    public void error(
             Class object,
             String transaction,
             String message) {
-        if (isShowErrorLog()) {
-            Logger LOG = LogManager.getLogger(object);
-            String temp = transaction
-                    + "\n\t" + message;
-            LOG.error(message);
-        }
+        error(object, transaction, message, null);
     }
     //</editor-fold>
 
-    //<editor-fold defaultstate="collapsed" desc="Using for log the error into file with Transaction">
+    //<editor-fold defaultstate="collapsed" desc="Using for log the error into file with Transaction (Class, Transaction, Exception)">
     /**
      * Using for log the error into file
      *
@@ -150,15 +177,40 @@ public class LogHandler {
      * @param message
      * @param ex
      */
-    public static void error(
+    public void error(
             Class object,
             String transactionID,
             Exception ex) {
-        if (isShowErrorLog()) {
-            Logger LOG = LogManager.getLogger(object);
-            StringBuilder sb = new StringBuilder();
-            sb.append("Transaction:").append(transactionID);
-            sb.append("\n");
+        error(object, transactionID, null, ex);
+    }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="Using for log the error into file with Transaction (Class, Transaction, Message, Exception)">
+    /**
+     * Using for log the error into file
+     *
+     * @param object
+     * @param transactionID
+     * @param message
+     * @param ex
+     */
+    public void error(
+            Class object,
+            String transactionID,
+            String message,
+            Exception ex) {
+        if (isPrintStackTrace()) {
+            ex.printStackTrace();
+        }
+
+        //<editor-fold defaultstate="collapsed" desc="Calculate Exception">
+        Logger LOG = LogManager.getLogger(object);
+        StringBuilder sb = new StringBuilder();
+        sb.append("Transaction:").append(transactionID);
+        sb.append("\n");
+        sb.append("Message:").append(message);
+        sb.append("\n");
+        if (ex != null) {
             StackTraceElement[] trace = null;
 //            Throwable[] throwAble = ex.getSuppressed();
             sb.append(ex.getClass().getName());
@@ -166,7 +218,7 @@ public class LogHandler {
             sb.append(ex.getLocalizedMessage());
             if (ex.getCause() != null) {
                 sb.append("\n");
-                sb.append("Cause by:").append(ex.getCause().getMessage());
+                sb.append("Cause by:").append(ex.getCause().getLocalizedMessage());
                 trace = ex.getCause().getStackTrace();
             } else {
                 trace = ex.getStackTrace();
@@ -185,8 +237,11 @@ public class LogHandler {
                 sb.append(String.format("%5s", temp.get(i)));
                 sb.append("\n\t");
             }
+        }
+        //</editor-fold>
+
+        if (isShowErrorLog()) {
             LOG.error(sb.toString());
-            System.err.println(sb.toString());
         }
     }
     //</editor-fold>
@@ -198,7 +253,7 @@ public class LogHandler {
      * @param object
      * @param message
      */
-    public static void info(Class object, String message) {
+    public void info(Class object, String message) {
         if (isShowInfoLog()) {
             Logger LOG = LogManager.getLogger(object);
             LOG.info(message);
@@ -214,7 +269,7 @@ public class LogHandler {
      * @param transactionID
      * @param message
      */
-    public static void info(
+    public void info(
             Class object,
             String transactionID,
             String message) {
@@ -226,7 +281,7 @@ public class LogHandler {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Using for log the fatal into file with Transaction">
-    public static void fatal(
+    public void fatal(
             Class object,
             String transactionID,
             String message
@@ -243,12 +298,11 @@ public class LogHandler {
     //</editor-fold>
 
     //==========================For LogHandler Core=============================
-    
-    public static void showHierarchicalLog(fps_core.utils.LogHandler.HierarchicalLog log){
+    public static void showHierarchicalLog(fps_core.utils.LogHandler.HierarchicalLog log) {
         fps_core.utils.LogHandler.showHierarchicalLog(log);
     }
-    
-    public static String hierachicalLogToString(fps_core.utils.LogHandler.HierarchicalLog log){
+
+    public static String hierachicalLogToString(fps_core.utils.LogHandler.HierarchicalLog log) {
         return fps_core.utils.LogHandler.hierachicalLogToString(log);
     }
 }

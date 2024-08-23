@@ -163,10 +163,6 @@ class InitialsProcessing extends IVersion implements IModuleProcessing, IDocumen
                     transactionId);
             return response;
         } catch (Exception ex) {
-            LogHandler.error(
-                    TextFieldProcessing.class,
-                    transactionId,
-                    ex);
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                     "{\"message\":\"Cannot append checkbox value into file\"}"
@@ -285,10 +281,6 @@ class InitialsProcessing extends IVersion implements IModuleProcessing, IDocumen
                     transactionId);
             return response;
         } catch (Exception ex) {
-            LogHandler.error(
-                    TextFieldProcessing.class,
-                    transactionId,
-                    ex);
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                     "{\"message\":\"Cannot append text value into file\"}"
@@ -474,10 +466,6 @@ class InitialsProcessing extends IVersion implements IModuleProcessing, IDocumen
                     ""
             );
         } catch (Exception ex) {
-            LogHandler.error(
-                    InitialsProcessing.class,
-                    transactionId,
-                    ex);
             InternalResponse res = new InternalResponse(
                     A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
                     A_FPSConstant.CODE_FIELD_INITIAL,
@@ -750,10 +738,6 @@ class InitialsProcessing extends IVersion implements IModuleProcessing, IDocumen
                     ""
             );
         } catch (Exception ex) {
-            LogHandler.error(
-                    InitialsProcessing.class,
-                    transactionId,
-                    ex);
             InternalResponse res = new InternalResponse(
                     A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
                     A_FPSConstant.CODE_FIELD_INITIAL,
@@ -1019,10 +1003,6 @@ class InitialsProcessing extends IVersion implements IModuleProcessing, IDocumen
                     ""
             );
         } catch (Exception ex) {
-            LogHandler.error(
-                    InitialsProcessing.class,
-                    transactionId,
-                    ex);
             InternalResponse res = new InternalResponse(
                     A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
                     A_FPSConstant.CODE_FIELD_INITIAL,
@@ -1288,10 +1268,6 @@ class InitialsProcessing extends IVersion implements IModuleProcessing, IDocumen
                     ""
             );
         } catch (Exception ex) {
-            LogHandler.error(
-                    InitialsProcessing.class,
-                    transactionId,
-                    ex);
             InternalResponse res = new InternalResponse(
                     A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
                     A_FPSConstant.CODE_FIELD_INITIAL,

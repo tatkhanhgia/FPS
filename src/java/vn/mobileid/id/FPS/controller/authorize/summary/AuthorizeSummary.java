@@ -47,10 +47,6 @@ public class AuthorizeSummary {
         try {
             object = MyServices.getJsonService().readValue(payload, Token.class);
         } catch (JsonProcessingException ex) {
-            LogHandler.error(
-                    ManageTokenWithDB.class,
-                    transactionID,
-                    "Cannot parse payload!");
             return CreateInternalResponse.createBadRequestInternalResponse(A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE)
                     .setException(ex);
         }
@@ -118,19 +114,11 @@ public class AuthorizeSummary {
             alg = header.substring(pos + 6, typ - 3);
             data = MyServices.getJsonService().readValue(payload, User.class);
         } catch (UnsupportedEncodingException e) {
-            LogHandler.error(
-                    ManageTokenWithDB.class,
-                    transactionID,
-                    "Error while decode token!");
             return CreateInternalResponse.createErrorInternalResponse(
                     A_FPSConstant.HTTP_CODE_UNAUTHORIZED,
                     A_FPSConstant.CODE_KEYCLOAK,
                     A_FPSConstant.SUBCODE_INVALID_TOKEN).setException(e);
         } catch (Exception e) {
-            LogHandler.error(
-                    ManageTokenWithDB.class,
-                    transactionID,
-                    "Error while parsing Data!");
             return CreateInternalResponse.createErrorInternalResponse(
                     A_FPSConstant.HTTP_CODE_UNAUTHORIZED,
                     A_FPSConstant.CODE_KEYCLOAK,
@@ -169,10 +157,6 @@ public class AuthorizeSummary {
         try {
             object = MyServices.getJsonService().readValue(payload, Token.class);
         } catch (JsonProcessingException ex) {
-            LogHandler.error(
-                    ManageTokenWithDB.class,
-                    transactionID,
-                    "Cannot parse payload!");
             return CreateInternalResponse.createBadRequestInternalResponse(A_FPSConstant.SUBCODE_INVALID_PAYLOAD_STRUCTURE)
                     .setException(ex);
         }

@@ -143,7 +143,7 @@ public class ProcessingRadioboxFormField extends IVersion {
             try {
                 if (field.getValue() != null && !(field.getValue() instanceof Boolean)) {
                     field.setValue(null);
-                    LogHandler.info(
+                    LogHandler.getInstance().info(
                             ProcessingCheckboxFormField.class,
                             transactionId,
                             "The value is not a boolean => Using default");

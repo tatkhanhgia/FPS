@@ -365,7 +365,7 @@ public class Crypto {
 //            Collections.reverse(certificates);
 //            return certificates;
 //        } catch (Exception e) {
-//            if (LogHandler.isShowWarnLog()) {
+//            if (LogHandler.getInstance().isShowWarnLog()) {
 //                LOG.warn("First CA certificate isn't the one who issues end-user certificate. Try the second one");
 //            }
 //            ca2 = getX509Object(caCert2);
@@ -491,15 +491,15 @@ public class Crypto {
 
             isOk = true;
         } catch (SignatureException e) {
-            if (LogHandler.isShowErrorLog()) {
+            if (LogHandler.getInstance().isShowErrorLog()) {
                 LOG.error("Invalid certficate. Signature exception.");
             }
         } catch (CertificateException e) {
-            if (LogHandler.isShowErrorLog()) {
+            if (LogHandler.getInstance().isShowErrorLog()) {
                 LOG.error("Invalid certficate. Certificate exception.");
             }
         } catch (Exception e) {
-            if (LogHandler.isShowErrorLog()) {
+            if (LogHandler.getInstance().isShowErrorLog()) {
                 LOG.error("Invalid certficate. Something wrong exception.");
             }
         }
@@ -513,17 +513,17 @@ public class Crypto {
             childCert.verify(parentCert.getPublicKey());
             isOk = true;
         } catch (SignatureException e) {
-            if (LogHandler.isShowErrorLog()) {
+            if (LogHandler.getInstance().isShowErrorLog()) {
                 LOG.error("Invalid certficate. Signature exception.");
             }
             e.printStackTrace();
         } catch (CertificateException e) {
-            if (LogHandler.isShowErrorLog()) {
+            if (LogHandler.getInstance().isShowErrorLog()) {
                 LOG.error("Invalid certficate. Certificate exception.");
             }
             e.printStackTrace();
         } catch (Exception e) {
-            if (LogHandler.isShowErrorLog()) {
+            if (LogHandler.getInstance().isShowErrorLog()) {
                 LOG.error("Invalid certficate. Something wrong exception.");
             }
             e.printStackTrace();
@@ -557,14 +557,14 @@ public class Crypto {
 
     public static boolean validateHashData(String hash) {
         if ((hash.length() % 2) != 0) {
-            if (LogHandler.isShowErrorLog()) {
+            if (LogHandler.getInstance().isShowErrorLog()) {
                 LOG.error("Invalid HashData=" + hash + " modulus of 2 should be ZERO");
             }
             return false;
         }
         byte[] binraryHash = DatatypeConverter.parseHexBinary(hash);
         if (binraryHash.length > 83) { // 83 is SHA-512 padded
-            if (LogHandler.isShowErrorLog()) {
+            if (LogHandler.getInstance().isShowErrorLog()) {
                 LOG.error("Hash length is greater than 64 bytes. Wtf?");
             }
             return false;
@@ -606,7 +606,7 @@ public class Crypto {
             bytes = data.getBytes(charset);
         } catch (Exception e) {
             e.printStackTrace();
-            if (LogHandler.isShowErrorLog()) {
+            if (LogHandler.getInstance().isShowErrorLog()) {
                 LOG.error("Invalid charset " + charset + ". Using the default one. It maybe got the unicode issue.");
             }
             bytes = data.getBytes();
@@ -840,7 +840,7 @@ public class Crypto {
             md.update(data);
             result = md.digest();
         } catch (NoSuchAlgorithmException e) {
-            if (LogHandler.isShowErrorLog()) {
+            if (LogHandler.getInstance().isShowErrorLog()) {
                 LOG.error("No Such Algorithm Exception.");
             }
             e.printStackTrace();
@@ -867,7 +867,7 @@ public class Crypto {
     public static String getSubjectKeyIdentifier(X509Certificate cert) {
         byte[] extensionValue = cert.getExtensionValue("2.5.29.14");
         if (DEROctetString.getInstance(extensionValue) == null) {
-            if (LogHandler.isShowWarnLog()) {
+            if (LogHandler.getInstance().isShowWarnLog()) {
                 LOG.warn("WARNING!!!. SubjectKeyIdentifier NOT found for DN " + cert.getSubjectDN().toString());
             }
             return "";
@@ -883,7 +883,7 @@ public class Crypto {
     public static String getIssuerKeyIdentifier(X509Certificate cert) {
         byte[] extensionValue = cert.getExtensionValue("2.5.29.35");
         if (DEROctetString.getInstance(extensionValue) == null) {
-            if (LogHandler.isShowWarnLog()) {
+            if (LogHandler.getInstance().isShowWarnLog()) {
                 LOG.warn("WARNING!!!. IssuerKeyIdentifier NOT found for DN " + cert.getSubjectDN().toString());
             }
             return "";
@@ -905,7 +905,7 @@ public class Crypto {
             }
             return sw.toString();
         } catch (Exception e) {
-            if (LogHandler.isShowErrorLog()) {
+            if (LogHandler.getInstance().isShowErrorLog()) {
                 LOG.error("Error while converting X509Certificate to Base64 PEM String.");
             }
             e.printStackTrace();
@@ -1160,7 +1160,7 @@ public class Crypto {
             x509crl = (X509CRL) cf.generateCRL(new ByteArrayInputStream(crlData));
         } catch (Exception e) {
             e.printStackTrace();
-            if (LogHandler.isShowErrorLog()) {
+            if (LogHandler.getInstance().isShowErrorLog()) {
                 LOG.error("Error while construct X509CRL object.");
             }
         }
@@ -1223,7 +1223,7 @@ public class Crypto {
         X509Certificate ocspSigner = null;
         try {
             if (basicResponse == null) {
-                if (LogHandler.isShowErrorLog()) {
+                if (LogHandler.getInstance().isShowErrorLog()) {
                     LOG.error("BasicOCSPResp is NULL or EMPTY");
                 }
                 return null;
@@ -1235,7 +1235,7 @@ public class Crypto {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            if (LogHandler.isShowErrorLog()) {
+            if (LogHandler.getInstance().isShowErrorLog()) {
                 LOG.error("Error while getting OCSP Signer.");
             }
         }

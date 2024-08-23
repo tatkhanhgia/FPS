@@ -135,7 +135,6 @@ public class ProcessingTextFormField<T extends TextFieldAttribute>{
                 }
                 textField = (TextFieldAttribute)temp.getData();
             } catch (Exception ex) {
-                LogHandler.error(ProcessingTextFormField.class, transactionId, ex);
                 errorField.setValue(Utils.summaryException(ex));
                 listOfErrorField.add(errorField);
                 continue;

@@ -58,7 +58,7 @@ public class AuthorizeController extends HttpServlet {
     public void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
         if (req.getRequestURI().contains("info")) {
             String transactionId = Utils.getTransactionId(req, null);
-            LogHandler.request(
+            LogHandler.getInstance().request(
                     AuthorizeController.class,
                     Utils.getDataRequestToLog(req, transactionId, "Get Info", ""));
             Properties prop = Configuration.getInstance().getAppInfo();
@@ -107,7 +107,7 @@ public class AuthorizeController extends HttpServlet {
                 return;
             }
             transactionId = Utils.getTransactionId(req, payload);
-            LogHandler.request(
+            LogHandler.getInstance().request(
                     AuthorizeController.class,
                     Utils.getDataRequestToLog(
                             req, 

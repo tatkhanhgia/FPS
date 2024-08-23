@@ -6,6 +6,7 @@ package vn.mobileid.id.FPS.controller.document.summary.processingImpl;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import fps_core.enumration.AppearanceDesign;
 import fps_core.enumration.DocumentStatus;
 import fps_core.enumration.FieldTypeName;
 import fps_core.enumration.ProcessStatus;
@@ -15,6 +16,7 @@ import fps_core.module.DocumentUtils_rssp_i5;
 import fps_core.module.DocumentUtils_rssp_i7;
 import fps_core.objects.core.ExtendedFieldAttribute;
 import fps_core.objects.FileManagement;
+import fps_core.objects.core.FileFieldAttribute;
 import fps_core.objects.core.QRFieldAttribute;
 import fps_core.objects.core.Signature;
 import fps_core.objects.core.SignatureFieldAttribute;
@@ -52,6 +54,8 @@ import vn.mobileid.id.FPS.services.others.threadManagement.ThreadManagement;
  * @author GiaTK
  */
 class SignatureProcessing implements IDocumentProcessing, IModuleProcessing {
+
+    private static boolean stampQRCode = true; //If not, add QRCode into PDF with tranditional way
 
     //<editor-fold defaultstate="collapsed" desc="Process (Use for the flow append immediately)">
     @Override
@@ -100,7 +104,7 @@ class SignatureProcessing implements IDocumentProcessing, IModuleProcessing {
             //Analys file 
 //            ExecutorService executor = Executors.newFixedThreadPool(2);
             ThreadManagement executor = MyServices.getThreadManagement(2);
-            
+
             Future<?> analysis = executor.submit(new TaskV2(new Object[]{file}, transactionId) {
                 @Override
                 public Object call() {
@@ -224,10 +228,6 @@ class SignatureProcessing implements IDocumentProcessing, IModuleProcessing {
             return response;
 
         } catch (Exception ex) {
-            LogHandler.error(
-                    SignatureProcessing.class,
-                    transactionId,
-                    ex);
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                     "{\"message\":\"Cannot append signature value into file\"}"
@@ -248,6 +248,8 @@ class SignatureProcessing implements IDocumentProcessing, IModuleProcessing {
      * @InternalData: thông tin ExtendFieldAttribute loaij QR nếu tồn tại - Data
      * of the ExtendFieldAttribute type QR if that field is existed in
      * DocumentPackage
+     *
+     * History: Update change addImage of QRCode into stampV2 (2024-08-23)
      * @throws Exception
      */
     @Override
@@ -257,7 +259,7 @@ class SignatureProcessing implements IDocumentProcessing, IModuleProcessing {
         Document document = (Document) objects[1];
         long documentIdOriginal = (long) objects[2];
         SignatureFieldAttribute field = (SignatureFieldAttribute) objects[3];
-        boolean isEsealForm = (boolean) objects[4];
+        String appearance = (String) objects[4];
         String transactionId = (String) objects[5];
         byte[] file;
 
@@ -283,7 +285,7 @@ class SignatureProcessing implements IDocumentProcessing, IModuleProcessing {
         }
         file = (byte[]) response.getData();
         //</editor-fold>
-        
+
         try {
             InternalData internalData = null;
             //<editor-fold defaultstate="collapsed" desc="Create QR and Append into file first">
@@ -296,7 +298,9 @@ class SignatureProcessing implements IDocumentProcessing, IModuleProcessing {
             }
             for (ExtendedFieldAttribute temp : (Iterable<? extends ExtendedFieldAttribute>) response.getData()) {
                 InternalResponse response_1 = CheckFieldProcessedYet.checkProcessed(temp.getFieldValue());
-                if(!response_1.isValid()){continue;}
+                if (!response_1.isValid()) {
+                    continue;
+                }
                 if (temp.getType().getParentType().equals(FieldTypeName.QR.getParentName())) {
                     QRFieldAttribute qr = MyServices.getJsonService().readValue(temp.getDetailValue(), QRFieldAttribute.class);
                     qr = (QRFieldAttribute) temp.clone(qr, temp.getDimension());
@@ -323,14 +327,24 @@ class SignatureProcessing implements IDocumentProcessing, IModuleProcessing {
                     //</editor-fold>
 
                     try {
-                        file = DocumentUtils_itext7.addImage(
-                                file,
-                                imageQR,
-                                qr.getPage(),
-                                (float)qr.getDimension().getX(),
-                                (float)qr.getDimension().getY(),
-                                (float)qr.getDimension().getWidth(),
-                                (float)qr.getDimension().getWidth());
+                        if (stampQRCode) {
+                            FileFieldAttribute qrField = new FileFieldAttribute();
+                            qrField.setFieldName(qr.getFieldName());
+                            qrField.setDimension(qr.getDimension());
+                            qrField.setRotate(qr.getRotate());
+                            qrField.setPage(qr.getPage());
+                            qrField.setFile(qr.getImageQR());
+                            file = DocumentUtils_itext7.stampV2(file, qrField, transactionId);
+                        } else {
+                            file = DocumentUtils_itext7.addImage(
+                                    file,
+                                    imageQR,
+                                    qr.getPage(),
+                                    (float) qr.getDimension().getX(),
+                                    (float) qr.getDimension().getY(),
+                                    (float) qr.getDimension().getWidth(),
+                                    (float) qr.getDimension().getWidth());
+                        }
 
                         internalData = new InternalData();
                         internalData.setName("qr");
@@ -350,12 +364,13 @@ class SignatureProcessing implements IDocumentProcessing, IModuleProcessing {
 
             //<editor-fold defaultstate="collapsed" desc="Create form Signature">
             Object[] objs = null;
-            if (isEsealForm) {
-                objs = DocumentUtils_rssp_i7.createEsealFormSignature(
+            if (!Utils.isNullOrEmpty(appearance)) {
+                objs = DocumentUtils_rssp_i7.createEsealFormSignatureV2(
                         field.getFieldName(),
                         file,
                         field,
                         PolicyConfiguration.getInstant().getSystemConfig().getAttributes().get(0).getDateFormat(),
+                        AppearanceDesign.valueOf(appearance),
                         transactionId);
             } else {
                 objs = DocumentUtils_rssp_i7.createFormSignature(
@@ -373,10 +388,6 @@ class SignatureProcessing implements IDocumentProcessing, IModuleProcessing {
             return response.setInternalData(internalData);
 
         } catch (Exception ex) {
-            LogHandler.error(
-                    SignatureProcessing.class,
-                    transactionId,
-                    ex);
             response = new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                     A_FPSConstant.CODE_FIELD_SIGNATURE,
@@ -438,7 +449,7 @@ class SignatureProcessing implements IDocumentProcessing, IModuleProcessing {
             //Analys file 
 //            ExecutorService executor = Executors.newFixedThreadPool(2);
             ThreadManagement executor = MyServices.getThreadManagement(2);
-            
+
             Future<?> analysis = executor.submit(new TaskV2(new Object[]{file}, transactionId) {
                 @Override
                 public Object call() {
@@ -579,10 +590,6 @@ class SignatureProcessing implements IDocumentProcessing, IModuleProcessing {
             return response;
 
         } catch (Exception ex) {
-            LogHandler.error(
-                    SignatureProcessing.class,
-                    transactionId,
-                    ex);
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                     A_FPSConstant.CODE_FIELD_SIGNATURE,
@@ -614,10 +621,6 @@ class SignatureProcessing implements IDocumentProcessing, IModuleProcessing {
             return response;
 
         } catch (Exception ex) {
-            LogHandler.error(
-                    SignatureProcessing.class,
-                    transactionId,
-                    ex);
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                     "{\"message\":\"Cannot delete signature form\"}"

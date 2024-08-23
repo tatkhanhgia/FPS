@@ -25,6 +25,7 @@ import fps_core.objects.core.InitialsFieldAttribute;
 import fps_core.objects.core.QRFieldAttribute;
 import fps_core.objects.core.SignatureFieldAttribute;
 import fps_core.objects.core.TextFieldAttribute;
+import fps_core.objects.interfaces.AbstractAlignment;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import org.bouncycastle.util.encoders.Base64;
@@ -119,7 +120,7 @@ public abstract class ParseToField {
                                 ? FieldTypeName.SIGNATURE.getParentName()
                                 : temp
                 ));
-                
+
                 if (!Utils.isNullOrEmpty(field.getHandSignatureImage())) {
                     //<editor-fold defaultstate="collapsed" desc="Upload into FMS if need">
                     if (field.getHandSignatureImage() != null && field.getHandSignatureImage().length()
@@ -445,6 +446,11 @@ public abstract class ParseToField {
                 hierarchicalLog.addStartHeading1("Start check basic");
                 InternalResponse response = null;
                 if (isCheckBasicField && !isUpdate) {
+                    //<editor-fold defaultstate="collapsed" desc="Initial some parameter">
+                    if(field.getAlignment() == null){
+                        field.setAlignment(new AbstractAlignment());
+                    }
+                    //</editor-fold>
                     response = CheckPayloadRequest.checkBasicField(field, transactionId);
                 } else {
                     response = CheckPayloadRequest.checkBasicFieldWhenUpdateField(field, transactionId);
@@ -559,6 +565,11 @@ public abstract class ParseToField {
                 hierarchicalLog.addStartHeading1("Start check basic");
                 InternalResponse response = null;
                 if (isCheckBasicField && !isUpdate) {
+                    //<editor-fold defaultstate="collapsed" desc="Initial some parameter">
+                    if(field.getAlignment() == null){
+                        field.setAlignment(new AbstractAlignment());
+                    }
+                    //</editor-fold>
                     response = CheckPayloadRequest.checkBasicField(field, transactionId);
                 } else {
                     response = CheckPayloadRequest.checkBasicFieldWhenUpdateField(field, transactionId);
@@ -890,12 +901,11 @@ public abstract class ParseToField {
                         }
                     } catch (Exception ex) {
                         hierarchicalLog.addEndHeading1("Upload the image/file from QR into FMS fail");
-                        LogHandler.error(FieldSummary.class, transactionId, ex);
                         return new InternalResponse(
                                 A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                                 A_FPSConstant.CODE_FIELD_QR_Qrypto,
                                 A_FPSConstant.SUBCODE_INVALID_TYPE_OF_ITEM
-                        ).setException(ex);
+                        ).setException(ex).setHierarchicalLog(hierarchicalLog);
                     }
                     hierarchicalLog.addEndHeading1("Checking items in Qrypto successfully");
                 }
@@ -1347,7 +1357,6 @@ public abstract class ParseToField {
                 try {
                     field = MyServices.getJsonService().readValue(payload, ComboBoxFieldAttribute.class);
                 } catch (Exception ex) {
-                    LogHandler.error(FieldSummary.class, transactionId, ex);
                     hierarchicalLog.addEndHeading1("Parse into field fail");
                     return new InternalResponse(
                             A_FPSConstant.HTTP_CODE_BAD_REQUEST,
@@ -1427,7 +1436,6 @@ public abstract class ParseToField {
                 try {
                     field = MyServices.getJsonService().readValue(payload, ToggleFieldAttribute.class);
                 } catch (Exception ex) {
-                    LogHandler.error(FieldSummary.class, transactionId, ex);
                     hierarchicalLog.addEndHeading1("Parse into field fail");
                     return new InternalResponse(
                             A_FPSConstant.HTTP_CODE_BAD_REQUEST,
@@ -1508,7 +1516,6 @@ public abstract class ParseToField {
                 try {
                     field = MyServices.getJsonService().readValue(payload, NumericStepperAttribute.class);
                 } catch (Exception ex) {
-                    LogHandler.error(FieldSummary.class, transactionId, ex);
                     hierarchicalLog.addEndHeading1("Parse into field fail");
                     return new InternalResponse(
                             A_FPSConstant.HTTP_CODE_BAD_REQUEST,
@@ -1737,7 +1744,16 @@ public abstract class ParseToField {
             case "checkboxV2": {
                 //<editor-fold defaultstate="collapsed" desc="Generate CheckboxFieldAttribute from Payload">
                 parseV2 = createBufferer(new CheckBoxFieldAttributeV2(),
-                        null)
+                        field -> {
+                            //<editor-fold defaultstate="collapsed" desc="Initial lambda method">
+                            if(field.getAlignment() == null){
+                                field.setAlignment(new AbstractAlignment());
+                            }
+                            if (field.getFont() == null) {
+                                field.setFont(Font.init());
+                            }
+                            //</editor-fold>
+                        })
                         .parseAndValidateField(
                                 FieldTypeName.CHECKBOXV2,
                                 payload,
@@ -1768,7 +1784,16 @@ public abstract class ParseToField {
             case "radioboxV2": {
                 //<editor-fold defaultstate="collapsed" desc="Generate RadioBoxFieldAttribute from Payload">
                 parseV2 = createBufferer(new RadioBoxFieldAttributeV2(),
-                        null)
+                        field -> {
+                            //<editor-fold defaultstate="collapsed" desc="Initial lambda method">
+                            if(field.getAlignment() == null){
+                                field.setAlignment(new AbstractAlignment());
+                            }
+                            if (field.getFont() == null) {
+                                field.setFont(Font.init());
+                            }
+                            //</editor-fold>
+                        })
                         .parseAndValidateField(
                                 FieldTypeName.RADIOBOXV2,
                                 payload,
@@ -1957,12 +1982,11 @@ public abstract class ParseToField {
                                     }
                                 } catch (Exception ex) {
                                     hierarchicalLog.addEndHeading1("Upload the image/file from QR into FMS fail");
-                                    LogHandler.error(FieldSummary.class, transactionId, ex);
                                     return new InternalResponse(
                                             A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                                             A_FPSConstant.CODE_FIELD_QR_Qrypto,
                                             A_FPSConstant.SUBCODE_INVALID_TYPE_OF_ITEM
-                                    ).setException(ex);
+                                    ).setException(ex).setHierarchicalLog(hierarchicalLog);
                                 }
                                 hierarchicalLog.addEndHeading1("Checking items in Qrypto successfully");
                             }

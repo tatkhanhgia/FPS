@@ -55,7 +55,7 @@ public class FMSController extends HttpServlet {
         try {
             if (req.getRequestURI().contains("download")) {
                 String transactionId = Utils.getTransactionId(req, null);
-                LogHandler.request(
+                LogHandler.getInstance().request(
                         AuthorizeController.class,
                         Utils.getDataRequestToLog(req, transactionId, "Download from FMS", ""));
 
@@ -108,7 +108,7 @@ public class FMSController extends HttpServlet {
         try {
             if (req.getRequestURI().contains("upload")) {
                 String transactionId = Utils.getTransactionId(req, null);
-                LogHandler.request(
+                LogHandler.getInstance().request(
                         AuthorizeController.class,
                         Utils.getDataRequestToLog(req, transactionId, "Upload FMS", ""));
 
@@ -154,7 +154,7 @@ public class FMSController extends HttpServlet {
         try {
             if (req.getRequestURI().contains("delete")) {
                 String transactionId = Utils.getTransactionId(req, null);
-                LogHandler.request(
+                LogHandler.getInstance().request(
                         AuthorizeController.class,
                         Utils.getDataRequestToLog(req, transactionId, "Delete in FMS", ""));
 

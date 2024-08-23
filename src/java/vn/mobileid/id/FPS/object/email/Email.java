@@ -130,9 +130,9 @@ public class Email {
             }
             
             Transport.send(message);
-            if (LogHandler.isShowDebugLog()) {
-                LOG.debug("Email has been sent to " + emailReq.getSendTo());
-            }
+            
+            LogHandler.getInstance().debug(Email.class, billCode,"Email has been sent to " + emailReq.getSendTo());
+            
             emailResponse.setResponseCode(A_FPSConstant.CODE_SUCCESS);
             emailResponse.setBillCode(billCode);
 //            emailResponse.setTimestamp(dpresp.getLogDatetime());
@@ -141,11 +141,11 @@ public class Email {
             emailResponse.setLogInstance(123);
             return emailResponse;
         } catch (Exception e) {
-            e.printStackTrace();
-            if (LogHandler.isShowErrorLog()) {
-                LOG.error("Error while sending an email to " + emailReq.getSendTo() + ".");
-            }
-//            e.printStackTrace();
+            LogHandler.getInstance().error(Email.class, 
+                    billCode, 
+                    "Error while sending an email to " + emailReq.getSendTo() + ".",
+                    e);
+            
             emailResponse.setResponseCode(1);
             emailResponse.setBillCode(billCode);
 //            emailResponse.setTimestamp(dpresp.getLogDatetime());

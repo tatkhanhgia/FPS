@@ -21,6 +21,15 @@ import vn.mobileid.id.FPS.utils.Utils;
  */
 public class CatchException {
     //<editor-fold defaultstate="collapsed" desc="Catch Exception">
+    /**
+     * Catch Exception in Controller
+     * @param ex
+     * @param req
+     * @param res
+     * @param payload
+     * @param documentId
+     * @param transactionId 
+     */
     public static void catchException(
             Exception ex,
             HttpServletRequest req,
@@ -36,7 +45,7 @@ public class CatchException {
             response.setMessage("INTERNAL EXCEPTION");
             response.setException(ex);
             
-            LogHandler.error(
+            LogHandler.getInstance().error(
                     AuthorizeController.class,
                     transactionId,
                     ex);

@@ -37,6 +37,7 @@ public class InternalResponse {
     
     //Exception
     private Exception exception;
+    private String exceptionMessage;
     
     //Store Hierarchical Log
     private fps_core.utils.LogHandler.HierarchicalLog hierarchicalLog;
@@ -168,6 +169,25 @@ public class InternalResponse {
         this.codeDescription = codeDescription;
     }
     
+    public InternalResponse setHierarchicalLog(fps_core.utils.LogHandler.HierarchicalLog log){
+        this.hierarchicalLog = log;
+        return this;
+    }
+    
+    public fps_core.utils.LogHandler.HierarchicalLog getHierarchicalLog(){
+        return this.hierarchicalLog;
+    }
+
+    public String getExceptionMessage() {
+        return exceptionMessage;
+    }
+
+    public InternalResponse setExceptionMessage(String exceptionMessage) {
+        this.exceptionMessage = exceptionMessage;
+        return this;
+    }
+    
+    //<editor-fold defaultstate="collapsed" desc="Internal Data">
     public static class InternalData{
         private String name;
         private Object value;
@@ -193,13 +213,6 @@ public class InternalResponse {
             return this;
         }
     }
-
-    public InternalResponse setHierarchicalLog(fps_core.utils.LogHandler.HierarchicalLog log){
-        this.hierarchicalLog = log;
-        return this;
-    }
+    //</editor-fold>
     
-    public fps_core.utils.LogHandler.HierarchicalLog getHierarchicalLog(){
-        return this.hierarchicalLog;
-    }
 }

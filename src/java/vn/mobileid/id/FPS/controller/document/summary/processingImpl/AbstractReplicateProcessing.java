@@ -323,9 +323,9 @@ public class AbstractReplicateProcessing<T extends AbstractReplicateField> exten
                     ""
             );
         } catch (Exception ex) {
-            LogHandler.error(AbstractReplicateProcessing.class,
-                    transactionId,
-                    ex);
+//            LogHandler.error(AbstractReplicateProcessing.class,
+//                    transactionId,
+//                    ex);
             InternalResponse res = new InternalResponse(
                     A_FPSConstant.HTTP_CODE_INTERNAL_SERVER_ERROR,
                     A_FPSConstant.CODE_FIELD_INITIAL,

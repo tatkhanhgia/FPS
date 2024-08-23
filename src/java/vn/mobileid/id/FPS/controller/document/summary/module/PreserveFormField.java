@@ -25,6 +25,7 @@ import vn.mobileid.id.FPS.object.QryptoFieldAttribute;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.FPS.systemManagement.Resources;
+import vn.mobileid.id.FPS.utils.CreateInternalResponse;
 import vn.mobileid.id.FPS.utils.Utils;
 
 /**
@@ -50,7 +51,14 @@ public class PreserveFormField {
             byte[] data,
             String transactionId) throws Exception {
         List<BasicFieldAttribute> listFields = new ArrayList<>();
-        List<SignatureFieldAttribute> lists = DocumentUtils_itext7.getAllSignatures(data);
+        List<SignatureFieldAttribute> lists = new ArrayList<>();
+        try {
+            lists = DocumentUtils_itext7.getAllSignatures(data);
+        } catch (com.itextpdf.kernel.exceptions.PdfException iTextException) {
+            return CreateInternalResponse.createBadRequestInternalResponse(
+                    A_FPSConstant.CODE_ITEXT, 
+                    A_FPSConstant.SUBCODE_THE_FILE_HAS_SOME_ERROR).setException(iTextException);
+        }
         List<ImageQRCode> codes = MyServices.getQRDetectionService(InputType.PDF).scanDocument(data);
 //        if (lists == null || lists.isEmpty()) {
 //            return new InternalResponse(

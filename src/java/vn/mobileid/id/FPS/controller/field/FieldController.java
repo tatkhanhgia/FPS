@@ -60,7 +60,7 @@ public class FieldController extends HttpServlet {
         if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/fields$")) {
             String transactionId = Utils.getTransactionId(req, null);
             String payload = Utils.getPayload(req);
-            LogHandler.request(
+            LogHandler.getInstance().request(
                     FieldController.class,
                     Utils.getDataRequestToLog(req, transactionId, "Get Fields", payload));
             try {
@@ -105,7 +105,7 @@ public class FieldController extends HttpServlet {
             if (req.getRequestURI().matches("^/fps/v[12]/documents/[0-9]+/fields.*$") && !req.getRequestURI().matches("^/fps/v[12]/documents/[0-9]+/fields/hash$")) {
                 String transactionId = Utils.getTransactionId(req, payload);
                 long packageId = Utils.getIdFromURL(req.getRequestURI());
-                LogHandler.request(
+                LogHandler.getInstance().request(
                         FieldController.class,
                         Utils.getDataRequestToLog(req, transactionId, "Add Field", payload));
                 if (!Utils.isNullOrEmpty(req.getContentType()) && req.getContentType().contains("application/json")) {
@@ -156,7 +156,7 @@ public class FieldController extends HttpServlet {
             if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/initial$")) {
                 String transactionId = Utils.getTransactionId(req, payload);
                 long packageId = Utils.getIdFromURL(req.getRequestURI());
-                LogHandler.request(
+                LogHandler.getInstance().request(
                         FieldController.class,
                         Utils.getDataRequestToLog(req, transactionId, "Fill Form Field", ""));
                 if (!Utils.isNullOrEmpty(req.getContentType()) && req.getContentType().contains("application/json")) {
@@ -201,7 +201,7 @@ public class FieldController extends HttpServlet {
             if (req.getRequestURI().matches("^/fps/v2/documents/[0-9]+/initial$")) {
                 String transactionId = Utils.getTransactionId(req, payload);
                 long packageId = Utils.getIdFromURL(req.getRequestURI());
-                LogHandler.request(
+                LogHandler.getInstance().request(
                         FieldController.class,
                         Utils.getDataRequestToLog(req, transactionId, "Fill Form Field", ""));
                 if (!Utils.isNullOrEmpty(req.getContentType()) && req.getContentType().contains("application/json")) {
@@ -251,7 +251,7 @@ public class FieldController extends HttpServlet {
             if (req.getRequestURI().matches("^/fps/v2/documents/[0-9]+/stamp$")) {
                 String transactionId = Utils.getTransactionId(req, payload);
                 long packageId = Utils.getIdFromURL(req.getRequestURI());
-                LogHandler.request(
+                LogHandler.getInstance().request(
                         FieldController.class,
                         Utils.getDataRequestToLog(req, transactionId, "Fill Stamp Field", ""));
                 if (!Utils.isNullOrEmpty(req.getContentType()) && req.getContentType().contains("application/json")) {
@@ -302,7 +302,7 @@ public class FieldController extends HttpServlet {
             if (req.getRequestURI().matches("^/fps/(v1|v2)/documents/[0-9]+/qrcode-qrypto$")) {
                 String transactionId = Utils.getTransactionId(req, payload);
                 long packageId = Utils.getIdFromURL(req.getRequestURI());
-                LogHandler.request(
+                LogHandler.getInstance().request(
                         FieldController.class,
                         Utils.getDataRequestToLog(req, transactionId, "Fill Form Field", ""));
                 if (!Utils.isNullOrEmpty(req.getContentType()) && req.getContentType().contains("application/json")) {
@@ -372,7 +372,7 @@ public class FieldController extends HttpServlet {
                 String transactionId = Utils.getTransactionId(req, payload);
 
                 try {
-                    LogHandler.request(
+                    LogHandler.getInstance().request(
                             FieldController.class,
                             Utils.getDataRequestToLog(req, transactionId, "update Field", ""));
                     if (!Utils.isNullOrEmpty(req.getContentType()) && req.getContentType().contains("application/json")) {
@@ -420,7 +420,7 @@ public class FieldController extends HttpServlet {
             if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/fields$")) {
                 System.out.println("Payload:"+payload);
                 String transactionId = Utils.getTransactionId(req, payload);
-                LogHandler.request(
+                LogHandler.getInstance().request(
                         FieldController.class,
                         Utils.getDataRequestToLog(req, transactionId, "Fill Form Field", ""));
                 if (!Utils.isNullOrEmpty(req.getContentType()) && req.getContentType().contains("application/json")) {
@@ -495,7 +495,7 @@ public class FieldController extends HttpServlet {
         if (req.getRequestURI().matches("^/fps/v1/documents/[0-9]+/fields$")) {
             String transactionId = Utils.getTransactionId(req, payload);
             long packageId = Utils.getIdFromURL(req.getRequestURI());
-            LogHandler.request(
+            LogHandler.getInstance().request(
                     FieldController.class,
                     Utils.getDataRequestToLog(req, transactionId, "delete Field", payload));
             if (!Utils.isNullOrEmpty(req.getContentType()) && req.getContentType().contains("application/json")) {

@@ -398,21 +398,13 @@ public class ManageTokenWithDB {
             DecodedJWT result = verifier.verify(token);
             return new InternalResponse(A_FPSConstant.HTTP_CODE_SUCCESS, "");
         } catch (TokenExpiredException e) {
-            LogHandler.error(
-                    ManageTokenWithDB.class,
-                    "transaction",
-                    "Expired token!");
             return new InternalResponse(A_FPSConstant.HTTP_CODE_UNAUTHORIZED,
                             A_FPSConstant.CODE_KEYCLOAK,
-                            A_FPSConstant.SUBCODE_TOKEN_EXPIRED);
+                            A_FPSConstant.SUBCODE_TOKEN_EXPIRED).setException(e);
         } catch (JWTVerificationException e) {
-            LogHandler.error(
-                    ManageTokenWithDB.class,
-                    "transaction",
-                    "Token is invalid!");
             return new InternalResponse(A_FPSConstant.HTTP_CODE_UNAUTHORIZED,
                             A_FPSConstant.CODE_KEYCLOAK,
-                            A_FPSConstant.SUBCODE_INVALID_TOKEN);
+                            A_FPSConstant.SUBCODE_INVALID_TOKEN).setException(e);
         }
     }
 

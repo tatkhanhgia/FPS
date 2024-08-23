@@ -604,7 +604,11 @@ public class Utils {
                             });
                             threads.shutdown();
                         } catch (Exception ex) {
-                            LogHandler.info(Utils.class, "Cannot upload file in payload into FMS");
+                            LogHandler.getInstance().error(
+                                    Utils.class ,
+                                    "",
+                                    "Cannot upload file in payload into FMS",
+                                    ex);
                         }
                         if (response.isValid()) {
                             FileCached fileCached = new FileCached(
@@ -774,6 +778,8 @@ public class Utils {
         }
 
         String exceptionSummary = Utils.summaryException(ex);
+        
+        LogHandler.getInstance().error(Utils.class, transactionId, ex);
 
         //<editor-fold defaultstate="collapsed" desc="Summarize all data which is long data">
 //        JsonNode summary = Utils.summarizePayload(payload);
@@ -836,6 +842,11 @@ public class Utils {
     //</editor-fold>
 
     //<editor-fold defaultstate="collapsed" desc="Summary the Exception">
+    /**
+     * Summary the exception
+     * @param ex
+     * @return 
+     */
     public static String summaryException(Exception ex) {
         if (ex == null) {
             return null;

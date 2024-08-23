@@ -5,7 +5,6 @@
  */
 package vn.mobileid.id.FPS.database.implement;
 
-import vn.mobileid.id.FPS.services.impls.databaseConnection.DatabaseConnectionManager;
 import java.util.Date;
 import java.util.HashMap;
 import vn.mobileid.id.FPS.systemManagement.Configuration;
@@ -32,7 +31,7 @@ public class AuthorizeDBImpl implements IAuthorizeDB{
                 null,
                 "Get list of ResponseCode");
                 
-        LogHandler.debug(this.getClass(), response.getDebugString());
+        LogHandler.getInstance().debug(this.getClass(), response.getDebugString());
         
         if(response.getStatus() != A_FPSConstant.CODE_SUCCESS){
             return response;
@@ -78,7 +77,7 @@ public class AuthorizeDBImpl implements IAuthorizeDB{
                 null,
                 "Get API Key");
 
-        LogHandler.debug(this.getClass(), transactionID + " _ " + response.getDebugString());
+        LogHandler.getInstance().getInstance().debug(this.getClass(), transactionID + " _ " + response.getDebugString());
 
         if (response.getStatus() != A_FPSConstant.CODE_SUCCESS) {
             return response;
@@ -130,7 +129,7 @@ public class AuthorizeDBImpl implements IAuthorizeDB{
                 null,
                 "Write refreshToken");
 
-        LogHandler.debug(this.getClass(), transactionId + " _ " + response.getDebugString());
+        LogHandler.getInstance().debug(this.getClass(), transactionId + " _ " + response.getDebugString());
 
         if (response.getStatus() != A_FPSConstant.CODE_SUCCESS) {
             return response;
@@ -156,7 +155,7 @@ public class AuthorizeDBImpl implements IAuthorizeDB{
                 null,
                 "check existed of Token");
 
-        LogHandler.debug(this.getClass(), transactionId + " _ " + response.getDebugString());
+        LogHandler.getInstance().debug(this.getClass(), transactionId + " _ " + response.getDebugString());
 
         return response;
     }
@@ -177,7 +176,7 @@ public class AuthorizeDBImpl implements IAuthorizeDB{
                 null,
                 "Delete Token");
 
-        LogHandler.debug(this.getClass(), transactionId + " _ " + response.getDebugString());
+        LogHandler.getInstance().debug(this.getClass(), transactionId + " _ " + response.getDebugString());
 
         return response;
     }

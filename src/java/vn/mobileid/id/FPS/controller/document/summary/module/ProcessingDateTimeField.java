@@ -9,17 +9,12 @@ import fps_core.objects.child.DateTimeFieldAttribute;
 import fps_core.objects.core.ExtendedFieldAttribute;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.Optional;
-import vn.mobileid.id.FPS.controller.enterprise.summary.EnterpriseSummary;
 import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.controller.enterprise.summary.EnterpriseSummaryInternal;
 import vn.mobileid.id.FPS.enumeration.Rule;
 import vn.mobileid.id.FPS.object.APIKeyRule;
-import vn.mobileid.id.FPS.object.Enterprise;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.ProcessingRequest;
 import vn.mobileid.id.FPS.object.ProcessingRequest.ProcessingFormFillRequest;
@@ -72,7 +67,8 @@ public class ProcessingDateTimeField extends ProcessingTextFormField<DateTimeFie
                 dateFormat2 = dateTime.getFormat();
             }
         } catch (Exception e) {
-            LogHandler.error(ProcessingDateTimeField.class,
+            LogHandler.getInstance().error(
+                    ProcessingDateTimeField.class,
                     "transaction",
                     "Cannot generate Date Format from Field Attribute => Using default");
         }

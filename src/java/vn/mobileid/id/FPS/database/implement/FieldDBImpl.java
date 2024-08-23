@@ -55,7 +55,7 @@ public class FieldDBImpl implements IFieldDB {
                 null,
                 "Get Fields Type");
 
-        LogHandler.debug(this.getClass(), transactionId + " _ " + response.getDebugString());
+        LogHandler.getInstance().debug(this.getClass(), transactionId + " _ " + response.getDebugString());
 
         if (response.getStatus() != A_FPSConstant.CODE_SUCCESS) {
             return response;
@@ -137,7 +137,7 @@ public class FieldDBImpl implements IFieldDB {
                 registedOut,
                 "Add Field");
 
-        LogHandler.debug(this.getClass(), transactionId + " _ " + response.getDebugString());
+        LogHandler.getInstance().debug(this.getClass(), transactionId + " _ " + response.getDebugString());
 
         if (response.getStatus() != A_FPSConstant.CODE_SUCCESS) {
             return response;
@@ -179,7 +179,7 @@ public class FieldDBImpl implements IFieldDB {
                 null,
                 "Add Detail Field");
 
-        LogHandler.debug(this.getClass(), transactionId + " _ " + response.getDebugString());
+        LogHandler.getInstance().debug(this.getClass(), transactionId + " _ " + response.getDebugString());
 
         return response;
     }
@@ -211,7 +211,7 @@ public class FieldDBImpl implements IFieldDB {
                 null,
                 "get Field + FieldDetail in DB");
 
-        LogHandler.debug(this.getClass(), transactionId + " _ " + response.getDebugString());
+        LogHandler.getInstance().debug(this.getClass(), transactionId + " _ " + response.getDebugString());
 
         if (response.getStatus() != A_FPSConstant.CODE_SUCCESS) {
             return response;
@@ -296,7 +296,7 @@ public class FieldDBImpl implements IFieldDB {
                 null,
                 "Update values in Field");
 
-        LogHandler.debug(this.getClass(), transactionId + " _ " + response.getDebugString());
+        LogHandler.getInstance().debug(this.getClass(), transactionId + " _ " + response.getDebugString());
 
         return response;
     }
@@ -325,7 +325,7 @@ public class FieldDBImpl implements IFieldDB {
                 null,
                 "Update field details");
 
-        LogHandler.debug(this.getClass(), transactionId + " _ " + response.getDebugString());
+        LogHandler.getInstance().debug(this.getClass(), transactionId + " _ " + response.getDebugString());
 
         return response;
     }
@@ -346,7 +346,7 @@ public class FieldDBImpl implements IFieldDB {
                 null,
                 "get Field + FieldDetail in DB");
 
-        LogHandler.debug(this.getClass(), trasactionId + " _ " + response.getDebugString());
+        LogHandler.getInstance().debug(this.getClass(), trasactionId + " _ " + response.getDebugString());
 
         if (response.getStatus() != A_FPSConstant.CODE_SUCCESS) {
             return response;
@@ -433,7 +433,7 @@ public class FieldDBImpl implements IFieldDB {
                 null,
                 "Update values in Field");
 
-        LogHandler.debug(this.getClass(), transactionId + " _ " + response.getDebugString());
+        LogHandler.getInstance().debug(this.getClass(), transactionId + " _ " + response.getDebugString());
 
         return response;
     }
@@ -455,7 +455,7 @@ public class FieldDBImpl implements IFieldDB {
                 null,
                 "get Field + FieldDetail in DB");
 
-        LogHandler.debug(this.getClass(), transactionId + " _ " + response.getDebugString());
+        LogHandler.getInstance().debug(this.getClass(), transactionId + " _ " + response.getDebugString());
 
         if (response.getStatus() != A_FPSConstant.CODE_SUCCESS) {
             return response;
@@ -516,7 +516,7 @@ public class FieldDBImpl implements IFieldDB {
                 null,
                 "delete Field in DB");
 
-        LogHandler.debug(this.getClass(), transactionId + " _ " + response.getDebugString());
+        LogHandler.getInstance().debug(this.getClass(), transactionId + " _ " + response.getDebugString());
 
         return response;
     }
@@ -537,7 +537,7 @@ public class FieldDBImpl implements IFieldDB {
                 null,
                 "delete Field in DB");
 
-        LogHandler.debug(this.getClass(), transactionId + " _ " + response.getDebugString());
+        LogHandler.getInstance().debug(this.getClass(), transactionId + " _ " + response.getDebugString());
 
         return response;
     }
@@ -584,7 +584,7 @@ public class FieldDBImpl implements IFieldDB {
                 null,
                 "update Field in DB");
 
-        LogHandler.debug(this.getClass(), transactionId + " _ " + response.getDebugString());
+        LogHandler.getInstance().debug(this.getClass(), transactionId + " _ " + response.getDebugString());
 
         return response;
     }
