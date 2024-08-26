@@ -36,7 +36,7 @@ import static vn.mobileid.id.FPS.services.others.qryptoService.object.ItemsType.
 import static vn.mobileid.id.FPS.services.others.qryptoService.object.ItemsType.File;
 import static vn.mobileid.id.FPS.services.others.qryptoService.object.ItemsType.ID_Picture_with_4_labels;
 import vn.mobileid.id.FPS.controller.document.summary.module.CheckPayloadRequest;
-import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.systemManagement.A_FPSConstant;
 import vn.mobileid.id.FPS.services.others.responseMessage.ResponseMessageController;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.QryptoFieldAttribute;

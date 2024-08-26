@@ -37,7 +37,7 @@ import vn.mobileid.id.FPS.services.others.qryptoService.response.DownloadFileTok
 import vn.mobileid.id.FPS.services.others.qryptoService.response.IssueQryptoWithFileAttachResponse;
 import vn.mobileid.id.FPS.controller.document.summary.micro.UploadDocument;
 import vn.mobileid.id.FPS.controller.field.summary.micro.UpdateField;
-import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.systemManagement.A_FPSConstant;
 import vn.mobileid.id.FPS.services.others.responseMessage.ResponseMessageController;
 import vn.mobileid.id.FPS.exception.InvalidFormatOfItems;
 import vn.mobileid.id.FPS.exception.LoginException;

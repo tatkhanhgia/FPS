@@ -5,7 +5,7 @@
 package vn.mobileid.id.FPS.controller.util.summary;
 
 import javax.servlet.http.HttpServletRequest;
-import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.systemManagement.A_FPSConstant;
 import vn.mobileid.id.FPS.controller.authorize.summary.AuthorizeSummaryInternal;
 import vn.mobileid.id.FPS.controller.util.summary.module.ReloadRAM;
 import vn.mobileid.id.FPS.controller.util.summary.module.ReloadThreadManagement;

@@ -5,7 +5,7 @@
 package vn.mobileid.id.FPS.controller.authorize.summary;
 
 import javax.servlet.http.HttpServletRequest;
-import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.systemManagement.A_FPSConstant;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.utils.Utils;
 

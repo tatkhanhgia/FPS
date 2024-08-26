@@ -57,9 +57,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.hc.core5.http.HttpHeaders;
 import vn.mobileid.id.FPS.controller.authorize.summary.AuthorizeSummary;
 import vn.mobileid.id.FPS.controller.util.summary.micro.CreateAPILog;
-import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.systemManagement.A_FPSConstant;
 import vn.mobileid.id.FPS.controller.fms.FMS;
-import vn.mobileid.id.FPS.object.FileCached;
+import fps_core.objects.FileCached;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;
 import vn.mobileid.id.FPS.services.MyServices;
@@ -109,10 +109,10 @@ public class Utils {
             case "application/octet-stream": {
                 if (Utils.isNullOrEmpty((byte[]) message)) {
                     try {
-                            response.sendError(status);
-                        } catch (Exception ex) {
-                            response.setStatus(500);
-                        }
+                        response.sendError(status);
+                    } catch (Exception ex) {
+                        response.setStatus(500);
+                    }
                 } else {
                     response.setStatus(status);
                     response.addHeader(HttpHeaders.CONTENT_TYPE, "application/octet-stream");
@@ -128,10 +128,10 @@ public class Utils {
             default: {
                 if (Utils.isNullOrEmpty((String) message)) {
                     try {
-                            response.sendError(status);
-                        } catch (Exception ex) {
-                            response.setStatus(500);
-                        }
+                        response.sendError(status);
+                    } catch (Exception ex) {
+                        response.setStatus(500);
+                    }
                 } else {
                     response.setStatus(status);
                     response.addHeader(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
@@ -605,7 +605,7 @@ public class Utils {
                             threads.shutdown();
                         } catch (Exception ex) {
                             LogHandler.getInstance().error(
-                                    Utils.class ,
+                                    Utils.class,
                                     "",
                                     "Cannot upload file in payload into FMS",
                                     ex);
@@ -778,8 +778,10 @@ public class Utils {
         }
 
         String exceptionSummary = Utils.summaryException(ex);
-        
-        LogHandler.getInstance().error(Utils.class, transactionId, ex);
+
+        if (ex != null) {
+            LogHandler.getInstance().error(Utils.class, transactionId, ex);
+        }
 
         //<editor-fold defaultstate="collapsed" desc="Summarize all data which is long data">
 //        JsonNode summary = Utils.summarizePayload(payload);
@@ -844,8 +846,9 @@ public class Utils {
     //<editor-fold defaultstate="collapsed" desc="Summary the Exception">
     /**
      * Summary the exception
+     *
      * @param ex
-     * @return 
+     * @return
      */
     public static String summaryException(Exception ex) {
         if (ex == null) {
@@ -1017,7 +1020,7 @@ public class Utils {
     public static void main(String[] args) throws NoSuchAlgorithmException {
         String json = "{\"radioboxV2\":[{\"field_name\":\"ADMIN_PROVIDER_RADIOBOXV2_e7aa4d\",\"file_name\":null,\"value\":null,\"type\":\"RADIOBOXV2\"},{\"field_name\":\"ADMIN_PROVIDER_RADIOBOXV2_67a952\",\"file_name\":null,\"value\":null,\"type\":\"RADIOBOXV2\"},{\"field_name\":\"ADMIN_PROVIDER_RADIOBOXV2_1e7cb2\",\"file_name\":null,\"value\":null,\"type\":\"RADIOBOXV2\"}],\"visible_enabled\":true}";
         HashMap<JsonNode, List<FileCached>> temp = Utils.summarizePayload(json, false);
-        JsonNode node  = temp.keySet().iterator().next();
+        JsonNode node = temp.keySet().iterator().next();
         System.out.println(node.toPrettyString());
     }
 }

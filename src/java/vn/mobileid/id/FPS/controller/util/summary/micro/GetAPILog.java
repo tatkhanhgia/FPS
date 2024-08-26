@@ -5,7 +5,7 @@
 package vn.mobileid.id.FPS.controller.util.summary.micro;
 
 import java.util.List;
-import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.systemManagement.A_FPSConstant;
 import vn.mobileid.id.FPS.database.DatabaseFactory;
 import vn.mobileid.id.FPS.object.APILog;
 import vn.mobileid.id.FPS.object.InternalResponse;

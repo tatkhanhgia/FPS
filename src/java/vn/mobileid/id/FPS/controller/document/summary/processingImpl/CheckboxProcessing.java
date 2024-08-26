@@ -18,7 +18,7 @@ import org.apache.commons.codec.binary.Hex;
 import vn.mobileid.id.FPS.controller.fms.FMS;
 import vn.mobileid.id.FPS.controller.document.summary.micro.UploadDocument;
 import vn.mobileid.id.FPS.controller.field.summary.FieldSummaryInternal;
-import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.systemManagement.A_FPSConstant;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;

@@ -54,7 +54,7 @@ import vn.mobileid.id.FPS.controller.document.summary.micro.UpdateDocument;
 import vn.mobileid.id.FPS.controller.document.summary.module.QRGenerator;
 import vn.mobileid.id.FPS.controller.document.summary.processingImpl.ProcessingFactory;
 import vn.mobileid.id.FPS.controller.enterprise.summary.micro.ProcessModuleForEnterprise;
-import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.systemManagement.A_FPSConstant;
 import vn.mobileid.id.FPS.services.others.responseMessage.ResponseMessageController;
 import vn.mobileid.id.FPS.controller.field.summary.module.CheckFieldProcessedYet;
 import vn.mobileid.id.FPS.controller.field.summary.micro.DeleteField;

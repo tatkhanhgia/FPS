@@ -4,7 +4,7 @@
  */
 package vn.mobileid.id.FPS.utils;
 
-import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.systemManagement.A_FPSConstant;
 import vn.mobileid.id.FPS.services.others.responseMessage.ResponseMessageController;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.database.DatabaseFactory;

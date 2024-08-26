@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import vn.mobileid.id.FPS.systemManagement.Configuration;
-import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.systemManagement.A_FPSConstant;
 import vn.mobileid.id.FPS.database.interfaces.IDatabase;
 import vn.mobileid.id.FPS.object.APILog;
 import vn.mobileid.id.FPS.object.ResponseCode;

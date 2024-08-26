@@ -10,7 +10,7 @@ import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.FPS.services.impls.json.objects.JSArray;
 import vn.mobileid.id.FPS.services.impls.json.objects.JSAtomic;
 import vn.mobileid.id.FPS.services.impls.json.objects.JSObject;
-
+import fps_core.objects.FileCached;
 /**
  *
  * @author GiaTK

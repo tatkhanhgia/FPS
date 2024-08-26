@@ -24,7 +24,7 @@ import vn.mobileid.id.FPS.controller.document.summary.micro.UploadDocument;
 import vn.mobileid.id.FPS.controller.enterprise.summary.micro.ProcessModuleForEnterprise;
 import vn.mobileid.id.FPS.controller.field.summary.FieldSummaryInternal;
 import vn.mobileid.id.FPS.controller.field.summary.micro.GetField;
-import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.systemManagement.A_FPSConstant;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;

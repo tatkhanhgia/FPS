@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.systemManagement.A_FPSConstant;
 import vn.mobileid.id.FPS.database.interfaces.IDocumentDB;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.User;

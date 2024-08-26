@@ -19,7 +19,7 @@ import java.util.List;
 import vn.mobileid.id.FPS.controller.field.summary.micro.AddField;
 import vn.mobileid.id.FPS.controller.field.summary.FieldSummaryInternal;
 import vn.mobileid.id.FPS.controller.field.summary.micro.DeleteField;
-import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.systemManagement.A_FPSConstant;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.QryptoFieldAttribute;
 import vn.mobileid.id.FPS.object.User;

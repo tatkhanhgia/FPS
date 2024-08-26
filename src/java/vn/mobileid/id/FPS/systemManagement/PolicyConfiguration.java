@@ -6,7 +6,6 @@ package vn.mobileid.id.FPS.systemManagement;
  */
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.database.DatabaseFactory;
 import vn.mobileid.id.FPS.object.policy.PolicyConstant;
 import vn.mobileid.id.FPS.object.policy.PolicyResponse;

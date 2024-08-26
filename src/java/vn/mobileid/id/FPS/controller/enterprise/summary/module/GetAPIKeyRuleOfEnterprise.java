@@ -4,7 +4,7 @@
  */
 package vn.mobileid.id.FPS.controller.enterprise.summary.module;
 
-import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.systemManagement.A_FPSConstant;
 import vn.mobileid.id.FPS.controller.enterprise.summary.EnterpriseSummary;
 import vn.mobileid.id.FPS.controller.enterprise.summary.micro.GetAPIKeyRule;
 import vn.mobileid.id.FPS.controller.enterprise.summary.micro.GetKEYAPI;

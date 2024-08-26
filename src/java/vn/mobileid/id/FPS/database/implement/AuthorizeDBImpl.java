@@ -8,7 +8,7 @@ package vn.mobileid.id.FPS.database.implement;
 import java.util.Date;
 import java.util.HashMap;
 import vn.mobileid.id.FPS.systemManagement.Configuration;
-import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.systemManagement.A_FPSConstant;
 import vn.mobileid.id.FPS.database.interfaces.IAuthorizeDB;
 import vn.mobileid.id.FPS.object.Enterprise;
 import vn.mobileid.id.FPS.services.MyServices;

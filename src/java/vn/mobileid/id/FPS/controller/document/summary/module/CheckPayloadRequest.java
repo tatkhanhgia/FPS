@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import fps_core.objects.core.BasicFieldAttribute;
 import fps_core.objects.core.InitialsFieldAttribute;
 import java.util.Base64;
-import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.systemManagement.A_FPSConstant;
 import fps_core.enumration.FieldTypeName;
 import fps_core.utils.LogHandler;
 import vn.mobileid.id.FPS.object.InternalResponse;

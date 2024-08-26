@@ -19,7 +19,7 @@ import vn.mobileid.id.FPS.controller.document.summary.processingImpl.ProcessingF
 import vn.mobileid.id.FPS.controller.document.summary.processingImpl.interfaces.IVersion;
 import vn.mobileid.id.FPS.controller.field.summary.module.CheckFieldProcessedYet;
 import vn.mobileid.id.FPS.controller.field.summary.FieldSummaryInternal;
-import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.systemManagement.A_FPSConstant;
 import vn.mobileid.id.FPS.services.others.responseMessage.ResponseMessageController;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;

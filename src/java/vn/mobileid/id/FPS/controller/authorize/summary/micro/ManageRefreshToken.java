@@ -5,7 +5,7 @@
 package vn.mobileid.id.FPS.controller.authorize.summary.micro;
 
 import java.util.Date;
-import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.systemManagement.A_FPSConstant;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.database.DatabaseFactory;
 import vn.mobileid.id.FPS.database.interfaces.IAuthorizeDB;

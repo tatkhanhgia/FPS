@@ -8,7 +8,7 @@ import fps_core.module.DocumentUtils_itext7;
 import java.io.FileOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.systemManagement.A_FPSConstant;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.utils.CreateInternalResponse;
 

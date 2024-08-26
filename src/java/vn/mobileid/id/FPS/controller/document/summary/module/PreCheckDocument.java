@@ -7,7 +7,7 @@ package vn.mobileid.id.FPS.controller.document.summary.module;
 import fps_core.module.DocumentUtils_itext7;
 import fps_core.objects.core.SignatureFieldAttribute;
 import java.util.List;
-import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.systemManagement.A_FPSConstant;
 import vn.mobileid.id.FPS.object.InternalResponse;
 
 /**

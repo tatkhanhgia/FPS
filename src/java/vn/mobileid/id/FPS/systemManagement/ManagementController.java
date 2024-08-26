@@ -9,7 +9,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import vn.mobileid.id.FPS.controller.A_FPSConstant;
 import vn.mobileid.id.FPS.controller.authorize.AuthorizeController;
 import vn.mobileid.id.FPS.controller.document.DocumentController;
 import vn.mobileid.id.FPS.controller.fms.FMSController;

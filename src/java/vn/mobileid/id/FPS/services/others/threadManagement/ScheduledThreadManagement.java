@@ -14,7 +14,7 @@ import vn.mobileid.id.FPS.controller.fms.FMS;
 import vn.mobileid.id.FPS.controller.util.summary.UtilsSummaryInternal;
 import vn.mobileid.id.FPS.controller.util.summary.micro.UpdateAPILog;
 import vn.mobileid.id.FPS.object.APILog;
-import vn.mobileid.id.FPS.object.FileCached;
+import fps_core.objects.FileCached;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.services.others.threadManagement.impls.ScheduledThreadPool;
 import vn.mobileid.id.FPS.services.others.threadManagement.interfaces.IThreadPool;

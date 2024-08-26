@@ -27,7 +27,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import vn.mobileid.id.FPS.systemManagement.LogHandler;
 import vn.mobileid.id.FPS.database.implement.DatabaseImpl;
-import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.systemManagement.A_FPSConstant;
 import vn.mobileid.id.FPS.systemManagement.Configuration;
 import vn.mobileid.id.FPS.object.Attachment;
 import vn.mobileid.id.FPS.database.DatabaseFactory;

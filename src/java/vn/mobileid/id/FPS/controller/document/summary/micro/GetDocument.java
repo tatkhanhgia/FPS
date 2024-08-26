@@ -9,7 +9,7 @@ import fps_core.module.DocumentUtils_itext7;
 import java.util.HashMap;
 import java.util.List;
 import vn.mobileid.id.FPS.controller.fms.FMS;
-import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.systemManagement.A_FPSConstant;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.database.DatabaseFactory;

@@ -6,7 +6,7 @@ package vn.mobileid.id.FPS.controller.document.summary.micro;
 
 import fps_core.enumration.DocumentStatus;
 import fps_core.objects.FileManagement;
-import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.systemManagement.A_FPSConstant;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.systemManagement.Configuration;
 import vn.mobileid.id.FPS.database.DatabaseFactory;

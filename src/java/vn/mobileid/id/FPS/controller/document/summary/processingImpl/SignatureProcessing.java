@@ -31,7 +31,7 @@ import static vn.mobileid.id.FPS.controller.document.summary.module.CheckStatusO
 import vn.mobileid.id.FPS.controller.document.summary.micro.UploadDocument;
 import vn.mobileid.id.FPS.controller.field.summary.FieldSummaryInternal;
 import vn.mobileid.id.FPS.controller.field.summary.micro.GetField;
-import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.systemManagement.A_FPSConstant;
 import vn.mobileid.id.FPS.services.others.responseMessage.ResponseMessageController;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;

@@ -14,7 +14,7 @@ import vn.mobileid.id.FPS.services.others.qryptoService.object.ItemDetails;
 import vn.mobileid.id.FPS.controller.document.summary.processingImpl.ProcessingFactory;
 import vn.mobileid.id.FPS.controller.field.summary.module.CheckFieldProcessedYet;
 import vn.mobileid.id.FPS.controller.field.summary.FieldSummaryInternal;
-import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.systemManagement.A_FPSConstant;
 import fps_core.enumration.FieldTypeName;
 import java.util.Base64;
 import vn.mobileid.id.FPS.controller.document.summary.processingImpl.interfaces.IVersion;

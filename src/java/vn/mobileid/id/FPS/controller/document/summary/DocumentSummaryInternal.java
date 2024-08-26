@@ -6,7 +6,7 @@ package vn.mobileid.id.FPS.controller.document.summary;
 
 import vn.mobileid.id.FPS.controller.document.summary.micro.GetDocument;
 import javax.servlet.http.HttpServletRequest;
-import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.systemManagement.A_FPSConstant;
 import vn.mobileid.id.FPS.services.others.responseMessage.ResponseMessageController;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.User;

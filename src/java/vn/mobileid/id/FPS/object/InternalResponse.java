@@ -6,7 +6,7 @@
 package vn.mobileid.id.FPS.object;
 
 import java.util.HashMap;
-import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.systemManagement.A_FPSConstant;
 
 /**
  *

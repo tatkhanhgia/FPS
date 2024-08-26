@@ -50,7 +50,7 @@ import vn.mobileid.id.FPS.controller.field.summary.module.CheckFieldProcessedYet
 import vn.mobileid.id.FPS.controller.field.summary.FieldSummaryInternal;
 import vn.mobileid.id.FPS.controller.field.summary.micro.GetField;
 import vn.mobileid.id.FPS.controller.field.summary.micro.UpdateField;
-import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.systemManagement.A_FPSConstant;
 import vn.mobileid.id.FPS.services.others.responseMessage.ResponseMessageController;
 import fps_core.enumration.FieldTypeName;
 import fps_core.mixin.InitialsFieldAttributeMixIn;

@@ -23,7 +23,7 @@ import java.util.concurrent.Future;
 import vn.mobileid.id.FPS.controller.document.summary.processingImpl.ProcessingFactory;
 import vn.mobileid.id.FPS.controller.field.summary.module.CheckFieldProcessedYet;
 import vn.mobileid.id.FPS.controller.field.summary.micro.UpdateField;
-import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.systemManagement.A_FPSConstant;
 import vn.mobileid.id.FPS.services.others.responseMessage.ResponseMessageController;
 import vn.mobileid.id.FPS.controller.enterprise.summary.module.GetAPIKeyRuleOfEnterprise;
 import vn.mobileid.id.FPS.enumeration.Rule;

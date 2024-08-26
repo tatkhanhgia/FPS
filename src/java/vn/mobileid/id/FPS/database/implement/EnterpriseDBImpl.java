@@ -9,7 +9,7 @@ import vn.mobileid.id.FPS.services.impls.databaseConnection.DatabaseConnectionMa
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import vn.mobileid.id.FPS.systemManagement.Configuration;
-import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.systemManagement.A_FPSConstant;
 import vn.mobileid.id.FPS.database.interfaces.IEnterpriseDB;
 import vn.mobileid.id.FPS.object.APIKeyRule;
 import vn.mobileid.id.FPS.object.Enterprise;

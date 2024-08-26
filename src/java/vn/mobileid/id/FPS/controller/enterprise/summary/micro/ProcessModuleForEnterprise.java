@@ -14,7 +14,7 @@ import java.util.Base64;
 import java.util.List;
 import vn.mobileid.id.FPS.controller.fms.FMS;
 import vn.mobileid.id.FPS.controller.document.summary.micro.GetDocument;
-import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.systemManagement.A_FPSConstant;
 import vn.mobileid.id.FPS.services.others.responseMessage.ResponseMessageController;
 import vn.mobileid.id.FPS.object.Document;
 import vn.mobileid.id.FPS.object.InternalResponse;

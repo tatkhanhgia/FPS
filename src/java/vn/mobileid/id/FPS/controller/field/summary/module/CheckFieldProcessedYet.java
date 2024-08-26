@@ -7,7 +7,7 @@ package vn.mobileid.id.FPS.controller.field.summary.module;
 import fps_core.enumration.ProcessStatus;
 import fps_core.objects.core.BasicFieldAttribute;
 import fps_core.objects.core.ExtendedFieldAttribute;
-import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.systemManagement.A_FPSConstant;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.services.MyServices;
 import vn.mobileid.id.FPS.utils.Utils;

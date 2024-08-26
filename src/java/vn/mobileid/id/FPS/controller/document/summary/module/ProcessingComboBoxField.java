@@ -11,7 +11,7 @@ import fps_core.objects.core.ExtendedFieldAttribute;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
-import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.systemManagement.A_FPSConstant;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.object.ProcessingRequest;
 import vn.mobileid.id.FPS.object.User;

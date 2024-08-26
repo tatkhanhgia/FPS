@@ -4,7 +4,7 @@
  */
 package vn.mobileid.id.FPS.controller.field.summary.micro;
 
-import vn.mobileid.id.FPS.controller.A_FPSConstant;
+import vn.mobileid.id.FPS.systemManagement.A_FPSConstant;
 import vn.mobileid.id.FPS.object.InternalResponse;
 import vn.mobileid.id.FPS.database.DatabaseFactory;
 import vn.mobileid.id.helper.ORM_JPA.database.objects.DatabaseResponse;

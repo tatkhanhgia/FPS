@@ -1,6 +1,8 @@
 package vn.mobileid.id.FPS.services.impls.json;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
@@ -34,6 +36,8 @@ public class JacksonJsonService implements IJsonService {
      */
     public JacksonJsonService() {
         this.objectMapper = new ObjectMapper();
+        this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        this.objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
 
     /**
@@ -65,7 +69,7 @@ public class JacksonJsonService implements IJsonService {
      */
     @Override
     public String writeValueAsString(Object object) throws JsonProcessingException {
-        return objectMapper.writeValueAsString(object);
+            return objectMapper.writeValueAsString(object);
     }
 
     /**
@@ -114,72 +118,6 @@ public class JacksonJsonService implements IJsonService {
             JSArray jsonArray = new JSArray();
             Iterator<JsonNode> iterators = node.elements();
             while (iterators.hasNext()) {
-//                JSObject jsonObject = new JSObject();
-//                List<JSAtomic> listAtomic = new ArrayList<>();
-//                Iterator<Map.Entry<String, JsonNode>> nodes = iterators.next().fields();
-//
-//                while (nodes.hasNext()) {
-//                    JSAtomic jsonAtomic = new JSAtomic();
-//                    Map.Entry<String, JsonNode> object = nodes.next();
-//                    String key = object.getKey();
-//                    if (object.getValue().isBoolean()) {
-//                        jsonAtomic.setName(key);
-//                        jsonAtomic.setData(object.getValue().asBoolean());
-//
-//                        listAtomic.add(jsonAtomic);
-//                        continue;
-//                    }
-//                    if (object.getValue().isFloat()) {
-//                        jsonAtomic.setName(key);
-//                        jsonAtomic.setData(object.getValue().asDouble());
-//
-//                        listAtomic.add(jsonAtomic);
-//                        continue;
-//                    }
-//                    if (object.getValue().isLong()) {
-//                        jsonAtomic.setName(key);
-//                        jsonAtomic.setData(object.getValue().asLong());
-//
-//                        listAtomic.add(jsonAtomic);
-//                        continue;
-//                    }
-//                    if (object.getValue().isInt()) {
-//                        jsonAtomic.setName(key);
-//                        jsonAtomic.setData(object.getValue().asInt());
-//
-//                        listAtomic.add(jsonAtomic);
-//                        continue;
-//                    }
-//                    if (object.getValue().isTextual()) {
-//                        jsonAtomic.setName(key);
-//                        jsonAtomic.setData(object.getValue().asText());
-//
-//                        listAtomic.add(jsonAtomic);
-//                        continue;
-//                    }
-//                    if (object.getValue().isArray()) {
-//                        jsonAtomic.setName(key);
-//                        jsonAtomic.setData(object.getValue().asToken().asByteArray());
-//
-//                        listAtomic.add(jsonAtomic);
-//                        continue;
-//                    }
-//                    if (object.getValue().isContainerNode()) {
-//                        Object temp = object.getValue().toPrettyString();
-//                        if (temp == null) {
-//                            continue;
-//                        }
-//                    }
-//                    if (object.getValue().isDouble()) {
-//                        jsonAtomic.setName(key);
-//                        jsonAtomic.setData(object.getValue().asDouble());
-//
-//                        listAtomic.add(jsonAtomic);
-//                        continue;
-//                    }
-//                }
-//                jsonObject.setData(listAtomic);
-
                 jsonArray.addIntoArray(readObject(iterators.next()));
             }
             return jsonArray;
