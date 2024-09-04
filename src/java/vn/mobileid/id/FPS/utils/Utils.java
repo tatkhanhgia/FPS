@@ -867,19 +867,29 @@ public class Utils {
             trace = ex.getStackTrace();
         }
         sb.append("\n\t");
-        List<String> temp = new ArrayList<>();
-        for (int i = trace.length - 1; i >= 0; i--) {
-//            if (trace[i].getClassName().equals(HttpServlet.class.getCanonicalName())) {
-            for (int j = i; j >= 0; j--) {
-                temp.add(trace[j].getClassName() + " at(" + trace[j].getMethodName() + ":" + trace[j].getLineNumber() + ")");
+        sb.append("\n\tStack trace:");
+            for (StackTraceElement element : trace) {
+                sb.append("\n\t\t");
+                sb.append(element.getClassName())
+                        .append(" at (")
+                        .append(element.getMethodName())
+                        .append(":")
+                        .append(element.getLineNumber())
+                        .append(")");
             }
-//                break;
+//        List<String> temp = new ArrayList<>();
+//        for (int i = trace.length - 1; i >= 0; i--) {
+////            if (trace[i].getClassName().equals(HttpServlet.class.getCanonicalName())) {
+//            for (int j = i; j >= 0; j--) {
+//                temp.add(trace[j].getClassName() + " at(" + trace[j].getMethodName() + ":" + trace[j].getLineNumber() + ")");
 //            }
-        }
-        for (int i = (temp.size() - 1); i >= 0; i--) {
-            sb.append(String.format("%5s", temp.get(i)));
-            sb.append("\n\t");
-        }
+////                break;
+////            }
+//        }
+//        for (int i = (temp.size() - 1); i >= 0; i--) {
+//            sb.append(String.format("%5s", temp.get(i)));
+//            sb.append("\n\t");
+//        }
         return sb.toString();
     }
     //</editor-fold>

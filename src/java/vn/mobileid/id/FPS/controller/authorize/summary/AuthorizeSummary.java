@@ -187,4 +187,14 @@ public class AuthorizeSummary {
         }
     }
     //</editor-fold>
+
+    public static void main(String[] args) {
+        try {
+            String temp = "abc";
+            String[] chunks = temp.split(" ");
+            String payload = new String(Base64.getUrlDecoder().decode(chunks[1]), "UTF-8");
+        } catch (Exception e) {
+            System.out.println(Utils.summaryException(e));
+        }
+    }
 }

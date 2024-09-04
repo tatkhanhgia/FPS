@@ -1588,9 +1588,10 @@ public abstract class ParseToField {
                 //</editor-fold>
             }
         }
-        return new InternalResponse(A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                new ResponseMessageController().writeStringField("error", "This type of Field not provide yet"))
-                .setHierarchicalLog(hierarchicalLog);
+        return new InternalResponse(A_FPSConstant.HTTP_CODE_NOT_FOUND);
+//        return new InternalResponse(A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+//                new ResponseMessageController().writeStringField("error", "This type of Field not provide yet").)
+//                .setHierarchicalLog(hierarchicalLog);
     }
     //</editor-fold>
 
@@ -2398,9 +2399,10 @@ public abstract class ParseToField {
                 //</editor-fold>
             }
         }
-        return new InternalResponse(A_FPSConstant.HTTP_CODE_BAD_REQUEST,
-                new ResponseMessageController().writeStringField("error", "This type of Field not provide yet"))
-                .setHierarchicalLog(hierarchicalLog);
+        return new InternalResponse(A_FPSConstant.HTTP_CODE_NOT_FOUND);
+//        return new InternalResponse(A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+//                new ResponseMessageController().writeStringField("error", "This type of Field not provide yet"))
+//                .setHierarchicalLog(hierarchicalLog);
     }
     //</editor-fold>
 
