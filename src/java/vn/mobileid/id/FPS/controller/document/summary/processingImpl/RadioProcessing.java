@@ -355,6 +355,9 @@ class RadioProcessing extends IVersion implements IModuleProcessing, IDocumentPr
             case V2: {
                 return DocumentUtils_itext7.createRadioBoxFormField_i7V2(pdf, (RadioBoxFieldAttributeV2) field, transactionId);
             }
+            case V3: {
+                return DocumentUtils_itext7.createRadioBoxFormField_i7V3(pdf, (RadioBoxFieldAttributeV2) field, transactionId);
+            }
             default: {
                 return DocumentUtils_itext7.createRadioBoxFormField_i7(pdf, (RadioFieldAttribute) field, transactionId);
             }

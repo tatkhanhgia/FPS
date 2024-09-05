@@ -967,7 +967,7 @@ public class DocumentSummary {
 
         //<editor-fold defaultstate="collapsed" desc="Process Radio Form Field Version 2">
         if (!Utils.isNullOrEmpty(processRequest.getRadioBoxV2())) {
-            response = new ProcessingRadioboxFormField(IVersion.Version.V2).processRadioField(
+            response = new ProcessingRadioboxFormField(IVersion.Version.V3).processRadioField(
                     Utils.getIdFromURL(request.getRequestURI()),
                     user,
                     processRequest.getRadioBoxV2(),
