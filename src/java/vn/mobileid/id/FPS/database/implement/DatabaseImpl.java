@@ -77,7 +77,7 @@ public class DatabaseImpl implements IDatabase {
                 null,
                 "Get list of ResponseCode");
 
-        LogHandler.getInstance().debug(this.getClass(), response.getDebugString());
+        LogHandler.getInstance().logDB(this.getClass(), response.getDebugString());
 
         if (response.getStatus() != A_FPSConstant.CODE_SUCCESS && response.getRows() != null) {
             return response;
@@ -112,7 +112,7 @@ public class DatabaseImpl implements IDatabase {
                 null,
                 "Get Policy");
 
-        LogHandler.getInstance().debug(this.getClass(), transactionId + " _ " + response.getDebugString());
+        LogHandler.getInstance().logDB(this.getClass(), transactionId + " _ " + response.getDebugString());
 
         if (response.getStatus() != A_FPSConstant.CODE_SUCCESS) {
             return response;
@@ -156,7 +156,7 @@ public class DatabaseImpl implements IDatabase {
                 null,
                 "Upload Temporal Data");
 
-        LogHandler.getInstance().debug(this.getClass(), transactionId + " _ " + response.getDebugString());
+        LogHandler.getInstance().logDB(this.getClass(), transactionId + " _ " + response.getDebugString());
 
         return response;
     }
@@ -178,7 +178,7 @@ public class DatabaseImpl implements IDatabase {
                 null,
                 "Get Temporal Data");
 
-        LogHandler.getInstance().debug(this.getClass(), transactionId + " _ " + response.getDebugString());
+        LogHandler.getInstance().logDB(this.getClass(), transactionId + " _ " + response.getDebugString());
 
         TemporalObject data = new TemporalObject();
         for (HashMap<String, Object> hashmap : response.getRows()) {
@@ -206,7 +206,7 @@ public class DatabaseImpl implements IDatabase {
                 null,
                 "Delete Temporal Data");
 
-        LogHandler.getInstance().debug(this.getClass(), transactionId + " _ " + response.getDebugString());
+        LogHandler.getInstance().logDB(this.getClass(), transactionId + " _ " + response.getDebugString());
 
         return response;
     }
@@ -226,7 +226,7 @@ public class DatabaseImpl implements IDatabase {
                 null,
                 "Get List Temporal Data");
 
-        LogHandler.getInstance().debug(this.getClass(), transactionId + " _ " + response.getDebugString());
+        LogHandler.getInstance().logDB(this.getClass(), transactionId + " _ " + response.getDebugString());
 
 //        TemporalObject data = new TemporalObject();
 //        for (HashMap<String, Object> hashmap : response.getRows()) {            
@@ -287,7 +287,7 @@ public class DatabaseImpl implements IDatabase {
                 null,
                 "Upload API Log");
 
-        LogHandler.getInstance().debug(this.getClass(), transactionId + " _ " + response.getDebugString());
+        LogHandler.getInstance().logDB(this.getClass(), transactionId + " _ " + response.getDebugString());
 
         return response;
     }
@@ -316,7 +316,7 @@ public class DatabaseImpl implements IDatabase {
                 output,
                 "Get Remark Language");
 
-        LogHandler.getInstance().debug(this.getClass(), transactionId + " _ " + response.getDebugString());
+        LogHandler.getInstance().logDB(this.getClass(), transactionId + " _ " + response.getDebugString());
 
         if (response.getStatus() == A_FPSConstant.CODE_SUCCESS) {
             List<HashMap<String, Object>> rows = response.getRows();
@@ -342,7 +342,7 @@ public class DatabaseImpl implements IDatabase {
                 null,
                 "Get API Logs");
 
-        LogHandler.getInstance().debug(this.getClass(), transactionId + " _ " + response.getDebugString());
+        LogHandler.getInstance().logDB(this.getClass(), transactionId + " _ " + response.getDebugString());
 
         if (response.getStatus() == A_FPSConstant.CODE_SUCCESS) {
             List<HashMap<String, Object>> rows = response.getRows();
@@ -383,7 +383,7 @@ public class DatabaseImpl implements IDatabase {
                 null,
                 "Update API Logs");
 
-        LogHandler.getInstance().debug(this.getClass(), transactionId + " _ " + response.getDebugString());
+        LogHandler.getInstance().logDB(this.getClass(), transactionId + " _ " + response.getDebugString());
 
         return response;
     }

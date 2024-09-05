@@ -24,9 +24,9 @@ public class LogHandler {
     private static boolean showLog4jErrorLog;
     private static boolean showLog4jFatalLog;
     private static boolean showLog4jRequestLog;
+    private static boolean showLog4jDatabaseLog;
 
     private static boolean isPrintStackTrace;
-    private static boolean isPrintDebug;
 
 //    private static boolean configCaching;
     private static LogHandler instance;
@@ -49,7 +49,7 @@ public class LogHandler {
         showLog4jErrorLog = Configuration.getInstance().isShowErrorLog();
         showLog4jRequestLog = Configuration.getInstance().isShowRequestLog();
         isPrintStackTrace = Configuration.getInstance().isShowPrintStacktrace();
-        isPrintDebug = Configuration.getInstance().isShowDebug();
+        showLog4jDatabaseLog = Configuration.getInstance().isShowDatabaseLog();
     }
 
     public boolean isShowRequestLog() {
@@ -76,18 +76,14 @@ public class LogHandler {
         return showLog4jFatalLog;
     }
 
-    private boolean isPrintDebug() {
-        return isPrintDebug;
-    }
-
     public static boolean isPrintStackTrace() {
         return isPrintStackTrace;
     }
 
-//    public static boolean isConfigCaching() {
-//        readConfig();
-//        return configCaching;
-//    }
+    public static boolean isShowDatabaseLog() {
+        return showLog4jDatabaseLog;
+    }
+
     //<editor-fold defaultstate="collapsed" desc="Using for log the request/response into file">
     /**
      * Using for log the request/response into file
@@ -113,14 +109,11 @@ public class LogHandler {
     public void debug(Class object, String message) {
         if (isShowDebugLog()) {
             Logger LOG = LogManager.getLogger(object);
-            LOG.debug(message);
-        }
-        if (isPrintDebug()) {
             StringBuilder builder = new StringBuilder();
-            builder.append("Class:").append(object.getCanonicalName());
-            builder.append("\n");
+            builder.append("\n\tClass:").append(object.getCanonicalName());
+            builder.append("\n\t");
             builder.append("Message:").append(message);
-            System.out.println(builder.toString());
+            LOG.debug(builder.toString());
         }
     }
     //</editor-fold>
@@ -139,16 +132,13 @@ public class LogHandler {
             String message) {
         if (isShowDebugLog()) {
             Logger LOG = LogManager.getLogger(object);
-            LOG.debug("TransactionID:" + transactionID + "\n" + message);
-        }
-        if (isPrintDebug()) {
             StringBuilder builder = new StringBuilder();
             builder.append("Class:").append(object.getCanonicalName());
             builder.append("\n");
             builder.append("Transaction:").append(transactionID);
             builder.append("\n");
             builder.append("Message:").append(message);
-            System.out.println(builder.toString());
+            LOG.debug(builder.toString());
         }
     }
     //</editor-fold>
@@ -223,20 +213,29 @@ public class LogHandler {
             } else {
                 trace = ex.getStackTrace();
             }
-            sb.append("\n\t");
-            List<String> temp = new ArrayList<>();
-            for (int i = trace.length - 1; i >= 0; i--) {
-                if (trace[i].getClassName().equals(ManagementController.class.getCanonicalName())) {
-                    for (int j = i; j >= 0; j--) {
-                        temp.add(trace[j].getClassName() + " at(" + trace[j].getMethodName() + ":" + trace[j].getLineNumber() + ")");
-                    }
-                    break;
-                }
+            sb.append("\n\tStack trace:");
+            for (StackTraceElement element : trace) {
+                sb.append("\n\t\t");
+                sb.append(element.getClassName())
+                        .append(" at (")
+                        .append(element.getMethodName())
+                        .append(":")
+                        .append(element.getLineNumber())
+                        .append(")");
             }
-            for (int i = (temp.size() - 1); i >= 0; i--) {
-                sb.append(String.format("%5s", temp.get(i)));
-                sb.append("\n\t");
-            }
+//            List<String> temp = new ArrayList<>();
+//            for (int i = trace.length - 1; i >= 0; i--) {
+//                if (trace[i].getClassName().equals(ManagementController.class.getCanonicalName())) {
+//                    for (int j = i; j >= 0; j--) {
+//                        temp.add(trace[j].getClassName() + " at(" + trace[j].getMethodName() + ":" + trace[j].getLineNumber() + ")");
+//                    }
+//                    break;
+//                }
+//            }
+//            for (int i = (temp.size() - 1); i >= 0; i--) {
+//                sb.append(String.format("%5s", temp.get(i)));
+//                sb.append("\n\t");
+//            }
         }
         //</editor-fold>
 
@@ -292,11 +291,87 @@ public class LogHandler {
             messageTemp += "\n\tTransactionID:" + transactionID;
             messageTemp += "\n\tError:" + message;
             Logger LOG = LogManager.getLogger(object);
-            LOG.fatal(message);
+            LOG.fatal(messageTemp);
         }
     }
     //</editor-fold>
 
+    //<editor-fold defaultstate="collapsed" desc="Using for log the debug of Database into file">
+    /**
+     * Using for log the debug of Database into file
+     *
+     * @param object
+     * @param message
+     */
+    public void logDB(Class object, String message) {
+        if (isShowDatabaseLog()) {
+            Logger LOG = LogManager.getLogger(object);
+            StringBuilder builder = new StringBuilder();
+            builder.append("\n=====DATABASE LOGGER=====\n");
+            builder.append("Class:").append(object.getCanonicalName());
+            builder.append("\n");
+            builder.append("Debug DB:").append(message);
+            LOG.log(Level.getLevel("LOG_DATABASE"), builder.toString());
+        }
+    }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="Using for log the error of request (When user cannot call to server) into file">
+    /**
+     * Using for log the error of request into file
+     *
+     * @param object
+     * @param statusResponse
+     * @param headers
+     * @param url
+     * @param ip
+     * @param body
+     */
+    public void logErrorRequest(
+            Class object,
+            int statusResponse,
+            String headers,
+            String url,
+            String ip,
+            String body) {
+        Logger LOG = LogManager.getLogger(object);
+        StringBuilder builder = new StringBuilder();
+        builder.append("\n=====ERROR REQUEST LOGGER=====\n");
+        builder.append("Class:").append(object.getCanonicalName());
+        builder.append("\n");
+        builder.append("Status response:").append(statusResponse);
+        builder.append("\n");
+        builder.append("URL:").append(url);
+        builder.append("\n");
+        builder.append("IP:").append(ip);
+        builder.append("\n");
+        builder.append("Headers:").append(headers);
+        builder.append("\n");
+        builder.append("Body:").append(body);
+        LOG.log(Level.forName("ERROR_REQUEST", 300), builder.toString());
+    }
+    //</editor-fold>
+
+    //<editor-fold defaultstate="collapsed" desc="Using for log the developer warning into file">
+    /**
+     * Using for log the developer warning into file
+     *
+     * @param object
+     * @param message
+     */
+    public void logDevWarning(
+            Class object,
+            String message) {
+        Logger LOG = LogManager.getLogger(object);
+        StringBuilder builder = new StringBuilder();
+        builder.append("\n=====DEVELOPER WARNING LOGGER=====\n");
+        builder.append("Class:").append(object.getCanonicalName());
+        builder.append("\n");
+        builder.append("Message:").append(message);
+        LOG.log(Level.forName("DEVELOPER_WARNING", 450), builder.toString());
+    }
+
+    //</editor-fold>
     //==========================For LogHandler Core=============================
     public static void showHierarchicalLog(fps_core.utils.LogHandler.HierarchicalLog log) {
         fps_core.utils.LogHandler.showHierarchicalLog(log);

@@ -59,10 +59,10 @@ public class Configuration {
     private boolean showLog4jErrorLog;
     private boolean show4jFatalLog;
     private boolean show4jRequestLog;
+    private boolean showLog4JDatabaseLog;
     
     //For System
     private boolean showPrintStacktrace = true;
-    private boolean showDebug = true;
 
     private String serverTimeType;
 
@@ -239,8 +239,9 @@ public class Configuration {
             showLog4jWarnLog = Boolean.parseBoolean(System.getenv("DTIS_LOG4J_WARN") == null ? prop.getProperty("FPS.log4j.warn", "true") : System.getenv("DTIS_LOG4J_WARN"));
             showLog4jErrorLog = Boolean.parseBoolean(System.getenv("DTIS_LOG4J_ERROR") == null ? prop.getProperty("FPS.log4j.error", "true") : System.getenv("DTIS_LOG4J_ERROR"));
             show4jFatalLog = Boolean.parseBoolean(System.getenv("DTIS_LOG4J_FATAL") == null ? prop.getProperty("FPS.log4j.fatal", "true") : System.getenv("DTIS_LOG4J_FATAL"));
-            show4jRequestLog = Boolean.parseBoolean(System.getenv("DTIS_LOG4J_FATAL") == null ? prop.getProperty("FPS.log4j.request", "true") : System.getenv("DTIS_LOG4J_FATAL"));
-
+            show4jRequestLog = Boolean.parseBoolean(System.getenv("DTIS_LOG4J_REQUEST") == null ? prop.getProperty("FPS.log4j.request", "true") : System.getenv("DTIS_LOG4J_REQUEST"));
+            showLog4JDatabaseLog = Boolean.parseBoolean(System.getenv("DTIS_LOG4J_DATABASE_LOG") == null ? prop.getProperty("FPS.log4j.database.log", "true") : System.getenv("DTIS_LOG4J_DATABASE_LOG"));
+            
             serverTimeType = prop.getProperty("server.time.type") == null ? System.getenv("SERVER_TIME_TYPE") : prop.getProperty("server.time.type");
             urlFMS = prop.getProperty("FMS.url");
             try {
@@ -255,12 +256,6 @@ public class Configuration {
                             return "false";
                         })
                 );
-                showDebug = Boolean.parseBoolean(
-                        Optional.ofNullable(
-                                prop.getProperty("FPS.log.print.stacktrace"))
-                                .orElseGet(()->{
-                                    return "true";
-                                }));
             } catch (Exception e) {
             }
 
@@ -435,10 +430,10 @@ public class Configuration {
         this.showPrintStacktrace = showPrintStacktrace;
     }
 
-    public boolean isShowDebug() {
-        return showDebug;
+    public boolean isShowDatabaseLog() {
+        return showLog4JDatabaseLog;
     }
-    
+
     public static void main(String[] args) throws Exception{
         System.out.println(Optional.ofNullable(null).orElseGet(()->{return "false";}));
     }

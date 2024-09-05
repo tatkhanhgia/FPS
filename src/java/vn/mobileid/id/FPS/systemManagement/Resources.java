@@ -26,15 +26,9 @@ public class Resources extends HttpServlet {
 
     @Override
     public void init() {
-        LogHandler.getInstance().info(Resources.class, "======Load Configuration======");
         Configuration.getInstance();
-        LogHandler.getInstance().info(Resources.class, "======Load Configuration successfully======");
-        LogHandler.getInstance().info(Resources.class, "======Load Resource======");
         Resources.init_();
-        LogHandler.getInstance().info(Resources.class, "======Load Resource Sucessfully======");
-        LogHandler.getInstance().info(Resources.class, "======Load Scheduled Thread======");
         ScheduledThreadManagement.getInstance();
-        LogHandler.getInstance().info(Resources.class, "======Load Scheduled Thread Sucessfully======");
     }
 
     private static volatile Logger LOG = LogManager.getLogger(Resources.class);
@@ -43,8 +37,7 @@ public class Resources extends HttpServlet {
     private static volatile HashMap<String, FieldType> fieldTypes = new HashMap<>();
 
     public static synchronized void init_() {
-//        LogHandler.getInstance().debug(Resources.class, "=======Initial Resources======");
-        System.out.println("=======Initial Resources======");
+        LogHandler.getInstance().debug(Resources.class, "=======Initial Resources======");
         try {
             if (responseCodes.isEmpty()) {
                 reloadResponseCodes();
@@ -58,8 +51,7 @@ public class Resources extends HttpServlet {
         } catch (Exception ex) {
             LogHandler.getInstance().error(Resources.class, "", ex);
         }
-//        LogHandler.getInstance().debug(Resources.class, "======Init sucessfully======");
-        System.out.println("======Init sucessfully======");
+        LogHandler.getInstance().debug(Resources.class, "======Initial Resources sucessfully======");
     }
 
     public static void reloadResponseCodes() throws Exception {

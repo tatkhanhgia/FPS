@@ -1,89 +1,113 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="ALL">
-	<CustomLevels>
-		<CustomLevel name="REQUEST" intLevel="350" />
-	</CustomLevels>	
+    <CustomLevels>
+        <CustomLevel name="DEVELOPER_WARNING" intLevel="450" />
+    </CustomLevels>	
+    
+    <CustomLevels>
+        <CustomLevel name="LOG_DATABASE" intLevel="400" />
+    </CustomLevels>	
+        
+    <CustomLevels>
+        <CustomLevel name="REQUEST" intLevel="350" />
+    </CustomLevels>	
 	
+    <CustomLevels>
+        <CustomLevel name="ERROR_REQUEST" intLevel="300" />
+    </CustomLevels>	
     <Appenders>
         <Console name="LogToConsole" target="SYSTEM_OUT">
             <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
         </Console>
-		     
 		
-		<RollingFile name="LogToFatalfile" fileName="/opt/wildfly-21/fps/log/fatal/FPS-FATAL.log"
-                    filePattern="/opt/wildfly-21-21/fps/log/fatal/FPS-FATAL.%d{yyyy-MM-dd-HH}.log">
-			<LevelRangeFilter minLevel="FATAL" maxLevel="FATAL" onMatch="ACCEPT" onMismatch="DENY"/>
-			<PatternLayout>
-				<Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
-			</PatternLayout>
-			<Policies>
-				<TimeBasedTriggeringPolicy interval="1" modulate="true" />
-				<SizeBasedTriggeringPolicy size="10 MB"/>
-			</Policies>
-		</RollingFile> 
+        <RollingFile name="LogToFatalfile" fileName="/opt/wildfly-21/fps/log/fatal/FPS-FATAL.log"
+                     filePattern="/opt/wildfly-21/fps/log/fatal/FPS-FATAL.%d{yyyy-MM-dd-HH}.log">
+            <LevelRangeFilter minLevel="FATAL" maxLevel="FATAL" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout>
+                <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+        </RollingFile> 
 		
-		<RollingFile name="LogToDEBUGfile" fileName="/opt/wildfly-21/fps/log/debug/FPS-DEBUG.log"
-                    filePattern="/opt/wildfly-21/fps/log/debug/FPS-DEBUG.%d{yyyy-MM-dd-HH}.log">
-			<LevelRangeFilter minLevel="DEBUG" maxLevel="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
-			<PatternLayout>
-				<Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
-			</PatternLayout>
-			<Policies>
-				<TimeBasedTriggeringPolicy interval="1" modulate="true" />
-				<SizeBasedTriggeringPolicy size="10 MB"/>
-			</Policies>
-		</RollingFile>
+        <RollingFile name="LogToDEBUGfile" fileName="/opt/wildfly-21/fps/log/debug/FPS-DEBUG.log"
+                     filePattern="/opt/wildfly-21/fps/log/debug/FPS-DEBUG.%d{yyyy-MM-dd-HH}.log">
+            <LevelRangeFilter minLevel="DEBUG" maxLevel="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout>
+                <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+        </RollingFile>
 		
-		<RollingFile name="LogToERRORfile" fileName="/opt/wildfly-21/fps/log/error/FPS-ERROR.log"
-                    filePattern="/opt/wildfly-21/fps/log/error/FPS-ERROR.%d{yyyy-MM-dd-HH}.log">
-			<LevelRangeFilter minLevel="ERROR" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
-			<PatternLayout>
-				<Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
-			</PatternLayout>
-			<Policies>
-				<TimeBasedTriggeringPolicy interval="1" modulate="true" />
-				<SizeBasedTriggeringPolicy size="10 MB"/>
-			</Policies>
-		</RollingFile>
+        <RollingFile name="LogToERRORfile" fileName="/opt/wildfly-21/fps/log/error/FPS-ERROR.log"
+                     filePattern="/opt/wildfly-21/fps/log/error/FPS-ERROR.%d{yyyy-MM-dd-HH}.log">
+            <LevelRangeFilter minLevel="ERROR" maxLevel="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout>
+                <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+        </RollingFile>
 		
-		<RollingFile name="LogToRequestfile" fileName="/opt/wildfly-21/fps/log/request/FPS-REQUEST.log"
-                    filePattern="/opt/wildfly-21/fps/log/request/FPS-REQUEST.%d{yyyy-MM-dd-HH}.log">
-			<LevelRangeFilter minLevel="REQUEST" maxLevel="REQUEST" onMatch="ACCEPT" onMismatch="DENY"/>
-			<PatternLayout>
-				<Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
-			</PatternLayout>
-			<Policies>
-				<TimeBasedTriggeringPolicy interval="1" modulate="true" />
-				<SizeBasedTriggeringPolicy size="10 MB"/>
-			</Policies>
-		</RollingFile>
+        <RollingFile name="LogToRequestfile" fileName="/opt/wildfly-21/fps/log/request/FPS-REQUEST.log"
+                     filePattern="/opt/wildfly-21/fps/log/request/FPS-REQUEST.%d{yyyy-MM-dd-HH}.log">
+            <LevelRangeFilter minLevel="REQUEST" maxLevel="REQUEST" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout>
+                <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+        </RollingFile>
 		
+        <RollingFile name="LogToDatabasefile" fileName="/opt/wildfly-21/fps/log/databaseDebug/FPS-DATABASE.log"
+                             filePattern="/opt/wildfly-21/fps/log/databaseDebug/FPS-DATABASE.%d{yyyy-MM-dd-HH}.log">
+            <LevelRangeFilter minLevel="LOG_DATABASE" maxLevel="LOG_DATABASE" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout>
+                <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+        </RollingFile> 
     </Appenders>
     <Loggers>
         <!-- avoid duplicated logs with additivity=false -->
-        <Logger name="vn.mobileid.id.FPS" additivity="false" level="ALL">            
-			<AppenderRef ref="LogToDEBUGfile"/>
-			<AppenderRef ref="LogToERRORfile"/>		
-			<AppenderRef ref="LogToRequestfile"/>	
-			<AppenderRef ref="LogToFatalfile"/>				
+        <Logger name="vn.mobileid.id.FPS" level="ALL">            
+            <AppenderRef ref="LogToDEBUGfile"/>
+            <AppenderRef ref="LogToERRORfile"/>		
+            <AppenderRef ref="LogToRequestfile"/>	
+            <AppenderRef ref="LogToFatalfile"/>				
+            <AppenderRef ref="LogToDatabasefile"/>				
         </Logger>			
 		
-		<Logger name="vn.mobileid.id.general.database" additivity="false" level="ALL">           
-			<AppenderRef ref="LogToDEBUGfile"/>
-			<AppenderRef ref="LogToERRORfile"/>		
-			<AppenderRef ref="LogToRequestfile"/>	
-			<AppenderRef ref="LogToFatalfile"/>				
+        <Logger name="vn.mobileid.id.general.database" level="ALL">           
+            <AppenderRef ref="LogToDEBUGfile"/>
+            <AppenderRef ref="LogToERRORfile"/>		
+            <AppenderRef ref="LogToRequestfile"/>	
+            <AppenderRef ref="LogToFatalfile"/>	
+            <AppenderRef ref="LogToDatabasefile"/>				
         </Logger>
 		
-		<Logger name="vn.mobileid.id.general.api" additivity="false" level="ALL">            
-			<AppenderRef ref="LogToDEBUGfile"/>
-			<AppenderRef ref="LogToERRORfile"/>		
-			<AppenderRef ref="LogToRequestfile"/>					
-			<AppenderRef ref="LogToFatalfile"/>	
+        <Logger name="vn.mobileid.id.general.api" level="ALL">            
+            <AppenderRef ref="LogToDEBUGfile"/>
+            <AppenderRef ref="LogToERRORfile"/>		
+            <AppenderRef ref="LogToRequestfile"/>					
+            <AppenderRef ref="LogToFatalfile"/>	
+            <AppenderRef ref="LogToDatabasefile"/>	
         </Logger>			
 		
         <Root level="ALL">            
-			<AppenderRef ref="LogToConsole"/>
+            <AppenderRef ref="LogToConsole"/>
         </Root>		
     </Loggers>
 </Configuration>

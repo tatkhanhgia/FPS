@@ -939,7 +939,7 @@ public class DocumentSummary {
 
         //<editor-fold defaultstate="collapsed" desc="Process Checkbox Form Field - Version2 nhen">
         if (!Utils.isNullOrEmpty(processRequest.getCheckboxV2())) {
-            response = new ProcessingCheckboxFormField(IVersion.Version.V2).processCheckboxField(
+            response = new ProcessingCheckboxFormField(IVersion.Version.V3).processCheckboxField(
                     Utils.getIdFromURL(request.getRequestURI()),
                     user,
                     processRequest.getCheckboxV2(),

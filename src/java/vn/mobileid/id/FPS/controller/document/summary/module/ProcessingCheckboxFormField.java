@@ -201,7 +201,7 @@ public class ProcessingCheckboxFormField extends IVersion {
             Boolean value) throws Exception {
         //Read details
         BasicFieldAttribute checkboxField = null;
-        if(this.getVersion().equals(Version.V2)){
+        if(this.getVersion().equals(Version.V2) || this.getVersion().equals(Version.V3)){
             checkboxField = new CheckBoxFieldAttributeV2();
         } else {
             checkboxField = new CheckBoxFieldAttribute();

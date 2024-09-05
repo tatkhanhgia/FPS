@@ -479,6 +479,9 @@ class CheckboxProcessing extends IVersion implements IModuleProcessing, IDocumen
             case V2: {
                 return DocumentUtils_itext7.createCheckBoxFormField_i7V2(pdf, (CheckBoxFieldAttributeV2)field, transactionId);
             }
+            case V3: {
+                return DocumentUtils_itext7.createCheckBoxFormField_i7V3(pdf, (CheckBoxFieldAttributeV2)field, transactionId);
+            }
             default: {
                 return DocumentUtils_itext7.createCheckBoxFormField_i7(pdf, (CheckBoxFieldAttribute)field, transactionId);
             }

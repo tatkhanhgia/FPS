@@ -62,7 +62,7 @@ public class ScheduledThreadManagement {
     public void initial() {
         try{
         //<editor-fold defaultstate="collapsed" desc="Initial">
-        System.out.println("\n=====Start Initial Scheduled Task=====");
+        LogHandler.getInstance().debug(ScheduledThreadManagement.class, "=====Start Initial Scheduled Task=====");
         InternalResponse getAPILogs = new UtilsSummaryInternal().getAPILogs();
         if (!getAPILogs.isValid()) {
             LogHandler.getInstance().error(ScheduledThreadManagement.class,
@@ -86,7 +86,7 @@ public class ScheduledThreadManagement {
         }
         //</editor-fold>
 
-        System.out.println("\n=====Scheduled Task===== => Create thread delete File Cache after:" + (timestamp - System.currentTimeMillis()) + " second");
+         LogHandler.getInstance().debug(ScheduledThreadManagement.class, "=====Scheduled Task===== => Create thread delete File Cache after:" + (timestamp - System.currentTimeMillis()) + " second");
         getThread().schedule(generateTaskDeleteFileCache(), timestamp - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
         } catch(RuntimeException ex){
             autoReloadSheduledWhenHaveTheProblem(generateInitial(), 1);
@@ -122,8 +122,8 @@ public class ScheduledThreadManagement {
                         }
                     }
 //                System.out.println("=======");
-                    System.out.println("\n=====Scheduled Task======> Delete file cache successfull");
-                    System.out.println("\n=====Scheduled Task======> Start create schedule for initial after " + nextTimeInSecond + " second");
+                    LogHandler.getInstance().debug(ScheduledThreadManagement.class,"=====Scheduled Task======> Delete file cache successfull");
+                    LogHandler.getInstance().debug(ScheduledThreadManagement.class,"=====Scheduled Task======> Start create schedule for initial after " + nextTimeInSecond + " second");
                     getThread().schedule(new TaskV2(null, null) {
                         @Override
                         public Object call() {
@@ -144,7 +144,7 @@ public class ScheduledThreadManagement {
         return new TaskV2(null, null) {
             @Override
             public Object call() throws Exception {
-                System.out.println("\n=====Start Initial Scheduled Task=====");
+                LogHandler.getInstance().debug(ScheduledThreadManagement.class,"=====Start Initial Scheduled Task=====");
                 InternalResponse getAPILogs = new UtilsSummaryInternal().getAPILogs();
                 if (!getAPILogs.isValid()) {
                     LogHandler.getInstance().error(ScheduledThreadManagement.class,
@@ -168,7 +168,7 @@ public class ScheduledThreadManagement {
                 }
                 //</editor-fold>
 
-                System.out.println("\n=====Scheduled Task===== => Create thread delete File Cache after:" + (timestamp - System.currentTimeMillis()) + " second");
+                LogHandler.getInstance().debug(ScheduledThreadManagement.class,"=====Scheduled Task===== => Create thread delete File Cache after:" + (timestamp - System.currentTimeMillis()) + " second");
                 getThread().schedule(generateTaskDeleteFileCache(), timestamp - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
                 return null;
             }
