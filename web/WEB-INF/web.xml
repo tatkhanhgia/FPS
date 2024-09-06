@@ -19,14 +19,14 @@
     <!--END REST-->
     
     <!--REST-->
-    <servlet>
+<!--    <servlet>
         <servlet-name>AnhThuController</servlet-name>
         <servlet-class>vn.mobileid.id.FPS.controller.AnhThuController</servlet-class>
-    </servlet>
-    <servlet-mapping>
+    </servlet>-->
+<!--    <servlet-mapping>
         <servlet-name>AnhThuController</servlet-name>
         <url-pattern>/xinloianhthu</url-pattern>
-    </servlet-mapping>
+    </servlet-mapping>-->
     
     <servlet>
         <servlet-name>ManagementController</servlet-name>

@@ -226,6 +226,7 @@ public class FMS {
             String transactionId
     )throws Exception{
         FMSClient client = new FMSClient();
+        client.setURL(Configuration.getInstance().getUrlFMS());
         client.setUUID(uuid);
         if(Configuration.getInstance().IsGTK_Dev()){
             client.setGTK_Dev();
@@ -269,6 +270,7 @@ public class FMS {
             String transactionId
     )throws Exception{
         FMSClient client = new FMSClient();
+        client.setURL(Configuration.getInstance().getUrlFMS());
         client.setUUID(uuid);
         try{
             client.deleteFile();
@@ -310,6 +312,7 @@ public class FMS {
             String transactionId
     )throws Exception{
         FMSClient client = new FMSClient();
+        client.setURL(Configuration.getInstance().getUrlFMS());
         client.setUUID(uuid);
         client.setTempFile(isTemp);
         try{
