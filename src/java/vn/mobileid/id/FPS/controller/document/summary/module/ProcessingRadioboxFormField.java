@@ -199,7 +199,7 @@ public class ProcessingRadioboxFormField extends IVersion {
             Boolean value) throws Exception {
         //Read details
         BasicFieldAttribute radioBox = null;
-        if (!this.getVersion().equals(Version.V2)||!this.getVersion().equals(Version.V3)) {
+        if (this.getVersion().equals(Version.V1)) {
             radioBox = new RadioFieldAttribute();
             radioBox = MyServices.getJsonService().readValue(fieldData.getDetailValue(), RadioFieldAttribute.class);
         } else {
