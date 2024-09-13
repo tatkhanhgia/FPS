@@ -348,7 +348,7 @@ public class LogHandler {
         builder.append("Headers:").append(headers);
         builder.append("\n");
         builder.append("Body:").append(body);
-        LOG.log(Level.forName("ERROR_REQUEST", 300), builder.toString());
+        LOG.log(Level.getLevel("ERROR_REQUEST"), builder.toString());
     }
     //</editor-fold>
 
@@ -368,7 +368,7 @@ public class LogHandler {
         builder.append("Class:").append(object.getCanonicalName());
         builder.append("\n");
         builder.append("Message:").append(message);
-        LOG.log(Level.forName("DEVELOPER_WARNING", 450), builder.toString());
+        LOG.log(Level.getLevel("DEVELOPER_WARNING"), builder.toString());
     }
 
     //</editor-fold>

@@ -15,15 +15,24 @@ import vn.mobileid.id.FPS.object.InternalResponse;
  * @author GiaTK
  */
 public class PreCheckDocument {
+
     //<editor-fold defaultstate="collapsed" desc="Pre check Document">
-    public static InternalResponse preCheckDocument(byte[] pdf){
-        List<SignatureFieldAttribute> lists = DocumentUtils_itext7.getAllSignatures(pdf);
-        if(lists == null || lists.isEmpty()){
+    public static InternalResponse preCheckDocument(byte[] pdf) {
+        List<SignatureFieldAttribute> lists = null;
+        try {
+            lists = DocumentUtils_itext7.getAllSignatures(pdf);
+        } catch (Exception ex) {
             return new InternalResponse(
                     A_FPSConstant.HTTP_CODE_BAD_REQUEST,
                     ""
             );
-        } 
+        }
+        if (lists == null || lists.isEmpty()) {
+            return new InternalResponse(
+                    A_FPSConstant.HTTP_CODE_BAD_REQUEST,
+                    ""
+            );
+        }
         return new InternalResponse(
                 A_FPSConstant.HTTP_CODE_SUCCESS,
                 ""

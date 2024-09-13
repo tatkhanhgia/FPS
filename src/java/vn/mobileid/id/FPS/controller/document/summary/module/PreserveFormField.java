@@ -56,7 +56,7 @@ public class PreserveFormField {
             lists = DocumentUtils_itext7.getAllSignatures(data);
         } catch (com.itextpdf.kernel.exceptions.PdfException iTextException) {
             return CreateInternalResponse.createBadRequestInternalResponse(
-                    A_FPSConstant.CODE_ITEXT, 
+                    A_FPSConstant.CODE_ITEXT,
                     A_FPSConstant.SUBCODE_THE_FILE_HAS_SOME_ERROR).setException(iTextException);
         }
         List<ImageQRCode> codes = MyServices.getQRDetectionService(InputType.PDF).scanDocument(data);
@@ -217,7 +217,7 @@ public class PreserveFormField {
     }
     //</editor-fold>
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Exception {
         List<SignatureFieldAttribute> signatures = DocumentUtils_itext7.getAllSignatures(Files.readAllBytes(Paths.get("C:\\Users\\Admin\\Downloads\\response.pdf")));
         for (SignatureFieldAttribute signature : signatures) {
             System.out.println("Name:" + signature.getFieldName());
